@@ -20,10 +20,15 @@ Cineforge uses an authenticated Telegram **User Account** via Telethon (MTProto)
    - **RFC 7233 HTTP Range Endpoint (`206 Partial Content`)**: Enables browser video seeking directly at non-zero offsets without loading preceding bytes.
    - **Request Deduplication & Cancellation**: Protects against duplicate chunk fetches and cleans up background workers upon client disconnect.
 5. **Media Probing, Compatibility & Playback Sustainability (Milestone B7)**:
-   - **`MediaProbeService`**: Inspects container format, streams, and codecs using `ffprobe` (or graceful Telegram metadata fallback if ffprobe is absent).
+   - **`MediaProbeService`**: Inspects container format, streams, and codecs using bundled binary inspection.
    - **HTML5 Browser Compatibility Assessment**: Reasoned evaluation of container and codec browser playability.
    - **Playback Sustainability Analysis**: Compares measured source throughput against media bitrate with safety margin.
-   - **Buffer Capacity & Strategy Recommendation**: Computes max buffer hold time and recommends optimal buffering strategy (`realtime`, `conservative_prefetch`, `aggressive_prefetch`, or `unsustainable`).
+   - **Buffer Capacity & Strategy Recommendation**: Computes max buffer hold time and recommends optimal buffering strategy.
+6. **Playback Viability & Buffering Layer (Milestone B8)**:
+   - **`ThroughputEstimator`**: Sliding window estimator of real chunk download speeds.
+   - **`BufferHealthEngine`**: State machine (`HEALTHY`, `LOW`, `CRITICAL`, `STALLED`), playback drain rate, and time-to-stall calculations.
+   - **Adaptive Prefetch Decision**: Dynamically scales prefetch chunks (0 to 4) based on buffer health and pauses when buffer is saturated.
+   - **Buffering Metrics Endpoint**: `GET /api/media/session/{session_id}/buffering`.
 
 ---
 
@@ -56,19 +61,6 @@ pip install -r requirements.txt
 Copy-Item .env.example .env
 ```
 
-Key configuration variables:
-- `TELEGRAM_API_ID`: Your API ID from [my.telegram.org](https://my.telegram.org)
-- `TELEGRAM_API_HASH`: Your API Hash from [my.telegram.org](https://my.telegram.org)
-- `TELEGRAM_SESSION_NAME`: Defaults to `cineforge_session`
-- `TELEGRAM_BOT_USERNAME`: Third-party movie search bot username (e.g. `Spoty_xbot`)
-- `TELEGRAM_CHUNK_SIZE`: 524288 (512 KB, MTProto standard max request chunk)
-- `MEDIA_MAX_BUFFER_MB`: 16 (16 MB LRU cache limit per streaming session)
-- `MEDIA_SESSION_TIMEOUT`: 600 (10 minutes inactivity timeout)
-- `MEDIA_PREFETCH_CHUNKS_AHEAD`: 2 (Prefetch 2 chunks = 1 MB ahead)
-- `FFPROBE_PATH`: `ffprobe` (or path to ffprobe executable)
-- `MEDIA_SUSTAINABILITY_MARGIN`: 1.15
-- `MEASURED_SOURCE_THROUGHPUT_BPS`: 1050000
-
 ---
 
 ## Telegram Authentication Workflow
@@ -95,7 +87,17 @@ uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 
 ---
 
-## Milestone B7: Media Probing & Compatibility Testing
+## Running Automated Tests
+
+Run the complete unittest & regression test suite:
+
+```powershell
+python -m unittest discover -s tests -p "test_*.py"
+```
+
+---
+
+## Milestone B8: Live Testing Commands
 
 ### 1. Create a Streaming Session
 ```powershell
@@ -106,30 +108,28 @@ Write-Host "Active Session ID: $sessionId" -ForegroundColor Green
 
 ---
 
-### 2. Inspect Probed Metadata, Compatibility & Sustainability
+### 2. View Real-Time Buffering Health & Viability Metrics
+```powershell
+Invoke-RestMethod -Uri "http://127.0.0.1:8000/api/media/session/$sessionId/buffering" | ConvertTo-Json -Depth 8
+```
+
+---
+
+### 3. View Probed Metadata & Compatibility (B7)
 ```powershell
 Invoke-RestMethod -Uri "http://127.0.0.1:8000/api/media/session/$sessionId/metadata" | ConvertTo-Json -Depth 8
 ```
 
 ---
 
-### 3. B6 HTTP Range Regression Verification
-
-#### Test A: 1 MB Range (Expect 206 and 1,048,576 Bytes)
+### 4. Stream Byte Range (B6 Regression)
 ```powershell
 curl.exe -D test.headers -H "Range: bytes=0-1048575" "http://127.0.0.1:8000/api/media/stream/$sessionId" -o test_1mb.part
 (Get-Item test_1mb.part).Length
 ```
 *(Must output `1048576`)*.
 
-#### Test B: Non-Zero 4 MB Seek Range (Expect 206 and 4,194,304 Bytes)
-```powershell
-curl.exe -D seek.headers -H "Range: bytes=524288000-528482303" "http://127.0.0.1:8000/api/media/stream/$sessionId" -o seek_4mb.part
-(Get-Item seek_4mb.part).Length
-```
-*(Must output `4194304`)*.
-
 ---
 
-### 4. Interactive Swagger Documentation
+### 5. Interactive Swagger Documentation
 - **URL**: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)

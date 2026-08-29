@@ -5,6 +5,7 @@ from typing import Optional
 from fastapi import APIRouter, Header, HTTPException, Query, Request, Response, status
 from fastapi.responses import StreamingResponse
 
+from app.models.buffering import SessionBufferingMetrics
 from app.models.probe import SessionMetadataResponse
 from app.models.stream import (
     CreateMediaSessionRequest,
@@ -93,6 +94,24 @@ async def get_session_metadata(session_id: str) -> SessionMetadataResponse:
         )
 
 
+@router.get(
+    "/session/{session_id}/buffering",
+    response_model=SessionBufferingMetrics,
+    summary="[Milestone B8] Get Real-Time Buffer Health, Drain Rate & Playback Viability",
+)
+async def get_session_buffering_metrics(session_id: str) -> SessionBufferingMetrics:
+    """Returns real-time buffer health, drain rate, time-to-stall, and adaptive prefetch decisions."""
+    clean_id = session_id.strip()
+    session = await session_manager.get_session(clean_id)
+    if not session:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Streaming session '{clean_id}' not found or expired. Please create a session first via POST /api/media/session.",
+        )
+
+    return session.get_buffering_metrics()
+
+
 @router.delete(
     "/session/{session_id}",
     summary="Explicitly Close Streaming Session and Free Memory",
@@ -134,7 +153,7 @@ async def stream_media(
         match = RANGE_HEADER_PATTERN.match(range_header.strip())
         if not match:
             raise HTTPException(
-                status_code=status.HTTP_416_REQUESTED_RANGE_NOT_SATISFIABLE,
+                status_code=status.HTTP_416_RANGE_NOT_SATISFIABLE,
                 detail=f"Invalid Range header format: '{range_header}'. Expected 'bytes=start-end'.",
                 headers={"Content-Range": f"bytes */{file_size}"},
             )
@@ -143,7 +162,7 @@ async def stream_media(
 
         if raw_start == "" and raw_end == "":
             raise HTTPException(
-                status_code=status.HTTP_416_REQUESTED_RANGE_NOT_SATISFIABLE,
+                status_code=status.HTTP_416_RANGE_NOT_SATISFIABLE,
                 detail="Empty byte range requested.",
                 headers={"Content-Range": f"bytes */{file_size}"},
             )
@@ -164,7 +183,7 @@ async def stream_media(
         # Validate range boundary bounds
         if start < 0 or start >= file_size or start > end:
             raise HTTPException(
-                status_code=status.HTTP_416_REQUESTED_RANGE_NOT_SATISFIABLE,
+                status_code=status.HTTP_416_RANGE_NOT_SATISFIABLE,
                 detail=f"Requested range ({start}-{end}) is not satisfiable for file size ({file_size}).",
                 headers={"Content-Range": f"bytes */{file_size}"},
             )

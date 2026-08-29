@@ -1,4 +1,9 @@
 """Models and Schemas package for Cineforge."""
+from app.models.buffering import (
+    BufferHealthState,
+    PrefetchAction,
+    SessionBufferingMetrics,
+)
 from app.models.delivery import (
     DeepLinkInfo,
     MediaMetadata,
@@ -47,6 +52,7 @@ __all__ = [
     "B52DualComparisonResponse",
     "BrowserCompatibilityReport",
     "BufferAnalysisReport",
+    "BufferHealthState",
     "ButtonInfo",
     "CreateMediaSessionRequest",
     "CreateMediaSessionResponse",
@@ -62,11 +68,13 @@ __all__ = [
     "ParallelWorkersTest",
     "PerformanceDiagnosticResponse",
     "PlaybackSustainabilityReport",
+    "PrefetchAction",
     "ProbedMediaMetadata",
     "SearchResponse",
     "SearchResultItem",
     "SelectedResultRequest",
     "SelectedResultResponse",
+    "SessionBufferingMetrics",
     "SessionMetadataResponse",
     "StreamRangeBenchmarkResponse",
     "TelegramDebugSearchResponse",

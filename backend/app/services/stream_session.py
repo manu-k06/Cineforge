@@ -6,7 +6,9 @@ import uuid
 from typing import Any, AsyncIterator, Dict, List, Optional
 
 from app.config import settings
+from app.models.buffering import SessionBufferingMetrics
 from app.models.stream import CreateMediaSessionResponse, MediaSessionMetrics
+from app.services.buffering import ThroughputEstimator, buffering_engine
 from app.services.media_reader import TelegramMediaReader
 
 logger = logging.getLogger("cineforge.stream_session")
@@ -86,6 +88,9 @@ class MediaStreamSession:
         self.last_accessed_at = time.time()
         self.total_bytes_served = 0
         self.last_requested_range: Optional[str] = None
+        self.throughput_estimator = ThroughputEstimator()
+        self.cached_bitrate_bps: Optional[int] = None
+        self._cached_metadata_response: Optional[Any] = None
         self._in_flight_fetches: Dict[int, asyncio.Future[bytes]] = {}
         self._prefetch_task: Optional[asyncio.Task] = None
         self._lock = asyncio.Lock()
@@ -109,7 +114,7 @@ class MediaStreamSession:
         return (time.time() - self.last_accessed_at) > timeout_seconds
 
     async def get_chunk(self, chunk_idx: int) -> bytes:
-        """Get chunk from LRU cache or fetch from Telegram with request deduplication."""
+        """Get chunk from LRU cache or fetch from Telegram with request deduplication and throughput tracking."""
         self.touch()
 
         # 1. Fast path: Memory Cache Hit
@@ -146,11 +151,15 @@ class MediaStreamSession:
             chunk_data = await self.reader.read_range(start=start_byte, end=end_byte)
             elapsed = time.perf_counter() - t0
 
+            # Record download measurement for dynamic throughput estimation
+            self.throughput_estimator.record_sample(len(chunk_data), elapsed)
+
             logger.info(
-                "Telegram fetch completed for chunk %d (%d bytes in %.2fs) [session=%s]",
+                "Telegram fetch completed for chunk %d (%d bytes in %.2fs, est_speed=%sbps) [session=%s]",
                 chunk_idx,
                 len(chunk_data),
                 elapsed,
+                self.throughput_estimator.get_estimated_throughput_bps(),
                 self.session_id[:8],
             )
 
@@ -164,9 +173,38 @@ class MediaStreamSession:
             async with self._lock:
                 self._in_flight_fetches.pop(chunk_idx, None)
 
+    def get_buffering_metrics(self) -> SessionBufferingMetrics:
+        """Return dynamic playback viability and buffer health metrics."""
+        bitrate = self.cached_bitrate_bps
+        if not bitrate:
+            meta = self.reader.get_video_metadata()
+            if meta.duration_seconds and meta.duration_seconds > 0:
+                bitrate = int((self.file_size * 8) / meta.duration_seconds)
+                self.cached_bitrate_bps = bitrate
+
+        return buffering_engine.evaluate_buffering(
+            session_id=self.session_id,
+            downloaded_bytes=self.throughput_estimator.total_downloaded_bytes,
+            buffered_bytes=self.cache.cached_bytes,
+            max_buffer_bytes=self.cache.max_bytes,
+            download_throughput_bps=self.throughput_estimator.get_estimated_throughput_bps(),
+            playback_bitrate_bps=bitrate,
+        )
+
     def trigger_adaptive_prefetch(self, last_chunk_idx: int) -> None:
-        """Trigger background prefetching of the next chunks ahead of current playhead."""
-        num_ahead = settings.MEDIA_PREFETCH_CHUNKS_AHEAD
+        """Trigger background prefetching of the next chunks ahead of current playhead using dynamic buffering engine."""
+        buff_metrics = self.get_buffering_metrics()
+
+        if not buff_metrics.prefetch_recommended or buff_metrics.recommended_prefetch_chunks <= 0:
+            logger.debug(
+                "Adaptive prefetch skipped: action=%s, health=%s [session=%s]",
+                buff_metrics.prefetch_action,
+                buff_metrics.buffer_health,
+                self.session_id[:8],
+            )
+            return
+
+        num_ahead = buff_metrics.recommended_prefetch_chunks
         total_chunks = (self.file_size + self.chunk_size - 1) // self.chunk_size
 
         chunks_to_prefetch = []
