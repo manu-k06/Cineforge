@@ -537,12 +537,12 @@ class MediaProbeService:
         # Fetch initial chunks (chunk 0 + chunk 1 = 1 MB) into session cache for probing
         sample_bytes = session.cache.get(0)
         if not sample_bytes:
-            sample_bytes = await session.fetch_chunk(0)
+            sample_bytes = await session.get_chunk(0)
 
         chunk1 = session.cache.get(1)
         if not chunk1:
             try:
-                chunk1 = await session.fetch_chunk(1)
+                chunk1 = await session.get_chunk(1)
             except Exception:
                 chunk1 = b""
 
