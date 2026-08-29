@@ -110,7 +110,7 @@ class MediaProbeService:
                 probe_error="ffprobe/ffmpeg executable not found. Basic attributes extracted from Telegram metadata.",
             )
 
-        # Step 3: Run probe on initial sample bytes (2 MB)
+        # Step 3: Run probe on initial sample bytes (up to 2 MB)
         logger.info("Executing media probe using %s (%s) for '%s'...", binary_type, binary_path, file_name)
         t0 = time.perf_counter()
 
@@ -534,9 +534,20 @@ class MediaProbeService:
         if hasattr(session, "_cached_metadata_response") and session._cached_metadata_response is not None:
             return session._cached_metadata_response
 
-        # Probe media (passing any initial chunk already present in session cache)
-        initial_sample = session.cache.get(0)
-        probed_meta = await self.probe_media(session.reader, sample_bytes=initial_sample)
+        # Fetch initial chunks (chunk 0 + chunk 1 = 1 MB) into session cache for probing
+        sample_bytes = session.cache.get(0)
+        if not sample_bytes:
+            sample_bytes = await session.fetch_chunk(0)
+
+        chunk1 = session.cache.get(1)
+        if not chunk1:
+            try:
+                chunk1 = await session.fetch_chunk(1)
+            except Exception:
+                chunk1 = b""
+
+        combined_sample = sample_bytes + (chunk1 or b"")
+        probed_meta = await self.probe_media(session.reader, sample_bytes=combined_sample)
 
         compatibility = self.evaluate_browser_compatibility(probed_meta)
         sustainability, buffer_rep, strategy = self.evaluate_playback_sustainability(
