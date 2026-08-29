@@ -1,0 +1,44 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Environment variables & secrets (CRITICAL: Never commit secrets)
+.env
+*.env
+!.env.example
+
+# Telegram / Telethon user sessions & sqlite journals
+*.session
+*.session-journal
+
+# Downloaded test parts / video segments
+*.part
+*.mkv
+*.mp4
+*.headers
+
+# Node / Frontend dependencies (for future React milestone)
+node_modules/
+dist/
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Operating System files
+Thumbs.db
+Desktop.ini
+.DS_Store
