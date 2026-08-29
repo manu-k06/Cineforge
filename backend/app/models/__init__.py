@@ -22,6 +22,13 @@ from app.models.media import (
     ParallelWorkersTest,
     PerformanceDiagnosticResponse,
 )
+from app.models.probe import (
+    BrowserCompatibilityReport,
+    BufferAnalysisReport,
+    PlaybackSustainabilityReport,
+    ProbedMediaMetadata,
+    SessionMetadataResponse,
+)
 from app.models.search import (
     ButtonInfo,
     SearchResponse,
@@ -38,6 +45,8 @@ from app.models.stream import (
 __all__ = [
     "B52DiagnosticReport",
     "B52DualComparisonResponse",
+    "BrowserCompatibilityReport",
+    "BufferAnalysisReport",
     "ButtonInfo",
     "CreateMediaSessionRequest",
     "CreateMediaSessionResponse",
@@ -52,10 +61,13 @@ __all__ = [
     "ParallelWorkerItem",
     "ParallelWorkersTest",
     "PerformanceDiagnosticResponse",
+    "PlaybackSustainabilityReport",
+    "ProbedMediaMetadata",
     "SearchResponse",
     "SearchResultItem",
     "SelectedResultRequest",
     "SelectedResultResponse",
+    "SessionMetadataResponse",
     "StreamRangeBenchmarkResponse",
     "TelegramDebugSearchResponse",
     "TestDeliveryRequest",

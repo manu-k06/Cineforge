@@ -45,6 +45,16 @@ class Settings(BaseSettings):
     # Number of sequential chunks to adaptively prefetch ahead of playhead (2 x 512KB = 1 MB)
     MEDIA_PREFETCH_CHUNKS_AHEAD: int = 2
 
+    # Milestone B7: Media Probing, Compatibility & Playback Sustainability
+    # Path to ffprobe executable (or command name on PATH)
+    FFPROBE_PATH: Optional[str] = "ffprobe"
+    # Safety margin multiplier for playback sustainability assessment (e.g. 1.15x)
+    MEDIA_SUSTAINABILITY_MARGIN: float = 1.15
+    # Default baseline measured source throughput in bps from B5/B5.2 benchmarks (~1.05 Mbps / 0.13 MB/s)
+    MEASURED_SOURCE_THROUGHPUT_BPS: int = 1050000
+    # Initial byte span to fetch from Telegram for ffprobe inspection (2 MB)
+    PROBE_INITIAL_BYTES: int = 2097152
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",

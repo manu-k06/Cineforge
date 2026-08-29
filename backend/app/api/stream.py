@@ -5,13 +5,14 @@ from typing import Optional
 from fastapi import APIRouter, Header, HTTPException, Query, Request, Response, status
 from fastapi.responses import StreamingResponse
 
+from app.models.probe import SessionMetadataResponse
 from app.models.stream import (
     CreateMediaSessionRequest,
     CreateMediaSessionResponse,
     MediaSessionMetrics,
     StreamRangeBenchmarkResponse,
 )
-from app.services import media_reader_service, session_manager
+from app.services import media_probe_service, media_reader_service, session_manager
 
 router = APIRouter()
 
@@ -66,6 +67,30 @@ async def get_session_metrics(session_id: str) -> MediaSessionMetrics:
             detail=f"Streaming session '{clean_id}' not found or expired.",
         )
     return session.get_metrics()
+
+
+@router.get(
+    "/session/{session_id}/metadata",
+    response_model=SessionMetadataResponse,
+    summary="[Milestone B7] Get Probed Media Metadata, Browser Compatibility & Playback Sustainability",
+)
+async def get_session_metadata(session_id: str) -> SessionMetadataResponse:
+    """Returns probed container/codecs, HTML5 browser compatibility, sustainability ratio, and buffer strategy."""
+    clean_id = session_id.strip()
+    session = await session_manager.get_session(clean_id)
+    if not session:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Streaming session '{clean_id}' not found or expired. Please create a session first via POST /api/media/session.",
+        )
+
+    try:
+        return await media_probe_service.get_session_metadata(session)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to probe media session metadata: {str(e)}",
+        )
 
 
 @router.delete(

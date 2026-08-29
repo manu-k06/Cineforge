@@ -1,4 +1,5 @@
 """Services package for Cineforge backend."""
+from app.services.media_probe import MediaProbeService, media_probe_service
 from app.services.media_reader import (
     MediaReaderService,
     TelegramMediaReader,
@@ -17,9 +18,11 @@ media_reader_service.telegram_service = telegram_service
 
 __all__ = [
     "MediaChunkCache",
+    "MediaProbeService",
     "MediaReaderService",
     "MediaSessionManager",
     "MediaStreamSession",
+    "media_probe_service",
     "media_reader_service",
     "session_manager",
     "telegram_service",

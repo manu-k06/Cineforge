@@ -19,6 +19,11 @@ Cineforge uses an authenticated Telegram **User Account** via Telethon (MTProto)
    - **Adaptive Byte-Range Prefetching**: Prefetches the next 1–2 chunks ahead of current playhead.
    - **RFC 7233 HTTP Range Endpoint (`206 Partial Content`)**: Enables browser video seeking directly at non-zero offsets without loading preceding bytes.
    - **Request Deduplication & Cancellation**: Protects against duplicate chunk fetches and cleans up background workers upon client disconnect.
+5. **Media Probing, Compatibility & Playback Sustainability (Milestone B7)**:
+   - **`MediaProbeService`**: Inspects container format, streams, and codecs using `ffprobe` (or graceful Telegram metadata fallback if ffprobe is absent).
+   - **HTML5 Browser Compatibility Assessment**: Reasoned evaluation of container and codec browser playability.
+   - **Playback Sustainability Analysis**: Compares measured source throughput against media bitrate with safety margin.
+   - **Buffer Capacity & Strategy Recommendation**: Computes max buffer hold time and recommends optimal buffering strategy (`realtime`, `conservative_prefetch`, `aggressive_prefetch`, or `unsustainable`).
 
 ---
 
@@ -60,6 +65,9 @@ Key configuration variables:
 - `MEDIA_MAX_BUFFER_MB`: 16 (16 MB LRU cache limit per streaming session)
 - `MEDIA_SESSION_TIMEOUT`: 600 (10 minutes inactivity timeout)
 - `MEDIA_PREFETCH_CHUNKS_AHEAD`: 2 (Prefetch 2 chunks = 1 MB ahead)
+- `FFPROBE_PATH`: `ffprobe` (or path to ffprobe executable)
+- `MEDIA_SUSTAINABILITY_MARGIN`: 1.15
+- `MEASURED_SOURCE_THROUGHPUT_BPS`: 1050000
 
 ---
 
@@ -87,106 +95,41 @@ uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 
 ---
 
-## Milestone B6: HTTP Range Streaming Endpoints & Testing
+## Milestone B7: Media Probing & Compatibility Testing
 
-### Step 1: Create a Media Streaming Session
-- **Endpoint**: `POST /api/media/session`
-- **PowerShell Command**:
+### 1. Create a Streaming Session
 ```powershell
-$session = Invoke-RestMethod -Uri "http://127.0.0.1:8000/api/media/session" -Method POST -ContentType "application/json" -Body '{"message_id": 12580}'
-$session | ConvertTo-Json -Depth 5
-$sessionId = $session.session_id
-```
-- **Example Response**:
-```json
-{
-  "session_id": "a4d3e210-9c4b-4df2-a94f-561234abcde5",
-  "file_name": "Inception.2010.3D.Multi.Audio[@Dubbedmovies].mkv",
-  "mime_type": "video/x-matroska",
-  "size": 1125702788,
-  "stream_url": "/api/media/stream/a4d3e210-9c4b-4df2-a94f-561234abcde5"
-}
+$resp = Invoke-RestMethod -Uri "http://127.0.0.1:8000/api/media/session" -Method POST -ContentType "application/json" -Body '{"message_id": 12580}'
+$sessionId = $resp.session_id
+Write-Host "Active Session ID: $sessionId" -ForegroundColor Green
 ```
 
 ---
 
-### Step 2: Test HTTP Range Request (First 1 MB)
-- **Endpoint**: `GET /api/media/stream/{session_id}`
-- **curl.exe with Range Header**:
+### 2. Inspect Probed Metadata, Compatibility & Sustainability
 ```powershell
-curl.exe -i -H "Range: bytes=0-1048575" "http://127.0.0.1:8000/api/media/stream/$sessionId" --output test_1mb.part
-```
-- **Expected Headers**:
-```http
-HTTP/1.1 206 Partial Content
-accept-ranges: bytes
-content-range: bytes 0-1048575/1125702788
-content-length: 1048576
-content-type: video/x-matroska
+Invoke-RestMethod -Uri "http://127.0.0.1:8000/api/media/session/$sessionId/metadata" | ConvertTo-Json -Depth 8
 ```
 
 ---
 
-### Step 3: Test Non-Zero Seek Range (500 MB Offset)
-- **PowerShell / curl.exe Command**:
+### 3. B6 HTTP Range Regression Verification
+
+#### Test A: 1 MB Range (Expect 206 and 1,048,576 Bytes)
 ```powershell
-curl.exe -i -H "Range: bytes=524288000-528482303" "http://127.0.0.1:8000/api/media/stream/$sessionId" --output seek_4mb.part
+curl.exe -D test.headers -H "Range: bytes=0-1048575" "http://127.0.0.1:8000/api/media/stream/$sessionId" -o test_1mb.part
+(Get-Item test_1mb.part).Length
 ```
-- **Expected Headers**:
-```http
-HTTP/1.1 206 Partial Content
-accept-ranges: bytes
-content-range: bytes 524288000-528482303/1125702788
-content-length: 4194304
+*(Must output `1048576`)*.
+
+#### Test B: Non-Zero 4 MB Seek Range (Expect 206 and 4,194,304 Bytes)
+```powershell
+curl.exe -D seek.headers -H "Range: bytes=524288000-528482303" "http://127.0.0.1:8000/api/media/stream/$sessionId" -o seek_4mb.part
+(Get-Item seek_4mb.part).Length
 ```
+*(Must output `4194304`)*.
 
 ---
 
-### Step 4: Test Cache Hit by Repeating the Same Range
-- **PowerShell Benchmark Endpoint**:
-```powershell
-Invoke-RestMethod -Uri "http://127.0.0.1:8000/api/media/benchmark-stream/$sessionId?start=0&end=4194303" | ConvertTo-Json -Depth 5
-```
-*(Notice `cache_hit: true` and latency dropping to $< 5\text{ms}$ on repeat)*.
-
----
-
-### Step 5: Test Invalid Range (Expect 416 Range Not Satisfiable)
-```powershell
-curl.exe -i -H "Range: bytes=2000000000-2000100000" "http://127.0.0.1:8000/api/media/stream/$sessionId"
-```
-- **Expected Status**: `416 Range Not Satisfiable` with `Content-Range: bytes */1125702788`.
-
----
-
-### Step 6: Inspect Session Observability & Memory Metrics
-- **Endpoint**: `GET /api/media/session/{session_id}`
-```powershell
-Invoke-RestMethod -Uri "http://127.0.0.1:8000/api/media/session/$sessionId" | ConvertTo-Json -Depth 5
-```
-- **Example Response**:
-```json
-{
-  "session_id": "a4d3e210-9c4b-4df2-a94f-561234abcde5",
-  "file_name": "Inception.2010.3D.Multi.Audio[@Dubbedmovies].mkv",
-  "file_size_bytes": 1125702788,
-  "cached_chunks_count": 8,
-  "cached_bytes": 4194304,
-  "max_buffer_bytes": 16777216,
-  "cache_hits": 6,
-  "cache_misses": 8,
-  "cache_hit_ratio": 0.429,
-  "total_bytes_served": 12582912,
-  "last_requested_range": "bytes=0-4194303",
-  "created_at": 1724912000.0,
-  "last_accessed_at": 1724912065.0
-}
-```
-
----
-
-### Step 7: Explicit Session Cleanup
-- **Endpoint**: `DELETE /api/media/session/{session_id}`
-```powershell
-Invoke-RestMethod -Uri "http://127.0.0.1:8000/api/media/session/$sessionId" -Method DELETE | ConvertTo-Json -Depth 5
-```
+### 4. Interactive Swagger Documentation
+- **URL**: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
