@@ -4,6 +4,7 @@ import logging
 import os
 import re
 import shutil
+import subprocess
 import time
 from fractions import Fraction
 from typing import Any, Dict, Optional, Tuple
@@ -21,6 +22,17 @@ from app.models.probe import (
 from app.services.media_reader import TelegramMediaReader
 
 logger = logging.getLogger("cineforge.media_probe")
+
+
+def _run_subprocess_sync(args: list[str], input_data: bytes) -> Tuple[bytes, bytes, int]:
+    """Execute subprocess synchronously in thread pool to prevent Windows asyncio loop limitations."""
+    proc = subprocess.run(
+        args,
+        input=input_data,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    return proc.stdout, proc.stderr, proc.returncode
 
 
 class MediaProbeService:
@@ -120,7 +132,7 @@ class MediaProbeService:
                 sample_bytes = await reader.read_range(start=0, end=probe_span - 1)
 
             if binary_type == "ffprobe":
-                proc = await asyncio.create_subprocess_exec(
+                cmd_args = [
                     binary_path,
                     "-v",
                     "error",
@@ -130,16 +142,13 @@ class MediaProbeService:
                     "json",
                     "-i",
                     "pipe:0",
-                    stdin=asyncio.subprocess.PIPE,
-                    stdout=asyncio.subprocess.PIPE,
-                    stderr=asyncio.subprocess.PIPE,
-                )
-                stdout, stderr = await proc.communicate(input=sample_bytes)
+                ]
+                stdout, stderr, returncode = await asyncio.to_thread(_run_subprocess_sync, cmd_args, sample_bytes)
                 elapsed = time.perf_counter() - t0
 
-                if proc.returncode != 0 and not stdout:
+                if returncode != 0 and not stdout:
                     err_msg = stderr.decode("utf-8", errors="ignore").strip()
-                    logger.warning("ffprobe exited with code %d: %s", proc.returncode, err_msg)
+                    logger.warning("ffprobe exited with code %d: %s", returncode, err_msg)
                     return ProbedMediaMetadata(
                         file_name=file_name,
                         file_size_bytes=file_size,
@@ -222,16 +231,8 @@ class MediaProbeService:
 
             else:
                 # binary_type == "ffmpeg": Probe via ffmpeg -hide_banner -i pipe:0
-                proc = await asyncio.create_subprocess_exec(
-                    binary_path,
-                    "-hide_banner",
-                    "-i",
-                    "pipe:0",
-                    stdin=asyncio.subprocess.PIPE,
-                    stdout=asyncio.subprocess.PIPE,
-                    stderr=asyncio.subprocess.PIPE,
-                )
-                stdout, stderr = await proc.communicate(input=sample_bytes)
+                cmd_args = [binary_path, "-hide_banner", "-i", "pipe:0"]
+                stdout, stderr, returncode = await asyncio.to_thread(_run_subprocess_sync, cmd_args, sample_bytes)
                 elapsed = time.perf_counter() - t0
                 stderr_text = stderr.decode("utf-8", errors="ignore")
 
@@ -329,7 +330,8 @@ class MediaProbeService:
             )
 
         except Exception as e:
-            logger.error("Unexpected error during media probe: %s", str(e))
+            err_details = f"{type(e).__name__}: {str(e)}"
+            logger.error("Unexpected error during media probe: %s", err_details)
             return ProbedMediaMetadata(
                 file_name=file_name,
                 file_size_bytes=file_size,
@@ -339,7 +341,7 @@ class MediaProbeService:
                 height=height,
                 total_bitrate_bps=calculated_bitrate,
                 probe_status="failed",
-                probe_error=str(e),
+                probe_error=err_details,
             )
 
     def evaluate_browser_compatibility(
