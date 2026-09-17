@@ -1,18 +1,40 @@
-from typing import Optional
+from typing import Any, Dict, Optional, Union
 from pydantic import BaseModel, Field
 
 
 class CreateMediaSessionRequest(BaseModel):
     message_id: int = Field(..., description="Telegram message ID of the media file")
-    chat_id: Optional[int] = Field(None, description="Optional chat or bot ID")
+    chat_id: Optional[Union[int, str]] = Field("me", description="Telegram chat ID, username, or 'me'")
 
 
 class CreateMediaSessionResponse(BaseModel):
     session_id: str = Field(..., description="Opaque unique streaming session ID")
-    file_name: str = Field(..., description="Filename of the media")
-    mime_type: str = Field(..., description="MIME type of the media (e.g. video/x-matroska or video/mp4)")
-    size: int = Field(..., description="Total size in bytes")
-    stream_url: str = Field(..., description="HTTP streaming endpoint URL for this session")
+    chat_id: str = Field(..., description="Telegram chat target (e.g. 'me', channel ID, or username)")
+    message_id: int = Field(..., description="Telegram message ID")
+    stream_url: str = Field(..., description="HTTP streaming endpoint URL for this session (Go streamer or redirect)")
+    created_at: float = Field(..., description="Session creation timestamp (unix epoch)")
+    expires_at: float = Field(..., description="Session expiration timestamp (unix epoch)")
+    file_name: Optional[str] = Field(None, description="Filename of the media (optional)")
+    mime_type: Optional[str] = Field(None, description="MIME type of the media (optional)")
+    size: Optional[int] = Field(None, description="Total size in bytes (optional)")
+
+
+class PlaybackSessionDetailResponse(BaseModel):
+    session_id: str = Field(..., description="Playback session ID")
+    chat_id: str = Field(..., description="Telegram chat identifier")
+    message_id: int = Field(..., description="Telegram message ID")
+    stream_url: str = Field(..., description="Target stream URL")
+    created_at: float = Field(..., description="Unix timestamp of session creation")
+    expires_at: float = Field(..., description="Unix timestamp of session expiration")
+    is_expired: bool = Field(..., description="Whether the session has expired")
+
+
+class StreamerHealthResponse(BaseModel):
+    status: str = Field(..., description="Health status string ('healthy', 'unreachable', etc.)")
+    streamer_url: str = Field(..., description="Configured Go streamer base URL")
+    reachable: bool = Field(..., description="True if Go streamer responded to /health")
+    details: Optional[Dict[str, Any]] = Field(None, description="Detailed JSON response from Go streamer")
+    error: Optional[str] = Field(None, description="Error message if unreachable")
 
 
 class MediaSessionMetrics(BaseModel):

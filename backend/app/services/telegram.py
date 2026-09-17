@@ -5,6 +5,7 @@ import time
 import uuid
 from typing import Any, Dict, List, Optional
 
+import app.services.telethon_compat  # noqa: F401 - Register MTProto compatibility constructors
 from telethon import TelegramClient, events
 from telethon.tl.types import (
     DocumentAttributeAudio,
@@ -21,6 +22,10 @@ from app.models.delivery import (
     SelectedResultRequest,
     SelectedResultResponse,
     parse_telegram_deep_link,
+)
+from app.models.delivery_flow import (
+    CandidateDeliveryRequest,
+    CandidateDeliveryResponse,
 )
 
 logger = logging.getLogger("cineforge.telegram")
@@ -172,6 +177,12 @@ class TelegramService:
             media_type = "photo"
             mime_type = "image/jpeg"
 
+        from app.services.compatibility import compatibility_service
+        compat = compatibility_service.get_media_compatibility(
+            filename=file_name,
+            mime_type=mime_type,
+        )
+
         return {
             "message_id": message.id,
             "chat_id": message.chat_id,
@@ -183,6 +194,9 @@ class TelegramService:
             "duration": duration,
             "width": width,
             "height": height,
+            "browser_playable": compat.browser_playable,
+            "container": compat.container,
+            "playback_mode": compat.playback_mode,
         }
 
     async def _handle_incoming_private_message(self, message):
@@ -624,11 +638,19 @@ class TelegramService:
                 elif hasattr(btn, "button") and hasattr(btn.button, "query"):
                     btn_type = "switch_inline"
 
+                from app.services.compatibility import compatibility_service
+                btn_compat = compatibility_service.get_media_compatibility(
+                    text_hint=button_text,
+                )
+
                 buttons_list.append({
                     "text": button_text,
                     "type": btn_type,
                     "callback_data": callback_data,
                     "url": url,
+                    "browser_playable": btn_compat.browser_playable,
+                    "container": btn_compat.container,
+                    "playback_mode": btn_compat.playback_mode,
                 })
         return buttons_list
 
@@ -735,6 +757,13 @@ class TelegramService:
         if lines:
             title = lines[0]
 
+        from app.services.compatibility import compatibility_service
+        compat = compatibility_service.get_media_compatibility(
+            filename=title or raw_text,
+            mime_type=media_type,
+            text_hint=combined_text,
+        )
+
         return {
             "message_id": message_id,
             "text": raw_text,
@@ -750,6 +779,10 @@ class TelegramService:
             "has_media": has_media,
             "media_type": media_type,
             "date": date_str,
+            "browser_playable": compat.browser_playable,
+            "container": compat.container,
+            "playback_mode": compat.playback_mode,
+            "compatibility_reason": compat.reason,
         }
 
     async def _resolve_bot_entity(self):
@@ -820,13 +853,432 @@ class TelegramService:
             date_str=response.date.isoformat() if response.date else None,
         )
 
-        # 5. Structured result returned
+        # 5. Structured result returned and ranked
         logger.info("Structured result returned for query '%s'", query)
+
+        from app.services.compatibility import compatibility_service
+        ranked_results = compatibility_service.rank_search_results([result_item])
 
         return {
             "query": query,
-            "results": [result_item],
+            "results": ranked_results,
         }
+
+    async def search_bot_paginated(
+        self,
+        query: str,
+        max_pages: int = 2,
+        timeout: Optional[float] = None,
+    ) -> Dict[str, Any]:
+        """Query Telegram bot, aggregate candidates across pages progressively without blindly crawling 220 pages."""
+        from app.services.search_aggregator import search_aggregator
+
+        client = self._get_client()
+        bot_entity = await self._resolve_bot_entity()
+        effective_timeout = timeout or settings.TELEGRAM_BOT_RESPONSE_TIMEOUT
+        bot_username = settings.TELEGRAM_BOT_USERNAME
+
+        logger.info("Executing paginated bot search [query='%s', max_pages=%d]", query, max_pages)
+        start_time = time.perf_counter()
+
+        async with self._bot_lock:
+            async with client.conversation(bot_entity, timeout=effective_timeout) as conv:
+                await conv.send_message(query)
+                current_msg = await conv.get_response()
+
+        candidates, pagination = search_aggregator.parse_message_candidates(
+            current_msg,
+            source_bot=bot_username,
+            page_number=1,
+        )
+
+        # Progressive traversal: Click 'Next >' up to max_pages
+        page_num = 1
+        while page_num < max_pages and pagination.has_next and pagination.next_callback_data:
+            next_cb = pagination.next_callback_data
+            page_num += 1
+            logger.info("Requesting page %d via callback '%s'", page_num, next_cb)
+            try:
+                cb_bytes = next_cb.encode("utf-8") if isinstance(next_cb, str) else next_cb
+                btn_to_click = None
+                if hasattr(current_msg, "buttons") and current_msg.buttons:
+                    for row in current_msg.buttons:
+                        for btn in row:
+                            b_data = getattr(btn, "data", None)
+                            b_str = b_data.decode("utf-8", errors="ignore") if isinstance(b_data, (bytes, bytearray)) else str(b_data or "")
+                            if next_cb and (b_str == next_cb or b_data == cb_bytes):
+                                btn_to_click = btn
+                                break
+                            if "next" in getattr(btn, "text", "").lower() or ">>" in getattr(btn, "text", ""):
+                                btn_to_click = btn
+                        if btn_to_click:
+                            break
+
+                if btn_to_click:
+                    await btn_to_click.click()
+                else:
+                    await current_msg.click(data=cb_bytes)
+
+                await asyncio.sleep(1.2)
+                updated_msg = await client.get_messages(bot_entity, ids=current_msg.id)
+                if updated_msg:
+                    current_msg = updated_msg
+                    next_candidates, next_pagination = search_aggregator.parse_message_candidates(
+                        current_msg,
+                        source_bot=bot_username,
+                        page_number=page_num,
+                    )
+                    candidates.extend(next_candidates)
+                    pagination = next_pagination
+                else:
+                    break
+            except Exception as page_err:
+                logger.warning("Pagination traversal stopped on page %d: %s", page_num, str(page_err))
+                break
+
+        # Deduplicate, rank, and group
+        unique_candidates = search_aggregator.deduplicate_candidates(candidates)
+        ranked_candidates = search_aggregator.rank_candidates(unique_candidates)
+        title_groups = search_aggregator.group_candidates_by_title(ranked_candidates)
+
+        elapsed = round(time.perf_counter() - start_time, 2)
+        logger.info(
+            "Paginated search completed in %.2fs [%d candidates across %d page(s)]",
+            elapsed,
+            len(ranked_candidates),
+            page_num,
+        )
+
+        return {
+            "query": query,
+            "candidates": ranked_candidates,
+            "pagination": pagination,
+            "title_groups": title_groups,
+            "results": [],
+        }
+
+    async def load_next_search_page(
+        self,
+        source_message_id: int,
+        callback_data: str,
+        source_bot: Optional[str] = None,
+        page_number: int = 2,
+        pages_to_fetch: int = 1,
+        timeout: Optional[float] = None,
+    ) -> Dict[str, Any]:
+        """Click pagination callback on an active search result message and accumulate next candidate page(s)."""
+        from app.services.search_aggregator import search_aggregator
+
+        client = self._get_client()
+        if client is None or not client.is_connected():
+            raise RuntimeError("Telegram client is not connected.")
+        if not await client.is_user_authorized():
+            raise RuntimeError("Telegram user client is not authenticated.")
+
+        target_bot = source_bot or settings.TELEGRAM_BOT_USERNAME
+        bot_entity = await client.get_entity(target_bot)
+
+        logger.info(
+            "Loading next search page [msg_id=%d, cb='%s', bot=@%s, page=%d]",
+            source_message_id,
+            callback_data,
+            target_bot,
+            page_number,
+        )
+
+        candidates: List[Any] = []
+        current_cb = callback_data
+        cur_page = page_number
+        last_pagination = None
+
+        for _ in range(pages_to_fetch):
+            if not current_cb:
+                break
+            try:
+                msg = await client.get_messages(bot_entity, ids=source_message_id)
+                if not msg:
+                    break
+
+                cb_bytes = current_cb.encode("utf-8") if isinstance(current_cb, str) else current_cb
+                btn_to_click = None
+                if hasattr(msg, "buttons") and msg.buttons:
+                    for row in msg.buttons:
+                        for btn in row:
+                            b_data = getattr(btn, "data", None)
+                            b_str = b_data.decode("utf-8", errors="ignore") if isinstance(b_data, (bytes, bytearray)) else str(b_data or "")
+                            if current_cb and (b_str == current_cb or b_data == cb_bytes):
+                                btn_to_click = btn
+                                break
+                            if "next" in getattr(btn, "text", "").lower() or ">>" in getattr(btn, "text", ""):
+                                btn_to_click = btn
+                        if btn_to_click:
+                            break
+
+                if btn_to_click:
+                    await btn_to_click.click()
+                else:
+                    await msg.click(data=cb_bytes)
+
+                await asyncio.sleep(1.2)
+
+                updated_msg = await client.get_messages(bot_entity, ids=source_message_id)
+                if not updated_msg:
+                    break
+
+                page_candidates, last_pagination = search_aggregator.parse_message_candidates(
+                    updated_msg,
+                    source_bot=target_bot,
+                    page_number=cur_page,
+                )
+                candidates.extend(page_candidates)
+
+                if last_pagination.has_next and last_pagination.next_callback_data:
+                    current_cb = last_pagination.next_callback_data
+                    cur_page += 1
+                else:
+                    break
+            except Exception as e:
+                logger.warning("Error during load_next_search_page (page %d): %s", cur_page, str(e))
+                break
+
+        unique_candidates = search_aggregator.deduplicate_candidates(candidates)
+        ranked_candidates = search_aggregator.rank_candidates(unique_candidates)
+        title_groups = search_aggregator.group_candidates_by_title(ranked_candidates)
+
+        return {
+            "candidates": ranked_candidates,
+            "pagination": last_pagination,
+            "title_groups": title_groups,
+            "results": [],
+        }
+
+    async def find_all_versions_for_title(
+        self,
+        title: str,
+        max_pages: int = 3,
+        timeout: Optional[float] = None,
+    ) -> Dict[str, Any]:
+        """Targeted title search refinement: discovers all versions (1080p, 720p, MP4, MKV)
+
+        of a chosen title in 1–3 focused pages without crawling 220 general pages.
+        """
+        clean_title = re.sub(r"[•_–—\-\[\]\(\)]", " ", title)
+        clean_title = re.sub(r"\s+", " ", clean_title).strip()
+        logger.info("Discovering all versions for targeted title: '%s'", clean_title)
+        return await self.search_bot_paginated(
+            query=clean_title,
+            max_pages=max_pages,
+            timeout=timeout,
+        )
+
+    async def deliver_candidate(
+        self,
+        request: CandidateDeliveryRequest,
+        timeout: float = 30.0,
+    ) -> CandidateDeliveryResponse:
+        """Trigger bot delivery for a chosen candidate button, handle FSub gates,
+
+        forward the real Document to Saved Messages ('me'), and issue an authoritative PlaybackSession.
+        """
+        client = self._get_client()
+        if client is None or not client.is_connected():
+            raise RuntimeError("Telegram client is not connected.")
+        if not await client.is_user_authorized():
+            raise RuntimeError("Telegram user client is not authenticated.")
+
+        bot_username = request.source_bot or settings.TELEGRAM_BOT_USERNAME
+        bot_entity = await client.get_entity(bot_username)
+        bot_chat_id = bot_entity.id
+
+        req_id = str(uuid.uuid4())
+        logger.info(
+            "Delivering candidate [req_id=%s, candidate_id=%s, bot=@%s, chat_id=%s, payload=%s]",
+            req_id,
+            request.candidate_id,
+            bot_username,
+            bot_chat_id,
+            request.start_payload,
+        )
+
+        loop = asyncio.get_running_loop()
+        media_future: asyncio.Future = loop.create_future()
+        waiter = MediaWaiter(request_id=req_id, future=media_future, chat_id=bot_chat_id)
+
+        async with self._waiters_lock:
+            self._waiters[req_id] = waiter
+
+        start_time = time.perf_counter()
+
+        async def _trigger_task():
+            async with self._bot_lock:
+                async with client.conversation(bot_entity, timeout=timeout) as conv:
+                    if request.start_payload:
+                        cmd = f"/start {request.start_payload}"
+                        logger.info("Sending delivery start command '%s' [req_id=%s]", cmd, req_id)
+                        await conv.send_message(cmd)
+                    elif request.callback_data and request.source_message_id:
+                        src_msg = await client.get_messages(bot_entity, ids=request.source_message_id)
+                        if src_msg:
+                            logger.info("Clicking delivery callback button '%s' [req_id=%s]", request.callback_data, req_id)
+                            await src_msg.click(data=request.callback_data)
+                    else:
+                        raise ValueError("Neither start_payload nor callback_data provided for candidate delivery.")
+
+                    resp = await conv.get_response()
+
+                    # Check for direct media response
+                    meta = self._extract_media_metadata(resp)
+                    if meta and meta.get("media_type") in ("video", "document", "audio"):
+                        return resp
+
+                    # Check for FSub updates channel gate
+                    buttons = self._extract_buttons(resp)
+                    channel_urls = []
+                    try_again_button = None
+                    for btn in buttons:
+                        btn_url = btn.get("url")
+                        if btn_url and (("t.me/+" in btn_url) or ("joinchat" in btn_url) or ("t.me/" in btn_url and bot_username.lower() not in btn_url.lower())):
+                            channel_urls.append(btn_url)
+                        elif btn.get("type") == "callback":
+                            txt = (btn.get("text") or "").lower()
+                            data = (btn.get("callback_data") or "").lower()
+                            if any(k in txt or k in data for k in ("try", "again", "refresh", "check", "sub", "join")):
+                                try_again_button = btn
+
+                    if channel_urls:
+                        logger.info("FSub gatekeeper encountered during delivery with %d channel(s) [req_id=%s]", len(channel_urls), req_id)
+                        for ch_url in channel_urls:
+                            await self.join_channel_from_url(ch_url)
+
+                        await asyncio.sleep(1.2)
+                        if try_again_button and try_again_button.get("callback_data"):
+                            await resp.click(data=try_again_button.get("callback_data"))
+                            return await conv.get_response()
+                        elif request.start_payload:
+                            await conv.send_message(f"/start {request.start_payload}")
+                            return await conv.get_response()
+
+                    return resp
+
+        trigger_task = asyncio.create_task(_trigger_task())
+
+        try:
+            done, pending = await asyncio.wait(
+                [media_future, trigger_task],
+                timeout=timeout,
+                return_when=asyncio.FIRST_COMPLETED,
+            )
+
+            delivered_msg = None
+            if media_future in done:
+                trigger_task.cancel()
+                raw_media = media_future.result()
+                # If waiter captured metadata dict, fetch the real message
+                msg_id = raw_media.get("message_id")
+                if msg_id:
+                    delivered_msg = await client.get_messages(bot_entity, ids=msg_id)
+            elif trigger_task in done:
+                res_msg = trigger_task.result()
+                if getattr(res_msg, "media", None) and getattr(res_msg.media, "document", None):
+                    delivered_msg = res_msg
+
+            if not delivered_msg or not getattr(delivered_msg, "media", None) or not getattr(delivered_msg.media, "document", None):
+                # If bot replied with text first (e.g. "Processing..."), wait for the actual media message to arrive for remaining time
+                elapsed_so_far = time.perf_counter() - start_time
+                remaining_timeout = max(1.0, timeout - elapsed_so_far)
+                logger.info(
+                    "Bot sent non-media response; waiting up to %.1fs for actual media delivery [req_id=%s]...",
+                    remaining_timeout,
+                    req_id,
+                )
+                try:
+                    raw_media = await asyncio.wait_for(media_future, timeout=remaining_timeout)
+                    msg_id = raw_media.get("message_id")
+                    if msg_id:
+                        delivered_msg = await client.get_messages(bot_entity, ids=msg_id)
+                except asyncio.TimeoutError:
+                    logger.warning("Timed out waiting for media delivery from bot after %.1fs [req_id=%s]", timeout, req_id)
+
+            if not delivered_msg or not getattr(delivered_msg, "media", None) or not getattr(delivered_msg.media, "document", None):
+                elapsed = round(time.perf_counter() - start_time, 2)
+                raise TimeoutError(f"No media document delivered from @{bot_username} within {timeout}s.")
+
+            # Authoritatively extract actual document metadata from Telegram MTProto
+            doc = delivered_msg.media.document
+            mime_type = getattr(doc, "mime_type", "video/x-matroska")
+            file_size = getattr(doc, "size", 0)
+            file_name = "video.mp4"
+            for attr in getattr(doc, "attributes", []):
+                if isinstance(attr, DocumentAttributeFilename):
+                    file_name = attr.file_name
+                    break
+
+            # Forward the delivered file to Saved Messages ('me') to obtain a permanent, canonical reference
+            logger.info("Forwarding delivered document (msg %d) to 'me' for canonical reference...", delivered_msg.id)
+            fwd_msg = await client.forward_messages("me", delivered_msg.id, bot_chat_id)
+            canonical_msg_id = fwd_msg.id
+            logger.info("Canonical media reference created in 'me' [message_id=%d]", canonical_msg_id)
+
+            # Evaluate authoritative compatibility on the real delivered file
+            from app.services.compatibility import compatibility_service
+            compat = compatibility_service.get_media_compatibility(
+                filename=file_name,
+                mime_type=mime_type,
+            )
+
+            # Create PlaybackSession pointing to the canonical document with attached reader
+            from app.services.media_reader import TelegramMediaReader
+            canonical_doc = fwd_msg.media.document if getattr(fwd_msg, "media", None) and getattr(fwd_msg.media, "document", None) else doc
+            reader = TelegramMediaReader(
+                client=client,
+                document=canonical_doc,
+                file_size=file_size,
+                mime_type=mime_type,
+                file_name=file_name,
+                dc_id=getattr(canonical_doc, "dc_id", None),
+                message_id=canonical_msg_id,
+            )
+
+            from app.services.stream_session import session_manager
+            session = await session_manager.create_playback_session(
+                chat_id="me",
+                message_id=canonical_msg_id,
+                file_name=file_name,
+                mime_type=mime_type,
+                file_size=file_size,
+                reader=reader,
+            )
+
+            elapsed = round(time.perf_counter() - start_time, 2)
+            logger.info(
+                "Candidate delivery & session creation successful [session=%s, canonical_msg=%d, file=%s, size=%d, elapsed=%.2fs]",
+                session.session_id[:8],
+                canonical_msg_id,
+                file_name,
+                file_size,
+                elapsed,
+            )
+
+            return CandidateDeliveryResponse(
+                success=True,
+                delivered_chat_id="me",
+                delivered_message_id=canonical_msg_id,
+                file_name=file_name,
+                mime_type=mime_type,
+                file_size=file_size,
+                browser_playable=compat.browser_playable,
+                container=compat.container or "mkv",
+                playback_mode=compat.playback_mode,
+                session_id=session.session_id,
+                stream_url=session.stream_url,
+                player_url=f"/api/media/session/{session.session_id}/player",
+                elapsed_seconds=elapsed,
+            )
+        finally:
+            trigger_task.cancel()
+            async with self._waiters_lock:
+                self._waiters.pop(req_id, None)
+
 
     async def test_search_bot(self, query: str, timeout: Optional[float] = None) -> Dict[str, Any]:
         """Development endpoint logic: Detailed search testing and button inspection in private chat."""
@@ -875,6 +1327,39 @@ class TelegramService:
             "buttons": buttons,
             "raw_button_rows": button_rows,
         }
+
+    async def get_message_media_reader(
+        self,
+        chat_id: Any = "me",
+        message_id: int = 0,
+    ):
+        """Build an active TelegramMediaReader for any message containing a document."""
+        client = self._get_client()
+        if not client or not client.is_connected():
+            return None
+        from telethon.tl.types import DocumentAttributeFilename
+        from app.services.media_reader import TelegramMediaReader
+
+        msg = await client.get_messages(chat_id, ids=message_id)
+        if not msg or not getattr(msg, "media", None) or not getattr(msg.media, "document", None):
+            return None
+        doc = msg.media.document
+        file_size = getattr(doc, "size", 0)
+        mime_type = getattr(doc, "mime_type", "video/mp4")
+        file_name = "video.mp4"
+        for attr in getattr(doc, "attributes", []):
+            if isinstance(attr, DocumentAttributeFilename):
+                file_name = attr.file_name
+                break
+        return TelegramMediaReader(
+            client=client,
+            document=doc,
+            file_size=file_size,
+            mime_type=mime_type,
+            file_name=file_name,
+            dc_id=getattr(doc, "dc_id", None),
+            message_id=message_id,
+        )
 
 
 telegram_service = TelegramService()

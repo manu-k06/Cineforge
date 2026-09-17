@@ -55,6 +55,16 @@ class Settings(BaseSettings):
     # Initial byte span to fetch from Telegram for ffprobe inspection (2 MB)
     PROBE_INITIAL_BYTES: int = 2097152
 
+    # Milestone B9: Browser Playback, Remuxing & Transmuxing Configuration
+    FFMPEG_PATH: Optional[str] = "ffmpeg"
+    AUDIO_AAC_BITRATE: str = "192k"
+
+    # Phase 11: Go Streamer Integration Configuration
+    STREAMER_BASE_URL: str = "http://127.0.0.1:8088"
+    STREAM_SECRET_KEY: str = ""
+    STREAM_URL_EXPIRATION_SECONDS: int = 21600  # 6 hours
+    STREAMER_TIMEOUT_SECONDS: float = 3.0
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",

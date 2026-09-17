@@ -1,5 +1,6 @@
 from contextlib import asynccontextmanager
 
+import app.services.telethon_compat  # noqa: F401 - Register MTProto compatibility constructors
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -37,8 +38,15 @@ app.include_router(search_router, prefix="/api", tags=["Search"])
 app.include_router(telegram_router, prefix="/api/telegram", tags=["Telegram"])
 app.include_router(media_router, prefix="/api/telegram", tags=["Media Access & Performance"])
 app.include_router(stream_router, prefix="/api/media", tags=["HTTP Media Streaming (B6)"])
+app.include_router(stream_router, prefix="/api/stream", tags=["Streaming Sessions (Phase 11)"])
 
 
 @app.get("/health", tags=["Health"])
 async def health_check():
     return {"status": "ok"}
+
+
+@app.get("/", include_in_schema=False)
+async def root_redirect():
+    from fastapi.responses import RedirectResponse
+    return RedirectResponse(url="/api/search/ui")

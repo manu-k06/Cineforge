@@ -1,0 +1,16 @@
+*.exe
+*.session
+session.txt
+*.log
+tests/
+test_*.py
+benchmark_pool*
+phase2_prototype.go
+test_dc_pool.go
+.git
+.gitignore
+.env
+.env.*
+__pycache__/
+*.part
+*.headers

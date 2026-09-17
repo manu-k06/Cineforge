@@ -1,5 +1,15 @@
-from typing import Optional
+from typing import List, Optional
 from pydantic import BaseModel, Field
+
+
+class SubtitleTrackInfo(BaseModel):
+    track_id: int = Field(..., description="0-indexed subtitle stream order for FFmpeg mapping (0:s:N)")
+    stream_index: int = Field(..., description="Global stream index within the media container")
+    codec: str = Field(..., description="Subtitle codec name (e.g. subrip, ass, webvtt, hdmv_pgs_subtitle)")
+    is_text: bool = Field(True, description="Whether codec is text-based and convertable to WebVTT")
+    language: Optional[str] = Field(None, description="Language code or name (e.g. eng, spa, English)")
+    title: Optional[str] = Field(None, description="Human-readable title/description if available in tags")
+    vtt_url: Optional[str] = Field(None, description="Endpoint to fetch WebVTT file")
 
 
 class ProbedMediaMetadata(BaseModel):
@@ -18,6 +28,7 @@ class ProbedMediaMetadata(BaseModel):
     video_stream_count: int = Field(0, description="Number of video streams")
     audio_stream_count: int = Field(0, description="Number of audio streams")
     subtitle_stream_count: int = Field(0, description="Number of subtitle streams")
+    subtitle_tracks: List[SubtitleTrackInfo] = Field(default_factory=list, description="List of detected subtitle tracks")
     probe_status: str = Field(..., description="Status of media probing: 'success', 'unavailable', or 'failed'")
     probe_error: Optional[str] = Field(None, description="Detailed probe error if failed or unavailable")
 

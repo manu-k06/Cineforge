@@ -121,88 +121,20 @@ class TelegramMediaReader:
         end: Optional[int] = None,
         chunk_size: int = settings.TELEGRAM_CHUNK_SIZE,
     ) -> AsyncIterator[bytes]:
-        """Stream an arbitrary byte range from Telegram using a bounded prefetch queue and MTProto chunking."""
+        """Stream an arbitrary byte range from Telegram using direct MTProto streaming (TG-FileStreamBot architecture)."""
         start, end = self.validate_range(start, end)
-        total_bytes_to_read = end - start + 1
+        from app.services.tg_streamer import TGFileStreamer
 
-        logger.info(
-            "Starting range stream: bytes %d-%d (%d bytes, %.2f MB) for msg_id=%s",
-            start,
-            end,
-            total_bytes_to_read,
-            total_bytes_to_read / (1024 * 1024),
-            self.message_id,
-        )
-
-        stream = self.client.iter_download(
-            self.document,
-            offset=start,
-            request_size=chunk_size,
+        async for chunk in TGFileStreamer.yield_file(
+            client=self.client,
+            document=self.document,
+            start=start,
+            end=end,
             file_size=self.file_size,
+            chunk_size=chunk_size,
             dc_id=self.dc_id,
-        )
-
-        # Bounded queue for prefetching up to MEDIA_PREFETCH_CHUNKS (e.g. 4 * 512KB = 2MB)
-        queue: asyncio.Queue = asyncio.Queue(maxsize=settings.MEDIA_PREFETCH_CHUNKS)
-        stop_event = asyncio.Event()
-
-        async def _prefetch_worker():
-            try:
-                async for raw_chunk in stream:
-                    if stop_event.is_set():
-                        break
-                    chunk_bytes = bytes(raw_chunk)
-                    await queue.put(chunk_bytes)
-            except asyncio.CancelledError:
-                pass
-            except Exception as e:
-                logger.error("Error in media prefetch worker: %s", str(e))
-                await queue.put(e)
-            finally:
-                await queue.put(None)
-
-        prefetch_task = asyncio.create_task(_prefetch_worker())
-        bytes_delivered = 0
-
-        try:
-            while bytes_delivered < total_bytes_to_read:
-                item = await queue.get()
-                if item is None:
-                    break
-                if isinstance(item, Exception):
-                    raise item
-
-                chunk: bytes = item
-                needed = total_bytes_to_read - bytes_delivered
-
-                if len(chunk) > needed:
-                    chunk_to_yield = chunk[:needed]
-                else:
-                    chunk_to_yield = chunk
-
-                bytes_delivered += len(chunk_to_yield)
-                yield chunk_to_yield
-
-                if bytes_delivered >= total_bytes_to_read:
-                    break
-
-        finally:
-            stop_event.set()
-            prefetch_task.cancel()
-            try:
-                await prefetch_task
-            except asyncio.CancelledError:
-                pass
-            try:
-                await stream.close()
-            except Exception:
-                pass
-            logger.info(
-                "Range stream finished/cleaned up: delivered %d/%d bytes for msg_id=%s",
-                bytes_delivered,
-                total_bytes_to_read,
-                self.message_id,
-            )
+        ):
+            yield chunk
 
     async def read_range(
         self,

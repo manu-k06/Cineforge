@@ -29,6 +29,12 @@ Cineforge uses an authenticated Telegram **User Account** via Telethon (MTProto)
    - **`BufferHealthEngine`**: State machine (`HEALTHY`, `LOW`, `CRITICAL`, `STALLED`), playback drain rate, and time-to-stall calculations.
    - **Adaptive Prefetch Decision**: Dynamically scales prefetch chunks (0 to 4) based on buffer health and pauses when buffer is saturated.
    - **Buffering Metrics Endpoint**: `GET /api/media/session/{session_id}/buffering`.
+7. **Browser Playback & Video.js UI (Milestone B9)**:
+   - **`RemuxService`**: Zero-video-transcode (`-c:v copy`) progressive fragmented MP4 (fMP4) remuxer piping directly from `MediaStreamSession`.
+   - **Smart Audio Handling**: Native passthrough (`-c:a copy`) for AAC/MP3, automatic fallback to AAC (`-c:a aac -b:a 192k`) for AC3/DTS/EAC3.
+   - **Subprocess Lifecycle & Cleanup**: Zero orphaned FFmpeg processes on client disconnection or stream cancellation.
+   - **Video.js 8+ Player UI**: `GET /api/media/session/{session_id}/player` with live B8 buffering telemetry dashboard.
+   - **Progressive Stream Endpoint**: `GET /api/media/session/{session_id}/play.mp4?t={seek_seconds}`.
 
 ---
 

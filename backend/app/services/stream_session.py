@@ -1,9 +1,13 @@
 import asyncio
 import collections
+import hashlib
+import hmac
 import logging
 import time
 import uuid
-from typing import Any, AsyncIterator, Dict, List, Optional
+from typing import Any, AsyncIterator, Dict, List, Optional, Union
+
+import httpx
 
 from app.config import settings
 from app.models.buffering import SessionBufferingMetrics
@@ -12,6 +16,111 @@ from app.services.buffering import ThroughputEstimator, buffering_engine
 from app.services.media_reader import TelegramMediaReader
 
 logger = logging.getLogger("cineforge.stream_session")
+
+
+def generate_stream_url(
+    chat_id: Union[int, str],
+    message_id: int,
+    expires_at: Optional[int] = None,
+) -> str:
+    """Generate the Go streamer playback URL, including HMAC signature if STREAM_SECRET_KEY is set."""
+    base = settings.STREAMER_BASE_URL.rstrip("/")
+    chat_str = str(chat_id).strip()
+    if expires_at is None:
+        expires_at = int(time.time()) + settings.STREAM_URL_EXPIRATION_SECONDS
+
+    stream_url = f"{base}/stream/{chat_str}/{message_id}"
+    secret = settings.STREAM_SECRET_KEY.strip()
+    if secret:
+        # Matches streamer/auth.go:
+        # message := fmt.Sprintf("%s:%d:%d", chatTarget, messageID, exp)
+        # mac := hmac.New(sha256.New, []byte(secret))
+        message = f"{chat_str}:{message_id}:{expires_at}"
+        sig = hmac.new(
+            secret.encode("utf-8"),
+            message.encode("utf-8"),
+            hashlib.sha256,
+        ).hexdigest()
+        stream_url = f"{stream_url}?exp={expires_at}&sig={sig}"
+
+    return stream_url
+
+
+class PlaybackSession:
+    """Media playback session based on TG-FileStreamBot architecture.
+
+    Streams byte ranges directly from Telegram MTProto via TGFileStreamer,
+    eliminating micro-chunk contention, connection-borrowing thrashing,
+    and artificial range caps.
+    """
+
+    def __init__(
+        self,
+        session_id: str,
+        chat_id: Union[int, str],
+        message_id: int,
+        stream_url: str,
+        file_name: Optional[str] = None,
+        mime_type: Optional[str] = None,
+        file_size: Optional[int] = None,
+        created_at: Optional[float] = None,
+        expires_at: Optional[float] = None,
+        reader: Optional[TelegramMediaReader] = None,
+    ):
+        self.session_id = session_id
+        self.chat_id = str(chat_id).strip()
+        self.message_id = message_id
+        self.stream_url = stream_url
+        self.file_name = file_name or f"Telegram Document (msg {message_id})"
+        self.mime_type = mime_type or "video/x-matroska"
+        self.file_size = file_size or 0
+        self.created_at = created_at if created_at is not None else time.time()
+        if expires_at is not None:
+            self.expires_at = expires_at
+        else:
+            self.expires_at = self.created_at + settings.STREAM_URL_EXPIRATION_SECONDS
+        self.reader = reader
+        self.chunk_size = settings.TELEGRAM_CHUNK_SIZE
+        self.total_bytes_served = 0
+
+    def is_expired(self) -> bool:
+        return time.time() > self.expires_at
+
+    def touch(self) -> None:
+        pass
+
+    async def get_reader(self) -> Optional[TelegramMediaReader]:
+        if getattr(self, "reader", None) is not None:
+            return self.reader
+        from app.services.telegram import telegram_service
+        self.reader = await telegram_service.get_message_media_reader(
+            chat_id=self.chat_id,
+            message_id=self.message_id,
+        )
+        return self.reader
+
+    async def stream_byte_range(self, start: int, end: int) -> AsyncIterator[bytes]:
+        """Stream bytes [start, end] directly from Telegram using TG-FileStreamBot architecture."""
+        reader = await self.get_reader()
+        if not reader:
+            total_bytes = max(0, end - start + 1)
+            yield b"\x00" * min(total_bytes, 65536)
+            return
+
+        from app.services.tg_streamer import TGFileStreamer
+
+        async for chunk in TGFileStreamer.yield_file(
+            client=reader.client,
+            document=reader.document,
+            start=start,
+            end=end,
+            file_size=self.file_size or reader.file_size,
+            chunk_size=self.chunk_size,
+            dc_id=reader.dc_id,
+        ):
+            self.total_bytes_served += len(chunk)
+            yield chunk
+
 
 
 class MediaChunkCache:
@@ -302,18 +411,91 @@ class MediaStreamSession:
         if self._prefetch_task and not self._prefetch_task.done():
             self._prefetch_task.cancel()
         self.cache.clear()
-        logger.info("Session %s closed and memory cache cleared.", self.session_id[:8])
+        logger.info("Session %s closed, raw chunk cache cleared.", self.session_id[:8])
 
 
 class MediaSessionManager:
-    """Manages active MediaStreamSession instances with expiration and memory cleanup."""
+    """Manages active PlaybackSession and legacy MediaStreamSession instances with expiration."""
 
     def __init__(self):
-        self._sessions: Dict[str, MediaStreamSession] = {}
+        self._sessions: Dict[str, Any] = {}
         self._lock = asyncio.Lock()
 
+    async def create_playback_session(
+        self,
+        chat_id: Union[int, str],
+        message_id: int,
+        expires_in_seconds: Optional[int] = None,
+        file_name: Optional[str] = None,
+        mime_type: Optional[str] = None,
+        file_size: Optional[int] = None,
+        reader: Optional[TelegramMediaReader] = None,
+    ) -> PlaybackSession:
+        """Create a lightweight playback session delegating media bytes to Go streamer."""
+        session_id = str(uuid.uuid4())
+        created_at = time.time()
+        exp_duration = expires_in_seconds or settings.STREAM_URL_EXPIRATION_SECONDS
+        expires_at = int(created_at + exp_duration)
+        stream_url = generate_stream_url(chat_id, message_id, expires_at)
+
+        resolved_file_name = file_name or f"Telegram Document (msg {message_id})"
+        resolved_mime = mime_type or "video/x-matroska"
+        resolved_size = file_size or 0
+
+        # If metadata was not fully provided, probe streamer
+        if not file_name or not mime_type or not file_size:
+            try:
+                async with httpx.AsyncClient(timeout=3.0) as client:
+                    head_resp = await client.head(stream_url)
+                    if head_resp.status_code == 200:
+                        if not mime_type:
+                            resolved_mime = head_resp.headers.get("content-type", resolved_mime)
+                        if not file_size:
+                            resolved_size = int(head_resp.headers.get("content-length", "0"))
+                        if not file_name:
+                            cd = head_resp.headers.get("content-disposition", "")
+                            if 'filename="' in cd:
+                                resolved_file_name = cd.split('filename="')[1].split('"')[0]
+            except Exception as probe_err:
+                logger.debug("Could not probe metadata from streamer: %s", str(probe_err))
+
+        session = PlaybackSession(
+            session_id=session_id,
+            chat_id=chat_id,
+            message_id=message_id,
+            stream_url=stream_url,
+            file_name=resolved_file_name,
+            mime_type=resolved_mime,
+            file_size=resolved_size,
+            created_at=created_at,
+            expires_at=float(expires_at),
+            reader=reader,
+        )
+
+        async with self._lock:
+            self._cleanup_expired_locked()
+            self._sessions[session_id] = session
+
+        logger.info(
+            "Created PlaybackSession [session=%s, chat=%s, msg_id=%d, expires_in=%ds]",
+            session_id[:8],
+            session.chat_id,
+            session.message_id,
+            exp_duration,
+        )
+        return session
+
+    async def get_playback_session(self, session_id: str) -> Optional[PlaybackSession]:
+        """Lookup active PlaybackSession, returning None if expired or not found."""
+        async with self._lock:
+            self._cleanup_expired_locked()
+            session = self._sessions.get(session_id)
+            if isinstance(session, PlaybackSession):
+                return session
+            return None
+
     async def create_session(self, reader: TelegramMediaReader) -> CreateMediaSessionResponse:
-        """Create a new isolated MediaStreamSession and register it."""
+        """[Legacy/Deprecated] Create an in-memory MediaStreamSession and register it."""
         session_id = str(uuid.uuid4())
         session = MediaStreamSession(session_id=session_id, reader=reader)
 
@@ -323,7 +505,7 @@ class MediaSessionManager:
             self._sessions[session_id] = session
 
         logger.info(
-            "Created MediaStreamSession [session=%s, file=%s, size=%d bytes]",
+            "Created legacy MediaStreamSession [session=%s, file=%s, size=%d bytes]",
             session_id[:8],
             session.file_name,
             session.file_size,
@@ -331,27 +513,33 @@ class MediaSessionManager:
 
         return CreateMediaSessionResponse(
             session_id=session_id,
+            chat_id="legacy",
+            message_id=0,
             file_name=session.file_name,
             mime_type=session.mime_type,
             size=session.file_size,
             stream_url=f"/api/media/stream/{session_id}",
+            created_at=session.created_at,
+            expires_at=session.created_at + settings.MEDIA_SESSION_TIMEOUT,
         )
 
-    async def get_session(self, session_id: str) -> Optional[MediaStreamSession]:
+    async def get_session(self, session_id: str) -> Optional[Any]:
         """Lookup active session, validating expiration."""
         async with self._lock:
             self._cleanup_expired_locked()
             session = self._sessions.get(session_id)
             if session:
-                session.touch()
+                if hasattr(session, "touch"):
+                    session.touch()
             return session
 
     async def remove_session(self, session_id: str) -> bool:
-        """Explicitly destroy session and free cache memory."""
+        """Explicitly destroy session and free any allocated resources."""
         async with self._lock:
             session = self._sessions.pop(session_id, None)
             if session:
-                await session.close()
+                if hasattr(session, "close") and asyncio.iscoroutinefunction(session.close):
+                    await session.close()
                 return True
             return False
 
@@ -360,8 +548,10 @@ class MediaSessionManager:
         expired_ids = [sid for sid, s in self._sessions.items() if s.is_expired()]
         for sid in expired_ids:
             s = self._sessions.pop(sid)
-            asyncio.create_task(s.close())
-            logger.info("Evicted expired session %s due to inactivity.", sid[:8])
+            if hasattr(s, "close") and asyncio.iscoroutinefunction(s.close):
+                asyncio.create_task(s.close())
+            logger.info("Evicted expired session %s.", sid[:8])
 
 
 session_manager = MediaSessionManager()
+PlaybackSessionManager = MediaSessionManager

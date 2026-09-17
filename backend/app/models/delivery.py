@@ -23,6 +23,9 @@ class MediaMetadata(BaseModel):
     duration: Optional[int] = Field(None, description="Video/Audio duration in seconds")
     width: Optional[int] = Field(None, description="Video/Image width in pixels")
     height: Optional[int] = Field(None, description="Video/Image height in pixels")
+    browser_playable: bool = Field(False, description="Whether media container is natively playable in HTML5 video")
+    container: Optional[str] = Field(None, description="Container format (e.g. mp4, mkv, webm)")
+    playback_mode: Optional[str] = Field("external", description="Playback mode: 'browser', 'external', or 'remux'")
 
 
 class SelectedResultRequest(BaseModel):
