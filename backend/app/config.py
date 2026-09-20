@@ -23,8 +23,9 @@ class Settings(BaseSettings):
     TELEGRAM_API_HASH: str = ""
     TELEGRAM_SESSION_NAME: str = "cineforge_session"
 
-    # Telegram Bot Interaction Settings (Third-party Bot)
+    # Telegram Bot Interaction Settings (Third-party Bot & Streamer Bot)
     TELEGRAM_BOT_USERNAME: str = ""
+    TELEGRAM_STREAMER_BOT_USERNAME: str = ""
     TELEGRAM_BOT_RESPONSE_TIMEOUT: float = 15.0
 
     # Media Access & Streaming Performance Configuration
@@ -87,6 +88,13 @@ class Settings(BaseSettings):
     @field_validator("TELEGRAM_BOT_USERNAME", mode="before")
     @classmethod
     def parse_bot_username(cls, v: Union[str, None]) -> str:
+        if v is None:
+            return ""
+        return v.strip().lstrip("@")
+
+    @field_validator("TELEGRAM_STREAMER_BOT_USERNAME", mode="before")
+    @classmethod
+    def parse_streamer_bot_username(cls, v: Union[str, None]) -> str:
         if v is None:
             return ""
         return v.strip().lstrip("@")

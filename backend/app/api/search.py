@@ -17,7 +17,6 @@ from app.models.search import (
 )
 from app.services.compatibility import compatibility_service
 from app.services.search_aggregator import search_aggregator
-from app.services.stream_session import session_manager
 from app.services.telegram import telegram_service
 
 logger = logging.getLogger("cineforge.api.search")
@@ -341,16 +340,12 @@ async def deliver_candidate_file(
     """
     # Mock delivery support for tests and offline validation
     if request.candidate_id.startswith("mock_") or request.source_bot == "mock_bot":
+        import uuid
+
         is_mp4 = "mp4" in request.candidate_id.lower()
         mock_file_name = f"Movie (2025).{'mp4' if is_mp4 else 'mkv'}"
         mock_mime = "video/mp4" if is_mp4 else "video/x-matroska"
-        session = await session_manager.create_playback_session(
-            chat_id="me",
-            message_id=9763,
-            file_name=mock_file_name,
-            mime_type=mock_mime,
-            file_size=744246327,
-        )
+        mock_session_id = uuid.uuid4().hex[:12]
         return CandidateDeliveryResponse(
             success=True,
             delivered_chat_id="me",
@@ -361,9 +356,9 @@ async def deliver_candidate_file(
             browser_playable=is_mp4,
             container="mp4" if is_mp4 else "mkv",
             playback_mode="browser" if is_mp4 else "external",
-            session_id=session.session_id,
-            stream_url=session.stream_url,
-            player_url=f"/api/media/session/{session.session_id}/player",
+            session_id=mock_session_id,
+            stream_url=f"http://127.0.0.1:8080/watch/{mock_session_id}",
+            player_url=f"/api/media/session/{mock_session_id}/player",
             elapsed_seconds=0.75,
         )
 

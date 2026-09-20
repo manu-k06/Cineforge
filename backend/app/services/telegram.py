@@ -1226,33 +1226,10 @@ class TelegramService:
                 mime_type=mime_type,
             )
 
-            # Create PlaybackSession pointing to the canonical document with attached reader
-            from app.services.media_reader import TelegramMediaReader
-            canonical_doc = fwd_msg.media.document if getattr(fwd_msg, "media", None) and getattr(fwd_msg.media, "document", None) else doc
-            reader = TelegramMediaReader(
-                client=client,
-                document=canonical_doc,
-                file_size=file_size,
-                mime_type=mime_type,
-                file_name=file_name,
-                dc_id=getattr(canonical_doc, "dc_id", None),
-                message_id=canonical_msg_id,
-            )
-
-            from app.services.stream_session import session_manager
-            session = await session_manager.create_playback_session(
-                chat_id="me",
-                message_id=canonical_msg_id,
-                file_name=file_name,
-                mime_type=mime_type,
-                file_size=file_size,
-                reader=reader,
-            )
-
+            session_id = uuid.uuid4().hex[:16]
             elapsed = round(time.perf_counter() - start_time, 2)
             logger.info(
-                "Candidate delivery & session creation successful [session=%s, canonical_msg=%d, file=%s, size=%d, elapsed=%.2fs]",
-                session.session_id[:8],
+                "Candidate delivery successful [canonical_msg=%d, file=%s, size=%d, elapsed=%.2fs]",
                 canonical_msg_id,
                 file_name,
                 file_size,
@@ -1269,9 +1246,9 @@ class TelegramService:
                 browser_playable=compat.browser_playable,
                 container=compat.container or "mkv",
                 playback_mode=compat.playback_mode,
-                session_id=session.session_id,
-                stream_url=session.stream_url,
-                player_url=f"/api/media/session/{session.session_id}/player",
+                session_id=session_id,
+                stream_url=f"/api/stream/{canonical_msg_id}",
+                player_url=f"/player/{session_id}",
                 elapsed_seconds=elapsed,
             )
         finally:
@@ -1327,40 +1304,6 @@ class TelegramService:
             "buttons": buttons,
             "raw_button_rows": button_rows,
         }
-
-    async def get_message_media_reader(
-        self,
-        chat_id: Any = "me",
-        message_id: int = 0,
-    ):
-        """Build an active TelegramMediaReader for any message containing a document."""
-        client = self._get_client()
-        if not client or not client.is_connected():
-            return None
-        from telethon.tl.types import DocumentAttributeFilename
-        from app.services.media_reader import TelegramMediaReader
-
-        msg = await client.get_messages(chat_id, ids=message_id)
-        if not msg or not getattr(msg, "media", None) or not getattr(msg.media, "document", None):
-            return None
-        doc = msg.media.document
-        file_size = getattr(doc, "size", 0)
-        mime_type = getattr(doc, "mime_type", "video/mp4")
-        file_name = "video.mp4"
-        for attr in getattr(doc, "attributes", []):
-            if isinstance(attr, DocumentAttributeFilename):
-                file_name = attr.file_name
-                break
-        return TelegramMediaReader(
-            client=client,
-            document=doc,
-            file_size=file_size,
-            mime_type=mime_type,
-            file_name=file_name,
-            dc_id=getattr(doc, "dc_id", None),
-            message_id=message_id,
-        )
-
 
 telegram_service = TelegramService()
 

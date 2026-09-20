@@ -45,3 +45,6 @@ dist/
 Thumbs.db
 Desktop.ini
 .DS_Store
+
+# External services
+TG-FileStreamBot/
