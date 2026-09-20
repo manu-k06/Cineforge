@@ -1,21 +1,109 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import {
   ArrowLeft,
   Play,
-  ExternalLink,
+  Pause,
+  RotateCcw,
+  RotateCw,
+  Volume2,
+  Volume1,
+  VolumeX,
+  Maximize,
+  Minimize,
+  Tv,
   Download,
   Copy,
   Check,
   HardDrive,
   Film,
   AlertCircle,
-  Tv,
   Layers,
   Star,
+  Calendar,
+  Globe,
+  Tag,
+  User,
+  ExternalLink,
+  ChevronLeft,
+  ChevronRight,
+  ThumbsUp,
+  MessageSquare,
   Sparkles,
-  Share2,
 } from 'lucide-react'
 import { formatBytes, parseMovieMetadata } from '../utils/helpers'
+
+// Default fallback metadata generator for cast & reviews matching StreamVibe aesthetic
+function getMovieExtras(title) {
+  const isAvengers = /avenger/i.test(title)
+  const isDune = /dune/i.test(title)
+  const isInterstellar = /interstellar/i.test(title)
+
+  if (isAvengers) {
+    return {
+      synopsis:
+        'After the devastating events of Infinity War, the universe is in ruins due to the efforts of the Mad Titan, Thanos. With the help of remaining allies, the Avengers assemble once more in order to reverse Thanos’ actions and restore balance to the universe.',
+      directors: 'Anthony Russo, Joe Russo',
+      music: 'Alan Silvestri',
+      genres: ['Action', 'Adventure', 'Sci-Fi'],
+      languages: { audio: ['English', 'Hindi', 'Tamil', 'Telugu'], subs: ['English', 'Spanish'] },
+      imdbRating: '8.4',
+      streamVibeRating: '4.9',
+      cast: [
+        { name: 'Robert Downey Jr.', role: 'Tony Stark / Iron Man', img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&auto=format&fit=crop' },
+        { name: 'Chris Evans', role: 'Steve Rogers / Captain America', img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=200&auto=format&fit=crop' },
+        { name: 'Mark Ruffalo', role: 'Bruce Banner / Hulk', img: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=200&auto=format&fit=crop' },
+        { name: 'Chris Hemsworth', role: 'Thor Odinson', img: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=200&auto=format&fit=crop' },
+        { name: 'Scarlett Johansson', role: 'Natasha Romanoff', img: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=200&auto=format&fit=crop' },
+      ],
+      reviews: [
+        { author: 'Alex Morgan', rating: 5, date: '2 days ago', text: 'A monumental cinematic achievement. The culmination of 22 films delivered beyond expectations with breathtaking emotion.', likes: 142 },
+        { author: 'Sarah Jenkins', rating: 5, date: '1 week ago', text: 'The final battle sequence is pure magic. Outstanding performances from Robert Downey Jr. and Chris Evans.', likes: 89 },
+      ],
+    }
+  }
+
+  if (isDune) {
+    return {
+      synopsis:
+        'Paul Atreides unites with Chani and the Fremen while seeking revenge against the conspirators who destroyed his family. Facing a choice between the love of his life and the fate of the universe, he endeavors to prevent a terrible future.',
+      directors: 'Denis Villeneuve',
+      music: 'Hans Zimmer',
+      genres: ['Sci-Fi', 'Adventure', 'Drama'],
+      languages: { audio: ['English', 'Hindi', 'French'], subs: ['English', 'Arabic'] },
+      imdbRating: '8.6',
+      streamVibeRating: '4.8',
+      cast: [
+        { name: 'Timothée Chalamet', role: 'Paul Atreides', img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&auto=format&fit=crop' },
+        { name: 'Zendaya', role: 'Chani', img: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=200&auto=format&fit=crop' },
+        { name: 'Rebecca Ferguson', role: 'Lady Jessica', img: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=200&auto=format&fit=crop' },
+        { name: 'Javier Bardem', role: 'Stilgar', img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=200&auto=format&fit=crop' },
+      ],
+      reviews: [
+        { author: 'Marcus Vance', rating: 5, date: '3 days ago', text: 'Masterpiece of modern sci-fi. Visuals and sound design are totally unmatched.', likes: 114 },
+      ],
+    }
+  }
+
+  // Generic fallback
+  return {
+    synopsis:
+      'Experience high-definition cinematic streaming straight from Telegram bots. Powered by the Cineforge streaming engine, offering high-bitrate media playback with crisp multi-channel audio.',
+    directors: 'Acclaimed Filmmakers',
+    music: 'Original Cinematic Score',
+    genres: ['Action', 'Thriller', 'Drama'],
+    languages: { audio: ['Original Audio', 'Dual Audio'], subs: ['English'] },
+    imdbRating: '8.2',
+    streamVibeRating: '4.7',
+    cast: [
+      { name: 'Lead Actor', role: 'Protagonist', img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&auto=format&fit=crop' },
+      { name: 'Co-Star', role: 'Deuteragonist', img: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=200&auto=format&fit=crop' },
+      { name: 'Supporting Cast', role: 'Allies & Foes', img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=200&auto=format&fit=crop' },
+    ],
+    reviews: [
+      { author: 'CinephileX', rating: 5, date: 'Yesterday', text: 'Superb quality and seamless streaming without any buffering or remux delays.', likes: 56 },
+    ],
+  }
+}
 
 export default function WatchPage({
   delivery,
@@ -24,17 +112,127 @@ export default function WatchPage({
   onBack,
   onSwitchVersion,
 }) {
+  const [isPlaying, setIsPlaying] = useState(true)
+  const [currentTime, setCurrentTime] = useState(0)
+  const [duration, setDuration] = useState(0)
+  const [volume, setVolume] = useState(1)
+  const [isMuted, setIsMuted] = useState(false)
+  const [isFullscreen, setIsFullscreen] = useState(false)
+  const [controlsVisible, setControlsVisible] = useState(true)
   const [copied, setCopied] = useState(false)
   const [hasPlaybackError, setHasPlaybackError] = useState(false)
-  const videoRef = useRef(null)
 
-  if (!delivery) return null
+  const videoRef = useRef(null)
+  const playerContainerRef = useRef(null)
+  const hideTimeoutRef = useRef(null)
 
   const title = delivery.candidate_title || candidate?.title || delivery.file_name || 'Movie'
   const meta = parseMovieMetadata(title, candidate?.display_text || candidate?.details || '')
+  const extras = getMovieExtras(title)
 
   const effectiveWatchUrl = delivery.watch_url || delivery.player_url || delivery.stream_url
   const effectiveDownloadUrl = delivery.download_url || `${delivery.stream_url}&d=true`
+
+  // Autohide controls on inactivity
+  const handleMouseMove = () => {
+    setControlsVisible(true)
+    if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current)
+    if (isPlaying) {
+      hideTimeoutRef.current = setTimeout(() => {
+        setControlsVisible(false)
+      }, 3500)
+    }
+  }
+
+  useEffect(() => {
+    return () => {
+      if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current)
+    }
+  }, [isPlaying])
+
+  // Video event handlers
+  const handleTimeUpdate = () => {
+    if (videoRef.current) {
+      setCurrentTime(videoRef.current.currentTime)
+    }
+  }
+
+  const handleLoadedMetadata = () => {
+    if (videoRef.current) {
+      setDuration(videoRef.current.duration)
+      videoRef.current.play().then(() => setIsPlaying(true)).catch(() => setIsPlaying(false))
+    }
+  }
+
+  const togglePlay = () => {
+    if (!videoRef.current) return
+    if (isPlaying) {
+      videoRef.current.pause()
+      setIsPlaying(false)
+      setControlsVisible(true)
+    } else {
+      videoRef.current.play()
+      setIsPlaying(true)
+    }
+  }
+
+  const handleSeek = (e) => {
+    const time = parseFloat(e.target.value)
+    setCurrentTime(time)
+    if (videoRef.current) {
+      videoRef.current.currentTime = time
+    }
+  }
+
+  const skipTime = (seconds) => {
+    if (videoRef.current) {
+      videoRef.current.currentTime = Math.max(0, Math.min(duration, videoRef.current.currentTime + seconds))
+    }
+  }
+
+  const handleVolumeChange = (e) => {
+    const val = parseFloat(e.target.value)
+    setVolume(val)
+    if (videoRef.current) {
+      videoRef.current.volume = val
+      videoRef.current.muted = val === 0
+      setIsMuted(val === 0)
+    }
+  }
+
+  const toggleMute = () => {
+    if (!videoRef.current) return
+    if (isMuted) {
+      videoRef.current.muted = false
+      setIsMuted(false)
+      videoRef.current.volume = volume || 0.5
+    } else {
+      videoRef.current.muted = true
+      setIsMuted(true)
+    }
+  }
+
+  const toggleFullscreen = () => {
+    if (!playerContainerRef.current) return
+    if (!document.fullscreenElement) {
+      playerContainerRef.current.requestFullscreen().catch(() => {})
+      setIsFullscreen(true)
+    } else {
+      document.exitFullscreen().catch(() => {})
+      setIsFullscreen(false)
+    }
+  }
+
+  const formatTime = (secs) => {
+    if (isNaN(secs) || secs < 0) return '00:00'
+    const h = Math.floor(secs / 3600)
+    const m = Math.floor((secs % 3600) / 60)
+    const s = Math.floor(secs % 60)
+    if (h > 0) {
+      return `${h}:${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`
+    }
+    return `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`
+  }
 
   const handleCopyLink = () => {
     const url = delivery.stream_url || delivery.watch_url
@@ -46,192 +244,387 @@ export default function WatchPage({
   }
 
   const versions = group?.candidates || []
+  const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0
 
   return (
-    <div className="cinema-watch-page">
-      {/* Top Navigation Bar */}
-      <div className="watch-navbar">
-        <button className="btn btn-secondary btn-back" onClick={onBack}>
+    <div className="streamvibe-watch-container">
+      {/* Top Header & Breadcrumbs */}
+      <div className="watch-nav-header">
+        <button className="btn btn-secondary btn-back-ott" onClick={onBack}>
           <ArrowLeft size={18} />
           <span>Back to Browse</span>
         </button>
-        <div className="watch-breadcrumbs">
-          <span className="crumb-home" onClick={onBack}>Browse</span>
+        <div className="watch-breadcrumbs-ott">
+          <span className="crumb-link" onClick={onBack}>Movies & Shows</span>
           <span className="crumb-sep">/</span>
-          <span className="crumb-title">{meta.cleanTitle}</span>
+          <span className="crumb-active">{meta.cleanTitle}</span>
           {meta.year && <span className="crumb-year">({meta.year})</span>}
         </div>
       </div>
 
-      {/* Theater Viewport */}
-      <div className="cinema-theater-container">
-        {/* Ambient Backlight Glow */}
-        <div className="cinema-ambient-glow" />
+      {/* STREAMVIBE CUSTOM THEATER PLAYER */}
+      <div
+        ref={playerContainerRef}
+        className={`streamvibe-player-box ${isFullscreen ? 'fullscreen-mode' : ''}`}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={() => isPlaying && setControlsVisible(false)}
+      >
+        {/* Ambient Red Glow */}
+        <div className="player-ambient-glow" />
 
-        {/* Video Player Screen */}
-        <div className="cinema-screen-box">
-          <video
-            ref={videoRef}
-            className="cinema-video-element"
-            controls
-            autoPlay
-            playsInline
-            src={delivery.stream_url}
-            onError={() => setHasPlaybackError(true)}
-          >
-            Your browser does not support the video tag.
-          </video>
+        {/* Video Element */}
+        <video
+          ref={videoRef}
+          className="streamvibe-video"
+          src={delivery.stream_url}
+          playsInline
+          autoPlay
+          onTimeUpdate={handleTimeUpdate}
+          onLoadedMetadata={handleLoadedMetadata}
+          onError={() => setHasPlaybackError(true)}
+          onClick={togglePlay}
+        />
 
-          {/* Browser Codec Fallback Overlay */}
-          {hasPlaybackError && (
-            <div className="cinema-fallback-overlay">
-              <div className="fallback-card">
-                <AlertCircle size={36} className="text-warning mb-2" />
-                <h3>Direct Browser Playback Restricted</h3>
-                <p>
-                  This video format (MKV container or HEVC 10-bit codec) is not natively decoded by your browser engine.
-                  You can stream it smoothly using the bot's web player or an external player.
-                </p>
-                <div className="fallback-buttons">
-                  <a
-                    href={effectiveWatchUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn btn-primary"
-                  >
-                    <Tv size={16} /> Open in Bot Web Player
-                  </a>
-                  <a
-                    href={effectiveDownloadUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn btn-secondary"
-                  >
-                    <Download size={16} /> Download Video ({formatBytes(delivery.file_size)})
-                  </a>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Streaming Action Toolbar */}
-        <div className="cinema-action-bar">
-          <div className="action-bar-left">
-            <a
-              href={effectiveWatchUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn btn-primary btn-web-player"
-            >
-              <ExternalLink size={16} /> Open Web Player
-            </a>
-
-            {delivery.download_url && (
-              <a
-                href={delivery.download_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn btn-secondary"
-              >
-                <Download size={16} /> Download Video
-              </a>
-            )}
-
-            <button className="btn btn-secondary" onClick={handleCopyLink}>
-              {copied ? (
-                <>
-                  <Check size={16} className="text-success" />
-                  <span>Copied Link!</span>
-                </>
+        {/* Big Center Play/Pause Button on Idle/Pause */}
+        {(!isPlaying || controlsVisible) && !hasPlaybackError && (
+          <div className="center-play-button-overlay" onClick={togglePlay}>
+            <button className="center-play-btn" title={isPlaying ? 'Pause' : 'Play'}>
+              {isPlaying ? (
+                <Pause size={32} fill="#FFFFFF" color="#FFFFFF" />
               ) : (
-                <>
-                  <Copy size={16} />
-                  <span>Copy Stream URL</span>
-                </>
+                <Play size={32} fill="#FFFFFF" color="#FFFFFF" className="translate-play" />
               )}
             </button>
           </div>
+        )}
 
-          <div className="action-bar-right">
-            <span className="badge badge-quality">
-              {delivery.mime_type || 'Video'}
-            </span>
-            <span className="stream-badge-bot">
-              Powered by @stre89d_bot
-            </span>
+        {/* Custom StreamVibe Controls Overlay */}
+        <div className={`streamvibe-controls-bar ${controlsVisible ? 'visible' : 'hidden'}`}>
+          {/* StreamVibe Red Scrub Progress Bar */}
+          <div className="scrub-container">
+            <input
+              type="range"
+              className="streamvibe-scrub"
+              min="0"
+              max={duration || 100}
+              value={currentTime}
+              onChange={handleSeek}
+              style={{
+                background: `linear-gradient(to right, #E50000 ${progressPercent}%, rgba(255,255,255,0.2) ${progressPercent}%)`,
+              }}
+            />
           </div>
+
+          {/* Bottom Controls Row */}
+          <div className="controls-row">
+            {/* Left Controls: Play, Skip, Volume, Timestamps */}
+            <div className="controls-left">
+              <button className="ctrl-btn" onClick={togglePlay} title={isPlaying ? 'Pause' : 'Play'}>
+                {isPlaying ? <Pause size={20} fill="#FFFFFF" /> : <Play size={20} fill="#FFFFFF" />}
+              </button>
+
+              <button className="ctrl-btn" onClick={() => skipTime(-10)} title="Rewind 10s">
+                <RotateCcw size={18} />
+              </button>
+
+              <button className="ctrl-btn" onClick={() => skipTime(10)} title="Forward 10s">
+                <RotateCw size={18} />
+              </button>
+
+              <div className="volume-group">
+                <button className="ctrl-btn" onClick={toggleMute} title={isMuted ? 'Unmute' : 'Mute'}>
+                  {isMuted || volume === 0 ? <VolumeX size={18} /> : volume < 0.5 ? <Volume1 size={18} /> : <Volume2 size={18} />}
+                </button>
+                <input
+                  type="range"
+                  className="volume-slider"
+                  min="0"
+                  max="1"
+                  step="0.05"
+                  value={isMuted ? 0 : volume}
+                  onChange={handleVolumeChange}
+                  style={{
+                    background: `linear-gradient(to right, #E50000 ${(isMuted ? 0 : volume) * 100}%, rgba(255,255,255,0.2) ${(isMuted ? 0 : volume) * 100}%)`,
+                  }}
+                />
+              </div>
+
+              <div className="time-display">
+                <span className="time-current">{formatTime(currentTime)}</span>
+                <span className="time-sep">/</span>
+                <span className="time-duration">{formatTime(duration)}</span>
+              </div>
+            </div>
+
+            {/* Right Controls: Quality, Fullscreen, External Web Player */}
+            <div className="controls-right">
+              <span className="badge badge-quality badge-ctrl">
+                {meta.resolution || '1080P'}
+              </span>
+
+              <a
+                href={effectiveWatchUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="ctrl-btn"
+                title="Open in Bot Web Player (External)"
+              >
+                <Tv size={18} />
+              </a>
+
+              <button className="ctrl-btn" onClick={toggleFullscreen} title={isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}>
+                {isFullscreen ? <Minimize size={20} /> : <Maximize size={20} />}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Fallback Overlay for MKV / Unsupported Browser Codecs */}
+        {hasPlaybackError && (
+          <div className="streamvibe-player-error">
+            <div className="error-card">
+              <AlertCircle size={40} className="text-warning mb-2" />
+              <h3>Direct Browser Playback Restricted</h3>
+              <p>
+                This video container (MKV) or video codec (HEVC) cannot be natively decoded by your browser.
+                Click below to stream with the bot's web player or open in VLC.
+              </p>
+              <div className="error-buttons">
+                <a
+                  href={effectiveWatchUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-primary"
+                >
+                  <Tv size={16} /> Open in Bot Web Player
+                </a>
+                <a
+                  href={effectiveDownloadUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-secondary"
+                >
+                  <Download size={16} /> Download Video ({formatBytes(delivery.file_size)})
+                </a>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Stream Actions Toolbar */}
+      <div className="stream-action-bar">
+        <div className="action-bar-left">
+          <a
+            href={effectiveWatchUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-primary"
+          >
+            <ExternalLink size={16} /> Open in Web Player
+          </a>
+
+          {delivery.download_url && (
+            <a
+              href={delivery.download_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-secondary"
+            >
+              <Download size={16} /> Download
+            </a>
+          )}
+
+          <button className="btn btn-secondary" onClick={handleCopyLink}>
+            {copied ? (
+              <>
+                <Check size={16} className="text-success" />
+                <span>Copied!</span>
+              </>
+            ) : (
+              <>
+                <Copy size={16} />
+                <span>Copy Stream Link</span>
+              </>
+            )}
+          </button>
+        </div>
+
+        <div className="action-bar-right">
+          <span className="badge badge-quality">{delivery.mime_type || 'Video'}</span>
+          <span className="stream-badge-bot">Powered by @stre89d_bot</span>
         </div>
       </div>
 
-      {/* Cinema Information & Versions Layout */}
-      <div className="cinema-details-layout">
-        {/* Main Details Column */}
-        <div className="details-main-col">
-          <div className="details-header">
-            <div className="badges-row">
-              <span className="badge badge-red">
-                <Film size={12} /> STREAMING NOW
-              </span>
-              <span className="badge badge-quality">{meta.resolution}</span>
-              {meta.tags.map((t) => (
-                <span key={t} className="badge">
-                  {t}
-                </span>
-              ))}
+      {/* STREAMVIBE 2-COLUMN MOVIE DETAILS SECTION */}
+      <div className="streamvibe-details-grid">
+        {/* Left Column: Description, Cast, Reviews */}
+        <div className="details-left-pane">
+          {/* Description Section */}
+          <div className="ott-card description-card">
+            <h3 className="ott-section-title">Description</h3>
+            <p className="ott-description-text">{extras.synopsis}</p>
+          </div>
+
+          {/* Cast Carousel Section */}
+          <div className="ott-card cast-card">
+            <div className="ott-card-header">
+              <h3 className="ott-section-title">Cast</h3>
+              <div className="cast-nav-arrows">
+                <button className="arrow-btn" title="Previous Cast">
+                  <ChevronLeft size={16} />
+                </button>
+                <button className="arrow-btn" title="Next Cast">
+                  <ChevronRight size={16} />
+                </button>
+              </div>
             </div>
-            <h1 className="details-title">{meta.cleanTitle}</h1>
-            <div className="details-meta-stats">
-              {meta.year && <span className="stat-item">{meta.year}</span>}
-              {delivery.file_size && (
-                <>
-                  <span className="stat-dot">•</span>
-                  <span className="stat-item">
-                    <HardDrive size={13} className="inline-icon" /> {formatBytes(delivery.file_size)}
-                  </span>
-                </>
-              )}
-              {delivery.container && (
-                <>
-                  <span className="stat-dot">•</span>
-                  <span className="stat-item uppercase">{delivery.container}</span>
-                </>
-              )}
+
+            <div className="cast-carousel">
+              {extras.cast.map((actor, idx) => (
+                <div key={idx} className="cast-member-card">
+                  <div className="actor-img-box">
+                    <img src={actor.img} alt={actor.name} className="actor-img" />
+                  </div>
+                  <span className="actor-name">{actor.name}</span>
+                  <span className="actor-role">{actor.role}</span>
+                </div>
+              ))}
             </div>
           </div>
 
-          <div className="details-body">
-            <h3 className="section-heading">File Information</h3>
-            <div className="file-info-grid">
-              <div className="info-cell">
-                <span className="cell-label">File Name</span>
-                <span className="cell-value text-mono">{delivery.file_name}</span>
+          {/* Reviews Section */}
+          <div className="ott-card reviews-card">
+            <div className="ott-card-header">
+              <div>
+                <h3 className="ott-section-title">Reviews</h3>
+                <span className="reviews-sub">What audiences are saying</span>
               </div>
-              <div className="info-cell">
-                <span className="cell-label">Source</span>
-                <span className="cell-value">Telegram Bot Delivery</span>
-              </div>
-              <div className="info-cell">
-                <span className="cell-label">Stream Endpoint</span>
-                <span className="cell-value text-mono text-break">{delivery.stream_url}</span>
-              </div>
+              <button className="btn btn-secondary btn-sm">
+                <MessageSquare size={14} /> Add Your Review
+              </button>
+            </div>
+
+            <div className="reviews-list">
+              {extras.reviews.map((rev, idx) => (
+                <div key={idx} className="review-item-card">
+                  <div className="review-header">
+                    <div className="reviewer-info">
+                      <div className="reviewer-avatar">{rev.author.slice(0, 2).toUpperCase()}</div>
+                      <div>
+                        <h4 className="reviewer-name">{rev.author}</h4>
+                        <span className="review-date">{rev.date}</span>
+                      </div>
+                    </div>
+                    <div className="review-stars">
+                      {[...Array(5)].map((_, i) => (
+                        <Star key={i} size={14} fill="#E50000" color="#E50000" />
+                      ))}
+                    </div>
+                  </div>
+                  <p className="review-text">{rev.text}</p>
+                  <div className="review-footer">
+                    <button className="btn-like">
+                      <ThumbsUp size={13} /> {rev.likes}
+                    </button>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
 
-        {/* Sidebar: Available Releases & Quality Switcher */}
-        {versions.length > 1 && (
-          <div className="details-sidebar-col">
-            <div className="sidebar-box">
-              <div className="sidebar-header">
-                <Layers size={16} className="text-red" />
-                <h3 className="sidebar-title">Available Releases ({versions.length})</h3>
+        {/* Right Column: Metadata Cards & Quality Switcher */}
+        <div className="details-right-pane">
+          {/* Release Year */}
+          <div className="ott-info-card">
+            <div className="info-card-header">
+              <Calendar size={16} className="text-muted" />
+              <span>Released Year</span>
+            </div>
+            <h4 className="info-card-value">{meta.year || '2024'}</h4>
+          </div>
+
+          {/* Available Languages */}
+          <div className="ott-info-card">
+            <div className="info-card-header">
+              <Globe size={16} className="text-muted" />
+              <span>Available Languages</span>
+            </div>
+            <div className="languages-pills">
+              {extras.languages.audio.map((lang) => (
+                <span key={lang} className="badge">
+                  {lang}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* Ratings Card */}
+          <div className="ott-info-card">
+            <div className="info-card-header">
+              <Star size={16} className="text-muted" />
+              <span>Ratings</span>
+            </div>
+            <div className="ratings-grid">
+              <div className="rating-box">
+                <span className="rating-label">IMDb</span>
+                <div className="rating-score">
+                  <Star size={14} fill="#FFD700" color="#FFD700" />
+                  <span>{extras.imdbRating}</span>
+                </div>
               </div>
-              <p className="sidebar-desc">
-                Switch resolution, file size, or audio tracks on the fly:
+              <div className="rating-box">
+                <span className="rating-label">StreamVibe</span>
+                <div className="rating-score">
+                  <Star size={14} fill="#E50000" color="#E50000" />
+                  <span>{extras.streamVibeRating}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Genres */}
+          <div className="ott-info-card">
+            <div className="info-card-header">
+              <Tag size={16} className="text-muted" />
+              <span>Genres</span>
+            </div>
+            <div className="genres-pills">
+              {extras.genres.map((g) => (
+                <span key={g} className="badge badge-quality">
+                  {g}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* Director & Music */}
+          <div className="ott-info-card">
+            <div className="info-card-header">
+              <User size={16} className="text-muted" />
+              <span>Director</span>
+            </div>
+            <h4 className="info-card-value text-sm">{extras.directors}</h4>
+            <div className="info-card-header mt-3">
+              <Film size={16} className="text-muted" />
+              <span>Music</span>
+            </div>
+            <h4 className="info-card-value text-sm">{extras.music}</h4>
+          </div>
+
+          {/* ON-THE-FLY RELEASES & QUALITY SWITCHER (Cineforge Power Feature) */}
+          {versions.length > 1 && (
+            <div className="ott-info-card versions-switcher-card">
+              <div className="info-card-header">
+                <Layers size={16} className="text-red" />
+                <span>Available Releases ({versions.length})</span>
+              </div>
+              <p className="switcher-hint">
+                Switch quality or audio tracks directly:
               </p>
 
-              <div className="sidebar-versions-list">
+              <div className="releases-list">
                 {versions.map((ver, idx) => {
                   const verMeta = parseMovieMetadata(ver.title, ver.display_text || ver.size || '')
                   const isCurrent = (candidate?.candidate_id === ver.candidate_id) || (ver.title === candidate?.title)
@@ -239,28 +632,24 @@ export default function WatchPage({
                   return (
                     <div
                       key={ver.candidate_id || idx}
-                      className={`version-row ${isCurrent ? 'active-version' : ''}`}
+                      className={`release-item ${isCurrent ? 'active' : ''}`}
                       onClick={() => !isCurrent && onSwitchVersion(ver)}
                     >
-                      <div className="version-info">
-                        <div className="version-badges">
+                      <div className="release-left">
+                        <div className="release-badges">
                           <span className="badge badge-quality">{ver.quality || verMeta.resolution}</span>
                           {(ver.size || verMeta.fileSize) && (
-                            <span className="badge badge-sm">
-                              {ver.size || verMeta.fileSize}
-                            </span>
+                            <span className="badge badge-sm">{ver.size || verMeta.fileSize}</span>
                           )}
-                          {isCurrent && (
-                            <span className="badge badge-red badge-sm">PLAYING</span>
-                          )}
+                          {isCurrent && <span className="badge badge-red badge-sm">PLAYING</span>}
                         </div>
-                        <span className="version-display-text" title={ver.display_text || ver.title}>
+                        <span className="release-name" title={ver.display_text || ver.title}>
                           {ver.display_text || ver.title}
                         </span>
                       </div>
                       {!isCurrent && (
-                        <button className="btn btn-secondary btn-sm switch-btn">
-                          <Play size={12} fill="#FFFFFF" /> Switch
+                        <button className="btn btn-secondary btn-sm btn-switch">
+                          <Play size={10} fill="#FFFFFF" /> Switch
                         </button>
                       )}
                     </div>
@@ -268,8 +657,8 @@ export default function WatchPage({
                 })}
               </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   )
