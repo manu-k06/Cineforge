@@ -5,11 +5,12 @@ import SearchBar from './components/SearchBar'
 import MovieGrid from './components/MovieGrid'
 import VersionPickerModal from './components/VersionPickerModal'
 import DeliveryModal from './components/DeliveryModal'
-import PlayerModal from './components/PlayerModal'
+import WatchPage from './components/WatchPage'
 import { searchMovies, deliverCandidate, getBackendHealth } from './services/api'
 import { parseMovieMetadata } from './utils/helpers'
 
 export default function App() {
+  const [currentView, setCurrentView] = useState('browse') // 'browse' | 'watch'
   const [activeTab, setActiveTab] = useState('home')
   const [isBackendOnline, setIsBackendOnline] = useState(true)
 
@@ -23,9 +24,11 @@ export default function App() {
   const [isSearching, setIsSearching] = useState(false)
   const [searchError, setSearchError] = useState(null)
 
-  // Delivery & Modals state
+  // Delivery & Cinema Watch state
   const [selectedGroup, setSelectedGroup] = useState(null)
+  const [activeMovieGroup, setActiveMovieGroup] = useState(null)
   const [candidateInDelivery, setCandidateInDelivery] = useState(null)
+  const [activeCandidate, setActiveCandidate] = useState(null)
   const [deliveryError, setDeliveryError] = useState(null)
   const [activeDelivery, setActiveDelivery] = useState(null)
 
@@ -65,6 +68,11 @@ export default function App() {
   // Search executor
   const handleSearch = async (query, pageNum = 1) => {
     if (!query.trim()) return
+
+    // If on watch page, switch back to browse
+    if (currentView === 'watch') {
+      setCurrentView('browse')
+    }
 
     setIsSearching(true)
     setSearchError(null)
@@ -106,19 +114,23 @@ export default function App() {
 
   // Handle movie selection from grid
   const handleSelectMovie = (group) => {
+    setActiveMovieGroup(group)
     if (group.candidates && group.candidates.length > 1) {
       setSelectedGroup(group)
     } else {
       const single = group.candidates ? group.candidates[0] : group
-      startDelivery(single)
+      startDelivery(single, group)
     }
   }
 
   // Start the 3-step stream delivery pipeline
-  const startDelivery = async (candidate) => {
+  const startDelivery = async (candidate, group = null) => {
     setSelectedGroup(null)
     setCandidateInDelivery(candidate)
     setDeliveryError(null)
+    if (group) {
+      setActiveMovieGroup(group)
+    }
 
     try {
       const result = await deliverCandidate(candidate)
@@ -126,7 +138,10 @@ export default function App() {
         result.candidate_title = candidate.title
       }
       setCandidateInDelivery(null)
+      setActiveCandidate(candidate)
       setActiveDelivery(result)
+      setCurrentView('watch') // Transition into dedicated cinema watch page!
+      window.scrollTo({ top: 0, behavior: 'smooth' })
     } catch (err) {
       console.error('Delivery pipeline failed:', err)
       setDeliveryError(err.message || 'Stream generation failed. Please try another release.')
@@ -139,6 +154,9 @@ export default function App() {
   }
 
   const handleScrollToSearch = () => {
+    if (currentView === 'watch') {
+      setCurrentView('browse')
+    }
     searchBarRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
 
@@ -151,6 +169,7 @@ export default function App() {
         activeTab={activeTab}
         setActiveTab={(tab) => {
           setActiveTab(tab)
+          setCurrentView('browse')
           if (tab === 'home') {
             setSearchQuery('')
             setRawCandidates([])
@@ -160,33 +179,47 @@ export default function App() {
       />
 
       <main className="main-content">
-        {/* Hero Showcase (shown when not actively searching) */}
-        {!searchQuery && (
-          <HeroBanner onQuickPlay={handleHeroQuickPlay} />
-        )}
-
-        {/* Search Bar Section */}
-        <div ref={searchBarRef}>
-          <SearchBar
-            onSearch={(q) => handleSearch(q, 1)}
-            isLoading={isSearching}
-            currentQuery={searchQuery}
+        {/* Dedicated OTT Cinema Watch Page */}
+        {currentView === 'watch' && activeDelivery ? (
+          <WatchPage
+            delivery={activeDelivery}
+            candidate={activeCandidate}
+            group={activeMovieGroup}
+            onBack={() => setCurrentView('browse')}
+            onSwitchVersion={(ver) => startDelivery(ver, activeMovieGroup)}
           />
-        </div>
+        ) : (
+          /* Browse & Discovery View */
+          <>
+            {/* Hero Showcase (shown when not actively searching) */}
+            {!searchQuery && (
+              <HeroBanner onQuickPlay={handleHeroQuickPlay} />
+            )}
 
-        {/* Results / Discovery Movie Grid */}
-        <MovieGrid
-          items={rawCandidates}
-          groupedItems={groupedCandidates}
-          isLoading={isSearching}
-          searchQuery={searchQuery}
-          page={page}
-          totalPages={totalPages}
-          hasNextPage={hasNextPage}
-          onPageChange={(newPage) => handleSearch(searchQuery, newPage)}
-          onSelectMovie={handleSelectMovie}
-          onQuickSearch={(q) => handleSearch(q, 1)}
-        />
+            {/* Search Bar Section */}
+            <div ref={searchBarRef}>
+              <SearchBar
+                onSearch={(q) => handleSearch(q, 1)}
+                isLoading={isSearching}
+                currentQuery={searchQuery}
+              />
+            </div>
+
+            {/* Results / Discovery Movie Grid */}
+            <MovieGrid
+              items={rawCandidates}
+              groupedItems={groupedCandidates}
+              isLoading={isSearching}
+              searchQuery={searchQuery}
+              page={page}
+              totalPages={totalPages}
+              hasNextPage={hasNextPage}
+              onPageChange={(newPage) => handleSearch(searchQuery, newPage)}
+              onSelectMovie={handleSelectMovie}
+              onQuickSearch={(q) => handleSearch(q, 1)}
+            />
+          </>
+        )}
       </main>
 
       {/* Version Picker Modal */}
@@ -194,7 +227,7 @@ export default function App() {
         <VersionPickerModal
           group={selectedGroup}
           onClose={() => setSelectedGroup(null)}
-          onSelectCandidate={startDelivery}
+          onSelectCandidate={(cand) => startDelivery(cand, selectedGroup)}
         />
       )}
 
@@ -207,15 +240,7 @@ export default function App() {
             setCandidateInDelivery(null)
             setDeliveryError(null)
           }}
-          onRetry={() => startDelivery(candidateInDelivery)}
-        />
-      )}
-
-      {/* Video Player Modal */}
-      {activeDelivery && (
-        <PlayerModal
-          delivery={activeDelivery}
-          onClose={() => setActiveDelivery(null)}
+          onRetry={() => startDelivery(candidateInDelivery, activeMovieGroup)}
         />
       )}
     </div>
