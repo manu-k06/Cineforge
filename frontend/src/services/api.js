@@ -3,8 +3,10 @@
  * Connects frontend to FastAPI Telegram bot delivery backend
  */
 
+const API_BASE = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '')
+
 export async function searchMovies(query, page = 1) {
-  const url = `/api/search?q=${encodeURIComponent(query)}&page=${page}`
+  const url = `${API_BASE}/api/search?q=${encodeURIComponent(query)}&page=${page}`
   const response = await fetch(url)
   
   if (!response.ok) {
@@ -24,7 +26,7 @@ export async function deliverCandidate(candidate) {
     start_payload: candidate.start_payload || null,
   }
 
-  const response = await fetch('/api/search/deliver', {
+  const response = await fetch(`${API_BASE}/api/search/deliver`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -42,7 +44,7 @@ export async function deliverCandidate(candidate) {
 
 export async function getBackendHealth() {
   try {
-    const response = await fetch('/health')
+    const response = await fetch(`${API_BASE}/health`)
     return response.ok
   } catch {
     return false
