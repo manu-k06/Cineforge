@@ -1213,11 +1213,35 @@ class TelegramService:
                     file_name = attr.file_name
                     break
 
-            # Forward the delivered file to Saved Messages ('me') to obtain a permanent, canonical reference
+            # 1. Forward the delivered file to Saved Messages ('me') for a permanent canonical backup
             logger.info("Forwarding delivered document (msg %d) to 'me' for canonical reference...", delivered_msg.id)
             fwd_msg = await client.forward_messages("me", delivered_msg.id, bot_chat_id)
             canonical_msg_id = fwd_msg.id
             logger.info("Canonical media reference created in 'me' [message_id=%d]", canonical_msg_id)
+
+            # 2. Forward to Streamer Bot (@stre89d_bot) to obtain fast streaming & web watch URLs
+            streamer_bot = settings.TELEGRAM_STREAMER_BOT_USERNAME or "stre89d_bot"
+            logger.info("Forwarding delivered document to Streamer Bot @%s...", streamer_bot)
+            streamer_links = {"stream_url": None, "watch_url": None, "download_url": None}
+
+            try:
+                streamer_entity = await client.get_entity(streamer_bot)
+                streamer_reply = None
+
+                try:
+                    async with client.conversation(streamer_entity, timeout=30.0) as conv:
+                        await client.forward_messages(streamer_entity, delivered_msg.id, bot_chat_id)
+                        streamer_reply = await conv.get_response()
+                except Exception as conv_err:
+                    logger.warning("Conversation waiter with @%s had issue: %s. Checking recent chat messages...", streamer_bot, conv_err)
+                    await asyncio.sleep(2.0)
+                    recent_msgs = await client.get_messages(streamer_entity, limit=2)
+                    streamer_reply = recent_msgs[0] if recent_msgs else None
+
+                streamer_links = self._extract_streamer_links(streamer_reply)
+                logger.info("Streamer bot links extracted: %s", streamer_links)
+            except Exception as stream_err:
+                logger.error("Failed to get streaming links from @%s: %s", streamer_bot, str(stream_err))
 
             # Evaluate authoritative compatibility on the real delivered file
             from app.services.compatibility import compatibility_service
@@ -1227,12 +1251,16 @@ class TelegramService:
             )
 
             session_id = uuid.uuid4().hex[:16]
+            final_stream_url = streamer_links.get("stream_url") or f"/api/stream/{canonical_msg_id}"
+            final_watch_url = streamer_links.get("watch_url") or final_stream_url
+            final_download_url = streamer_links.get("download_url")
+
             elapsed = round(time.perf_counter() - start_time, 2)
             logger.info(
-                "Candidate delivery successful [canonical_msg=%d, file=%s, size=%d, elapsed=%.2fs]",
+                "Candidate delivery successful [canonical_msg=%d, file=%s, stream_url=%s, elapsed=%.2fs]",
                 canonical_msg_id,
                 file_name,
-                file_size,
+                final_stream_url,
                 elapsed,
             )
 
@@ -1247,14 +1275,50 @@ class TelegramService:
                 container=compat.container or "mkv",
                 playback_mode=compat.playback_mode,
                 session_id=session_id,
-                stream_url=f"/api/stream/{canonical_msg_id}",
-                player_url=f"/player/{session_id}",
+                stream_url=final_stream_url,
+                player_url=final_watch_url,
+                watch_url=final_watch_url,
+                download_url=final_download_url,
                 elapsed_seconds=elapsed,
             )
         finally:
             trigger_task.cancel()
             async with self._waiters_lock:
                 self._waiters.pop(req_id, None)
+
+    def _extract_streamer_links(self, reply_message) -> Dict[str, Optional[str]]:
+        """Extract stream_url, watch_url, and download_url from Streamer Bot response."""
+        if not reply_message:
+            return {"stream_url": None, "watch_url": None, "download_url": None}
+
+        stream_url = None
+        watch_url = None
+        download_url = None
+
+        reply_text = getattr(reply_message, "message", "") or ""
+        text_urls = re.findall(r'https?://[^\s<>"]+', reply_text)
+        if text_urls:
+            stream_url = text_urls[0]
+
+        if hasattr(reply_message, "buttons") and reply_message.buttons:
+            for row in reply_message.buttons:
+                for btn in row:
+                    btn_text = (getattr(btn, "text", "") or "").lower()
+                    btn_url = getattr(btn, "url", None)
+                    if not btn_url:
+                        continue
+                    if "watch" in btn_text or "online" in btn_text:
+                        watch_url = btn_url
+                    elif "download" in btn_text:
+                        download_url = btn_url
+                    elif "stream" in btn_text:
+                        stream_url = btn_url
+
+        return {
+            "stream_url": stream_url or (text_urls[0] if text_urls else None),
+            "watch_url": watch_url or stream_url,
+            "download_url": download_url,
+        }
 
 
     async def test_search_bot(self, query: str, timeout: Optional[float] = None) -> Dict[str, Any]:

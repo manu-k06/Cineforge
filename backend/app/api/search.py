@@ -357,8 +357,10 @@ async def deliver_candidate_file(
             container="mp4" if is_mp4 else "mkv",
             playback_mode="browser" if is_mp4 else "external",
             session_id=mock_session_id,
-            stream_url=f"http://127.0.0.1:8080/watch/{mock_session_id}",
-            player_url=f"/api/media/session/{mock_session_id}/player",
+            stream_url=f"https://app-engine-rbtn.onrender.com/stream/27?hash=03afc8",
+            player_url=f"https://app-engine-rbtn.onrender.com/watch/27?hash=03afc8",
+            watch_url=f"https://app-engine-rbtn.onrender.com/watch/27?hash=03afc8",
+            download_url=f"https://app-engine-rbtn.onrender.com/stream/27?hash=03afc8",
             elapsed_seconds=0.75,
         )
 
