@@ -63,10 +63,12 @@ export function AuthProvider({ children }) {
     if (!isSupabaseConfigured || !supabase) {
       throw new Error('Supabase is not configured. Please add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to your frontend environment.')
     }
+    const redirectUrl = typeof window !== 'undefined' ? window.location.origin : undefined
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
+        emailRedirectTo: redirectUrl,
         data: {
           full_name: fullName,
         },
@@ -75,6 +77,7 @@ export function AuthProvider({ children }) {
     if (error) throw error
     return data
   }
+
 
   const signOut = async () => {
     if (!isSupabaseConfigured || !supabase) {
