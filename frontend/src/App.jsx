@@ -6,10 +6,13 @@ import MovieGrid from './components/MovieGrid'
 import VersionPickerModal from './components/VersionPickerModal'
 import DeliveryModal from './components/DeliveryModal'
 import WatchPage from './components/WatchPage'
+import AuthModal from './components/AuthModal'
+import { useAuth } from './context/AuthContext'
 import { searchMovies, deliverCandidate, getBackendHealth } from './services/api'
 import { parseMovieMetadata } from './utils/helpers'
 
 export default function App() {
+  const { isAuthModalOpen, closeAuthModal } = useAuth()
   const [currentView, setCurrentView] = useState('browse') // 'browse' | 'watch'
   const [activeTab, setActiveTab] = useState('home')
   const [isBackendOnline, setIsBackendOnline] = useState(true)
@@ -335,6 +338,13 @@ export default function App() {
           onRetry={() => startDelivery(candidateInDelivery, activeMovieGroup)}
         />
       )}
+
+      {/* Supabase Authentication Modal */}
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={closeAuthModal}
+      />
     </div>
   )
 }
+
