@@ -24,6 +24,12 @@ class Settings(BaseSettings):
     TELEGRAM_SESSION_NAME: str = "cineforge_session"
     TELEGRAM_STRING_SESSION: Optional[str] = None
 
+    # Phase 1: CineAI Intelligence & Query Refinement Engine
+    GEMINI_API_KEY: Optional[str] = None
+    GEMINI_MODEL: str = "gemini-3.5-flash-lite"
+    AI_SEARCH_ENABLED: bool = True
+    AI_REQUEST_TIMEOUT: float = 4.0
+
     # Telegram Bot Interaction Settings (Third-party Bot & Streamer Bot)
     TELEGRAM_BOT_USERNAME: str = ""
     TELEGRAM_STREAMER_BOT_USERNAME: str = ""

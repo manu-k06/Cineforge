@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: cineforge-api
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: TELEGRAM_API_ID
+        sync: false
+      - key: TELEGRAM_API_HASH
+        sync: false
+      - key: TELEGRAM_STRING_SESSION
+        sync: false
+      - key: TELEGRAM_BOT_USERNAME
+        sync: false
+      - key: CORS_ORIGINS
+        value: '["https://cineforge-v1.vercel.app","http://localhost:5173"]'

@@ -1,6 +1,8 @@
 from typing import Any, Dict, List, Optional
 from pydantic import BaseModel, Field
 
+from app.models.ai import AiQueryInterpretation
+
 
 class ButtonInfo(BaseModel):
     text: str = Field(..., description="Button display label text")
@@ -70,6 +72,9 @@ class SearchResponse(BaseModel):
     candidates: List[SearchCandidate] = Field(default_factory=list, description="Aggregated and ranked media candidates")
     pagination: Optional[SearchPaginationInfo] = Field(None, description="Pagination metadata")
     title_groups: Dict[str, List[SearchCandidate]] = Field(default_factory=dict, description="Candidates grouped by title")
+    ai_interpretation: Optional["AiQueryInterpretation"] = Field(
+        None, description="CineAI query interpretation and refinement details if applicable"
+    )
 
 
 class TelegramDebugSearchResponse(BaseModel):

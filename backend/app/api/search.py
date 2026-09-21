@@ -15,6 +15,7 @@ from app.models.search import (
     SearchResponse,
     SearchResultItem,
 )
+from app.services.ai_service import ai_service
 from app.services.compatibility import compatibility_service
 from app.services.search_aggregator import search_aggregator
 from app.services.telegram import telegram_service
@@ -32,6 +33,7 @@ async def search_movies(
     callback_data: Optional[str] = Query(None, description="Callback data for next page navigation"),
     source_message_id: Optional[int] = Query(None, description="Search message ID containing pagination button"),
     mock: bool = Query(False, description="Simulate multi-file candidate list for compatibility testing"),
+    use_ai: bool = Query(True, description="Enable CineAI query refinement for typos and natural language prompts"),
 ) -> SearchResponse:
     """Send a search query to the Telegram bot, aggregate candidates across pages,
 
@@ -43,7 +45,16 @@ async def search_movies(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Query parameter 'q' or 'query' cannot be empty or only whitespace.",
         )
-    query_str = search_term or "Search Results"
+
+    ai_interpretation = None
+    if use_ai and search_term and not callback_data:
+        ai_interpretation = await ai_service.refine_movie_query(search_term)
+        if ai_interpretation and ai_interpretation.is_refined:
+            query_str = ai_interpretation.search_query
+        else:
+            query_str = search_term
+    else:
+        query_str = search_term or "Search Results"
 
     # Mock mode for Phase 14/15 automated & manual verification
     if mock or query_str.lower() in ("mock", "test", "test_movie"):
@@ -222,6 +233,7 @@ async def search_movies(
             candidates=mock_candidates,
             pagination=pagination,
             title_groups=title_groups,
+            ai_interpretation=ai_interpretation,
         )
 
     try:
@@ -263,6 +275,7 @@ async def search_movies(
             candidates=candidates,
             pagination=data.get("pagination"),
             title_groups=data.get("title_groups", {}),
+            ai_interpretation=ai_interpretation,
         )
     except ValueError as e:
         raise HTTPException(
