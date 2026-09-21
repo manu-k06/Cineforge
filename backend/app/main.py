@@ -4,7 +4,7 @@ import app.services.telethon_compat  # noqa: F401 - Register MTProto compatibili
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api import ai_router, search_router, telegram_router
+from app.api import ai_router, cache_router, search_router, telegram_router
 from app.config import settings
 from app.services.telegram import telegram_service
 
@@ -38,6 +38,7 @@ app.add_middleware(
 app.include_router(search_router, prefix="/api", tags=["Search"])
 app.include_router(telegram_router, prefix="/api/telegram", tags=["Telegram"])
 app.include_router(ai_router, prefix="/api/ai", tags=["CineAI"])
+app.include_router(cache_router, prefix="/api/cache", tags=["Cache"])
 
 
 @app.get("/health", tags=["Health"])

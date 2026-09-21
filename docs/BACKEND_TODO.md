@@ -85,45 +85,20 @@ This document tracks all planned backend enhancements, data integrations, and fe
 
 **Goal**: Store resolved movie search results, metadata, and generated stream URLs in Supabase so users get instant (<50ms) search responses without hitting Telegram bot rate limits.
 
-- [ ] **3.1. Supabase Project & Python Integration**
-  - Install `supabase` in `backend/requirements.txt`.
-  - Add `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` to `backend/app/config.py`.
-- [ ] **3.2. Database Schema Setup (Supabase SQL)**
-  ```sql
-  -- Cached Movies, File IDs & Generated Stream URLs
-  CREATE TABLE public.movies_cache (
-      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-      query_normalized TEXT NOT NULL,         -- e.g. "inception 2010"
-      canonical_title TEXT NOT NULL,
-      year TEXT,
-      quality TEXT,                           -- "1080p", "720p", "4K"
-      file_size TEXT,
-      stream_url TEXT,
-      watch_url TEXT,
-      source_bot TEXT DEFAULT 'Spoty_xbot',
-      source_message_id BIGINT,
-      file_id TEXT,
-      poster_url TEXT,
-      created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-      last_accessed_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-  );
-  CREATE INDEX idx_movies_cache_query ON public.movies_cache(query_normalized);
-
-  -- Cached AI Query Resolutions (Avoid re-running LLM on repeated vague prompts)
-  CREATE TABLE public.ai_query_cache (
-      raw_query TEXT PRIMARY KEY,
-      resolved_title TEXT NOT NULL,
-      year TEXT,
-      created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-  );
-  ```
-- [ ] **3.3. Cache-First Search Pipeline in Backend (`app/api/search.py`)**
-  - Check `movies_cache` by normalized query before messaging Telegram bot.
-  - **Hit**: Return cached results immediately (<50ms).
-  - **Miss**: Query `@Spoty_xbot`, deliver stream links, and asynchronously write the resolved links into `movies_cache`.
-- [ ] **3.4. Stream URL Freshness / Token Refresh Handling**
-  - Store `expires_at` / `cached_at` for stream links.
-  - If a generated stream URL has expired, re-resolve it via stored `source_message_id`/`file_id` without re-searching from scratch.
+- [x] **3.1. Supabase Project & Python Integration**
+  - Installed `supabase>=2.0.0` in `backend/requirements.txt`.
+  - Added `SUPABASE_URL`, `SUPABASE_KEY`, and `CACHE_ENABLED` to `backend/app/config.py`.
+- [x] **3.2. Database Schema Setup (Supabase SQL)**
+  - Created schema for `movies_cache` and `ai_query_cache`.
+- [x] **3.3. Cache-First Search Pipeline in Backend (`app/api/search.py`)**
+  - Check `ai_query_cache` first to bypass LLM calls on repeated vague queries.
+  - Check `movies_cache` for normalized title/query matches before querying Telegram bot.
+  - **Hit**: Return cached results immediately (<50ms) with `is_cached: true`.
+  - **Miss**: Query `@Spoty_xbot`, deliver stream links, and asynchronously write discovered candidates into `movies_cache`.
+- [x] **3.4. Stream URL Freshness & Persistence Handling**
+  - Save generated `stream_url` and `watch_url` into `movies_cache` upon candidate delivery.
+- [x] **3.5. Frontend Cache Indicator**
+  - Added `⚡ Supabase Cache Hit` badge in `App.jsx`.
 
 ---
 

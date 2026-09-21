@@ -1,3 +1,4 @@
+import asyncio
 import json
 import logging
 import re
@@ -16,6 +17,7 @@ from app.models.search import (
     SearchResultItem,
 )
 from app.services.ai_service import ai_service
+from app.services.cache_service import cache_service
 from app.services.compatibility import compatibility_service
 from app.services.search_aggregator import search_aggregator
 from app.services.telegram import telegram_service
@@ -48,7 +50,15 @@ async def search_movies(
 
     ai_interpretation = None
     if use_ai and search_term and not callback_data:
-        ai_interpretation = await ai_service.refine_movie_query(search_term)
+        # Check cache for previous AI query interpretation first
+        cached_ai = await cache_service.get_cached_ai_query(search_term)
+        if cached_ai:
+            ai_interpretation = cached_ai
+        else:
+            ai_interpretation = await ai_service.refine_movie_query(search_term)
+            if ai_interpretation and ai_interpretation.is_refined:
+                asyncio.create_task(cache_service.save_ai_query(search_term, ai_interpretation))
+
         if ai_interpretation and ai_interpretation.is_refined:
             query_str = ai_interpretation.search_query
         else:
@@ -234,7 +244,29 @@ async def search_movies(
             pagination=pagination,
             title_groups=title_groups,
             ai_interpretation=ai_interpretation,
+            is_cached=False,
         )
+
+    # Check Supabase movies_cache for zero-latency cache hit (sub-50ms response)
+    if not callback_data and not mock:
+        cached_candidates = await cache_service.get_cached_candidates(query_str)
+        if cached_candidates:
+            cached_groups = search_aggregator.group_candidates_by_title(cached_candidates)
+            return SearchResponse(
+                query=query_str,
+                results=[],
+                candidates=cached_candidates,
+                pagination=SearchPaginationInfo(
+                    current_page=1,
+                    total_pages=1,
+                    total_results=len(cached_candidates),
+                    has_next=False,
+                    has_prev=False,
+                ),
+                title_groups=cached_groups,
+                ai_interpretation=ai_interpretation,
+                is_cached=True,
+            )
 
     try:
         if callback_data and source_message_id:
@@ -251,6 +283,9 @@ async def search_movies(
             )
 
         candidates = data.get("candidates", [])
+        if candidates and not callback_data:
+            canonical = ai_interpretation.canonical_title if ai_interpretation else None
+            asyncio.create_task(cache_service.save_candidates(query_str, candidates, canonical_title=canonical))
         # Build legacy results representation if needed
         legacy_results = [
             SearchResultItem(
@@ -276,6 +311,7 @@ async def search_movies(
             pagination=data.get("pagination"),
             title_groups=data.get("title_groups", {}),
             ai_interpretation=ai_interpretation,
+            is_cached=False,
         )
     except ValueError as e:
         raise HTTPException(
@@ -378,7 +414,14 @@ async def deliver_candidate_file(
         )
 
     try:
-        return await telegram_service.deliver_candidate(request)
+        resp = await telegram_service.deliver_candidate(request)
+        if resp.stream_url:
+            asyncio.create_task(cache_service.save_stream_link(
+                candidate_id=request.candidate_id,
+                stream_url=resp.stream_url,
+                watch_url=resp.watch_url or resp.player_url,
+            ))
+        return resp
     except TimeoutError as e:
         raise HTTPException(
             status_code=status.HTTP_504_GATEWAY_TIMEOUT,

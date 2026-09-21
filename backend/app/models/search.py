@@ -75,6 +75,7 @@ class SearchResponse(BaseModel):
     ai_interpretation: Optional["AiQueryInterpretation"] = Field(
         None, description="CineAI query interpretation and refinement details if applicable"
     )
+    is_cached: bool = Field(False, description="Whether results were retrieved from Supabase cache")
 
 
 class TelegramDebugSearchResponse(BaseModel):

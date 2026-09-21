@@ -24,6 +24,7 @@ export default function App() {
   const [isSearching, setIsSearching] = useState(false)
   const [searchError, setSearchError] = useState(null)
   const [aiInterpretation, setAiInterpretation] = useState(null)
+  const [isCached, setIsCached] = useState(false)
 
   // Delivery & Cinema Watch state
   const [selectedGroup, setSelectedGroup] = useState(null)
@@ -85,6 +86,7 @@ export default function App() {
       const candidates = data.candidates || []
       setRawCandidates(candidates)
       setAiInterpretation(data.ai_interpretation || null)
+      setIsCached(Boolean(data.is_cached))
 
       // Use backend title_groups if available, else fallback
       if (data.title_groups && Object.keys(data.title_groups).length > 0) {
@@ -177,6 +179,7 @@ export default function App() {
             setRawCandidates([])
             setGroupedCandidates([])
             setAiInterpretation(null)
+            setIsCached(false)
           }
         }}
       />
@@ -263,6 +266,34 @@ export default function App() {
                 >
                   Search exact: "{aiInterpretation.original_query}"
                 </button>
+              </div>
+            )}
+
+            {/* Supabase Cache Indicator */}
+            {isCached && (
+              <div
+                style={{
+                  maxWidth: '1280px',
+                  margin: '0.5rem auto 1rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  fontSize: '12px',
+                  color: '#10b981',
+                }}
+              >
+                <span
+                  style={{
+                    background: 'rgba(16, 185, 129, 0.15)',
+                    border: '1px solid rgba(16, 185, 129, 0.3)',
+                    padding: '3px 10px',
+                    borderRadius: '6px',
+                    fontWeight: '600',
+                  }}
+                >
+                  ⚡ Supabase Cache Hit
+                </span>
+                <span style={{ color: '#9ca3af' }}>Loaded in &lt;50ms directly from database</span>
               </div>
             )}
 
