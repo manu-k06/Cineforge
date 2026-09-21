@@ -22,6 +22,7 @@ class Settings(BaseSettings):
     TELEGRAM_API_ID: Optional[int] = None
     TELEGRAM_API_HASH: str = ""
     TELEGRAM_SESSION_NAME: str = "cineforge_session"
+    TELEGRAM_STRING_SESSION: Optional[str] = None
 
     # Telegram Bot Interaction Settings (Third-party Bot & Streamer Bot)
     TELEGRAM_BOT_USERNAME: str = ""

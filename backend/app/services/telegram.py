@@ -7,6 +7,7 @@ from typing import Any, Dict, List, Optional
 
 import app.services.telethon_compat  # noqa: F401 - Register MTProto compatibility constructors
 from telethon import TelegramClient, events
+from telethon.sessions import StringSession
 from telethon.tl.types import (
     DocumentAttributeAudio,
     DocumentAttributeFilename,
@@ -67,8 +68,13 @@ class TelegramService:
             logger.warning("Telegram API_ID or API_HASH is not configured.")
             return None
 
+        session_target = (
+            StringSession(settings.TELEGRAM_STRING_SESSION)
+            if settings.TELEGRAM_STRING_SESSION
+            else settings.TELEGRAM_SESSION_NAME
+        )
         self.client = TelegramClient(
-            session=settings.TELEGRAM_SESSION_NAME,
+            session=session_target,
             api_id=settings.TELEGRAM_API_ID,
             api_hash=settings.TELEGRAM_API_HASH,
         )
@@ -1392,12 +1398,15 @@ async def interactive_login():
     if await client.is_user_authorized():
         me = await client.get_me()
         name = f"{me.first_name or ''} {me.last_name or ''}".strip()
+        session_str = StringSession.save(client.session)
         print("\n" + "=" * 65)
         print("✅ ALREADY AUTHENTICATED!")
         print(f"Logged in as: {name} (User ID: {me.id})")
         print(f"Session saved to: {settings.TELEGRAM_SESSION_NAME}.session")
-        print("You can launch the FastAPI server now!")
+        print("\n🚀 STRING SESSION FOR RENDER / CLOUD:")
+        print(f"TELEGRAM_STRING_SESSION={session_str}")
         print("=" * 65)
+        print("You can launch the FastAPI server now!")
         await client.disconnect()
         return
 
