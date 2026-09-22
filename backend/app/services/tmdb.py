@@ -1,3 +1,4 @@
+import datetime
 import logging
 import re
 import time
@@ -320,6 +321,7 @@ class TmdbService:
         headers, base_params = self._get_auth_headers_and_params()
         params = {**base_params, "page": str(page)}
         url = f"{settings.TMDB_BASE_URL}/trending/movie/{time_window}"
+        today_str = datetime.date.today().isoformat()
 
         try:
             async with httpx.AsyncClient(timeout=5.0) as client:
@@ -327,7 +329,21 @@ class TmdbService:
                 if resp.status_code == 200:
                     data = resp.json()
                     raw_results = data.get("results", [])
-                    parsed = [self._parse_movie_dict(item) for item in raw_results if item.get("poster_path") or item.get("backdrop_path")]
+                    parsed = []
+                    for item in raw_results:
+                        # 1. Reject if no poster_path (avoids broken cards)
+                        if not item.get("poster_path"):
+                            continue
+                        # 2. Reject unreleased movies (release_date in future or missing)
+                        rel_date = item.get("release_date")
+                        if not rel_date or rel_date > today_str:
+                            continue
+                        # 3. Reject low-vote hype stubs
+                        if item.get("vote_count", 0) < 40:
+                            continue
+
+                        parsed.append(self._parse_movie_dict(item))
+
                     response_obj = TrendingMoviesResponse(
                         page=data.get("page", 1),
                         total_pages=data.get("total_pages", 1),
@@ -345,6 +361,8 @@ class TmdbService:
         url: str,
         extra_params: Dict[str, str],
         cache_key: str,
+        min_votes: int = 50,
+        require_poster: bool = True,
     ) -> TrendingMoviesResponse:
         now = time.time()
         if cache_key in self._trending_cache:
@@ -357,6 +375,7 @@ class TmdbService:
 
         headers, base_params = self._get_auth_headers_and_params()
         params = {**base_params, **extra_params}
+        today_str = datetime.date.today().isoformat()
 
         try:
             async with httpx.AsyncClient(timeout=6.0) as client:
@@ -364,7 +383,21 @@ class TmdbService:
                 if resp.status_code == 200:
                     data = resp.json()
                     raw_results = data.get("results", [])
-                    parsed = [self._parse_movie_dict(item) for item in raw_results if item.get("poster_path") or item.get("backdrop_path")]
+                    parsed = []
+                    for item in raw_results:
+                        # Must have valid poster
+                        if require_poster and not item.get("poster_path"):
+                            continue
+                        # Must have release date on or before today (strictly no unreleased movies)
+                        rel_date = item.get("release_date")
+                        if not rel_date or rel_date > today_str:
+                            continue
+                        # Must have sufficient viewer vote count
+                        if item.get("vote_count", 0) < min_votes:
+                            continue
+
+                        parsed.append(self._parse_movie_dict(item))
+
                     res = TrendingMoviesResponse(
                         page=data.get("page", 1),
                         total_pages=data.get("total_pages", 1),
@@ -378,17 +411,56 @@ class TmdbService:
         return TrendingMoviesResponse(page=1, total_pages=1, results=[])
 
     async def get_popular_movies(self, page: int = 1) -> TrendingMoviesResponse:
-        """Retrieve popular movies from TMDb."""
-        return await self._fetch_movie_list(f"{settings.TMDB_BASE_URL}/movie/popular", {"page": str(page)}, f"popular:{page}")
+        """Retrieve real, released popular movies from TMDb."""
+        today_str = datetime.date.today().isoformat()
+        params = {
+            "sort_by": "popularity.desc",
+            "primary_release_date.lte": today_str,
+            "vote_count.gte": "100",
+            "include_adult": "false",
+            "page": str(page),
+        }
+        return await self._fetch_movie_list(
+            f"{settings.TMDB_BASE_URL}/discover/movie",
+            params,
+            f"popular_released:{page}",
+            min_votes=100,
+        )
 
     async def get_top_rated_movies(self, page: int = 1) -> TrendingMoviesResponse:
-        """Retrieve top rated movies from TMDb."""
-        return await self._fetch_movie_list(f"{settings.TMDB_BASE_URL}/movie/top_rated", {"page": str(page)}, f"top_rated:{page}")
+        """Retrieve true top rated cinema masterpieces with high vote thresholds."""
+        today_str = datetime.date.today().isoformat()
+        params = {
+            "sort_by": "vote_average.desc",
+            "vote_count.gte": "1000",
+            "primary_release_date.lte": today_str,
+            "include_adult": "false",
+            "page": str(page),
+        }
+        return await self._fetch_movie_list(
+            f"{settings.TMDB_BASE_URL}/discover/movie",
+            params,
+            f"top_rated_masterpieces:{page}",
+            min_votes=1000,
+        )
 
     async def discover_movies(self, language: str = "ml", sort_by: str = "popularity.desc", page: int = 1) -> TrendingMoviesResponse:
-        """Discover movies by language (e.g. 'ml' for Malayalam, 'ta' for Tamil, 'hi' for Hindi)."""
-        params = {"with_original_language": language, "sort_by": sort_by, "page": str(page)}
-        return await self._fetch_movie_list(f"{settings.TMDB_BASE_URL}/discover/movie", params, f"discover:{language}:{page}")
+        """Discover released regional movies (e.g. Malayalam 'ml', Tamil 'ta', etc.) with real votes."""
+        today_str = datetime.date.today().isoformat()
+        params = {
+            "with_original_language": language,
+            "sort_by": sort_by,
+            "primary_release_date.lte": today_str,
+            "vote_count.gte": "10",
+            "include_adult": "false",
+            "page": str(page),
+        }
+        return await self._fetch_movie_list(
+            f"{settings.TMDB_BASE_URL}/discover/movie",
+            params,
+            f"discover_released:{language}:{page}",
+            min_votes=10,
+        )
 
 
     async def search_movie_suggestions(self, query: str, limit: int = 5) -> List[Dict[str, Any]]:

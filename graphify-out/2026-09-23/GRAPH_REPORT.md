@@ -1,17 +1,17 @@
-# Graph Report - Cineforge  (2026-09-23)
+# Graph Report - Cineforge  (2026-09-22)
 
 ## Corpus Check
-- 64 files · ~41,405 words
+- 64 files · ~40,755 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 8 file(s) not represented in the graph (top: (none) 4, .example 2, .css 2)
 
 ## Summary
-- 644 nodes · 1241 edges · 32 communities (28 shown, 4 thin omitted)
+- 641 nodes · 1235 edges · 32 communities (28 shown, 4 thin omitted)
 - Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 49 edges (avg confidence: 0.95)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `c71fab50`
+- Built from commit: `5db1de10`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -19,7 +19,7 @@
 - api/search.py
 - AiQueryInterpretation
 - App.jsx
-- tmdb.py
+- TmdbService
 - CacheService
 - TelegramService
 - subtitle_service.py
@@ -88,11 +88,11 @@ Nodes (16): ask_companion(), get_recommendations(), post, Interprets vague descr
 
 ### Community 2 - "App.jsx"
 Cohesion: 0.09
-Nodes (41): App(), AuthModal(), DeliveryModal(), HeroBanner(), fetchHeroMovies(), MovieCard(), FALLBACK_MALAYALAM_HITS, FALLBACK_TOP_RATED_CLASSICS (+33 more)
+Nodes (39): App(), AuthModal(), DeliveryModal(), HeroBanner(), fetchHeroMovies(), MovieCard(), MovieGrid(), fetchAllRails() (+31 more)
 
-### Community 3 - "tmdb.py"
+### Community 3 - "TmdbService"
 Cohesion: 0.08
-Nodes (34): discover_movies(), get_metadata_status(), get_movie_metadata(), get_popular_movies(), get_top_rated_movies(), get_trending_movies(), get, Check if TMDb API integration is configured and available. (+26 more)
+Nodes (33): discover_movies(), get_metadata_status(), get_movie_metadata(), get_popular_movies(), get_top_rated_movies(), get_trending_movies(), get, Check if TMDb API integration is configured and available. (+25 more)
 
 ### Community 4 - "CacheService"
 Cohesion: 0.14
@@ -191,17 +191,17 @@ Cohesion: 0.67
 Nodes (3): get_ai_status(), get, Returns the operational status and model configured for CineAI.
 
 ## Knowledge Gaps
-- **57 isolated node(s):** `$schema`, `plugins`, `react/rules-of-hooks`, `react/only-export-components`, `name` (+52 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 273 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **55 isolated node(s):** `$schema`, `plugins`, `react/rules-of-hooks`, `react/only-export-components`, `name` (+50 more)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 270 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
 - **4 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `TelegramService` connect `TelegramService` to `api/search.py`?**
-  _High betweenness centrality (0.088) - this node is a cross-community bridge._
+  _High betweenness centrality (0.089) - this node is a cross-community bridge._
 - **Why does `SearchCandidate` connect `api/search.py` to `config.py`, `CacheService`, `TestCacheService`?**
-  _High betweenness centrality (0.052) - this node is a cross-community bridge._
+  _High betweenness centrality (0.053) - this node is a cross-community bridge._
 - **Why does `TestAiService` connect `TestAiService` to `config.py`?**
   _High betweenness centrality (0.043) - this node is a cross-community bridge._
 - **Are the 4 inferred relationships involving `TelegramService` (e.g. with `CandidateDeliveryRequest` and `CandidateDeliveryResponse`) actually correct?**

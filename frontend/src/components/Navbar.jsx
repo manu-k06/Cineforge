@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { Play, Search, Bell, AlertCircle, LogIn, LogOut, Bookmark, History, User as UserIcon } from 'lucide-react'
+import { Play, Search, Bell, AlertCircle, LogIn, LogOut, Bookmark, History, Sparkles } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 
 export default function Navbar({ onSearchClick, isBackendOnline, activeTab, setActiveTab }) {
@@ -11,7 +11,7 @@ export default function Navbar({ onSearchClick, isBackendOnline, activeTab, setA
   // Track scroll position to transition navbar from transparent to frosted blur
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 30)
+      setIsScrolled(window.scrollY > 20)
     }
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
@@ -47,211 +47,126 @@ export default function Navbar({ onSearchClick, isBackendOnline, activeTab, setA
   return (
     <header className={`streamvibe-navbar ${isScrolled ? 'scrolled' : 'transparent-header'}`}>
       <div className="navbar-inner">
-        {/* Brand Logo */}
-        <div className="navbar-brand" onClick={() => setActiveTab('home')}>
-          <div className="brand-icon">
-            <Play className="brand-play" fill="#E50914" size={18} />
+        {/* Left Section: Brand Logo + Sleek Navigation Links */}
+        <div className="navbar-left">
+          <div className="navbar-brand" onClick={() => setActiveTab('home')}>
+            <div className="brand-icon">
+              <Play className="brand-play" fill="#E50914" size={16} />
+            </div>
+            <span className="brand-text">
+              CINE<span className="brand-accent">FORGE</span>
+            </span>
           </div>
-          <span className="brand-text">
-            CINE<span className="brand-accent">FORGE</span>
-          </span>
+
+          <nav className="navbar-nav-links">
+            <button
+              className={`nav-tab-link ${activeTab === 'home' ? 'active' : ''}`}
+              onClick={() => setActiveTab('home')}
+            >
+              Home
+            </button>
+            <button
+              className={`nav-tab-link ${activeTab === 'movies' ? 'active' : ''}`}
+              onClick={() => setActiveTab('movies')}
+            >
+              Movies
+            </button>
+            <button
+              className={`nav-tab-link ${activeTab === 'shows' ? 'active' : ''}`}
+              onClick={() => setActiveTab('shows')}
+            >
+              TV Shows
+            </button>
+            <button
+              className={`nav-tab-link ${activeTab === 'trending' ? 'active' : ''}`}
+              onClick={() => setActiveTab('trending')}
+            >
+              Trending
+            </button>
+          </nav>
         </div>
 
-        {/* Navigation Tabs */}
-        <nav className="navbar-nav">
-          <button 
-            className={`nav-link ${activeTab === 'home' ? 'active' : ''}`}
-            onClick={() => setActiveTab('home')}
+        {/* Right Section: Search Trigger, Live Node Status, and User Profile */}
+        <div className="navbar-right">
+          {/* Quick Search Trigger */}
+          <button
+            className="nav-action-search"
+            onClick={onSearchClick}
+            title="Search movies, shows, or actors"
+            aria-label="Search"
           >
-            Home
+            <Search size={18} />
           </button>
-          <button 
-            className={`nav-link ${activeTab === 'movies' ? 'active' : ''}`}
-            onClick={() => setActiveTab('movies')}
-          >
-            Movies
-          </button>
-          <button 
-            className={`nav-link ${activeTab === 'shows' ? 'active' : ''}`}
-            onClick={() => setActiveTab('shows')}
-          >
-            TV Shows
-          </button>
-          <button 
-            className={`nav-link ${activeTab === 'trending' ? 'active' : ''}`}
-            onClick={() => setActiveTab('trending')}
-          >
-            Trending
-          </button>
-        </nav>
 
-        {/* Right Actions */}
-        <div className="navbar-actions">
-          {/* Subtle Live Indicator */}
-          <div 
+          {/* Node Health Status Indicator */}
+          <div
             className={`network-indicator ${isBackendOnline ? 'online' : 'offline'}`}
-            title={isBackendOnline ? 'Streaming engine connected' : 'Reconnecting to streaming engine...'}
+            title={isBackendOnline ? 'Streaming Nodes Online' : 'Connecting to Stream Nodes...'}
           >
             <span className="indicator-dot"></span>
           </div>
 
-          <button className="btn-icon nav-search-btn" onClick={onSearchClick} title="Search movies & shows">
-            <Search size={18} />
-          </button>
-
-          {/* User Auth Section */}
+          {/* User Profile / Auth */}
           {user ? (
             <div className="user-profile-container" ref={dropdownRef} style={{ position: 'relative' }}>
-              <div 
-                className="user-avatar" 
+              <div
+                className="user-avatar"
                 title={user.email}
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                style={{ cursor: 'pointer', border: '2px solid rgba(229, 0, 0, 0.4)' }}
               >
-                <div className="avatar-placeholder" style={{ background: 'linear-gradient(135deg, #E50000, #7800ff)', color: '#fff', fontWeight: 'bold' }}>
+                <div className="avatar-placeholder">
                   {getInitials()}
                 </div>
               </div>
 
               {/* Profile Dropdown Menu */}
               {isDropdownOpen && (
-                <div
-                  style={{
-                    position: 'absolute',
-                    top: 'calc(100% + 10px)',
-                    right: 0,
-                    width: '240px',
-                    backgroundColor: '#11131a',
-                    border: '1px solid rgba(255, 255, 255, 0.12)',
-                    borderRadius: '12px',
-                    boxShadow: '0 12px 30px rgba(0, 0, 0, 0.6), 0 0 20px rgba(229, 0, 0, 0.1)',
-                    zIndex: 1000,
-                    overflow: 'hidden',
-                  }}
-                >
-                  {/* User info banner */}
-                  <div style={{ padding: '14px 16px', borderBottom: '1px solid rgba(255, 255, 255, 0.08)' }}>
-                    <div style={{ fontSize: '14px', fontWeight: '600', color: '#ffffff' }}>{displayName}</div>
-                    <div style={{ fontSize: '12px', color: '#8e95a5', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {user.email}
-                    </div>
+                <div className="navbar-profile-dropdown">
+                  <div className="dropdown-user-header">
+                    <div className="dropdown-user-name">{displayName}</div>
+                    <div className="dropdown-user-email">{user.email}</div>
                   </div>
 
-                  {/* Menu actions */}
-                  <div style={{ padding: '6px' }}>
+                  <div className="dropdown-menu-list">
                     <button
                       type="button"
-                      onClick={() => {
-                        setIsDropdownOpen(false)
-                        // Trigger watchlist tab/view when available
-                      }}
-                      style={{
-                        width: '100%',
-                        padding: '9px 12px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '10px',
-                        backgroundColor: 'transparent',
-                        border: 'none',
-                        color: '#c5c9d3',
-                        fontSize: '13px',
-                        cursor: 'pointer',
-                        borderRadius: '6px',
-                        textAlign: 'left',
-                        transition: 'background-color 0.2s',
-                      }}
-                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)')}
-                      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+                      className="dropdown-menu-item"
+                      onClick={() => setIsDropdownOpen(false)}
                     >
                       <Bookmark size={15} color="#8e95a5" />
                       <span>My Watchlist</span>
-                      <span style={{ marginLeft: 'auto', fontSize: '10px', background: 'rgba(255, 255, 255, 0.08)', padding: '2px 6px', borderRadius: '4px', color: '#8e95a5' }}>
-                        Phase 5
-                      </span>
                     </button>
 
                     <button
                       type="button"
-                      onClick={() => {
-                        setIsDropdownOpen(false)
-                        // Trigger history tab/view when available
-                      }}
-                      style={{
-                        width: '100%',
-                        padding: '9px 12px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '10px',
-                        backgroundColor: 'transparent',
-                        border: 'none',
-                        color: '#c5c9d3',
-                        fontSize: '13px',
-                        cursor: 'pointer',
-                        borderRadius: '6px',
-                        textAlign: 'left',
-                        transition: 'background-color 0.2s',
-                      }}
-                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)')}
-                      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+                      className="dropdown-menu-item"
+                      onClick={() => setIsDropdownOpen(false)}
                     >
                       <History size={15} color="#8e95a5" />
                       <span>Watch History</span>
-                      <span style={{ marginLeft: 'auto', fontSize: '10px', background: 'rgba(255, 255, 255, 0.08)', padding: '2px 6px', borderRadius: '4px', color: '#8e95a5' }}>
-                        Phase 5
-                      </span>
                     </button>
 
-                    <div style={{ height: '1px', backgroundColor: 'rgba(255, 255, 255, 0.08)', margin: '4px 0' }} />
+                    <div className="dropdown-divider" />
 
                     <button
+                      type="button"
+                      className="dropdown-menu-item text-danger"
                       onClick={() => {
                         setIsDropdownOpen(false)
                         signOut()
                       }}
-                      style={{
-                        width: '100%',
-                        padding: '9px 12px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '10px',
-                        backgroundColor: 'transparent',
-                        border: 'none',
-                        color: '#ff6666',
-                        fontSize: '13px',
-                        cursor: 'pointer',
-                        borderRadius: '6px',
-                        textAlign: 'left',
-                        transition: 'background-color 0.2s',
-                      }}
-                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'rgba(229, 0, 0, 0.1)')}
-                      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
                     >
-                      <LogOut size={16} />
+                      <LogOut size={15} />
                       <span>Sign Out</span>
                     </button>
                   </div>
                 </div>
               )}
-
             </div>
           ) : (
             <button
+              className="btn-nav-signin"
               onClick={openAuthModal}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                backgroundColor: '#E50000',
-                color: '#ffffff',
-                border: 'none',
-                padding: '7px 14px',
-                borderRadius: '8px',
-                fontSize: '13px',
-                fontWeight: '600',
-                cursor: 'pointer',
-                boxShadow: '0 2px 8px rgba(229, 0, 0, 0.3)',
-                transition: 'all 0.2s',
-              }}
             >
               <LogIn size={15} />
               <span>Sign In</span>

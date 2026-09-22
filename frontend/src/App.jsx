@@ -239,7 +239,7 @@ export default function App() {
           />
         ) : (
           /* Browse & Discovery View */
-          <div className="browse-view-container">
+          <div className={`browse-view-container ${searchQuery ? 'with-search' : ''}`}>
             {/* Hero Showcase (full bleed when not searching) */}
             {!searchQuery && (
               <HeroBanner onQuickPlay={handleHeroQuickPlay} />

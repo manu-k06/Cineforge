@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Play, Plus, Check, Star, ChevronLeft, ChevronRight, Volume2, VolumeX, Sparkles, Loader2 } from 'lucide-react'
-import { getTrendingMovies } from '../services/api'
+import { getPopularMovies, getTrendingMovies } from '../services/api'
 
 export default function HeroBanner({ onQuickPlay }) {
   const [movies, setMovies] = useState([])
@@ -10,32 +10,47 @@ export default function HeroBanner({ onQuickPlay }) {
   const [isMuted, setIsMuted] = useState(true)
   const timerRef = useRef(null)
 
-  // Fetch live trending movies from TMDb on mount
+  // Fetch live, verified released movies with high-res backdrops
   useEffect(() => {
     let isMounted = true
 
     async function fetchHeroMovies() {
       try {
         setIsLoading(true)
-        // Fetch trending today first for maximum freshness
-        let res = await getTrendingMovies('day', 1).catch(() => null)
-        let results = res?.results || []
 
-        // If today has too few items with backdrops, combine with weekly trending
-        if (results.length < 4) {
-          const weekRes = await getTrendingMovies('week', 1).catch(() => null)
-          if (weekRes?.results) {
-            results = [...results, ...weekRes.results]
-          }
-        }
+        // Query popular released and weekly trending in parallel
+        const [popRes, trendRes] = await Promise.allSettled([
+          getPopularMovies(1),
+          getTrendingMovies('week', 1),
+        ])
 
-        // Filter out items without backdrops or posters
-        const valid = results.filter((m) => m.backdrop_url || m.poster_url)
+        const popList = popRes.status === 'fulfilled' && popRes.value?.results ? popRes.value.results : []
+        const trendList = trendRes.status === 'fulfilled' && trendRes.value?.results ? trendRes.value.results : []
+
+        const combined = [...popList, ...trendList]
+        const today = new Date()
+        const currentYear = today.getFullYear()
+
+        // Strict filter: MUST have backdrop, MUST be released (no unreleased movies)
+        const seen = new Set()
+        const valid = combined.filter((m) => {
+          if (!m.backdrop_url || !m.title) return false
+          const key = m.title.toLowerCase().trim()
+          if (seen.has(key)) return false
+          seen.add(key)
+
+          // Filter out future release years
+          const yr = parseInt(m.year || '0', 10)
+          if (yr > currentYear) return false
+          if (m.release_date && new Date(m.release_date) > today) return false
+
+          return true
+        })
 
         if (valid.length > 0 && isMounted) {
           const formatted = valid.slice(0, 6).map((m) => {
-            const releaseYear = m.year || (m.release_date ? m.release_date.split('-')[0] : '2026')
-            const displayRating = m.rating ? Number(m.rating).toFixed(1) : '8.2'
+            const releaseYear = m.year || (m.release_date ? m.release_date.split('-')[0] : '2024')
+            const displayRating = m.rating ? Number(m.rating).toFixed(1) : '8.4'
             const genresList = m.genres && m.genres.length > 0 ? m.genres : ['Action', 'Thriller', 'Sci-Fi']
 
             return {
@@ -50,7 +65,7 @@ export default function HeroBanner({ onQuickPlay }) {
               audio: 'Dolby Atmos 5.1',
               duration: '2h 15min',
               genres: genresList,
-              backdrop: m.backdrop_url || m.poster_url,
+              backdrop: m.backdrop_url,
             }
           })
 
@@ -105,13 +120,14 @@ export default function HeroBanner({ onQuickPlay }) {
   // Skeleton loading placeholder
   if (isLoading || movies.length === 0) {
     return (
-      <div className="hero-banner-container" style={{ minHeight: '620px', background: 'linear-gradient(180deg, #111419 0%, #0a0b0d 100%)' }}>
+      <div className="hero-banner-container skeleton-hero-container">
+        <div className="hero-overlay-top"></div>
         <div className="hero-overlay-radial"></div>
         <div className="hero-overlay-linear"></div>
         <div className="hero-content" style={{ opacity: 0.6 }}>
           <div className="hero-meta-top">
             <span className="badge badge-spotlight animate-pulse">
-              <Loader2 size={13} className="animate-spin" /> DISCOVERING FRESH RELEASES...
+              <Loader2 size={13} className="animate-spin" /> DISCOVERING SPOTLIGHT CINEMA...
             </span>
           </div>
           <div style={{ height: '48px', width: '380px', background: 'rgba(255,255,255,0.08)', borderRadius: '8px', margin: '16px 0' }} className="skeleton"></div>
@@ -133,9 +149,10 @@ export default function HeroBanner({ onQuickPlay }) {
         key={current.id}
         style={{
           backgroundImage: `url(${current.backdrop})`,
-          transition: 'background-image 0.8s ease-in-out',
         }}
       >
+        {/* Top Dark Vignette: Completely eliminates bright backdrop glare behind navbar */}
+        <div className="hero-overlay-top"></div>
         <div className="hero-overlay-radial"></div>
         <div className="hero-overlay-linear"></div>
       </div>

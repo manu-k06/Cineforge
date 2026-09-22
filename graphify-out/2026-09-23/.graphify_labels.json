@@ -2,7 +2,7 @@
   "0": "api/search.py",
   "1": "AiQueryInterpretation",
   "2": "App.jsx",
-  "3": "tmdb.py",
+  "3": "TmdbService",
   "4": "CacheService",
   "5": "TelegramService",
   "6": "subtitle_service.py",
