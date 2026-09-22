@@ -17,6 +17,7 @@ class CrewMember(BaseModel):
 
 class MovieMetadata(BaseModel):
     tmdb_id: Optional[int] = Field(None, description="TMDb movie ID")
+    imdb_id: Optional[str] = Field(None, description="IMDb movie identifier (e.g. 'tt1375666')")
     title: str = Field(..., description="Canonical movie title")
     original_title: Optional[str] = Field(None, description="Original release title")
     overview: Optional[str] = Field(None, description="Official plot synopsis/overview")

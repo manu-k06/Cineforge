@@ -184,6 +184,7 @@ class TmdbService:
     ) -> MovieMetadata:
         """Parse raw TMDb API responses into MovieMetadata."""
         tmdb_id = data.get("id")
+        imdb_id = (extended_data or {}).get("imdb_id") or data.get("imdb_id")
         title = data.get("title") or data.get("name") or "Unknown"
         original_title = data.get("original_title")
         overview = data.get("overview")
@@ -246,6 +247,7 @@ class TmdbService:
 
         return MovieMetadata(
             tmdb_id=tmdb_id,
+            imdb_id=imdb_id,
             title=title,
             original_title=original_title,
             overview=overview,

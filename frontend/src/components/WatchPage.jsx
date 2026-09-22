@@ -156,9 +156,9 @@ export default function WatchPage({
 
   // Fetch available subtitle tracks
   useEffect(() => {
-    if (!delivery.stream_url) return
+    if (!delivery.stream_url && !meta.cleanTitle) return
     setIsLoadingSubtitles(true)
-    getSubtitleTracks(delivery.stream_url, meta.cleanTitle, meta.year)
+    getSubtitleTracks(meta.cleanTitle, meta.year, tmdbData?.imdb_id, delivery.stream_url)
       .then((res) => {
         const tracks = res?.tracks || []
         setSubtitleTracks(tracks)
@@ -173,7 +173,7 @@ export default function WatchPage({
       .finally(() => {
         setIsLoadingSubtitles(false)
       })
-  }, [delivery.stream_url, meta.cleanTitle, meta.year])
+  }, [delivery.stream_url, meta.cleanTitle, meta.year, tmdbData?.imdb_id])
 
   // Close subtitle menu on outside click
   useEffect(() => {
@@ -638,7 +638,7 @@ export default function WatchPage({
                       {isLoadingSubtitles && (
                         <div className="subtitles-loading-state">
                           <Sparkles size={14} className="spin-icon text-primary" />
-                          <span>Detecting embedded subtitle tracks...</span>
+                          <span>Searching subtitle tracks...</span>
                         </div>
                       )}
 
@@ -651,6 +651,14 @@ export default function WatchPage({
 
                       {subtitleTracks.map((track) => {
                         const isSelected = selectedTrackId === track.id
+                        const providerBadge =
+                          track.provider === 'opensubtitles'
+                            ? 'OpenSubs'
+                            : track.provider === 'yify'
+                            ? 'Community'
+                            : track.type === 'sync'
+                            ? 'Demo'
+                            : 'HD'
                         return (
                           <button
                             key={track.id}
@@ -664,10 +672,9 @@ export default function WatchPage({
                               <span className="track-label">{track.label}</span>
                               <div className="track-tags">
                                 <span className="track-badge-lang">{track.language?.toUpperCase() || 'EN'}</span>
-                                <span className={`track-badge-source ${track.type}`}>
-                                  {track.type === 'embedded' ? 'Embedded' : 'Sync'}
+                                <span className={`track-badge-source ${track.provider || track.type}`}>
+                                  {providerBadge}
                                 </span>
-                                {track.codec && <span className="track-badge-codec">{track.codec}</span>}
                               </div>
                             </div>
                             {isSelected && <Check size={16} className="text-primary" />}

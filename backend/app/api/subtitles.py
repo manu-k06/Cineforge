@@ -7,35 +7,58 @@ from app.services.subtitle_service import subtitle_service
 router = APIRouter()
 
 
-@router.get("/tracks", response_model=SubtitleTrackListResponse, summary="Discover Subtitle Tracks for Media Stream")
+@router.get("/tracks", response_model=SubtitleTrackListResponse, summary="Discover Subtitle Tracks for Movie")
 async def get_subtitle_tracks(
-    stream_url: str = Query(..., description="Target media streaming URL"),
     title: Optional[str] = Query(None, description="Movie or series title"),
     year: Optional[int] = Query(None, description="Optional release year"),
+    imdb_id: Optional[str] = Query(None, description="Optional IMDb identifier (e.g. 'tt1375666')"),
+    stream_url: Optional[str] = Query(None, description="Optional target media stream URL for compatibility"),
 ):
-    """Detect and return all embedded and external WebVTT subtitle tracks for a media stream."""
-    tracks = await subtitle_service.get_all_tracks(stream_url=stream_url, title=title, year=year)
-    return SubtitleTrackListResponse(
-        stream_url=stream_url,
+    """
+    Search and return clean, multi-language subtitle tracks via API providers (OpenSubtitles & community).
+    """
+    tracks = await subtitle_service.get_all_tracks(
         title=title,
+        year=year,
+        imdb_id=imdb_id,
+        stream_url=stream_url,
+    )
+    return SubtitleTrackListResponse(
+        title=title,
+        year=year,
+        imdb_id=imdb_id,
+        stream_url=stream_url,
         tracks=tracks,
     )
 
 
-@router.get("/embedded", summary="Stream Extracted WebVTT Subtitle Track")
-async def get_embedded_vtt(
-    stream_url: str = Query(..., description="Media stream URL containing the subtitle track"),
-    track_index: int = Query(0, ge=0, description="Embedded subtitle stream index"),
+@router.get("/vtt", summary="Stream Clean WebVTT Subtitle Track")
+async def get_vtt_track(
+    source: str = Query(..., description="Subtitle source provider: 'opensubtitles', 'yify', or 'demo'"),
+    download_url: Optional[str] = Query(None, description="Subtitle download URL"),
+    link: Optional[str] = Query(None, description="Community detail page link"),
+    sub_id: Optional[str] = Query(None, description="Unique subtitle file ID"),
+    title: Optional[str] = Query(None, description="Media title"),
+    lang: Optional[str] = Query("en", description="Language code"),
 ):
-    """Extract embedded soft subtitles on-the-fly and return as standard WebVTT."""
-    vtt_content = await subtitle_service.extract_embedded_vtt(stream_url=stream_url, track_index=track_index)
+    """
+    Fetch subtitle payload from provider, convert to standard W3C WebVTT, and stream to client.
+    """
+    vtt_content = await subtitle_service.download_and_convert_vtt(
+        source=source,
+        download_url=download_url,
+        link=link,
+        sub_id=sub_id,
+        title=title,
+    )
+    safe_filename = f"sub_{lang or 'track'}.vtt"
     return Response(
         content=vtt_content,
         media_type="text/vtt; charset=utf-8",
         headers={
             "Content-Type": "text/vtt; charset=utf-8",
             "Cache-Control": "public, max-age=86400",
-            "Content-Disposition": f'inline; filename="track_{track_index}.vtt"',
+            "Content-Disposition": f'inline; filename="{safe_filename}"',
         },
     )
 

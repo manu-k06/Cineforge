@@ -168,16 +168,16 @@ This document tracks all planned backend enhancements, data integrations, and fe
 
 ## 📋 Phase 6: Subtitle Extraction & WebVTT Streaming
 
-**Goal**: Deliver soft subtitles (`.srt`, `.ass`, `.vtt`) extracted directly from Telegram MKV/MP4 files or OpenSubtitles to the browser player.
+**Goal**: Deliver clean, authentic multi-language soft subtitles via OpenSubtitles and community sources to the browser player, eliminating container watermark spam and ffprobe/ffmpeg server overhead.
 
-- [x] **6.1. Embedded Subtitle Detection**
-  - Inspect media streams via `ffprobe` to detect all embedded soft subtitle tracks with ISO 639-1 language codes.
-- [x] **6.2. WebVTT Streaming Endpoint**
-  - Endpoint: `GET /api/subtitles/tracks` for discovery, `GET /api/subtitles/embedded` for on-the-fly extraction to standard WebVTT, and `GET /api/subtitles/demo.vtt` for playback sync testing.
+- [x] **6.1. Multi-Language Subtitle Discovery via APIs**
+  - Search verified subtitle repositories (OpenSubtitles REST & community sources) by IMDb ID and title/year query for clean, full dialogue tracks in 40+ languages.
+- [x] **6.2. WebVTT Transcoding & Streaming Endpoint**
+  - Endpoints: `GET /api/subtitles/tracks` for multi-language discovery, `GET /api/subtitles/vtt` for on-the-fly `.gz`/`.zip` extraction and WebVTT transcoding, and `GET /api/subtitles/demo.vtt` for playback sync testing.
 - [x] **6.3. External Subtitles & In-Memory Caching**
-  - In-memory cache for parsed WebVTT text and discovered tracks with configurable TTL (`SUBTITLE_CACHE_TTL`), plus OpenSubtitles API configuration readiness.
-- [x] **6.4. Player Subtitle Selector & Timing Sync UI**
-  - Closed captions button (`Captions` / `CaptionsOff`), glassmorphic popover track picker, dynamic `<track>` mounting, and live timing sync offset controls (`-0.5s` / `+0.5s` / `Reset`).
+  - In-memory cache for parsed WebVTT text and discovered tracks with configurable TTL (`SUBTITLE_CACHE_TTL`), fast memory-served playback (<1ms), and TMDb IMDb ID enrichment.
+- [x] **6.4. Elevated Subtitle Overlay, Blob URL & Timing Sync UI**
+  - Same-origin `Blob` URL loader bypassing cross-origin track blocking, elevated subtitle overlay (`.streamvibe-subtitle-overlay`) preventing control collision, and live timing sync offset controls (`-0.5s` / `+0.5s` / `Reset`).
 
 ---
 

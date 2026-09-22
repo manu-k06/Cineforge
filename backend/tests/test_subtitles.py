@@ -1,5 +1,5 @@
-import asyncio
-import json
+import gzip
+import io
 import unittest
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -21,7 +21,7 @@ class TestSubtitleServiceAndEndpoints(unittest.IsolatedAsyncioTestCase):
         srt_input = (
             "1\r\n"
             "00:00:01,234 --> 00:00:04,567\r\n"
-            "Look, the spinning top is still moving.\r\n\r\n"
+            "<font color=\"#ffff00\">Look, the spinning top is still moving.</font>\r\n\r\n"
             "2\r\n"
             "00:00:05,000 --> 00:00:08,000\r\n"
             "Is this reality or a dream?\r\n"
@@ -31,13 +31,16 @@ class TestSubtitleServiceAndEndpoints(unittest.IsolatedAsyncioTestCase):
         self.assertIn("00:00:01.234 --> 00:00:04.567", vtt)
         self.assertIn("00:00:05.000 --> 00:00:08.000", vtt)
         self.assertIn("Look, the spinning top is still moving.", vtt)
+        self.assertNotIn("<font", vtt)
         self.assertNotIn(",", vtt.split("-->")[0])
 
-    def test_srt_to_vtt_empty_and_passthrough(self):
-        """Verify empty strings and existing WebVTT content are handled safely."""
+    def test_srt_to_vtt_bom_and_empty(self):
+        """Verify BOM stripping and empty content handling."""
         self.assertEqual(srt_to_vtt(""), "WEBVTT\n\n")
-        already_vtt = "WEBVTT\n\n1\n00:00:01.000 --> 00:00:02.000\nHello"
-        self.assertEqual(srt_to_vtt(already_vtt), already_vtt + "\n")
+        bom_srt = "\ufeff1\n00:00:01,000 --> 00:00:02,000\nHello World\n"
+        vtt = srt_to_vtt(bom_srt)
+        self.assertTrue(vtt.startswith("WEBVTT"))
+        self.assertIn("00:00:01.000 --> 00:00:02.000", vtt)
 
     def test_generate_demo_vtt(self):
         """Verify demo WebVTT contains movie title and valid cue blocks."""
@@ -46,76 +49,107 @@ class TestSubtitleServiceAndEndpoints(unittest.IsolatedAsyncioTestCase):
         self.assertIn("Interstellar", demo)
         self.assertIn("-->", demo)
 
-    async def test_detect_embedded_subtitles_mocked(self):
-        """Verify parsing of ffprobe JSON subtitle stream information."""
-        mock_ffprobe_output = {
-            "streams": [
-                {
-                    "index": 2,
-                    "codec_name": "subrip",
-                    "tags": {"language": "eng", "title": "English Full Dialogue"},
-                    "disposition": {"default": 1},
-                },
-                {
-                    "index": 3,
-                    "codec_name": "ass",
-                    "tags": {"language": "spa", "title": "Español Latino"},
-                    "disposition": {"default": 0},
-                },
-            ]
-        }
+    async def test_search_opensubtitles_mocked(self):
+        """Verify parsing of OpenSubtitles REST JSON and deduplication."""
+        mock_api_data = [
+            {
+                "SubLanguageID": "eng",
+                "ISO639": "en",
+                "LanguageName": "English",
+                "SubRating": "8.5",
+                "SubDownloadsCnt": 12000,
+                "IDSubtitleFile": 1952382,
+                "SubDownloadLink": "https://dl.opensubtitles.org/sub/1952382.gz",
+            },
+            {
+                "SubLanguageID": "spa",
+                "ISO639": "es",
+                "LanguageName": "Spanish",
+                "SubRating": "7.9",
+                "SubDownloadsCnt": 5000,
+                "IDSubtitleFile": 1952383,
+                "SubDownloadLink": "https://dl.opensubtitles.org/sub/1952383.gz",
+            },
+        ]
 
-        mock_process = AsyncMock()
-        mock_process.returncode = 0
-        mock_process.communicate.return_value = (
-            json.dumps(mock_ffprobe_output).encode("utf-8"),
-            b"",
-        )
+        mock_res = MagicMock()
+        mock_res.status_code = 200
+        mock_res.json.return_value = mock_api_data
 
-        with patch("asyncio.create_subprocess_exec", return_value=mock_process):
-            tracks = await subtitle_service.detect_embedded_subtitles("https://media.stream/movie.mkv")
-
+        with patch("httpx.AsyncClient.get", AsyncMock(return_value=mock_res)):
+            tracks = await subtitle_service.search_opensubtitles(
+                imdb_id="tt1375666",
+                title="Inception",
+            )
             self.assertEqual(len(tracks), 2)
             self.assertEqual(tracks[0].language, "en")
-            self.assertEqual(tracks[0].label, "English Full Dialogue [Embedded]")
-            self.assertEqual(tracks[0].codec, "subrip")
+            self.assertEqual(tracks[0].label, "English")
+            self.assertEqual(tracks[0].provider, "opensubtitles")
             self.assertTrue(tracks[0].is_default)
-            self.assertIn("track_index=0", tracks[0].vtt_url)
+            self.assertIn("/api/subtitles/vtt?source=opensubtitles", tracks[0].vtt_url)
 
             self.assertEqual(tracks[1].language, "es")
-            self.assertEqual(tracks[1].label, "Español Latino [Embedded]")
-            self.assertEqual(tracks[1].codec, "ass")
+            self.assertEqual(tracks[1].label, "Spanish")
             self.assertFalse(tracks[1].is_default)
 
-    async def test_extract_embedded_vtt_mocked_and_cached(self):
-        """Verify ffmpeg subtitle extraction to WebVTT and subsequent in-memory cache hit."""
-        mock_vtt = "WEBVTT\n\n1\n00:00:01.000 --> 00:00:03.000\nExtracted subtitle."
+    async def test_download_and_convert_vtt_gzip_cached(self):
+        """Verify OpenSubtitles gzip decompression, conversion, and in-memory caching."""
+        raw_srt = "1\n00:00:01,000 --> 00:00:03,000\nSub dialogue line."
+        gz_bytes = gzip.compress(raw_srt.encode("utf-8"))
 
-        mock_process = AsyncMock()
-        mock_process.returncode = 0
-        mock_process.communicate.return_value = (mock_vtt.encode("utf-8"), b"")
+        mock_res = MagicMock()
+        mock_res.status_code = 200
+        mock_res.content = gz_bytes
 
-        with patch("asyncio.create_subprocess_exec", return_value=mock_process) as mock_exec:
-            res1 = await subtitle_service.extract_embedded_vtt("https://media.stream/video.mp4", 0)
-            self.assertEqual(res1, mock_vtt)
-            self.assertEqual(mock_exec.call_count, 1)
+        with patch("httpx.AsyncClient.get", AsyncMock(return_value=mock_res)) as mock_get:
+            vtt1 = await subtitle_service.download_and_convert_vtt(
+                source="opensubtitles",
+                download_url="https://dl.opensubtitles.org/file.gz",
+                sub_id="123",
+                title="Test Movie",
+            )
+            self.assertTrue(vtt1.startswith("WEBVTT"))
+            self.assertIn("Sub dialogue line.", vtt1)
+            self.assertEqual(mock_get.call_count, 1)
 
-            # Second request should be a cache hit with no subprocess call
-            res2 = await subtitle_service.extract_embedded_vtt("https://media.stream/video.mp4", 0)
-            self.assertEqual(res2, mock_vtt)
-            self.assertEqual(mock_exec.call_count, 1)
+            # Second request should be served from memory cache without network call
+            vtt2 = await subtitle_service.download_and_convert_vtt(
+                source="opensubtitles",
+                download_url="https://dl.opensubtitles.org/file.gz",
+                sub_id="123",
+                title="Test Movie",
+            )
+            self.assertEqual(vtt1, vtt2)
+            self.assertEqual(mock_get.call_count, 1)
 
     def test_api_get_tracks_endpoint(self):
-        """GET /api/subtitles/tracks returns 200 with track list."""
+        """GET /api/subtitles/tracks returns 200 with track list and demo fallback."""
         response = self.client.get(
             "/api/subtitles/tracks",
-            params={"stream_url": "https://test.stream/video.mkv", "title": "Dune"},
+            params={"title": "Dune", "year": 2021},
         )
         self.assertEqual(response.status_code, 200)
         data = response.json()
         self.assertIn("tracks", data)
         self.assertGreaterEqual(len(data["tracks"]), 1)
+        # Verify Cineforge Sync track is present
         self.assertEqual(data["tracks"][-1]["id"], "cineforge_demo_en")
+        self.assertEqual(data["tracks"][-1]["provider"], "sync")
+
+    def test_api_vtt_stream_endpoint(self):
+        """GET /api/subtitles/vtt returns 200 with text/vtt media type."""
+        with patch.object(
+            subtitle_service,
+            "download_and_convert_vtt",
+            AsyncMock(return_value="WEBVTT\n\n1\n00:00:01.000 --> 00:00:02.000\nSub"),
+        ):
+            response = self.client.get(
+                "/api/subtitles/vtt",
+                params={"source": "opensubtitles", "download_url": "https://test.dl/1.gz", "lang": "en"},
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertIn("text/vtt", response.headers.get("content-type", ""))
+            self.assertTrue(response.text.startswith("WEBVTT"))
 
     def test_api_demo_vtt_endpoint(self):
         """GET /api/subtitles/demo.vtt returns 200 with text/vtt content."""
@@ -124,18 +158,3 @@ class TestSubtitleServiceAndEndpoints(unittest.IsolatedAsyncioTestCase):
         self.assertIn("text/vtt", response.headers.get("content-type", ""))
         self.assertTrue(response.text.startswith("WEBVTT"))
         self.assertIn("Inception", response.text)
-
-    def test_api_embedded_vtt_endpoint(self):
-        """GET /api/subtitles/embedded returns 200 with text/vtt media type."""
-        with patch.object(
-            subtitle_service,
-            "extract_embedded_vtt",
-            AsyncMock(return_value="WEBVTT\n\n1\n00:00:01.000 --> 00:00:02.000\nSub"),
-        ):
-            response = self.client.get(
-                "/api/subtitles/embedded",
-                params={"stream_url": "https://test.stream/video.mp4", "track_index": 0},
-            )
-            self.assertEqual(response.status_code, 200)
-            self.assertIn("text/vtt", response.headers.get("content-type", ""))
-            self.assertTrue(response.text.startswith("WEBVTT"))

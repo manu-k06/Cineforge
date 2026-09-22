@@ -120,14 +120,30 @@ export async function getTrendingMovies(timeWindow = 'week', page = 1) {
 }
 
 /**
- * Subtitle Extraction & WebVTT Endpoints
+ * Subtitle Discovery & WebVTT Endpoints
  */
-export async function getSubtitleTracks(streamUrl, title = '', year = null) {
+export async function getSubtitleTracks(title = '', year = null, imdbId = null, streamUrl = '') {
   try {
-    let url = `${API_BASE}/api/subtitles/tracks?stream_url=${encodeURIComponent(streamUrl)}`
-    if (title) url += `&title=${encodeURIComponent(title)}`
-    if (year) url += `&year=${year}`
-    const response = await fetch(url)
+    // Gracefully handle legacy argument order: (streamUrl, title, year)
+    let effectiveTitle = title
+    let effectiveYear = year
+    let effectiveImdbId = imdbId
+    let effectiveStreamUrl = streamUrl
+
+    if (typeof title === 'string' && (title.startsWith('http://') || title.startsWith('https://'))) {
+      effectiveStreamUrl = title
+      effectiveTitle = typeof year === 'string' ? year : ''
+      effectiveYear = typeof imdbId === 'number' ? imdbId : null
+      effectiveImdbId = null
+    }
+
+    const params = new URLSearchParams()
+    if (effectiveTitle) params.set('title', effectiveTitle)
+    if (effectiveYear) params.set('year', effectiveYear)
+    if (effectiveImdbId) params.set('imdb_id', effectiveImdbId)
+    if (effectiveStreamUrl) params.set('stream_url', effectiveStreamUrl)
+
+    const response = await fetch(`${API_BASE}/api/subtitles/tracks?${params.toString()}`)
     if (!response.ok) return { tracks: [] }
     const data = await response.json()
     if (data && data.tracks) {
