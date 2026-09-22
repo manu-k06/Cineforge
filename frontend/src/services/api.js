@@ -88,3 +88,34 @@ export async function askAiCompanion(movieTitle, question) {
   }
   return await response.json()
 }
+
+/**
+ * TMDb Metadata Enrichment Endpoints
+ */
+export async function getMetadataStatus() {
+  try {
+    const response = await fetch(`${API_BASE}/api/metadata/status`)
+    return response.ok ? await response.json() : { status: 'unconfigured', configured: false }
+  } catch {
+    return { status: 'unconfigured', configured: false }
+  }
+}
+
+export async function getMovieMetadata(title, year = null) {
+  let url = `${API_BASE}/api/metadata/movie?title=${encodeURIComponent(title)}`
+  if (year) url += `&year=${year}`
+  const response = await fetch(url)
+  if (!response.ok) {
+    throw new Error(`Failed to fetch metadata for ${title}`)
+  }
+  return await response.json()
+}
+
+export async function getTrendingMovies(timeWindow = 'week', page = 1) {
+  const response = await fetch(`${API_BASE}/api/metadata/trending?time_window=${timeWindow}&page=${page}`)
+  if (!response.ok) {
+    throw new Error('Failed to fetch trending movies')
+  }
+  return await response.json()
+}
+

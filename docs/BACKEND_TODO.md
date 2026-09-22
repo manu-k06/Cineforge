@@ -67,17 +67,21 @@ This document tracks all planned backend enhancements, data integrations, and fe
 
 **Goal**: Automatically fetch authoritative poster backdrops, synopses, cast lists with profile headshots, directors, IMDb ratings, and user reviews for any searched title.
 
-- [ ] **2.1. TMDb Service (`app/services/tmdb.py`)**
-  - Query TMDb Search API (`https://api.themoviedb.org/3/search/multi`) to resolve:
+- [x] **2.1. TMDb Service (`app/services/tmdb.py`)**
+  - Query TMDb Search & Details API (`/search/movie`, `/movie/{id}?append_to_response=credits,videos`) to resolve:
     - Official high-res posters and 4K backdrop banners.
-    - Full cast list (actor name, character name, profile image path).
-    - Crew: Director, writers, composer.
+    - Full cast list (actor name, character name, profile headshot URLs).
+    - Crew: Directors, release year, runtime, genres.
     - Verified IMDb / TMDb ratings and vote counts.
-    - Curated reviews with user avatars.
-- [ ] **2.2. Metadata Caching**
-  - In-memory LRU or Supabase cache (`ttl=24h`) keyed by sanitized movie name and year.
-- [ ] **2.3. Frontend Movie Details Modal / Page**
-  - Render full TMDb details, cast carousel, and trailers alongside streaming buttons.
+    - Official YouTube trailers.
+- [x] **2.2. Metadata Caching & Zero-Crash Fallbacks**
+  - In-memory TTL cache (`ttl=24h`) keyed by sanitized movie title and year.
+  - Automatic fallback generator ensures smooth streaming even without an API key.
+- [x] **2.3. Frontend Movie Details & Card Enrichment**
+  - Upgraded `MovieCard` with official HD posters and rating stars.
+  - Connected `WatchPage` with dynamic 4K backdrop, synopsis, and full cast carousel.
+  - Added live Trending discovery integration in `App.jsx`.
+
 
 ---
 

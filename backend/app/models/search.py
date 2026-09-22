@@ -2,6 +2,8 @@ from typing import Any, Dict, List, Optional
 from pydantic import BaseModel, Field
 
 from app.models.ai import AiQueryInterpretation
+from app.models.metadata import MovieMetadata
+
 
 
 class ButtonInfo(BaseModel):
@@ -76,6 +78,10 @@ class SearchResponse(BaseModel):
         None, description="CineAI query interpretation and refinement details if applicable"
     )
     is_cached: bool = Field(False, description="Whether results were retrieved from Supabase cache")
+    metadata_enrichment: Dict[str, MovieMetadata] = Field(
+        default_factory=dict, description="TMDb enriched metadata mapped by clean movie title"
+    )
+
 
 
 class TelegramDebugSearchResponse(BaseModel):

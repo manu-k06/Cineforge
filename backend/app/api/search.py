@@ -21,12 +21,28 @@ from app.services.cache_service import cache_service
 from app.services.compatibility import compatibility_service
 from app.services.search_aggregator import search_aggregator
 from app.services.telegram import telegram_service
+from app.services.tmdb import tmdb_service
 
 logger = logging.getLogger("cineforge.api.search")
 router = APIRouter()
 
 
+async def _enrich_groups_with_metadata(title_groups: Dict[str, Any]) -> Dict[str, Any]:
+    """Concurrently resolve TMDb posters, backdrops, and ratings for movie title groups."""
+    if not title_groups:
+        return {}
+    titles = list(title_groups.keys())[:10]
+    tasks = [tmdb_service.search_and_get_metadata(t) for t in titles]
+    results = await asyncio.gather(*tasks, return_exceptions=True)
+    enrichment = {}
+    for title, res in zip(titles, results):
+        if not isinstance(res, Exception):
+            enrichment[title] = res
+    return enrichment
+
+
 @router.get("/search", response_model=SearchResponse, summary="Search Movies via Telegram Bot")
+
 async def search_movies(
     q: Optional[str] = Query(None, description="Movie search query term"),
     query: Optional[str] = Query(None, description="Alias for 'q'"),
@@ -236,6 +252,7 @@ async def search_movies(
             source_message_id=9763,
         )
         title_groups = search_aggregator.group_candidates_by_title(mock_candidates)
+        enrichment = await _enrich_groups_with_metadata(title_groups)
 
         return SearchResponse(
             query=query_str,
@@ -245,6 +262,7 @@ async def search_movies(
             title_groups=title_groups,
             ai_interpretation=ai_interpretation,
             is_cached=False,
+            metadata_enrichment=enrichment,
         )
 
     # Check Supabase movies_cache for zero-latency cache hit (sub-50ms response)
@@ -252,6 +270,7 @@ async def search_movies(
         cached_candidates = await cache_service.get_cached_candidates(query_str)
         if cached_candidates:
             cached_groups = search_aggregator.group_candidates_by_title(cached_candidates)
+            enrichment = await _enrich_groups_with_metadata(cached_groups)
             return SearchResponse(
                 query=query_str,
                 results=[],
@@ -266,6 +285,7 @@ async def search_movies(
                 title_groups=cached_groups,
                 ai_interpretation=ai_interpretation,
                 is_cached=True,
+                metadata_enrichment=enrichment,
             )
 
     try:
@@ -304,15 +324,20 @@ async def search_movies(
             for c in candidates
         ]
 
+        title_groups = data.get("title_groups", {})
+        enrichment = await _enrich_groups_with_metadata(title_groups)
+
         return SearchResponse(
             query=query_str,
             results=legacy_results,
             candidates=candidates,
             pagination=data.get("pagination"),
-            title_groups=data.get("title_groups", {}),
+            title_groups=title_groups,
             ai_interpretation=ai_interpretation,
             is_cached=False,
+            metadata_enrichment=enrichment,
         )
+
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -365,13 +390,18 @@ async def find_title_versions(
             )
             for c in candidates
         ]
+        title_groups = data.get("title_groups", {})
+        enrichment = await _enrich_groups_with_metadata(title_groups)
+
         return SearchResponse(
             query=title,
             results=legacy_results,
             candidates=candidates,
             pagination=data.get("pagination"),
-            title_groups=data.get("title_groups", {}),
+            title_groups=title_groups,
+            metadata_enrichment=enrichment,
         )
+
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

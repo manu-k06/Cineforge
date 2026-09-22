@@ -31,6 +31,8 @@ import {
   Sparkles,
 } from 'lucide-react'
 import { formatBytes, parseMovieMetadata } from '../utils/helpers'
+import { getMovieMetadata } from '../services/api'
+
 
 // Default fallback metadata generator for cast & reviews matching StreamVibe aesthetic
 function getMovieExtras(title) {
@@ -130,8 +132,37 @@ export default function WatchPage({
   const meta = parseMovieMetadata(title, candidate?.display_text || candidate?.details || '')
   const extras = getMovieExtras(title)
 
+  const [tmdbData, setTmdbData] = useState(null)
+
+  useEffect(() => {
+    getMovieMetadata(meta.cleanTitle, meta.year)
+      .then((data) => {
+        if (data && data.source !== 'fallback') {
+          setTmdbData(data)
+        }
+      })
+      .catch(() => {})
+  }, [meta.cleanTitle, meta.year])
+
+  const synopsis = tmdbData?.overview || extras.synopsis
+  const directors = tmdbData?.directors?.length > 0 ? tmdbData.directors.join(', ') : extras.directors
+  const genres = tmdbData?.genres?.length > 0 ? tmdbData.genres : extras.genres
+  const rating = tmdbData?.rating ? tmdbData.rating.toString() : extras.imdbRating
+  const backdropUrl = tmdbData?.backdrop_url || null
+  const castList =
+    tmdbData?.cast?.length > 0
+      ? tmdbData.cast.map((c) => ({
+          name: c.name,
+          role: c.character,
+          img:
+            c.profile_url ||
+            'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&auto=format&fit=crop',
+        }))
+      : extras.cast
+
   const effectiveWatchUrl = delivery.watch_url || delivery.player_url || delivery.stream_url
   const effectiveDownloadUrl = delivery.download_url || `${delivery.stream_url}&d=true`
+
 
   // Autohide controls on inactivity
   const handleMouseMove = () => {
@@ -247,13 +278,36 @@ export default function WatchPage({
   const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0
 
   return (
-    <div className="streamvibe-watch-container">
+    <div className="streamvibe-watch-container" style={{ position: 'relative' }}>
+      {/* TMDb Ambient Backdrop Banner */}
+      {backdropUrl && (
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: '520px',
+            backgroundImage: `url(${backdropUrl})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center top',
+            opacity: 0.18,
+            filter: 'blur(20px)',
+            pointerEvents: 'none',
+            zIndex: 0,
+            maskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%)',
+            WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%)',
+          }}
+        />
+      )}
+
       {/* Top Header & Breadcrumbs */}
-      <div className="watch-nav-header">
+      <div className="watch-nav-header" style={{ position: 'relative', zIndex: 1 }}>
         <button className="btn btn-secondary btn-back-ott" onClick={onBack}>
           <ArrowLeft size={18} />
           <span>Back to Browse</span>
         </button>
+
         <div className="watch-breadcrumbs-ott">
           <span className="crumb-link" onClick={onBack}>Movies & Shows</span>
           <span className="crumb-sep">/</span>
@@ -463,7 +517,7 @@ export default function WatchPage({
           {/* Description Section */}
           <div className="ott-card description-card">
             <h3 className="ott-section-title">Description</h3>
-            <p className="ott-description-text">{extras.synopsis}</p>
+            <p className="ott-description-text">{synopsis}</p>
           </div>
 
           {/* Cast Carousel Section */}
@@ -481,7 +535,7 @@ export default function WatchPage({
             </div>
 
             <div className="cast-carousel">
-              {extras.cast.map((actor, idx) => (
+              {castList.map((actor, idx) => (
                 <div key={idx} className="cast-member-card">
                   <div className="actor-img-box">
                     <img src={actor.img} alt={actor.name} className="actor-img" />
@@ -542,7 +596,7 @@ export default function WatchPage({
               <Calendar size={16} className="text-muted" />
               <span>Released Year</span>
             </div>
-            <h4 className="info-card-value">{meta.year || '2024'}</h4>
+            <h4 className="info-card-value">{tmdbData?.year || meta.year || '2024'}</h4>
           </div>
 
           {/* Available Languages */}
@@ -568,10 +622,10 @@ export default function WatchPage({
             </div>
             <div className="ratings-grid">
               <div className="rating-box">
-                <span className="rating-label">IMDb</span>
+                <span className="rating-label">IMDb / TMDb</span>
                 <div className="rating-score">
                   <Star size={14} fill="#FFD700" color="#FFD700" />
-                  <span>{extras.imdbRating}</span>
+                  <span>{rating}</span>
                 </div>
               </div>
               <div className="rating-box">
@@ -591,7 +645,7 @@ export default function WatchPage({
               <span>Genres</span>
             </div>
             <div className="genres-pills">
-              {extras.genres.map((g) => (
+              {genres.map((g) => (
                 <span key={g} className="badge badge-quality">
                   {g}
                 </span>
@@ -605,13 +659,14 @@ export default function WatchPage({
               <User size={16} className="text-muted" />
               <span>Director</span>
             </div>
-            <h4 className="info-card-value text-sm">{extras.directors}</h4>
+            <h4 className="info-card-value text-sm">{directors}</h4>
             <div className="info-card-header mt-3">
               <Film size={16} className="text-muted" />
               <span>Music</span>
             </div>
             <h4 className="info-card-value text-sm">{extras.music}</h4>
           </div>
+
 
           {/* ON-THE-FLY RELEASES & QUALITY SWITCHER (Cineforge Power Feature) */}
           {versions.length > 1 && (

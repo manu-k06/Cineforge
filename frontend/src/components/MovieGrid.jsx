@@ -5,6 +5,7 @@ import MovieCard from './MovieCard'
 export default function MovieGrid({
   items,
   groupedItems,
+  metadataEnrichment = {},
   isLoading,
   searchQuery,
   page,
@@ -14,6 +15,7 @@ export default function MovieGrid({
   onSelectMovie,
   onQuickSearch,
 }) {
+
   if (isLoading) {
     return (
       <div className="grid-section">
@@ -81,10 +83,12 @@ export default function MovieGrid({
             <MovieCard
               key={idx}
               group={group}
+              metadata={metadataEnrichment?.[group.title]}
               onSelect={onSelectMovie}
             />
           ))}
         </div>
+
       </div>
     )
   }

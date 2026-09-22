@@ -30,10 +30,17 @@ class Settings(BaseSettings):
     AI_SEARCH_ENABLED: bool = True
     AI_REQUEST_TIMEOUT: float = 4.0
 
+    # Phase 2: Metadata Enrichment (TMDb / IMDb API Integration)
+    TMDB_API_KEY: Optional[str] = None
+    TMDB_BASE_URL: str = "https://api.themoviedb.org/3"
+    TMDB_IMAGE_BASE_URL: str = "https://image.tmdb.org/t/p"
+    METADATA_CACHE_TTL: int = 86400  # 24-hour cache TTL
+
     # Phase 3: Supabase Persistence & Zero-Latency Stream Caching
     SUPABASE_URL: Optional[str] = None
     SUPABASE_KEY: Optional[str] = None
     CACHE_ENABLED: bool = True
+
 
     # Telegram Bot Interaction Settings (Third-party Bot & Streamer Bot)
     TELEGRAM_BOT_USERNAME: str = ""

@@ -8,7 +8,7 @@ import DeliveryModal from './components/DeliveryModal'
 import WatchPage from './components/WatchPage'
 import AuthModal from './components/AuthModal'
 import { useAuth } from './context/AuthContext'
-import { searchMovies, deliverCandidate, getBackendHealth } from './services/api'
+import { searchMovies, deliverCandidate, getBackendHealth, getTrendingMovies } from './services/api'
 import { parseMovieMetadata } from './utils/helpers'
 
 export default function App() {
@@ -21,6 +21,7 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState('')
   const [rawCandidates, setRawCandidates] = useState([])
   const [groupedCandidates, setGroupedCandidates] = useState([])
+  const [metadataEnrichment, setMetadataEnrichment] = useState({})
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [hasNextPage, setHasNextPage] = useState(false)
@@ -28,6 +29,7 @@ export default function App() {
   const [searchError, setSearchError] = useState(null)
   const [aiInterpretation, setAiInterpretation] = useState(null)
   const [isCached, setIsCached] = useState(false)
+
 
   // Delivery & Cinema Watch state
   const [selectedGroup, setSelectedGroup] = useState(null)
@@ -49,6 +51,42 @@ export default function App() {
     const interval = setInterval(check, 15000)
     return () => clearInterval(interval)
   }, [])
+
+  // When clicking Trending tab, load top trending movies from TMDb
+  useEffect(() => {
+    if (activeTab === 'trending') {
+      setIsSearching(true)
+      getTrendingMovies('week', 1)
+        .then((data) => {
+          if (data && data.results && data.results.length > 0) {
+            const enrichment = {}
+            const groups = data.results.map((m) => {
+              enrichment[m.title] = m
+              return {
+                title: m.title,
+                metadata: m,
+                candidates: [
+                  {
+                    title: m.title,
+                    display_text: `${m.title} (${m.year || '2024'}) - Stream Available`,
+                    quality: '1080P',
+                    container: 'mp4',
+                    language: 'Dual Audio',
+                  },
+                ],
+              }
+            })
+            setMetadataEnrichment(enrichment)
+            setGroupedCandidates(groups)
+            setRawCandidates(groups.flatMap((g) => g.candidates))
+            setSearchQuery('Trending Movies')
+          }
+        })
+        .catch((e) => console.error('Failed to load trending movies:', e))
+        .finally(() => setIsSearching(false))
+    }
+  }, [activeTab])
+
 
   // Fallback helper to group candidates by title if not grouped by backend
   const fallbackGroupCandidates = (candidates) => {
@@ -90,8 +128,10 @@ export default function App() {
       setRawCandidates(candidates)
       setAiInterpretation(data.ai_interpretation || null)
       setIsCached(Boolean(data.is_cached))
+      setMetadataEnrichment(data.metadata_enrichment || {})
 
       // Use backend title_groups if available, else fallback
+
       if (data.title_groups && Object.keys(data.title_groups).length > 0) {
         const groups = Object.entries(data.title_groups).map(([title, cands]) => ({
           title,
@@ -304,6 +344,7 @@ export default function App() {
             <MovieGrid
               items={rawCandidates}
               groupedItems={groupedCandidates}
+              metadataEnrichment={metadataEnrichment}
               isLoading={isSearching}
               searchQuery={searchQuery}
               page={page}
@@ -313,6 +354,7 @@ export default function App() {
               onSelectMovie={handleSelectMovie}
               onQuickSearch={(q) => handleSearch(q, 1)}
             />
+
           </>
         )}
       </main>

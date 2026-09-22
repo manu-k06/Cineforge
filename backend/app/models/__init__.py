@@ -23,12 +23,22 @@ from app.models.search import (
     TelegramDebugSearchResponse,
 )
 
+from app.models.metadata import (
+    CastMember,
+    CrewMember,
+    MovieMetadata,
+    TrendingMoviesResponse,
+)
+
 __all__ = [
     "ButtonInfo",
     "CandidateDeliveryRequest",
     "CandidateDeliveryResponse",
+    "CastMember",
+    "CrewMember",
     "DeepLinkInfo",
     "MediaMetadata",
+    "MovieMetadata",
     "SearchCandidate",
     "SearchPaginationInfo",
     "SearchResponse",
@@ -40,5 +50,7 @@ __all__ = [
     "TestDeliveryResponse",
     "TestMediaDetectionRequest",
     "TestMediaDetectionResponse",
+    "TrendingMoviesResponse",
     "parse_telegram_deep_link",
 ]
+
