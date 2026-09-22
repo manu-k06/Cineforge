@@ -5,7 +5,17 @@ import { useAuth } from '../context/AuthContext'
 export default function Navbar({ onSearchClick, isBackendOnline, activeTab, setActiveTab }) {
   const { user, openAuthModal, signOut } = useAuth()
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const [isScrolled, setIsScrolled] = useState(false)
   const dropdownRef = useRef(null)
+
+  // Track scroll position to transition navbar from transparent to frosted blur
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 30)
+    }
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   // Close dropdown on click outside
   useEffect(() => {
@@ -35,12 +45,12 @@ export default function Navbar({ onSearchClick, isBackendOnline, activeTab, setA
   const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Member'
 
   return (
-    <header className="streamvibe-navbar">
+    <header className={`streamvibe-navbar ${isScrolled ? 'scrolled' : 'transparent-header'}`}>
       <div className="navbar-inner">
         {/* Brand Logo */}
         <div className="navbar-brand" onClick={() => setActiveTab('home')}>
           <div className="brand-icon">
-            <Play className="brand-play" fill="#E50000" size={18} />
+            <Play className="brand-play" fill="#E50914" size={18} />
           </div>
           <span className="brand-text">
             CINE<span className="brand-accent">FORGE</span>
@@ -77,22 +87,15 @@ export default function Navbar({ onSearchClick, isBackendOnline, activeTab, setA
 
         {/* Right Actions */}
         <div className="navbar-actions">
-          {/* Status badge */}
-          <div className={`backend-status ${isBackendOnline ? 'online' : 'offline'}`} title={isBackendOnline ? 'FastAPI & Bot Connected' : 'Connecting to Backend...'}>
-            {isBackendOnline ? (
-              <>
-                <span className="status-dot"></span>
-                <span className="status-label">Bot Live</span>
-              </>
-            ) : (
-              <>
-                <AlertCircle size={14} className="text-warning" />
-                <span className="status-label">Reconnecting</span>
-              </>
-            )}
+          {/* Subtle Live Indicator */}
+          <div 
+            className={`network-indicator ${isBackendOnline ? 'online' : 'offline'}`}
+            title={isBackendOnline ? 'Streaming engine connected' : 'Reconnecting to streaming engine...'}
+          >
+            <span className="indicator-dot"></span>
           </div>
 
-          <button className="btn-icon" onClick={onSearchClick} title="Search library">
+          <button className="btn-icon nav-search-btn" onClick={onSearchClick} title="Search movies & shows">
             <Search size={18} />
           </button>
 

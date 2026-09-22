@@ -32,76 +32,38 @@ export default function DeliveryModal({ candidate, error, onClose, onRetry }) {
 
   return (
     <div className="modal-overlay">
-      <div className="modal-content delivery-modal">
+      <div className="modal-content delivery-modal cinematic-delivery">
         <div className="delivery-header">
-          <div className="delivery-icon-glow">
-            <Radio size={32} className="text-red animate-pulse" />
+          <div className="cinema-buffering-ring">
+            <Loader2 size={42} className="animate-spin text-red" />
           </div>
-          <h2 className="delivery-modal-title">Initiating Bot Stream Pipeline</h2>
+          <h2 className="delivery-modal-title">Preparing Cinema Stream</h2>
           <p className="delivery-modal-desc">
-            Fetching media file from Telegram and forwarding to stream bot...
+            Allocating dedicated high-speed bandwidth & syncing audio tracks...
           </p>
         </div>
 
         {/* Selected Movie Info */}
         <div className="delivery-candidate-card">
-          <span className="badge badge-quality mb-1">SELECTED RELEASE</span>
+          <div className="candidate-badge-row">
+            <span className="badge badge-quality">{candidate.quality || '1080P'}</span>
+            {candidate.size && <span className="badge badge-sm">{candidate.size}</span>}
+            {candidate.language && <span className="badge badge-sm">{candidate.language}</span>}
+          </div>
           <h4 className="delivery-candidate-title">{candidate.title}</h4>
-          {detailsText && (
-            <p className="delivery-candidate-details">{detailsText}</p>
-          )}
         </div>
 
-        {/* Pipeline Steps */}
-        <div className="delivery-pipeline">
-          {/* Step 1 */}
-          <div className={`pipeline-step ${getStepStatus(1)}`}>
-            <div className="step-icon">
-              {getStepStatus(1) === 'done' ? (
-                <CheckCircle2 size={18} className="text-success" />
-              ) : (
-                <Loader2 size={18} className="animate-spin text-red" />
-              )}
-            </div>
-            <div className="step-text">
-              <span className="step-title">1. Querying @Spoty_xbot</span>
-              <span className="step-subtitle">Triggering inline callback button</span>
-            </div>
+        {/* Cinematic Stream Initialization Status */}
+        <div className="cinema-loading-progress">
+          <div className="progress-bar-track">
+            <div 
+              className="progress-bar-fill" 
+              style={{ width: `${Math.min(95, 20 + elapsedTime * 25)}%` }}
+            />
           </div>
-
-          {/* Step 2 */}
-          <div className={`pipeline-step ${getStepStatus(2)}`}>
-            <div className="step-icon">
-              {getStepStatus(2) === 'done' ? (
-                <CheckCircle2 size={18} className="text-success" />
-              ) : getStepStatus(2) === 'active' ? (
-                <Loader2 size={18} className="animate-spin text-red" />
-              ) : (
-                <div className="step-dot" />
-              )}
-            </div>
-            <div className="step-text">
-              <span className="step-title">2. Forwarding to @stre89d_bot</span>
-              <span className="step-subtitle">Routing video document to stream engine</span>
-            </div>
-          </div>
-
-          {/* Step 3 */}
-          <div className={`pipeline-step ${getStepStatus(3)}`}>
-            <div className="step-icon">
-              {getStepStatus(3) === 'done' ? (
-                <CheckCircle2 size={18} className="text-success" />
-              ) : getStepStatus(3) === 'active' ? (
-                <Loader2 size={18} className="animate-spin text-red" />
-              ) : (
-                <div className="step-dot" />
-              )}
-            </div>
-            <div className="step-text">
-              <span className="step-title">3. Generating Stream URLs</span>
-              <span className="step-subtitle">Extracting direct stream & web watch links</span>
-            </div>
-          </div>
+          <span className="loading-status-text">
+            {elapsedTime < 2 ? 'Connecting to cinema node...' : elapsedTime < 4 ? 'Mounting media container...' : 'Readying video player...'}
+          </span>
         </div>
 
         {/* Elapsed Timer */}

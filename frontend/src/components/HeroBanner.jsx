@@ -6,13 +6,15 @@ const FEATURED_MOVIES = [
     id: 'avengers',
     title: 'Avengers: Endgame',
     searchQuery: 'Avengers Endgame',
-    synopsis: 'After the devastating events of Infinity War, the universe is in ruins. With the help of remaining allies, the Avengers assemble once more to reverse Thanos’ actions and restore balance.',
+    synopsis: 'After the devastating events of Infinity War, the universe is in ruins. With the help of remaining allies, the Avengers assemble once more to reverse Thanos’ actions and restore balance to the universe.',
     year: '2019',
     rating: '8.4',
-    quality: '4K UHD',
+    certificate: 'U/A 16+',
+    quality: '4K ULTRA HD',
+    audio: 'Dolby Atmos 5.1',
     duration: '3h 1min',
     genres: ['Action', 'Sci-Fi', 'Adventure'],
-    backdrop: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=1920&auto=format&fit=crop',
+    backdrop: 'https://image.tmdb.org/t/p/original/7RyHsO4yDXtBv1zUU3mTpHeQ0d5.jpg',
   },
   {
     id: 'dune',
@@ -21,22 +23,54 @@ const FEATURED_MOVIES = [
     synopsis: 'Paul Atreides unites with Chani and the Fremen while seeking revenge against the conspirators who destroyed his family. Facing a choice between the love of his life and the fate of the universe.',
     year: '2024',
     rating: '8.6',
-    quality: '4K UHD',
+    certificate: 'U/A 16+',
+    quality: '4K ULTRA HD',
+    audio: 'IMAX Enhanced',
     duration: '2h 46min',
     genres: ['Sci-Fi', 'Adventure', 'Drama'],
-    backdrop: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?q=80&w=1920&auto=format&fit=crop',
+    backdrop: 'https://image.tmdb.org/t/p/original/xOMo8BRK7PfcJv9JCnx7s520DRq.jpg',
   },
   {
     id: 'interstellar',
     title: 'Interstellar',
     searchQuery: 'Interstellar',
-    synopsis: 'When Earth becomes uninhabitable in the future, a farmer and ex-NASA pilot, Joseph Cooper, is tasked to pilot a spacecraft along with a team of researchers to find a new planet for humans.',
+    synopsis: 'When Earth becomes uninhabitable in the future, a farmer and ex-NASA pilot, Joseph Cooper, is tasked to pilot a spacecraft along with a team of researchers to find a new planet for humanity.',
     year: '2014',
     rating: '8.7',
+    certificate: 'U/A 13+',
     quality: 'IMAX 4K',
+    audio: 'DTS-HD MA 5.1',
     duration: '2h 49min',
-    genres: ['Sci-Fi', 'Drama', 'Mystery'],
-    backdrop: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1920&auto=format&fit=crop',
+    genres: ['Sci-Fi', 'Drama', 'Adventure'],
+    backdrop: 'https://image.tmdb.org/t/p/original/rAiYTsqJJR0KP8UN8vJjZHa820g.jpg',
+  },
+  {
+    id: 'aavesham',
+    title: 'Aavesham',
+    searchQuery: 'Aavesham',
+    synopsis: 'Three teenagers arrive in Bangalore for their engineering degree and get involved in a brawl with seniors. In pursuit of protection, they find an eccentric local gangster named Ranga.',
+    year: '2024',
+    rating: '8.0',
+    certificate: 'U/A 16+',
+    quality: '1080p FULL HD',
+    audio: 'Dual Audio (Malayalam / Hindi)',
+    duration: '2h 38min',
+    genres: ['Action', 'Comedy', 'Drama'],
+    backdrop: 'https://image.tmdb.org/t/p/original/w4z8jY8L21F7sC8r41X1W42R.jpg',
+  },
+  {
+    id: 'oppenheimer',
+    title: 'Oppenheimer',
+    searchQuery: 'Oppenheimer',
+    synopsis: 'The story of American scientist J. Robert Oppenheimer and his role in the development of the atomic bomb during World War II.',
+    year: '2023',
+    rating: '8.9',
+    certificate: 'A 18+',
+    quality: '4K ULTRA HD',
+    audio: 'Dolby Atmos',
+    duration: '3h 0min',
+    genres: ['Biography', 'Drama', 'History'],
+    backdrop: 'https://image.tmdb.org/t/p/original/fm6K9vY92Yr8zbivvgMcq9xYvYw.jpg',
   },
 ]
 
@@ -69,10 +103,11 @@ export default function HeroBanner({ onQuickPlay }) {
       {/* Hero Content */}
       <div className="hero-content">
         <div className="hero-meta-top">
-          <span className="badge badge-red">
-            <Sparkles size={13} /> STREAMVIBE SPOTLIGHT
+          <span className="badge badge-spotlight">
+            <Sparkles size={13} /> STREAM SPOTLIGHT
           </span>
           <span className="badge badge-quality">{current.quality}</span>
+          {current.audio && <span className="badge badge-audio">{current.audio}</span>}
         </div>
 
         <h1 className="hero-title">{current.title}</h1>
@@ -83,13 +118,15 @@ export default function HeroBanner({ onQuickPlay }) {
             <span>{current.rating}</span>
           </div>
           <span className="stat-dot">•</span>
+          <span className="stat-certificate">{current.certificate || 'U/A 16+'}</span>
+          <span className="stat-dot">•</span>
           <span className="stat-year">{current.year}</span>
           <span className="stat-dot">•</span>
           <span className="stat-duration">{current.duration}</span>
           <span className="stat-dot">•</span>
           <div className="stat-genres">
             {current.genres.map((g) => (
-              <span key={g} className="badge">{g}</span>
+              <span key={g} className="badge badge-genre">{g}</span>
             ))}
           </div>
         </div>
@@ -98,15 +135,15 @@ export default function HeroBanner({ onQuickPlay }) {
 
         <div className="hero-actions">
           <button 
-            className="btn btn-primary btn-hero-play"
+            className="btn btn-hero-play"
             onClick={() => onQuickPlay(current.searchQuery)}
           >
-            <Play size={18} fill="#FFFFFF" />
+            <Play size={20} fill="#000000" />
             <span>Play Now</span>
           </button>
 
           <button 
-            className="btn btn-secondary"
+            className="btn btn-hero-watchlist"
             onClick={() => setIsWatchlist(!isWatchlist)}
           >
             {isWatchlist ? <Check size={18} className="text-success" /> : <Plus size={18} />}
@@ -114,9 +151,9 @@ export default function HeroBanner({ onQuickPlay }) {
           </button>
 
           <button 
-            className="btn-icon" 
+            className="btn-icon btn-hero-sound" 
             onClick={() => setIsMuted(!isMuted)} 
-            title={isMuted ? 'Unmute preview' : 'Mute preview'}
+            title={isMuted ? 'Unmute' : 'Mute'}
           >
             {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
           </button>

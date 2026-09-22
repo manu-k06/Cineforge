@@ -239,123 +239,38 @@ export default function App() {
           />
         ) : (
           /* Browse & Discovery View */
-          <>
-            {/* Hero Showcase (shown when not actively searching) */}
+          <div className="browse-view-container">
+            {/* Hero Showcase (full bleed when not searching) */}
             {!searchQuery && (
               <HeroBanner onQuickPlay={handleHeroQuickPlay} />
             )}
 
-            {/* Search Bar Section */}
-            <div ref={searchBarRef}>
-              <SearchBar
-                onSearch={(q) => handleSearch(q, 1)}
+            <div className="browse-body-container">
+              {/* Search Bar Section */}
+              <div ref={searchBarRef} className="search-bar-wrapper">
+                <SearchBar
+                  onSearch={(q) => handleSearch(q, 1)}
+                  isLoading={isSearching}
+                  currentQuery={searchQuery}
+                />
+              </div>
+
+              {/* Results / Discovery Movie Grid */}
+              <MovieGrid
+                items={rawCandidates}
+                groupedItems={groupedCandidates}
+                metadataEnrichment={metadataEnrichment}
                 isLoading={isSearching}
-                currentQuery={searchQuery}
+                searchQuery={searchQuery}
+                page={page}
+                totalPages={totalPages}
+                hasNextPage={hasNextPage}
+                onPageChange={(newPage) => handleSearch(searchQuery, newPage)}
+                onSelectMovie={handleSelectMovie}
+                onQuickSearch={(q) => handleSearch(q, 1)}
               />
             </div>
-
-            {/* CineAI Query Refinement Banner */}
-            {aiInterpretation && aiInterpretation.is_refined && (
-              <div
-                style={{
-                  margin: '1rem auto',
-                  maxWidth: '1280px',
-                  padding: '12px 20px',
-                  borderRadius: '12px',
-                  background: 'linear-gradient(135deg, rgba(229, 9, 20, 0.12), rgba(138, 43, 226, 0.12))',
-                  border: '1px solid rgba(229, 9, 20, 0.25)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  flexWrap: 'wrap',
-                  gap: '12px',
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <span
-                    style={{
-                      background: 'linear-gradient(135deg, #e50914, #8a2be2)',
-                      color: '#ffffff',
-                      padding: '3px 10px',
-                      borderRadius: '6px',
-                      fontSize: '12px',
-                      fontWeight: '700',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '4px',
-                      letterSpacing: '0.5px',
-                    }}
-                  >
-                    ✨ CineAI
-                  </span>
-                  <span style={{ fontSize: '14px', color: '#e5e5e5' }}>
-                    Identified: <strong style={{ color: '#ffffff' }}>{aiInterpretation.canonical_title} {aiInterpretation.year ? `(${aiInterpretation.year})` : ''}</strong>
-                    {aiInterpretation.explanation && (
-                      <span style={{ color: '#9ca3af', marginLeft: '6px' }}>— {aiInterpretation.explanation}</span>
-                    )}
-                  </span>
-                </div>
-                <button
-                  onClick={() => handleSearch(aiInterpretation.original_query, 1, false)}
-                  style={{
-                    background: 'transparent',
-                    border: 'none',
-                    color: '#9ca3af',
-                    fontSize: '12px',
-                    cursor: 'pointer',
-                    textDecoration: 'underline',
-                  }}
-                  title="Search the exact text without AI refinement"
-                >
-                  Search exact: "{aiInterpretation.original_query}"
-                </button>
-              </div>
-            )}
-
-            {/* Supabase Cache Indicator */}
-            {isCached && (
-              <div
-                style={{
-                  maxWidth: '1280px',
-                  margin: '0.5rem auto 1rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  fontSize: '12px',
-                  color: '#10b981',
-                }}
-              >
-                <span
-                  style={{
-                    background: 'rgba(16, 185, 129, 0.15)',
-                    border: '1px solid rgba(16, 185, 129, 0.3)',
-                    padding: '3px 10px',
-                    borderRadius: '6px',
-                    fontWeight: '600',
-                  }}
-                >
-                  ⚡ Supabase Cache Hit
-                </span>
-                <span style={{ color: '#9ca3af' }}>Loaded in &lt;50ms directly from database</span>
-              </div>
-            )}
-
-            {/* Results / Discovery Movie Grid */}
-            <MovieGrid
-              items={rawCandidates}
-              groupedItems={groupedCandidates}
-              metadataEnrichment={metadataEnrichment}
-              isLoading={isSearching}
-              searchQuery={searchQuery}
-              page={page}
-              totalPages={totalPages}
-              hasNextPage={hasNextPage}
-              onPageChange={(newPage) => handleSearch(searchQuery, newPage)}
-              onSelectMovie={handleSelectMovie}
-              onQuickSearch={(q) => handleSearch(q, 1)}
-            />
-
-          </>
+          </div>
         )}
       </main>
 

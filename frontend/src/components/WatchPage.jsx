@@ -870,40 +870,40 @@ export default function WatchPage({
             </div>
           </div>
 
-          {/* Reviews Section */}
-          <div className="ott-card reviews-card">
+          {/* More Like This / Recommended Cinema Showcase */}
+          <div className="ott-card recommendations-card">
             <div className="ott-card-header">
               <div>
-                <h3 className="ott-section-title">Reviews</h3>
-                <span className="reviews-sub">What audiences are saying</span>
+                <h3 className="ott-section-title">More Like This</h3>
+                <span className="reviews-sub">Recommended titles with verified high-speed streams</span>
               </div>
-              <button className="btn btn-secondary btn-sm">
-                <MessageSquare size={14} /> Add Your Review
-              </button>
             </div>
 
-            <div className="reviews-list">
-              {extras.reviews.map((rev, idx) => (
-                <div key={idx} className="review-item-card">
-                  <div className="review-header">
-                    <div className="reviewer-info">
-                      <div className="reviewer-avatar">{rev.author.slice(0, 2).toUpperCase()}</div>
-                      <div>
-                        <h4 className="reviewer-name">{rev.author}</h4>
-                        <span className="review-date">{rev.date}</span>
-                      </div>
-                    </div>
-                    <div className="review-stars">
-                      {[...Array(5)].map((_, i) => (
-                        <Star key={i} size={14} fill="#E50000" color="#E50000" />
-                      ))}
-                    </div>
+            <div className="watch-recommendations-grid">
+              {[
+                { title: 'Dune: Part Two', year: '2024', rating: '8.6', quality: '4K UHD', poster: 'https://image.tmdb.org/t/p/w500/1pdfLvkbY9ohJlCjQH2CZjjYVvJ.jpg' },
+                { title: 'Interstellar', year: '2014', rating: '8.7', quality: '1080p FHD', poster: 'https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg' },
+                { title: 'Oppenheimer', year: '2023', rating: '8.9', quality: '4K UHD', poster: 'https://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg' },
+                { title: 'The Dark Knight', year: '2008', rating: '9.0', quality: '1080p FHD', poster: 'https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911r6m7haRef0WH.jpg' },
+                { title: 'Inception', year: '2010', rating: '8.8', quality: '1080p FHD', poster: 'https://image.tmdb.org/t/p/w500/ljsZTbVsrQSqZgWeep2B1QiDKuh.jpg' },
+              ].map((item, idx) => (
+                <div
+                  key={idx}
+                  className="watch-rec-card"
+                  onClick={() => onBack()}
+                  title={`Search & stream ${item.title}`}
+                >
+                  <div className="watch-rec-poster-box">
+                    <img src={item.poster} alt={item.title} className="watch-rec-poster" loading="lazy" />
+                    <span className="badge badge-quality watch-rec-badge">{item.quality}</span>
                   </div>
-                  <p className="review-text">{rev.text}</p>
-                  <div className="review-footer">
-                    <button className="btn-like">
-                      <ThumbsUp size={13} /> {rev.likes}
-                    </button>
+                  <div className="watch-rec-meta">
+                    <span className="watch-rec-title">{item.title}</span>
+                    <div className="watch-rec-sub">
+                      <span className="watch-rec-year">{item.year}</span>
+                      <span className="stat-dot">•</span>
+                      <span className="watch-rec-rating">★ {item.rating}</span>
+                    </div>
                   </div>
                 </div>
               ))}

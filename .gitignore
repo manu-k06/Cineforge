@@ -48,3 +48,7 @@ Desktop.ini
 
 # External services
 TG-FileStreamBot/
+
+# Graphify internal cache
+graphify-out/cache/
+
