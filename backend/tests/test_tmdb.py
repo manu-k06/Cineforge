@@ -142,3 +142,36 @@ class TestTmdbMetadataService(unittest.IsolatedAsyncioTestCase):
         data = response.json()
         self.assertIn("results", data)
         self.assertIsInstance(data["results"], list)
+
+    async def test_search_movie_suggestions_mocked(self):
+        """Verify search_movie_suggestions parses TMDb search results into clean suggestions."""
+        mock_payload = {
+            "results": [
+                {
+                    "id": 157336,
+                    "title": "Interstellar",
+                    "release_date": "2014-11-05",
+                    "poster_path": "/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg",
+                    "vote_average": 8.4,
+                }
+            ]
+        }
+        mock_resp = MagicMock()
+        mock_resp.status_code = 200
+        mock_resp.json.return_value = mock_payload
+
+        with patch.object(settings, "TMDB_API_KEY", "test_mock_tmdb_key"):
+            with patch("httpx.AsyncClient.get", return_value=mock_resp):
+                suggestions = await tmdb_service.search_movie_suggestions("interstelar", limit=3)
+                self.assertEqual(len(suggestions), 1)
+                self.assertEqual(suggestions[0]["title"], "Interstellar")
+                self.assertEqual(suggestions[0]["year"], "2014")
+                self.assertIn("/w185/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg", suggestions[0]["poster_url"])
+
+    def test_api_search_suggestions_endpoint(self):
+        """GET /api/search/suggestions returns 200 with suggestions list."""
+        response = self.client.get("/api/search/suggestions?q=Inception")
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertIn("suggestions", data)
+        self.assertIsInstance(data["suggestions"], list)

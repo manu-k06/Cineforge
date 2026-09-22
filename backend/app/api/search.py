@@ -41,8 +41,19 @@ async def _enrich_groups_with_metadata(title_groups: Dict[str, Any]) -> Dict[str
     return enrichment
 
 
-@router.get("/search", response_model=SearchResponse, summary="Search Movies via Telegram Bot")
+@router.get("/search/suggestions", summary="Live Movie Autocomplete Suggestions")
+async def get_search_suggestions(
+    q: str = Query(..., min_length=1, description="Partial search query"),
+    limit: int = Query(5, ge=1, le=10, description="Max suggestions to return"),
+):
+    """
+    Return instant autocomplete suggestions from TMDb with title, release year, poster thumbnail, and rating.
+    """
+    suggestions = await tmdb_service.search_movie_suggestions(query=q, limit=limit)
+    return {"query": q, "suggestions": suggestions}
 
+
+@router.get("/search", response_model=SearchResponse, summary="Search Movies via Telegram Bot")
 async def search_movies(
     q: Optional[str] = Query(None, description="Movie search query term"),
     query: Optional[str] = Query(None, description="Alias for 'q'"),
@@ -65,22 +76,34 @@ async def search_movies(
         )
 
     ai_interpretation = None
-    if use_ai and search_term and not callback_data:
-        # Check cache for previous AI query interpretation first
-        cached_ai = await cache_service.get_cached_ai_query(search_term)
-        if cached_ai:
-            ai_interpretation = cached_ai
-        else:
-            ai_interpretation = await ai_service.refine_movie_query(search_term)
-            if ai_interpretation and ai_interpretation.is_refined:
-                asyncio.create_task(cache_service.save_ai_query(search_term, ai_interpretation))
+    query_str = search_term or "Search Results"
 
-        if ai_interpretation and ai_interpretation.is_refined:
-            query_str = ai_interpretation.search_query
-        else:
-            query_str = search_term
-    else:
-        query_str = search_term or "Search Results"
+    if search_term and not callback_data:
+        # Step 1: Instant TMDb-First Canonical Resolution (<100ms)
+        tmdb_matched = False
+        try:
+            meta = await tmdb_service.search_and_get_metadata(search_term)
+            if meta and meta.source != "fallback" and meta.title:
+                query_str = meta.title
+                tmdb_matched = True
+                logger.info("TMDb-First Search resolved '%s' -> '%s' (%s)", search_term, meta.title, meta.year)
+        except Exception as e:
+            logger.debug("TMDb resolution error for '%s': %s", search_term, e)
+
+        # Step 2: Semantic Fallback (CineAI / Gemini) only if TMDb didn't find an exact movie match
+        if not tmdb_matched and use_ai:
+            cached_ai = await cache_service.get_cached_ai_query(search_term)
+            if cached_ai:
+                ai_interpretation = cached_ai
+            else:
+                ai_interpretation = await ai_service.refine_movie_query(search_term)
+                if ai_interpretation and ai_interpretation.is_refined:
+                    asyncio.create_task(cache_service.save_ai_query(search_term, ai_interpretation))
+
+            if ai_interpretation and ai_interpretation.is_refined:
+                query_str = ai_interpretation.search_query
+            else:
+                query_str = search_term
 
     # Mock mode for Phase 14/15 automated & manual verification
     if mock or query_str.lower() in ("mock", "test", "test_movie"):

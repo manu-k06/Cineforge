@@ -610,6 +610,128 @@ body {
   font-size: 14px;
 }
 
+.search-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.search-autocomplete-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  background: rgba(18, 18, 20, 0.96);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.75);
+  z-index: 90;
+  overflow: hidden;
+  padding: 8px;
+  animation: fadeIn 0.15s ease-out;
+}
+
+.autocomplete-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 10px 8px 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  margin-bottom: 4px;
+}
+
+.autocomplete-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.search-suggestion-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  width: 100%;
+  border: none;
+  background: transparent;
+  text-align: left;
+}
+
+.search-suggestion-item:hover,
+.search-suggestion-item:focus {
+  background: rgba(255, 255, 255, 0.08);
+  outline: none;
+}
+
+.suggestion-poster {
+  width: 32px;
+  height: 46px;
+  border-radius: 4px;
+  object-fit: cover;
+  background: #202025;
+  flex-shrink: 0;
+}
+
+.suggestion-poster-placeholder {
+  width: 32px;
+  height: 46px;
+  border-radius: 4px;
+  background: #202025;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.suggestion-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+  min-width: 0;
+}
+
+.suggestion-title {
+  color: #FFFFFF;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.suggestion-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.suggestion-badge-year {
+  background: rgba(255, 255, 255, 0.06);
+  padding: 1px 6px;
+  border-radius: 4px;
+  color: #d1d5db;
+  font-size: 11px;
+}
+
+.suggestion-rating {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  color: #f59e0b;
+  font-weight: 600;
+  font-size: 11px;
+}
+
 .search-suggestions {
   display: flex;
   align-items: center;

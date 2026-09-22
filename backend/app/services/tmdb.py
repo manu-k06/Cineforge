@@ -13,13 +13,27 @@ logger = logging.getLogger("cineforge.tmdb")
 def sanitize_movie_query(raw_title: str) -> Tuple[str, Optional[int]]:
     """
     Extract a clean movie title and optional release year from messy release strings.
-    Example: 'Inception.2010.1080p.BluRay.x264' -> ('Inception', 2010)
+    Example: '@KCFilmss - The Greatest of All Time 2024 Dual Audio 1080p.mkv' -> ('The Greatest of All Time', 2024)
     """
     if not raw_title:
         return "", None
 
-    # Replace dots, underscores with spaces
-    text = re.sub(r"[._]", " ", raw_title).strip()
+    # Strip file extensions
+    text = re.sub(r"\.(?:mkv|mp4|avi|webm|mov)$", "", raw_title, flags=re.IGNORECASE)
+    # Strip Telegram channels/handles
+    text = re.sub(r"@[\w\d_]+", "", text)
+    # Strip common pirate site watermarks
+    text = re.sub(
+        r"(?i)\b\d*(?:tamilmv|tamilblasters|cinemavilla|moviesda|filmywap|cineforge|spoty_xbot)[\w\.-]*",
+        "",
+        text,
+    )
+    # Strip brackets [ ... ]
+    text = re.sub(r"\[.*?\]", "", text)
+    # Replace separators with spaces
+    text = re.sub(r"[._\-–—]", " ", text)
+    # Normalize whitespace
+    text = re.sub(r"\s+", " ", text).strip()
 
     # Search for a 4-digit year between 1900 and 2099
     year_match = re.search(r"\b(19\d\d|20\d\d)\b", text)
@@ -33,7 +47,10 @@ def sanitize_movie_query(raw_title: str) -> Tuple[str, Optional[int]]:
             pass
 
     # Strip quality/audio keywords if still lingering
-    junk_pattern = r"(?i)\b(1080p|720p|480p|4k|uhd|bluray|web-dl|webrip|hdrip|x264|x265|hevc|aac|dts|remux|dual\s*audio|multi\s*sub)\b.*"
+    junk_pattern = (
+        r"(?i)\b(1080p|720p|480p|2160p|4k|uhd|bluray|web-?dl|webrip|hdrip|x264|x265|"
+        r"hevc|aac|dts|remux|dual\s*audio|multi\s*sub|esubs?|proper|repack|org\s*audio)\b.*"
+    )
     clean_title = re.sub(junk_pattern, "", text).strip(" -:[]()")
 
     return clean_title or raw_title.strip(), year
@@ -314,6 +331,64 @@ class TmdbService:
             logger.warning("Error fetching trending movies: %s", str(e))
 
         return TrendingMoviesResponse(page=1, total_pages=1, results=[])
+
+    async def search_movie_suggestions(self, query: str, limit: int = 5) -> List[Dict[str, Any]]:
+        """
+        Fast autocomplete search returning top suggestions (title, year, poster thumbnail, id) from TMDb.
+        """
+        clean_title, parsed_year = sanitize_movie_query(query)
+        if not clean_title:
+            return []
+
+        if not self.is_configured():
+            return [
+                {
+                    "id": None,
+                    "title": clean_title,
+                    "year": str(parsed_year) if parsed_year else None,
+                    "poster_url": None,
+                    "rating": None,
+                }
+            ]
+
+        headers, base_params = self._get_auth_headers_and_params()
+        search_params = {**base_params, "query": clean_title, "include_adult": "false"}
+        if parsed_year:
+            search_params["year"] = str(parsed_year)
+
+        suggestions: List[Dict[str, Any]] = []
+
+        try:
+            async with httpx.AsyncClient(timeout=3.5) as client:
+                search_url = f"{settings.TMDB_BASE_URL}/search/movie"
+                res = await client.get(search_url, headers=headers, params=search_params)
+                if res.status_code == 200:
+                    data = res.json()
+                    results = data.get("results", [])
+                    # Retry without year if needed
+                    if not results and parsed_year:
+                        search_params.pop("year", None)
+                        res2 = await client.get(search_url, headers=headers, params=search_params)
+                        if res2.status_code == 200:
+                            results = res2.json().get("results", [])
+
+                    for m in results[:limit]:
+                        release_date = m.get("release_date") or ""
+                        year_str = release_date.split("-")[0] if release_date else None
+                        poster_path = m.get("poster_path")
+                        suggestions.append(
+                            {
+                                "id": m.get("id"),
+                                "title": m.get("title") or m.get("original_title") or clean_title,
+                                "year": year_str,
+                                "poster_url": self._format_image_url(poster_path, "w185"),
+                                "rating": round(float(m.get("vote_average", 0)), 1) if m.get("vote_average") else None,
+                            }
+                        )
+        except Exception as e:
+            logger.debug("TMDb suggestions error for '%s': %s", clean_title, e)
+
+        return suggestions
 
 
 tmdb_service = TmdbService()

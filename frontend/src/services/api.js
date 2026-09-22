@@ -17,6 +17,19 @@ export async function searchMovies(query, page = 1, useAi = true) {
   return await response.json()
 }
 
+export async function getSearchSuggestions(query, limit = 5) {
+  if (!query || !query.trim() || query.trim().length < 2) return []
+  try {
+    const url = `${API_BASE}/api/search/suggestions?q=${encodeURIComponent(query.trim())}&limit=${limit}`
+    const response = await fetch(url)
+    if (!response.ok) return []
+    const data = await response.json()
+    return data.suggestions || []
+  } catch {
+    return []
+  }
+}
+
 export async function deliverCandidate(candidate) {
   const payload = {
     candidate_id: candidate.candidate_id,
