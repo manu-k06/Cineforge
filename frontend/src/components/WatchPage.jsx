@@ -425,7 +425,6 @@ export default function WatchPage({
           ref={videoRef}
           className="streamvibe-video"
           src={delivery.stream_url}
-          crossOrigin="anonymous"
           playsInline
           autoPlay
           onTimeUpdate={handleTimeUpdate}
