@@ -92,6 +92,67 @@ class TestSubtitleServiceAndEndpoints(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(tracks[1].label, "Spanish")
             self.assertFalse(tracks[1].is_default)
 
+    async def test_search_stremio_opensubtitles_mocked(self):
+        """Verify parsing of Stremio OpenSubtitles v3 CDN JSON and deduplication."""
+        mock_api_data = {
+            "subtitles": [
+                {
+                    "id": "1001",
+                    "lang": "eng",
+                    "url": "https://subs5.strem.io/en/1001",
+                },
+                {
+                    "id": "1002",
+                    "lang": "spa",
+                    "url": "https://subs5.strem.io/es/1002",
+                },
+                {
+                    "id": "1003",
+                    "lang": "eng",
+                    "url": "https://subs5.strem.io/en/1003",  # duplicate lang
+                },
+            ]
+        }
+
+        mock_res = MagicMock()
+        mock_res.status_code = 200
+        mock_res.json.return_value = mock_api_data
+
+        with patch("httpx.AsyncClient.get", AsyncMock(return_value=mock_res)):
+            tracks = await subtitle_service.search_stremio_opensubtitles(
+                imdb_id="tt1979388",
+                title="The Good Dinosaur",
+            )
+            self.assertEqual(len(tracks), 2)
+            self.assertEqual(tracks[0].language, "en")
+            self.assertEqual(tracks[0].label, "English")
+            self.assertEqual(tracks[0].provider, "opensubtitles")
+            self.assertTrue(tracks[0].is_default)
+            self.assertIn("source=stremio", tracks[0].vtt_url)
+
+            self.assertEqual(tracks[1].language, "es")
+            self.assertEqual(tracks[1].label, "Spanish")
+            self.assertFalse(tracks[1].is_default)
+
+    async def test_download_and_convert_vtt_stremio_utf8(self):
+        """Verify direct UTF-8 SRT download from Stremio CDN and conversion to WebVTT."""
+        raw_srt = "1\n00:01:00,000 --> 00:01:05,000\nHello from Stremio CDN!"
+        mock_res = MagicMock()
+        mock_res.status_code = 200
+        mock_res.content = raw_srt.encode("utf-8")
+        mock_res.text = raw_srt
+
+        with patch("httpx.AsyncClient.get", AsyncMock(return_value=mock_res)):
+            vtt = await subtitle_service.download_and_convert_vtt(
+                source="stremio",
+                download_url="https://subs5.strem.io/file.srt",
+                sub_id="1001",
+                title="The Good Dinosaur",
+            )
+            self.assertTrue(vtt.startswith("WEBVTT"))
+            self.assertIn("00:01:00.000 --> 00:01:05.000", vtt)
+            self.assertIn("Hello from Stremio CDN!", vtt)
+
     async def test_download_and_convert_vtt_gzip_cached(self):
         """Verify OpenSubtitles gzip decompression, conversion, and in-memory caching."""
         raw_srt = "1\n00:00:01,000 --> 00:00:03,000\nSub dialogue line."
@@ -118,7 +179,7 @@ class TestSubtitleServiceAndEndpoints(unittest.IsolatedAsyncioTestCase):
                 download_url="https://dl.opensubtitles.org/file.gz",
                 sub_id="123",
                 title="Test Movie",
-            )
+                )
             self.assertEqual(vtt1, vtt2)
             self.assertEqual(mock_get.call_count, 1)
 

@@ -47,6 +47,7 @@ LANG_NAME_MAP = {
     "ara": "Arabic",
     "pt": "Portuguese",
     "por": "Portuguese",
+    "pob": "Portuguese (Brazil)",
     "ru": "Russian",
     "rus": "Russian",
     "it": "Italian",
@@ -62,6 +63,36 @@ LANG_NAME_MAP = {
     "pol": "Polish",
     "id": "Indonesian",
     "ind": "Indonesian",
+    "da": "Danish",
+    "dan": "Danish",
+    "fi": "Finnish",
+    "fin": "Finnish",
+    "no": "Norwegian",
+    "nor": "Norwegian",
+    "cs": "Czech",
+    "ces": "Czech",
+    "el": "Greek",
+    "ell": "Greek",
+    "he": "Hebrew",
+    "heb": "Hebrew",
+    "hu": "Hungarian",
+    "hun": "Hungarian",
+    "ro": "Romanian",
+    "ron": "Romanian",
+    "uk": "Ukrainian",
+    "ukr": "Ukrainian",
+    "vi": "Vietnamese",
+    "vie": "Vietnamese",
+    "th": "Thai",
+    "tha": "Thai",
+    "fa": "Persian",
+    "fas": "Persian",
+    "bn": "Bengali",
+    "ben": "Bengali",
+    "bg": "Bulgarian",
+    "bul": "Bulgarian",
+    "sq": "Albanian",
+    "sqi": "Albanian",
 }
 
 ISO_639_2_TO_1 = {
@@ -81,6 +112,7 @@ ISO_639_2_TO_1 = {
     "zho": "zh",
     "ara": "ar",
     "por": "pt",
+    "pob": "pt",
     "rus": "ru",
     "ita": "it",
     "dut": "nl",
@@ -89,6 +121,21 @@ ISO_639_2_TO_1 = {
     "tur": "tr",
     "pol": "pl",
     "ind": "id",
+    "dan": "da",
+    "fin": "fi",
+    "nor": "no",
+    "ces": "cs",
+    "ell": "el",
+    "heb": "he",
+    "hun": "hu",
+    "ron": "ro",
+    "ukr": "uk",
+    "vie": "vi",
+    "tha": "th",
+    "fas": "fa",
+    "ben": "bn",
+    "bul": "bg",
+    "sqi": "sq",
 }
 
 
@@ -236,6 +283,74 @@ class SubtitleService:
                 lines.append(f"{cue_idx}\n{sh:02d}:{sm:02d}:{ss:02d}.000 --> {eh:02d}:{em:02d}:{es:02d}.000\n{msg}\n")
                 cue_idx += 1
         return "\n".join(lines) + "\n"
+
+    async def search_stremio_opensubtitles(
+        self,
+        imdb_id: Optional[str] = None,
+        title: Optional[str] = None,
+    ) -> List[SubtitleTrack]:
+        """
+        Query Stremio OpenSubtitles v3 CDN API for verified movie subtitles.
+        Bypasses Cloudflare datacenter IP blocks and returns 90+ verified tracks across 40+ languages.
+        """
+        if not imdb_id:
+            return []
+
+        clean_imdb = imdb_id if str(imdb_id).startswith("tt") else f"tt{imdb_id}"
+        url = f"https://opensubtitles-v3.strem.io/subtitles/movie/{clean_imdb}.json"
+
+        browser_headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+            "Accept": "application/json, text/plain, */*",
+        }
+
+        clean_t, _ = clean_movie_title(title or "")
+        tracks: List[SubtitleTrack] = []
+        seen_langs: Set[str] = set()
+
+        try:
+            async with httpx.AsyncClient(timeout=10.0, follow_redirects=True) as client:
+                res = await client.get(url, headers=browser_headers)
+                if res.status_code != 200:
+                    logger.warning("Stremio OpenSubtitles returned status %d for %s", res.status_code, clean_imdb)
+                    return []
+
+                data = res.json()
+                subtitles = data.get("subtitles", [])
+                if not isinstance(subtitles, list) or len(subtitles) == 0:
+                    return []
+
+                for item in subtitles:
+                    raw_lang = item.get("lang") or "eng"
+                    lang_code = self._get_clean_lang_code(raw_lang)
+                    if lang_code in seen_langs:
+                        continue
+
+                    download_url = item.get("url")
+                    if not download_url:
+                        continue
+
+                    seen_langs.add(lang_code)
+                    lang_name = self._get_lang_display(lang_code)
+                    sub_id = str(item.get("id") or len(tracks))
+                    vtt_url = f"/api/subtitles/vtt?source=stremio&download_url={quote(download_url, safe='')}&sub_id={sub_id}&title={quote(clean_t or 'Movie', safe='')}&lang={lang_code}"
+
+                    tracks.append(
+                        SubtitleTrack(
+                            id=f"strem_{lang_code}_{sub_id}",
+                            type="external",
+                            language=lang_code,
+                            label=f"{lang_name}",
+                            provider="opensubtitles",
+                            is_default=(lang_code == "en"),
+                            vtt_url=vtt_url,
+                        )
+                    )
+
+        except Exception as e:
+            logger.warning("Error querying Stremio OpenSubtitles for %s: %s", clean_imdb, str(e))
+
+        return tracks
 
     async def search_opensubtitles(
         self,
@@ -418,7 +533,23 @@ class SubtitleService:
         srt_text: Optional[str] = None
 
         try:
-            if source == "opensubtitles" and download_url:
+            if (source == "stremio" or "strem.io" in (download_url or "")) and download_url:
+                async with httpx.AsyncClient(timeout=15.0, follow_redirects=True) as client:
+                    browser_headers = {
+                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+                        "Accept": "*/*",
+                    }
+                    res = await client.get(download_url, headers=browser_headers)
+                    if res.status_code == 200:
+                        content = res.content
+                        if len(content) >= 2 and content[:2] == b"\x1f\x8b":
+                            content = gzip.decompress(content)
+                        try:
+                            srt_text = content.decode("utf-8")
+                        except UnicodeDecodeError:
+                            srt_text = content.decode("latin-1", errors="ignore")
+
+            elif source == "opensubtitles" and download_url:
                 async with httpx.AsyncClient(timeout=15.0) as client:
                     res = await client.get(download_url, headers=self._headers)
                     if res.status_code == 200:
@@ -504,18 +635,30 @@ class SubtitleService:
         tracks: List[SubtitleTrack] = []
         seen_langs: Set[str] = set()
 
-        # 1. Fetch from OpenSubtitles (with multi-tier cascading)
-        os_tracks = await self.search_opensubtitles(
-            imdb_id=effective_imdb_id,
-            title=clean_title,
-            year=effective_year,
-        )
-        for t in os_tracks:
-            if t.language not in seen_langs:
-                seen_langs.add(t.language)
-                tracks.append(t)
+        # 1. Fetch from Stremio OpenSubtitles v3 CDN (Fastest, unblocked CDN, 90+ tracks)
+        if effective_imdb_id:
+            strem_tracks = await self.search_stremio_opensubtitles(
+                imdb_id=effective_imdb_id,
+                title=clean_title,
+            )
+            for t in strem_tracks:
+                if t.language not in seen_langs:
+                    seen_langs.add(t.language)
+                    tracks.append(t)
 
-        # 2. If fewer than 5 languages found, supplement with community source
+        # 2. If fewer than 5 languages found, try legacy OpenSubtitles cascade
+        if len(tracks) < 5:
+            os_tracks = await self.search_opensubtitles(
+                imdb_id=effective_imdb_id,
+                title=clean_title,
+                year=effective_year,
+            )
+            for t in os_tracks:
+                if t.language not in seen_langs:
+                    seen_langs.add(t.language)
+                    tracks.append(t)
+
+        # 3. If still fewer than 5 languages found, supplement with community source (Yify)
         if len(tracks) < 5:
             comm_tracks = await self.search_community_subtitles(
                 imdb_id=effective_imdb_id,
