@@ -101,8 +101,14 @@ def clean_movie_title(raw_title: str) -> Tuple[str, Optional[int]]:
     if not raw_title:
         return "", None
 
+    # Strip bracket size tags like [459.87 MB], [1.05 GB], etc.
+    text = re.sub(r"\[\s*[\d\.]+\s*(?:MB|GB|GiB|MiB)\s*\]", "", raw_title, flags=re.IGNORECASE)
     # Strip file extensions
-    text = re.sub(r"\.(?:mkv|mp4|avi|webm|mov)$", "", raw_title, flags=re.IGNORECASE)
+    text = re.sub(r"\.(?:mkv|mp4|avi|webm|mov)$", "", text, flags=re.IGNORECASE)
+    # Strip word extensions (e.g. ' mp4' or ' mkv')
+    text = re.sub(r"(?i)\b(?:mkv|mp4|avi|webm|mov)\b", "", text)
+    # Split merged year and resolution like 2019720p -> 2019 720p
+    text = re.sub(r"(\d{4})(?=\d{3,4}p)", r"\1 ", text)
     # Strip Telegram channels/handles like @KCFilmss, @Spoty_xbot
     text = re.sub(r"@[\w\d_]+", "", text)
     # Strip common pirate site watermarks
@@ -490,7 +496,9 @@ class SubtitleService:
 
         if cache_key in self._tracks_cache:
             cached_time, cached_tracks = self._tracks_cache[cache_key]
-            if now - cached_time < settings.SUBTITLE_CACHE_TTL:
+            # ONLY return from cache if it contains actual external subtitle tracks.
+            # Never trap the user in a 24-hour cache when only demo fallback was found.
+            if len(cached_tracks) > 1 and (now - cached_time < settings.SUBTITLE_CACHE_TTL):
                 return cached_tracks
 
         tracks: List[SubtitleTrack] = []
@@ -530,7 +538,7 @@ class SubtitleService:
             else:
                 t.is_default = False
 
-        # 5. Always append the Cineforge Sync test track for guaranteed playback preview
+        # 5. Always append the Cineforge Sync test track for optional playback testing
         demo_url = f"/api/subtitles/demo.vtt?title={quote(clean_title or 'Movie', safe='')}"
         tracks.append(
             SubtitleTrack(
@@ -539,12 +547,15 @@ class SubtitleService:
                 language="en",
                 label="English (Cineforge Sync)",
                 provider="sync",
-                is_default=(not has_default),
+                is_default=False,
                 vtt_url=demo_url,
             )
         )
 
-        self._tracks_cache[cache_key] = (now, tracks)
+        # Only cache when real external tracks are discovered
+        if len(tracks) > 1:
+            self._tracks_cache[cache_key] = (now, tracks)
+
         return tracks
 
 

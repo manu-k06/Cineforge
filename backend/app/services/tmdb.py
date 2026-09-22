@@ -18,8 +18,14 @@ def sanitize_movie_query(raw_title: str) -> Tuple[str, Optional[int]]:
     if not raw_title:
         return "", None
 
+    # Strip bracket size tags like [459.87 MB], [1.05 GB], etc.
+    text = re.sub(r"\[\s*[\d\.]+\s*(?:MB|GB|GiB|MiB)\s*\]", "", raw_title, flags=re.IGNORECASE)
     # Strip file extensions
-    text = re.sub(r"\.(?:mkv|mp4|avi|webm|mov)$", "", raw_title, flags=re.IGNORECASE)
+    text = re.sub(r"\.(?:mkv|mp4|avi|webm|mov)$", "", text, flags=re.IGNORECASE)
+    # Strip word extensions (e.g. ' mp4' or ' mkv')
+    text = re.sub(r"(?i)\b(?:mkv|mp4|avi|webm|mov)\b", "", text)
+    # Split merged year and resolution like 2019720p -> 2019 720p
+    text = re.sub(r"(\d{4})(?=\d{3,4}p)", r"\1 ", text)
     # Strip Telegram channels/handles
     text = re.sub(r"@[\w\d_]+", "", text)
     # Strip common pirate site watermarks
@@ -128,7 +134,9 @@ class TmdbService:
         # Check in-memory cache
         if cache_key in self._cache:
             cached_time, cached_meta = self._cache[cache_key]
-            if now - cached_time < settings.METADATA_CACHE_TTL:
+            # Fallback entries are only kept for 60 seconds so real queries can retry
+            ttl = 60 if cached_meta.source == "fallback" else settings.METADATA_CACHE_TTL
+            if now - cached_time < ttl:
                 return cached_meta
 
         if not self.is_configured():

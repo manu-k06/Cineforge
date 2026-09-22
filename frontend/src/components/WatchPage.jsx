@@ -162,9 +162,12 @@ export default function WatchPage({
       .then((res) => {
         const tracks = res?.tracks || []
         setSubtitleTracks(tracks)
-        const defaultTrack = tracks.find((t) => t.is_default)
-        if (defaultTrack) {
+        const hasRealTracks = tracks.some((t) => t.type !== 'sync')
+        const defaultTrack = tracks.find((t) => t.is_default && t.type !== 'sync')
+        if (hasRealTracks && defaultTrack) {
           setSelectedTrackId(defaultTrack.id)
+        } else {
+          setSelectedTrackId(null)
         }
       })
       .catch(() => {

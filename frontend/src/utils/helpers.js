@@ -31,7 +31,10 @@ export function parseMovieMetadata(rawTitle, rawDetails = '') {
 
   // Clean title
   let cleanTitle = rawTitle
+    .replace(/\[\s*[\d\.]+\s*(?:MB|GB|GiB|MiB)\s*\]/gi, '')
     .replace(/\.(?:mkv|mp4|avi|webm|mov)$/i, '')
+    .replace(/\b(?:mkv|mp4|avi|webm|mov)\b/gi, '')
+    .replace(/(\d{4})(?=\d{3,4}p)/g, '$1 ')
     .replace(/@[\w\d_]+/g, '')
     .replace(/\b\d*(?:tamilmv|tamilblasters|cinemavilla|moviesda|filmywap|cineforge|spoty_xbot)[\w\.-]*/gi, '')
     .replace(/\[.*?\]|\(.*?\)/g, '')
