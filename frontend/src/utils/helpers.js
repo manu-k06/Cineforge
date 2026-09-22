@@ -31,10 +31,18 @@ export function parseMovieMetadata(rawTitle, rawDetails = '') {
 
   // Clean title
   let cleanTitle = rawTitle
+    .replace(/\.(?:mkv|mp4|avi|webm|mov)$/i, '')
+    .replace(/@[\w\d_]+/g, '')
+    .replace(/\b\d*(?:tamilmv|tamilblasters|cinemavilla|moviesda|filmywap|cineforge|spoty_xbot)[\w\.-]*/gi, '')
     .replace(/\[.*?\]|\(.*?\)/g, '')
-    .replace(/\b(1080p|720p|480p|2160p|4k|uhd|hevc|x264|x265|bluray|web-?dl|hdtv|esubs|dual audio)\b.*/i, '')
-    .replace(/[._]/g, ' ')
+    .replace(/\b(1080p|720p|480p|2160p|4k|uhd|hevc|x264|x265|bluray|web-?dl|webrip|hdrip|hdtv|esubs?|dual\s*audio|multi\s*sub|proper|repack|org\s*audio)\b.*/i, '')
+    .replace(/[._\-–—]/g, ' ')
+    .replace(/\s+/g, ' ')
     .trim()
+
+  if (year && cleanTitle.endsWith(year)) {
+    cleanTitle = cleanTitle.slice(0, -year.length).trim()
+  }
 
   if (!cleanTitle || cleanTitle.length < 2) {
     cleanTitle = rawTitle.replace(/[._]/g, ' ').trim()

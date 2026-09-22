@@ -92,6 +92,53 @@ ISO_639_2_TO_1 = {
 }
 
 
+def clean_movie_title(raw_title: str) -> Tuple[str, Optional[int]]:
+    """
+    Scrub messy release strings, telegram handles, bot prefixes, and rip tags
+    to extract pure movie title and release year.
+    Example: '@KCFilmss - The Greatest of All Time 2024 Dual Audio 1080p.mkv' -> ('The Greatest of All Time', 2024)
+    """
+    if not raw_title:
+        return "", None
+
+    # Strip file extensions
+    text = re.sub(r"\.(?:mkv|mp4|avi|webm|mov)$", "", raw_title, flags=re.IGNORECASE)
+    # Strip Telegram channels/handles like @KCFilmss, @Spoty_xbot
+    text = re.sub(r"@[\w\d_]+", "", text)
+    # Strip common pirate site watermarks
+    text = re.sub(
+        r"(?i)\b\d*(?:tamilmv|tamilblasters|cinemavilla|moviesda|filmywap|cineforge|spoty_xbot)[\w\.-]*",
+        "",
+        text,
+    )
+    # Strip brackets [ ... ]
+    text = re.sub(r"\[.*?\]", "", text)
+    # Replace separators with spaces
+    text = re.sub(r"[._\-–—]", " ", text)
+    # Normalize whitespace
+    text = re.sub(r"\s+", " ", text).strip()
+
+    # Search for a 4-digit year between 1900 and 2099
+    year_match = re.search(r"\b(19\d\d|20\d\d)\b", text)
+    year: Optional[int] = None
+    if year_match:
+        try:
+            year = int(year_match.group(1))
+            # Cut off everything after the year
+            text = text[: year_match.start()].strip()
+        except ValueError:
+            pass
+
+    # Strip lingering quality/audio keywords
+    junk_pattern = (
+        r"(?i)\b(1080p|720p|480p|2160p|4k|uhd|bluray|web-?dl|webrip|hdrip|x264|x265|"
+        r"hevc|aac|dts|remux|dual\s*audio|multi\s*sub|esubs?|proper|repack|org\s*audio)\b.*"
+    )
+    clean = re.sub(junk_pattern, "", text).strip(" -:[]()")
+
+    return clean or raw_title.strip(), year
+
+
 def srt_to_vtt(srt_content: str) -> str:
     """
     Convert SubRip (.srt) text format to W3C WebVTT (.vtt) format.
@@ -192,74 +239,80 @@ class SubtitleService:
     ) -> List[SubtitleTrack]:
         """
         Query OpenSubtitles REST API for verified movie subtitles.
-        Supports lookup by IMDb ID or title query.
+        Supports lookup by IMDb ID and cascading title queries.
         """
-        url: Optional[str] = None
+        urls_to_try: List[str] = []
+
         if imdb_id:
             numeric_id = imdb_id.lstrip("t")
             if numeric_id.isdigit():
-                url = f"https://rest.opensubtitles.org/search/imdbid-{numeric_id}"
-        if not url and title:
-            clean_q = re.sub(r"[^\w\s]", "", title).strip().lower()
-            if year:
-                clean_q = f"{clean_q} {year}"
-            query_plus = re.sub(r"\s+", "+", clean_q)
-            url = f"https://rest.opensubtitles.org/search/query-{query_plus}"
+                urls_to_try.append(f"https://rest.opensubtitles.org/search/imdbid-{numeric_id}")
 
-        if not url:
-            return []
+        clean_t, detected_y = clean_movie_title(title or "")
+        eff_year = year or detected_y
+
+        if clean_t:
+            clean_q = re.sub(r"[^\w\s]", "", clean_t).strip().lower()
+            query_plus = re.sub(r"\s+", "+", clean_q)
+            if eff_year:
+                urls_to_try.append(f"https://rest.opensubtitles.org/search/query-{query_plus}+{eff_year}")
+            urls_to_try.append(f"https://rest.opensubtitles.org/search/query-{query_plus}")
 
         tracks: List[SubtitleTrack] = []
         seen_langs: Set[str] = set()
 
         try:
             async with httpx.AsyncClient(timeout=8.0) as client:
-                res = await client.get(url, headers=self._headers)
-                if res.status_code != 200:
-                    logger.warning("OpenSubtitles returned status %s for %s", res.status_code, url)
-                    return []
-
-                data = res.json()
-                if not isinstance(data, list):
-                    return []
-
-                # Sort by rating and download count to get the cleanest track per language
-                sorted_entries = sorted(
-                    data,
-                    key=lambda x: (
-                        float(x.get("SubRating") or 0.0),
-                        int(x.get("SubDownloadsCnt") or 0),
-                    ),
-                    reverse=True,
-                )
-
-                for item in sorted_entries:
-                    iso_raw = item.get("ISO639") or item.get("SubLanguageID")
-                    lang_code = self._get_clean_lang_code(iso_raw)
-                    if lang_code in seen_langs:
+                for url in urls_to_try:
+                    res = await client.get(url, headers=self._headers)
+                    if res.status_code != 200:
                         continue
 
-                    download_url = item.get("SubDownloadLink") or item.get("ZipDownloadLink")
-                    if not download_url:
+                    data = res.json()
+                    if not isinstance(data, list) or len(data) == 0:
                         continue
 
-                    lang_name = item.get("LanguageName") or self._get_lang_display(lang_code)
-                    sub_id = str(item.get("IDSubtitleFile") or item.get("IDSubtitle") or len(tracks))
-                    seen_langs.add(lang_code)
-
-                    vtt_url = f"/api/subtitles/vtt?source=opensubtitles&download_url={quote(download_url, safe='')}&sub_id={sub_id}&title={quote(title or 'Movie', safe='')}"
-
-                    tracks.append(
-                        SubtitleTrack(
-                            id=f"os_{lang_code}_{sub_id}",
-                            type="external",
-                            language=lang_code,
-                            label=f"{lang_name}",
-                            provider="opensubtitles",
-                            is_default=(lang_code == "en"),
-                            vtt_url=vtt_url,
-                        )
+                    # Sort by rating and download count to get the cleanest track per language
+                    sorted_entries = sorted(
+                        data,
+                        key=lambda x: (
+                            float(x.get("SubRating") or 0.0),
+                            int(x.get("SubDownloadsCnt") or 0),
+                        ),
+                        reverse=True,
                     )
+
+                    for item in sorted_entries:
+                        iso_raw = item.get("ISO639") or item.get("SubLanguageID")
+                        lang_code = self._get_clean_lang_code(iso_raw)
+                        if lang_code in seen_langs:
+                            continue
+
+                        download_url = item.get("SubDownloadLink") or item.get("ZipDownloadLink")
+                        if not download_url:
+                            continue
+
+                        lang_name = item.get("LanguageName") or self._get_lang_display(lang_code)
+                        sub_id = str(item.get("IDSubtitleFile") or item.get("IDSubtitle") or len(tracks))
+                        seen_langs.add(lang_code)
+
+                        vtt_url = f"/api/subtitles/vtt?source=opensubtitles&download_url={quote(download_url, safe='')}&sub_id={sub_id}&title={quote(clean_t or 'Movie', safe='')}&lang={lang_code}"
+
+                        tracks.append(
+                            SubtitleTrack(
+                                id=f"os_{lang_code}_{sub_id}",
+                                type="external",
+                                language=lang_code,
+                                label=f"{lang_name}",
+                                provider="opensubtitles",
+                                is_default=(lang_code == "en"),
+                                vtt_url=vtt_url,
+                            )
+                        )
+
+                    # If we found matches from this query tier, stop cascading
+                    if tracks:
+                        break
 
         except Exception as e:
             logger.warning("Error querying OpenSubtitles for %s: %s", title or imdb_id, str(e))
@@ -273,11 +326,28 @@ class SubtitleService:
     ) -> List[SubtitleTrack]:
         """
         Query community Yify Subtitles repository for verified SRT tracks.
+        Supports lookup by IMDb ID or search query fallback.
         """
-        if not imdb_id or not imdb_id.startswith("tt"):
+        target_imdb_id = imdb_id
+
+        # If IMDb ID is missing, attempt to resolve via Yify search
+        clean_t, _ = clean_movie_title(title or "")
+        if not target_imdb_id and clean_t:
+            try:
+                async with httpx.AsyncClient(timeout=8.0) as client:
+                    search_url = f"https://yifysubtitles.ch/search?q={quote(clean_t)}"
+                    s_res = await client.get(search_url, headers=self._headers)
+                    if s_res.status_code == 200:
+                        match = re.search(r'href="/movie-imdb/(tt\d+)"', s_res.text)
+                        if match:
+                            target_imdb_id = match.group(1)
+            except Exception as e:
+                logger.debug("Yify title resolution failed for %s: %s", clean_t, e)
+
+        if not target_imdb_id or not target_imdb_id.startswith("tt"):
             return []
 
-        url = f"https://yifysubtitles.ch/movie-imdb/{imdb_id}"
+        url = f"https://yifysubtitles.ch/movie-imdb/{target_imdb_id}"
         tracks: List[SubtitleTrack] = []
         seen_langs: Set[str] = set()
 
@@ -301,7 +371,7 @@ class SubtitleService:
 
                     seen_langs.add(lang_code)
                     lang_name = self._get_lang_display(lang_code, lang_clean)
-                    vtt_url = f"/api/subtitles/vtt?source=yify&link={quote(link, safe='')}&lang={lang_code}&title={quote(title or 'Movie', safe='')}"
+                    vtt_url = f"/api/subtitles/vtt?source=yify&link={quote(link, safe='')}&lang={lang_code}&title={quote(clean_t or 'Movie', safe='')}"
 
                     tracks.append(
                         SubtitleTrack(
@@ -316,7 +386,7 @@ class SubtitleService:
                     )
 
         except Exception as e:
-            logger.warning("Error querying community subtitles for %s: %s", imdb_id, str(e))
+            logger.warning("Error querying community subtitles for %s: %s", target_imdb_id, str(e))
 
         return tracks
 
@@ -399,21 +469,23 @@ class SubtitleService:
     ) -> List[SubtitleTrack]:
         """
         Aggregate clean subtitle tracks from OpenSubtitles and community sources.
-        Resolves IMDb ID via TMDb if missing.
+        Resolves IMDb ID via TMDb or clean title cascading.
         """
-        clean_title = (title or "").strip()
+        raw_title = (title or "").strip()
+        clean_title, detected_year = clean_movie_title(raw_title)
+        effective_year = year or detected_year
         effective_imdb_id = (imdb_id or "").strip()
 
         # If IMDb ID is missing but title is provided, resolve via TMDb
         if not effective_imdb_id and clean_title:
             try:
-                meta = await tmdb_service.search_and_get_metadata(clean_title, year)
+                meta = await tmdb_service.search_and_get_metadata(clean_title, effective_year)
                 if meta and meta.imdb_id:
                     effective_imdb_id = meta.imdb_id
             except Exception as e:
                 logger.debug("TMDb resolution error for %s: %s", clean_title, e)
 
-        cache_key = f"{effective_imdb_id or clean_title.lower()}:{year or ''}"
+        cache_key = f"{effective_imdb_id or clean_title.lower()}:{effective_year or ''}"
         now = time.time()
 
         if cache_key in self._tracks_cache:
@@ -424,19 +496,19 @@ class SubtitleService:
         tracks: List[SubtitleTrack] = []
         seen_langs: Set[str] = set()
 
-        # 1. Fetch from OpenSubtitles
+        # 1. Fetch from OpenSubtitles (with multi-tier cascading)
         os_tracks = await self.search_opensubtitles(
             imdb_id=effective_imdb_id,
             title=clean_title,
-            year=year,
+            year=effective_year,
         )
         for t in os_tracks:
             if t.language not in seen_langs:
                 seen_langs.add(t.language)
                 tracks.append(t)
 
-        # 2. If fewer than 5 languages found and IMDb ID is available, supplement with community source
-        if len(tracks) < 5 and effective_imdb_id:
+        # 2. If fewer than 5 languages found, supplement with community source
+        if len(tracks) < 5:
             comm_tracks = await self.search_community_subtitles(
                 imdb_id=effective_imdb_id,
                 title=clean_title,
@@ -449,7 +521,7 @@ class SubtitleService:
         # 3. Sort tracks: English first, then alphabetical by label
         tracks.sort(key=lambda t: (0 if t.language == "en" else 1, t.label))
 
-        # 4. Mark the primary English track as default
+        # 4. Mark primary English track as default
         has_default = False
         for t in tracks:
             if t.language == "en" and not has_default:
@@ -458,7 +530,7 @@ class SubtitleService:
             else:
                 t.is_default = False
 
-        # 5. Always append the Cineforge Sync test track for guaranteed caption preview
+        # 5. Always append the Cineforge Sync test track for guaranteed playback preview
         demo_url = f"/api/subtitles/demo.vtt?title={quote(clean_title or 'Movie', safe='')}"
         tracks.append(
             SubtitleTrack(

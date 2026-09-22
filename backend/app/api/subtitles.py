@@ -10,22 +10,28 @@ router = APIRouter()
 @router.get("/tracks", response_model=SubtitleTrackListResponse, summary="Discover Subtitle Tracks for Movie")
 async def get_subtitle_tracks(
     title: Optional[str] = Query(None, description="Movie or series title"),
-    year: Optional[int] = Query(None, description="Optional release year"),
+    year: Optional[str] = Query(None, description="Optional release year"),
     imdb_id: Optional[str] = Query(None, description="Optional IMDb identifier (e.g. 'tt1375666')"),
     stream_url: Optional[str] = Query(None, description="Optional target media stream URL for compatibility"),
 ):
     """
     Search and return clean, multi-language subtitle tracks via API providers (OpenSubtitles & community).
     """
+    parsed_year: Optional[int] = None
+    if year:
+        clean_y = str(year).strip()
+        if clean_y.isdigit():
+            parsed_year = int(clean_y)
+
     tracks = await subtitle_service.get_all_tracks(
         title=title,
-        year=year,
+        year=parsed_year,
         imdb_id=imdb_id,
         stream_url=stream_url,
     )
     return SubtitleTrackListResponse(
         title=title,
-        year=year,
+        year=parsed_year,
         imdb_id=imdb_id,
         stream_url=stream_url,
         tracks=tracks,

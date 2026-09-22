@@ -138,10 +138,10 @@ export async function getSubtitleTracks(title = '', year = null, imdbId = null, 
     }
 
     const params = new URLSearchParams()
-    if (effectiveTitle) params.set('title', effectiveTitle)
-    if (effectiveYear) params.set('year', effectiveYear)
-    if (effectiveImdbId) params.set('imdb_id', effectiveImdbId)
-    if (effectiveStreamUrl) params.set('stream_url', effectiveStreamUrl)
+    if (effectiveTitle && String(effectiveTitle).trim()) params.set('title', String(effectiveTitle).trim())
+    if (effectiveYear && String(effectiveYear).trim()) params.set('year', String(effectiveYear).trim())
+    if (effectiveImdbId && String(effectiveImdbId).trim()) params.set('imdb_id', String(effectiveImdbId).trim())
+    if (effectiveStreamUrl && String(effectiveStreamUrl).trim()) params.set('stream_url', String(effectiveStreamUrl).trim())
 
     const response = await fetch(`${API_BASE}/api/subtitles/tracks?${params.toString()}`)
     if (!response.ok) return { tracks: [] }
