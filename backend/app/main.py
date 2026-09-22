@@ -10,6 +10,7 @@ from app.api import (
     cache_router,
     metadata_router,
     search_router,
+    subtitles_router,
     telegram_router,
 )
 from app.config import settings
@@ -48,6 +49,8 @@ app.include_router(ai_router, prefix="/api/ai", tags=["CineAI"])
 app.include_router(cache_router, prefix="/api/cache", tags=["Cache"])
 app.include_router(auth_router, prefix="/api/auth", tags=["Auth"])
 app.include_router(metadata_router, prefix="/api/metadata", tags=["Metadata"])
+app.include_router(subtitles_router, prefix="/api/subtitles", tags=["Subtitles"])
+
 
 
 

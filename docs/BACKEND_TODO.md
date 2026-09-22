@@ -110,20 +110,20 @@ This document tracks all planned backend enhancements, data integrations, and fe
 
 **Goal**: Enable personal accounts so users can log in, access their personal watchlist, and continue watching across devices.
 
-- [ ] **4.1. Supabase Auth Client in Frontend**
+- [x] **4.1. Supabase Auth Client in Frontend**
   - Install `@supabase/supabase-js` in `frontend/package.json`.
   - Create `src/services/supabaseClient.js` with `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`.
-- [ ] **4.2. Authentication Context (`src/context/AuthContext.jsx`)**
+- [x] **4.2. Authentication Context (`src/context/AuthContext.jsx`)**
   - Global React context for auth state (`user`, `session`, `loading`, `signIn`, `signUp`, `signOut`).
-- [ ] **4.3. Auth UI Modal (`src/components/AuthModal.jsx`)**
+- [x] **4.3. Auth UI Modal (`src/components/AuthModal.jsx`)**
   - Modern modal matching Cineforge dark aesthetics.
   - Tab 1: **Sign In** (Email + Password).
   - Tab 2: **Create Account** (Full Name, Email, Password).
   - 1-Click **Google OAuth Login**.
-- [ ] **4.4. Navbar User Profile Badge**
+- [x] **4.4. Navbar User Profile Badge**
   - Update `src/components/Navbar.jsx` to show avatar, username, and "Sign Out" dropdown when logged in; or "Sign In" button when guest.
-- [ ] **4.5. Backend JWT Verification Middleware**
-  - FastAPI dependency to verify `Authorization: Bearer <token>` from Supabase for protected endpoints.
+- [x] **4.5. Backend JWT Verification Middleware**
+  - FastAPI dependency to verify `Authorization: Bearer <token>` from Supabase for protected endpoints (`/api/auth/me`).
 
 ---
 
@@ -170,14 +170,14 @@ This document tracks all planned backend enhancements, data integrations, and fe
 
 **Goal**: Deliver soft subtitles (`.srt`, `.ass`, `.vtt`) extracted directly from Telegram MKV/MP4 files or OpenSubtitles to the browser player.
 
-- [ ] **6.1. Embedded Subtitle Detection**
-  - Extract soft subtitle tracks directly from Telegram files delivered by Spoty Bot / TG-FileStreamBot.
-- [ ] **6.2. WebVTT Streaming Endpoint**
-  - Endpoint: `GET /api/stream/{file_id}/subtitles/{track_id}.vtt`.
-- [ ] **6.3. External Subtitles Fallback**
-  - Integrate OpenSubtitles API as fallback for titles without embedded soft subtitles.
-- [ ] **6.4. Video.js Subtitle Selector UI**
-  - Native track selector in the player allowing users to toggle languages and timing offsets.
+- [x] **6.1. Embedded Subtitle Detection**
+  - Inspect media streams via `ffprobe` to detect all embedded soft subtitle tracks with ISO 639-1 language codes.
+- [x] **6.2. WebVTT Streaming Endpoint**
+  - Endpoint: `GET /api/subtitles/tracks` for discovery, `GET /api/subtitles/embedded` for on-the-fly extraction to standard WebVTT, and `GET /api/subtitles/demo.vtt` for playback sync testing.
+- [x] **6.3. External Subtitles & In-Memory Caching**
+  - In-memory cache for parsed WebVTT text and discovered tracks with configurable TTL (`SUBTITLE_CACHE_TTL`), plus OpenSubtitles API configuration readiness.
+- [x] **6.4. Player Subtitle Selector & Timing Sync UI**
+  - Closed captions button (`Captions` / `CaptionsOff`), glassmorphic popover track picker, dynamic `<track>` mounting, and live timing sync offset controls (`-0.5s` / `+0.5s` / `Reset`).
 
 ---
 

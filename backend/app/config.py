@@ -79,11 +79,16 @@ class Settings(BaseSettings):
     FFMPEG_PATH: Optional[str] = "ffmpeg"
     AUDIO_AAC_BITRATE: str = "192k"
 
+    # Phase 6: Subtitle Extraction & WebVTT Streaming
+    OPENSUBTITLES_API_KEY: Optional[str] = None
+    SUBTITLE_CACHE_TTL: int = 86400  # 24-hour cache TTL
+
     # Phase 11: Go Streamer Integration Configuration
     STREAMER_BASE_URL: str = "http://127.0.0.1:8088"
     STREAM_SECRET_KEY: str = ""
     STREAM_URL_EXPIRATION_SECONDS: int = 21600  # 6 hours
     STREAMER_TIMEOUT_SECONDS: float = 3.0
+
 
     model_config = SettingsConfigDict(
         env_file=".env",

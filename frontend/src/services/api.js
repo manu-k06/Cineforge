@@ -119,3 +119,27 @@ export async function getTrendingMovies(timeWindow = 'week', page = 1) {
   return await response.json()
 }
 
+/**
+ * Subtitle Extraction & WebVTT Endpoints
+ */
+export async function getSubtitleTracks(streamUrl, title = '', year = null) {
+  try {
+    let url = `${API_BASE}/api/subtitles/tracks?stream_url=${encodeURIComponent(streamUrl)}`
+    if (title) url += `&title=${encodeURIComponent(title)}`
+    if (year) url += `&year=${year}`
+    const response = await fetch(url)
+    if (!response.ok) return { tracks: [] }
+    const data = await response.json()
+    if (data && data.tracks) {
+      data.tracks = data.tracks.map((t) => ({
+        ...t,
+        vtt_url: t.vtt_url && t.vtt_url.startsWith('http') ? t.vtt_url : `${API_BASE}${t.vtt_url}`,
+      }))
+    }
+    return data
+  } catch {
+    return { tracks: [] }
+  }
+}
+
+

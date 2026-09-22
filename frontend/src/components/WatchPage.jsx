@@ -29,9 +29,11 @@ import {
   ThumbsUp,
   MessageSquare,
   Sparkles,
+  Captions,
+  CaptionsOff,
 } from 'lucide-react'
 import { formatBytes, parseMovieMetadata } from '../utils/helpers'
-import { getMovieMetadata } from '../services/api'
+import { getMovieMetadata, getSubtitleTracks } from '../services/api'
 
 
 // Default fallback metadata generator for cast & reviews matching StreamVibe aesthetic
@@ -143,6 +145,98 @@ export default function WatchPage({
       })
       .catch(() => {})
   }, [meta.cleanTitle, meta.year])
+
+  // Subtitle & WebVTT State
+  const [subtitleTracks, setSubtitleTracks] = useState([])
+  const [selectedTrackId, setSelectedTrackId] = useState(null)
+  const [isSubtitleMenuOpen, setIsSubtitleMenuOpen] = useState(false)
+  const [subtitleOffset, setSubtitleOffset] = useState(0)
+  const [isLoadingSubtitles, setIsLoadingSubtitles] = useState(false)
+  const subtitleMenuRef = useRef(null)
+
+  // Fetch available subtitle tracks
+  useEffect(() => {
+    if (!delivery.stream_url) return
+    setIsLoadingSubtitles(true)
+    getSubtitleTracks(delivery.stream_url, meta.cleanTitle, meta.year)
+      .then((res) => {
+        const tracks = res?.tracks || []
+        setSubtitleTracks(tracks)
+        const defaultTrack = tracks.find((t) => t.is_default)
+        if (defaultTrack) {
+          setSelectedTrackId(defaultTrack.id)
+        }
+      })
+      .catch(() => {
+        setSubtitleTracks([])
+      })
+      .finally(() => {
+        setIsLoadingSubtitles(false)
+      })
+  }, [delivery.stream_url, meta.cleanTitle, meta.year])
+
+  // Close subtitle menu on outside click
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (subtitleMenuRef.current && !subtitleMenuRef.current.contains(e.target)) {
+        setIsSubtitleMenuOpen(false)
+      }
+    }
+    if (isSubtitleMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isSubtitleMenuOpen])
+
+  // Programmatically sync TextTrack visibility
+  useEffect(() => {
+    if (videoRef.current && videoRef.current.textTracks) {
+      for (let i = 0; i < videoRef.current.textTracks.length; i++) {
+        const tt = videoRef.current.textTracks[i]
+        tt.mode = selectedTrackId ? 'showing' : 'disabled'
+      }
+    }
+  }, [selectedTrackId])
+
+  const handleTrackLoad = (e) => {
+    const track = e.target.track
+    if (track) {
+      track.mode = 'showing'
+      if (subtitleOffset !== 0 && track.cues) {
+        for (let j = 0; j < track.cues.length; j++) {
+          const cue = track.cues[j]
+          cue.startTime += subtitleOffset
+          cue.endTime += subtitleOffset
+        }
+      }
+    }
+  }
+
+  const handleOffsetChange = (delta) => {
+    const newOffset = Math.round((subtitleOffset + delta) * 10) / 10
+    setSubtitleOffset(newOffset)
+    if (videoRef.current && videoRef.current.textTracks) {
+      for (let i = 0; i < videoRef.current.textTracks.length; i++) {
+        const track = videoRef.current.textTracks[i]
+        if (track.cues) {
+          for (let j = 0; j < track.cues.length; j++) {
+            const cue = track.cues[j]
+            cue.startTime += delta
+            cue.endTime += delta
+          }
+        }
+      }
+    }
+  }
+
+  const handleResetOffset = () => {
+    const delta = -subtitleOffset
+    handleOffsetChange(delta)
+  }
+
+  const activeSubtitleTrack = subtitleTracks.find((t) => t.id === selectedTrackId) || null
 
   const synopsis = tmdbData?.overview || extras.synopsis
   const directors = tmdbData?.directors?.length > 0 ? tmdbData.directors.join(', ') : extras.directors
@@ -331,13 +425,26 @@ export default function WatchPage({
           ref={videoRef}
           className="streamvibe-video"
           src={delivery.stream_url}
+          crossOrigin="anonymous"
           playsInline
           autoPlay
           onTimeUpdate={handleTimeUpdate}
           onLoadedMetadata={handleLoadedMetadata}
           onError={() => setHasPlaybackError(true)}
           onClick={togglePlay}
-        />
+        >
+          {activeSubtitleTrack && (
+            <track
+              key={activeSubtitleTrack.id}
+              kind="subtitles"
+              label={activeSubtitleTrack.label}
+              srcLang={activeSubtitleTrack.language}
+              src={activeSubtitleTrack.vtt_url}
+              default
+              onLoad={handleTrackLoad}
+            />
+          )}
+        </video>
 
         {/* Big Center Play/Pause Button on Idle/Pause */}
         {(!isPlaying || controlsVisible) && !hasPlaybackError && (
@@ -410,11 +517,135 @@ export default function WatchPage({
               </div>
             </div>
 
-            {/* Right Controls: Quality, Fullscreen, External Web Player */}
+            {/* Right Controls: Quality, CC Subtitles, Bot Web Player, Fullscreen */}
             <div className="controls-right">
               <span className="badge badge-quality badge-ctrl">
                 {meta.resolution || '1080P'}
               </span>
+
+              {/* Subtitles & Captions Menu */}
+              <div className="subtitles-ctrl-wrapper" ref={subtitleMenuRef}>
+                <button
+                  className={`ctrl-btn ${selectedTrackId ? 'active-red' : ''}`}
+                  onClick={() => setIsSubtitleMenuOpen(!isSubtitleMenuOpen)}
+                  title={selectedTrackId ? `Subtitles: ${activeSubtitleTrack?.label || 'On'}` : 'Subtitles / Closed Captions'}
+                >
+                  {selectedTrackId ? <Captions size={19} /> : <CaptionsOff size={19} />}
+                </button>
+
+                {isSubtitleMenuOpen && (
+                  <div className="subtitles-glass-menu">
+                    <div className="subtitles-menu-header">
+                      <div className="header-left">
+                        <Captions size={15} className="text-primary" />
+                        <span className="subtitles-menu-title">Subtitles & Audio</span>
+                      </div>
+                      {subtitleTracks.length > 0 && (
+                        <span className="subtitles-count">{subtitleTracks.length} available</span>
+                      )}
+                    </div>
+
+                    <div className="subtitles-track-list">
+                      <button
+                        className={`subtitle-track-item ${selectedTrackId === null ? 'active' : ''}`}
+                        onClick={() => {
+                          setSelectedTrackId(null)
+                          setIsSubtitleMenuOpen(false)
+                        }}
+                      >
+                        <div className="track-info">
+                          <span className="track-label">Off</span>
+                          <span className="track-sub">Captions disabled</span>
+                        </div>
+                        {selectedTrackId === null && <Check size={16} className="text-primary" />}
+                      </button>
+
+                      {isLoadingSubtitles && (
+                        <div className="subtitles-loading-state">
+                          <Sparkles size={14} className="spin-icon text-primary" />
+                          <span>Detecting embedded subtitle tracks...</span>
+                        </div>
+                      )}
+
+                      {subtitleTracks.map((track) => {
+                        const isSelected = selectedTrackId === track.id
+                        return (
+                          <button
+                            key={track.id}
+                            className={`subtitle-track-item ${isSelected ? 'active' : ''}`}
+                            onClick={() => {
+                              setSelectedTrackId(track.id)
+                              setIsSubtitleMenuOpen(false)
+                            }}
+                          >
+                            <div className="track-info">
+                              <span className="track-label">{track.label}</span>
+                              <div className="track-tags">
+                                <span className="track-badge-lang">{track.language?.toUpperCase() || 'EN'}</span>
+                                <span className={`track-badge-source ${track.type}`}>
+                                  {track.type === 'embedded' ? 'Embedded' : 'Sync'}
+                                </span>
+                                {track.codec && <span className="track-badge-codec">{track.codec}</span>}
+                              </div>
+                            </div>
+                            {isSelected && <Check size={16} className="text-primary" />}
+                          </button>
+                        )
+                      })}
+                    </div>
+
+                    {/* Manual Timing Sync Offset */}
+                    {selectedTrackId && (
+                      <div className="subtitles-offset-section">
+                        <div className="offset-label-row">
+                          <span className="offset-title">Timing Sync</span>
+                          <span className={`offset-value ${subtitleOffset !== 0 ? 'active' : ''}`}>
+                            {subtitleOffset === 0
+                              ? '0.0s'
+                              : `${subtitleOffset > 0 ? '+' : ''}${subtitleOffset.toFixed(1)}s`}
+                          </span>
+                        </div>
+                        <div className="offset-buttons-row">
+                          <button
+                            type="button"
+                            className="btn-offset"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleOffsetChange(-0.5)
+                            }}
+                            title="Appear 0.5s earlier (-0.5s)"
+                          >
+                            -0.5s
+                          </button>
+                          <button
+                            type="button"
+                            className="btn-offset btn-offset-reset"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleResetOffset()
+                            }}
+                            disabled={subtitleOffset === 0}
+                            title="Reset offset to 0.0s"
+                          >
+                            Reset
+                          </button>
+                          <button
+                            type="button"
+                            className="btn-offset"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleOffsetChange(0.5)
+                            }}
+                            title="Appear 0.5s later (+0.5s)"
+                          >
+                            +0.5s
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
 
               <a
                 href={effectiveWatchUrl}

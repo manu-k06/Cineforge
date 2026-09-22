@@ -29,6 +29,10 @@ from app.models.metadata import (
     MovieMetadata,
     TrendingMoviesResponse,
 )
+from app.models.subtitles import (
+    SubtitleTrack,
+    SubtitleTrackListResponse,
+)
 
 __all__ = [
     "ButtonInfo",
@@ -45,6 +49,8 @@ __all__ = [
     "SearchResultItem",
     "SelectedResultRequest",
     "SelectedResultResponse",
+    "SubtitleTrack",
+    "SubtitleTrackListResponse",
     "TelegramDebugSearchResponse",
     "TestDeliveryRequest",
     "TestDeliveryResponse",
@@ -53,4 +59,5 @@ __all__ = [
     "TrendingMoviesResponse",
     "parse_telegram_deep_link",
 ]
+
 
