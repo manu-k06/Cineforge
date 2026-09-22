@@ -113,22 +113,30 @@ class SubtitleService:
         return LANG_NAME_MAP.get(code, code.upper() if code != "und" else "Unknown")
 
     def generate_demo_vtt(self, title: Optional[str] = "Movie") -> str:
-        """Generate high-quality synchronized sample WebVTT for playback testing."""
+        """Generate high-quality synchronized sample WebVTT for playback testing throughout full duration."""
         safe_title = title or "Cineforge"
-        return f"""WEBVTT - Cineforge Cinema Captions
-
-1
-00:00:01.500 --> 00:00:05.000
-[Cineforge High-Definition Stream: {safe_title}]
-
-2
-00:00:06.000 --> 00:00:10.000
-Multi-track audio and soft subtitles synchronized.
-
-3
-00:00:11.500 --> 00:00:15.500
-Enjoy full theatrical playback directly in your browser.
-"""
+        lines = [
+            "WEBVTT - Cineforge Cinema Captions\n",
+            "1\n00:00:01.500 --> 00:00:05.000\n" + f"[Cineforge High-Definition Stream: {safe_title}]\n",
+            "2\n00:00:06.000 --> 00:00:10.000\nMulti-track audio and soft subtitles synchronized.\n",
+            "3\n00:00:11.500 --> 00:00:15.500\nEnjoy full theatrical playback directly in your browser.\n",
+        ]
+        cue_idx = 4
+        # Generate recurring cues every 30-40 seconds for up to 3 hours so seeking anywhere shows captions
+        for minute in range(0, 180):
+            for sec_offset, msg in [
+                (18, f"[{safe_title}] - Soft Subtitles Synchronized"),
+                (35, "HD Multi-channel audio & WebVTT playback"),
+                (50, f"Timing Sync Active • Minute {minute + 1}"),
+            ]:
+                tot = minute * 60 + sec_offset
+                if tot <= 15:
+                    continue
+                sh, sm, ss = tot // 3600, (tot % 3600) // 60, tot % 60
+                eh, em, es = (tot + 6) // 3600, ((tot + 6) % 3600) // 60, (tot + 6) % 60
+                lines.append(f"{cue_idx}\n{sh:02d}:{sm:02d}:{ss:02d}.000 --> {eh:02d}:{em:02d}:{es:02d}.000\n{msg}\n")
+                cue_idx += 1
+        return "\n".join(lines) + "\n"
 
     async def detect_embedded_subtitles(self, stream_url: str) -> List[SubtitleTrack]:
         """

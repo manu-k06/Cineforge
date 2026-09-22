@@ -203,7 +203,18 @@ export default function WatchPage({
   const handleTrackLoad = (e) => {
     const track = e.target.track
     if (track) {
-      track.mode = 'showing'
+      track.mode = 'hidden'
+      const syncActiveCues = () => {
+        if (track.activeCues && track.activeCues.length > 0) {
+          const text = Array.from(track.activeCues)
+            .map((c) => c.text)
+            .join('\n')
+          setActiveCueText(text)
+        } else {
+          setActiveCueText('')
+        }
+      }
+      track.oncuechange = syncActiveCues
       if (subtitleOffset !== 0 && track.cues) {
         for (let j = 0; j < track.cues.length; j++) {
           const cue = track.cues[j]
@@ -211,6 +222,7 @@ export default function WatchPage({
           cue.endTime += subtitleOffset
         }
       }
+      syncActiveCues()
     }
   }
 
@@ -239,6 +251,7 @@ export default function WatchPage({
   const activeSubtitleTrack = subtitleTracks.find((t) => t.id === selectedTrackId) || null
   const [subtitleBlobUrl, setSubtitleBlobUrl] = useState(null)
   const [isLoadingVtt, setIsLoadingVtt] = useState(false)
+  const [activeCueText, setActiveCueText] = useState('')
 
   // Fetch VTT content and create a local same-origin Blob URL to bypass browser cross-origin track blocking
   useEffect(() => {
@@ -319,6 +332,21 @@ export default function WatchPage({
   const handleTimeUpdate = () => {
     if (videoRef.current) {
       setCurrentTime(videoRef.current.currentTime)
+      if (selectedTrackId && videoRef.current.textTracks) {
+        for (let i = 0; i < videoRef.current.textTracks.length; i++) {
+          const tt = videoRef.current.textTracks[i]
+          if (tt.mode === 'hidden' || tt.mode === 'showing') {
+            if (tt.activeCues && tt.activeCues.length > 0) {
+              const text = Array.from(tt.activeCues)
+                .map((c) => c.text)
+                .join('\n')
+              setActiveCueText(text)
+              return
+            }
+          }
+        }
+        setActiveCueText('')
+      }
     }
   }
 
@@ -498,6 +526,13 @@ export default function WatchPage({
           </div>
         )}
 
+        {/* StreamVibe Subtitle Overlay */}
+        {activeCueText && (
+          <div className={`streamvibe-subtitle-overlay ${controlsVisible ? 'with-controls' : 'no-controls'}`}>
+            <span className="subtitle-text-bubble">{activeCueText}</span>
+          </div>
+        )}
+
         {/* Custom StreamVibe Controls Overlay */}
         <div className={`streamvibe-controls-bar ${controlsVisible ? 'visible' : 'hidden'}`}>
           {/* StreamVibe Red Scrub Progress Bar */}
@@ -589,6 +624,7 @@ export default function WatchPage({
                         className={`subtitle-track-item ${selectedTrackId === null ? 'active' : ''}`}
                         onClick={() => {
                           setSelectedTrackId(null)
+                          setActiveCueText('')
                           setIsSubtitleMenuOpen(false)
                         }}
                       >

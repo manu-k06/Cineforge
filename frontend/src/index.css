@@ -1812,17 +1812,60 @@ body {
   background: rgba(229, 0, 0, 0.25);
 }
 
-/* Video Subtitle / WebVTT Cue Styling */
+/* Hide native video::cue to prevent low-positioned duplicate text */
 video::cue {
-  background-color: rgba(10, 10, 10, 0.85);
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+/* StreamVibe Theatrical Subtitle Overlay (Above Controls Bar) */
+.streamvibe-subtitle-overlay {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: 82%;
+  text-align: center;
+  pointer-events: none;
+  z-index: 6;
+  transition: bottom 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.streamvibe-subtitle-overlay.with-controls {
+  bottom: 88px;
+}
+
+.streamvibe-subtitle-overlay.no-controls {
+  bottom: 38px;
+}
+
+.subtitle-text-bubble {
+  display: inline-block;
+  background: rgba(10, 10, 10, 0.88);
   color: #FFFFFF;
-  font-family: var(--font-sans, system-ui, -apple-system, sans-serif);
-  font-size: 1.2rem;
+  font-family: var(--font-sans, system-ui, -apple-system, BlinkMacSystemFont, sans-serif);
+  font-size: 1.28rem;
   font-weight: 600;
-  line-height: 1.4;
+  line-height: 1.45;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.95);
-  padding: 3px 10px;
-  border-radius: 4px;
+  padding: 5px 16px;
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+  white-space: pre-line;
+  letter-spacing: 0.02em;
+}
+
+@media (max-width: 768px) {
+  .streamvibe-subtitle-overlay.with-controls {
+    bottom: 74px;
+  }
+  .streamvibe-subtitle-overlay.no-controls {
+    bottom: 24px;
+  }
+  .subtitle-text-bubble {
+    font-size: 1.05rem;
+    padding: 3px 10px;
+  }
 }
 
 /* Player Codec Fallback Overlay */
