@@ -1,100 +1,140 @@
-import React, { useState } from 'react'
-import { Play, Plus, Check, Star, ChevronLeft, ChevronRight, Volume2, VolumeX, Sparkles } from 'lucide-react'
-
-const FEATURED_MOVIES = [
-  {
-    id: 'avengers',
-    title: 'Avengers: Endgame',
-    searchQuery: 'Avengers Endgame',
-    synopsis: 'After the devastating events of Infinity War, the universe is in ruins. With the help of remaining allies, the Avengers assemble once more to reverse Thanos’ actions and restore balance to the universe.',
-    year: '2019',
-    rating: '8.4',
-    certificate: 'U/A 16+',
-    quality: '4K ULTRA HD',
-    audio: 'Dolby Atmos 5.1',
-    duration: '3h 1min',
-    genres: ['Action', 'Sci-Fi', 'Adventure'],
-    backdrop: 'https://image.tmdb.org/t/p/original/7RyHsO4yDXtBv1zUU3mTpHeQ0d5.jpg',
-  },
-  {
-    id: 'dune',
-    title: 'Dune: Part Two',
-    searchQuery: 'Dune Part Two',
-    synopsis: 'Paul Atreides unites with Chani and the Fremen while seeking revenge against the conspirators who destroyed his family. Facing a choice between the love of his life and the fate of the universe.',
-    year: '2024',
-    rating: '8.6',
-    certificate: 'U/A 16+',
-    quality: '4K ULTRA HD',
-    audio: 'IMAX Enhanced',
-    duration: '2h 46min',
-    genres: ['Sci-Fi', 'Adventure', 'Drama'],
-    backdrop: 'https://image.tmdb.org/t/p/original/xOMo8BRK7PfcJv9JCnx7s520DRq.jpg',
-  },
-  {
-    id: 'interstellar',
-    title: 'Interstellar',
-    searchQuery: 'Interstellar',
-    synopsis: 'When Earth becomes uninhabitable in the future, a farmer and ex-NASA pilot, Joseph Cooper, is tasked to pilot a spacecraft along with a team of researchers to find a new planet for humanity.',
-    year: '2014',
-    rating: '8.7',
-    certificate: 'U/A 13+',
-    quality: 'IMAX 4K',
-    audio: 'DTS-HD MA 5.1',
-    duration: '2h 49min',
-    genres: ['Sci-Fi', 'Drama', 'Adventure'],
-    backdrop: 'https://image.tmdb.org/t/p/original/rAiYTsqJJR0KP8UN8vJjZHa820g.jpg',
-  },
-  {
-    id: 'aavesham',
-    title: 'Aavesham',
-    searchQuery: 'Aavesham',
-    synopsis: 'Three teenagers arrive in Bangalore for their engineering degree and get involved in a brawl with seniors. In pursuit of protection, they find an eccentric local gangster named Ranga.',
-    year: '2024',
-    rating: '8.0',
-    certificate: 'U/A 16+',
-    quality: '1080p FULL HD',
-    audio: 'Dual Audio (Malayalam / Hindi)',
-    duration: '2h 38min',
-    genres: ['Action', 'Comedy', 'Drama'],
-    backdrop: 'https://image.tmdb.org/t/p/original/w4z8jY8L21F7sC8r41X1W42R.jpg',
-  },
-  {
-    id: 'oppenheimer',
-    title: 'Oppenheimer',
-    searchQuery: 'Oppenheimer',
-    synopsis: 'The story of American scientist J. Robert Oppenheimer and his role in the development of the atomic bomb during World War II.',
-    year: '2023',
-    rating: '8.9',
-    certificate: 'A 18+',
-    quality: '4K ULTRA HD',
-    audio: 'Dolby Atmos',
-    duration: '3h 0min',
-    genres: ['Biography', 'Drama', 'History'],
-    backdrop: 'https://image.tmdb.org/t/p/original/fm6K9vY92Yr8zbivvgMcq9xYvYw.jpg',
-  },
-]
+import React, { useState, useEffect, useRef } from 'react'
+import { Play, Plus, Check, Star, ChevronLeft, ChevronRight, Volume2, VolumeX, Sparkles, Loader2 } from 'lucide-react'
+import { getTrendingMovies } from '../services/api'
 
 export default function HeroBanner({ onQuickPlay }) {
+  const [movies, setMovies] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
   const [currentIndex, setCurrentIndex] = useState(0)
-  const [isWatchlist, setIsWatchlist] = useState(false)
+  const [watchlist, setWatchlist] = useState(new Set())
   const [isMuted, setIsMuted] = useState(true)
+  const timerRef = useRef(null)
 
-  const current = FEATURED_MOVIES[currentIndex]
+  // Fetch live trending movies from TMDb on mount
+  useEffect(() => {
+    let isMounted = true
+
+    async function fetchHeroMovies() {
+      try {
+        setIsLoading(true)
+        // Fetch trending today first for maximum freshness
+        let res = await getTrendingMovies('day', 1).catch(() => null)
+        let results = res?.results || []
+
+        // If today has too few items with backdrops, combine with weekly trending
+        if (results.length < 4) {
+          const weekRes = await getTrendingMovies('week', 1).catch(() => null)
+          if (weekRes?.results) {
+            results = [...results, ...weekRes.results]
+          }
+        }
+
+        // Filter out items without backdrops or posters
+        const valid = results.filter((m) => m.backdrop_url || m.poster_url)
+
+        if (valid.length > 0 && isMounted) {
+          const formatted = valid.slice(0, 6).map((m) => {
+            const releaseYear = m.year || (m.release_date ? m.release_date.split('-')[0] : '2026')
+            const displayRating = m.rating ? Number(m.rating).toFixed(1) : '8.2'
+            const genresList = m.genres && m.genres.length > 0 ? m.genres : ['Action', 'Thriller', 'Sci-Fi']
+
+            return {
+              id: m.tmdb_id || m.title,
+              title: m.title,
+              searchQuery: m.title,
+              synopsis: m.overview || 'Newly released blockbuster streaming in ultra high definition with multi-audio on Cineforge.',
+              year: releaseYear,
+              rating: displayRating,
+              certificate: 'U/A 16+',
+              quality: '4K ULTRA HD',
+              audio: 'Dolby Atmos 5.1',
+              duration: '2h 15min',
+              genres: genresList,
+              backdrop: m.backdrop_url || m.poster_url,
+            }
+          })
+
+          setMovies(formatted)
+        }
+      } catch (err) {
+        console.error('Failed to load hero banner movies:', err)
+      } finally {
+        if (isMounted) setIsLoading(false)
+      }
+    }
+
+    fetchHeroMovies()
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
+
+  // Auto-slide carousel every 8 seconds
+  useEffect(() => {
+    if (movies.length <= 1) return
+
+    timerRef.current = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % movies.length)
+    }, 8000)
+
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current)
+    }
+  }, [movies.length, currentIndex])
 
   const handleNext = () => {
-    setCurrentIndex((prev) => (prev + 1) % FEATURED_MOVIES.length)
+    if (movies.length === 0) return
+    setCurrentIndex((prev) => (prev + 1) % movies.length)
   }
 
   const handlePrev = () => {
-    setCurrentIndex((prev) => (prev - 1 + FEATURED_MOVIES.length) % FEATURED_MOVIES.length)
+    if (movies.length === 0) return
+    setCurrentIndex((prev) => (prev - 1 + movies.length) % movies.length)
   }
+
+  const toggleWatchlist = (id) => {
+    setWatchlist((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
+  // Skeleton loading placeholder
+  if (isLoading || movies.length === 0) {
+    return (
+      <div className="hero-banner-container" style={{ minHeight: '620px', background: 'linear-gradient(180deg, #111419 0%, #0a0b0d 100%)' }}>
+        <div className="hero-overlay-radial"></div>
+        <div className="hero-overlay-linear"></div>
+        <div className="hero-content" style={{ opacity: 0.6 }}>
+          <div className="hero-meta-top">
+            <span className="badge badge-spotlight animate-pulse">
+              <Loader2 size={13} className="animate-spin" /> DISCOVERING FRESH RELEASES...
+            </span>
+          </div>
+          <div style={{ height: '48px', width: '380px', background: 'rgba(255,255,255,0.08)', borderRadius: '8px', margin: '16px 0' }} className="skeleton"></div>
+          <div style={{ height: '24px', width: '260px', background: 'rgba(255,255,255,0.05)', borderRadius: '6px', marginBottom: '16px' }} className="skeleton"></div>
+          <div style={{ height: '60px', width: '500px', background: 'rgba(255,255,255,0.04)', borderRadius: '6px' }} className="skeleton"></div>
+        </div>
+      </div>
+    )
+  }
+
+  const current = movies[currentIndex]
+  const isCurrentInWatchlist = watchlist.has(current.id)
 
   return (
     <div className="hero-banner-container">
-      {/* Background with vignette gradients */}
-      <div 
+      {/* Dynamic TMDb Backdrop with Vignette Gradients */}
+      <div
         className="hero-backdrop"
-        style={{ backgroundImage: `url(${current.backdrop})` }}
+        key={current.id}
+        style={{
+          backgroundImage: `url(${current.backdrop})`,
+          transition: 'background-image 0.8s ease-in-out',
+        }}
       >
         <div className="hero-overlay-radial"></div>
         <div className="hero-overlay-linear"></div>
@@ -126,7 +166,9 @@ export default function HeroBanner({ onQuickPlay }) {
           <span className="stat-dot">•</span>
           <div className="stat-genres">
             {current.genres.map((g) => (
-              <span key={g} className="badge badge-genre">{g}</span>
+              <span key={g} className="badge badge-genre">
+                {g}
+              </span>
             ))}
           </div>
         </div>
@@ -134,25 +176,27 @@ export default function HeroBanner({ onQuickPlay }) {
         <p className="hero-synopsis">{current.synopsis}</p>
 
         <div className="hero-actions">
-          <button 
+          <button
             className="btn btn-hero-play"
             onClick={() => onQuickPlay(current.searchQuery)}
+            id="hero-play-btn"
           >
             <Play size={20} fill="#000000" />
             <span>Play Now</span>
           </button>
 
-          <button 
+          <button
             className="btn btn-hero-watchlist"
-            onClick={() => setIsWatchlist(!isWatchlist)}
+            onClick={() => toggleWatchlist(current.id)}
+            id="hero-watchlist-btn"
           >
-            {isWatchlist ? <Check size={18} className="text-success" /> : <Plus size={18} />}
-            <span>{isWatchlist ? 'In Watchlist' : 'Add to Watchlist'}</span>
+            {isCurrentInWatchlist ? <Check size={18} className="text-success" /> : <Plus size={18} />}
+            <span>{isCurrentInWatchlist ? 'In Watchlist' : 'Add to Watchlist'}</span>
           </button>
 
-          <button 
-            className="btn-icon btn-hero-sound" 
-            onClick={() => setIsMuted(!isMuted)} 
+          <button
+            className="btn-icon btn-hero-sound"
+            onClick={() => setIsMuted(!isMuted)}
             title={isMuted ? 'Unmute' : 'Mute'}
           >
             {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
@@ -162,19 +206,20 @@ export default function HeroBanner({ onQuickPlay }) {
 
       {/* Slide Navigation Controls */}
       <div className="hero-slider-controls">
-        <button className="slider-btn" onClick={handlePrev} title="Previous">
+        <button className="slider-btn" onClick={handlePrev} title="Previous" id="hero-prev-btn">
           <ChevronLeft size={20} />
         </button>
         <div className="slider-dots">
-          {FEATURED_MOVIES.map((item, idx) => (
+          {movies.map((item, idx) => (
             <button
               key={item.id}
               className={`dot ${idx === currentIndex ? 'active' : ''}`}
               onClick={() => setCurrentIndex(idx)}
+              aria-label={`Go to slide ${idx + 1}`}
             />
           ))}
         </div>
-        <button className="slider-btn" onClick={handleNext} title="Next">
+        <button className="slider-btn" onClick={handleNext} title="Next" id="hero-next-btn">
           <ChevronRight size={20} />
         </button>
       </div>

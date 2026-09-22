@@ -132,6 +132,36 @@ export async function getTrendingMovies(timeWindow = 'week', page = 1) {
   return await response.json()
 }
 
+export async function getPopularMovies(page = 1) {
+  try {
+    const response = await fetch(`${API_BASE}/api/metadata/popular?page=${page}`)
+    if (response.ok) return await response.json()
+  } catch (e) {
+    console.warn('Popular endpoint unavailable, falling back to trending:', e)
+  }
+  return await getTrendingMovies('day', page)
+}
+
+export async function getTopRatedMovies(page = 1) {
+  try {
+    const response = await fetch(`${API_BASE}/api/metadata/top-rated?page=${page}`)
+    if (response.ok) return await response.json()
+  } catch (e) {
+    console.warn('Top-rated endpoint unavailable, falling back to trending:', e)
+  }
+  return await getTrendingMovies('week', 2)
+}
+
+export async function getRegionalMovies(language = 'ml', page = 1) {
+  try {
+    const response = await fetch(`${API_BASE}/api/metadata/discover?language=${language}&page=${page}`)
+    if (response.ok) return await response.json()
+  } catch (e) {
+    console.warn('Regional discover endpoint unavailable, falling back to trending:', e)
+  }
+  return await getTrendingMovies('day', 2)
+}
+
 /**
  * Subtitle Discovery & WebVTT Endpoints
  */

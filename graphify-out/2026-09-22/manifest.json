@@ -30,9 +30,9 @@
     "semantic_hash": ""
   },
   "backend/app/api/metadata.py": {
-    "mtime": 1790100494.4583712,
-    "seen": 1790100682.3863883,
-    "ast_hash": "b8c1f961612eb28fa219dc7fc9674ec0",
+    "mtime": 1790069408.305698,
+    "seen": 1790098952.9995801,
+    "ast_hash": "7fec317f273108842934db349263fc43",
     "semantic_hash": ""
   },
   "backend/app/api/search.py": {
@@ -168,9 +168,9 @@
     "semantic_hash": ""
   },
   "backend/app/services/tmdb.py": {
-    "mtime": 1790100293.2715437,
-    "seen": 1790100682.3864565,
-    "ast_hash": "5759babe205a8a70f58298e8d73e9c32",
+    "mtime": 1790088872.7017715,
+    "seen": 1790098952.9996037,
+    "ast_hash": "884e6959ad5743c4307b6863cd2bf1a7",
     "semantic_hash": ""
   },
   "backend/export_session.py": {
@@ -264,9 +264,9 @@
     "semantic_hash": ""
   },
   "frontend/src/components/HeroBanner.jsx": {
-    "mtime": 1790100553.048414,
-    "seen": 1790100682.3865001,
-    "ast_hash": "726e2479105d0455a8437d71a8bca58a",
+    "mtime": 1790096543.3182874,
+    "seen": 1790098952.9996197,
+    "ast_hash": "e2695f6328f2b6f4ca6179a53f381096",
     "semantic_hash": ""
   },
   "frontend/src/components/MovieCard.jsx": {
@@ -276,9 +276,9 @@
     "semantic_hash": ""
   },
   "frontend/src/components/MovieGrid.jsx": {
-    "mtime": 1790100593.17427,
-    "seen": 1790100682.3865051,
-    "ast_hash": "9cf135d2180bf031ea556bd1178b8d9d",
+    "mtime": 1790098382.449551,
+    "seen": 1790098952.9996216,
+    "ast_hash": "54e870f0ebb502bd9bd8cff97170362f",
     "semantic_hash": ""
   },
   "frontend/src/components/Navbar.jsx": {
@@ -324,9 +324,9 @@
     "semantic_hash": ""
   },
   "frontend/src/services/api.js": {
-    "mtime": 1790100504.8707254,
-    "seen": 1790100682.3865254,
-    "ast_hash": "945ebbf97bfec17c8779e17a48bbbd00",
+    "mtime": 1790085034.2024467,
+    "seen": 1790098952.9996295,
+    "ast_hash": "2b95cce32bcbb4624bc39ee181246fd8",
     "semantic_hash": ""
   },
   "frontend/src/services/supabase.js": {

@@ -31,6 +31,32 @@ async def get_trending_movies(
     time_window: str = Query("week", pattern="^(day|week)$", description="Trending timeframe ('day' or 'week')"),
     page: int = Query(1, ge=1, le=10, description="Page number"),
 ):
-
     """Retrieve top trending movies from TMDb for homepage discovery."""
     return await tmdb_service.get_trending_movies(time_window=time_window, page=page)
+
+
+@router.get("/popular", response_model=TrendingMoviesResponse)
+async def get_popular_movies(
+    page: int = Query(1, ge=1, le=10, description="Page number"),
+):
+    """Retrieve popular movies from TMDb."""
+    return await tmdb_service.get_popular_movies(page=page)
+
+
+@router.get("/top-rated", response_model=TrendingMoviesResponse)
+async def get_top_rated_movies(
+    page: int = Query(1, ge=1, le=10, description="Page number"),
+):
+    """Retrieve top rated movies from TMDb."""
+    return await tmdb_service.get_top_rated_movies(page=page)
+
+
+@router.get("/discover", response_model=TrendingMoviesResponse)
+async def discover_movies(
+    language: str = Query("ml", description="Language code (e.g., 'ml', 'ta', 'hi', 'en')"),
+    sort_by: str = Query("popularity.desc", description="Sort order"),
+    page: int = Query(1, ge=1, le=10, description="Page number"),
+):
+    """Discover regional or category movies from TMDb."""
+    return await tmdb_service.discover_movies(language=language, sort_by=sort_by, page=page)
+

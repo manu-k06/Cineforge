@@ -327,7 +327,7 @@ class TmdbService:
                 if resp.status_code == 200:
                     data = resp.json()
                     raw_results = data.get("results", [])
-                    parsed = [self._parse_movie_dict(item) for item in raw_results]
+                    parsed = [self._parse_movie_dict(item) for item in raw_results if item.get("poster_path") or item.get("backdrop_path")]
                     response_obj = TrendingMoviesResponse(
                         page=data.get("page", 1),
                         total_pages=data.get("total_pages", 1),
@@ -339,6 +339,57 @@ class TmdbService:
             logger.warning("Error fetching trending movies: %s", str(e))
 
         return TrendingMoviesResponse(page=1, total_pages=1, results=[])
+
+    async def _fetch_movie_list(
+        self,
+        url: str,
+        extra_params: Dict[str, str],
+        cache_key: str,
+    ) -> TrendingMoviesResponse:
+        now = time.time()
+        if cache_key in self._trending_cache:
+            cached_time, cached_res = self._trending_cache[cache_key]
+            if now - cached_time < 3600:
+                return cached_res
+
+        if not self.is_configured():
+            return TrendingMoviesResponse(page=1, total_pages=1, results=[])
+
+        headers, base_params = self._get_auth_headers_and_params()
+        params = {**base_params, **extra_params}
+
+        try:
+            async with httpx.AsyncClient(timeout=6.0) as client:
+                resp = await client.get(url, headers=headers, params=params)
+                if resp.status_code == 200:
+                    data = resp.json()
+                    raw_results = data.get("results", [])
+                    parsed = [self._parse_movie_dict(item) for item in raw_results if item.get("poster_path") or item.get("backdrop_path")]
+                    res = TrendingMoviesResponse(
+                        page=data.get("page", 1),
+                        total_pages=data.get("total_pages", 1),
+                        results=parsed,
+                    )
+                    self._trending_cache[cache_key] = (now, res)
+                    return res
+        except Exception as e:
+            logger.warning("Error fetching movie list from %s: %s", url, str(e))
+
+        return TrendingMoviesResponse(page=1, total_pages=1, results=[])
+
+    async def get_popular_movies(self, page: int = 1) -> TrendingMoviesResponse:
+        """Retrieve popular movies from TMDb."""
+        return await self._fetch_movie_list(f"{settings.TMDB_BASE_URL}/movie/popular", {"page": str(page)}, f"popular:{page}")
+
+    async def get_top_rated_movies(self, page: int = 1) -> TrendingMoviesResponse:
+        """Retrieve top rated movies from TMDb."""
+        return await self._fetch_movie_list(f"{settings.TMDB_BASE_URL}/movie/top_rated", {"page": str(page)}, f"top_rated:{page}")
+
+    async def discover_movies(self, language: str = "ml", sort_by: str = "popularity.desc", page: int = 1) -> TrendingMoviesResponse:
+        """Discover movies by language (e.g. 'ml' for Malayalam, 'ta' for Tamil, 'hi' for Hindi)."""
+        params = {"with_original_language": language, "sort_by": sort_by, "page": str(page)}
+        return await self._fetch_movie_list(f"{settings.TMDB_BASE_URL}/discover/movie", params, f"discover:{language}:{page}")
+
 
     async def search_movie_suggestions(self, query: str, limit: int = 5) -> List[Dict[str, Any]]:
         """

@@ -1,9 +1,9 @@
 {
   "0": "api/search.py",
-  "1": "AiQueryInterpretation",
+  "1": "config.py",
   "2": "App.jsx",
-  "3": "TmdbService",
-  "4": "CacheService",
+  "3": "tmdb.py",
+  "4": "SearchCandidate",
   "5": "TelegramService",
   "6": "subtitle_service.py",
   "7": "MediaCompatibilityService",
@@ -23,12 +23,5 @@
   "21": "vercel.json",
   "22": "rules/graphify.md",
   "23": "workflows/graphify.md",
-  "24": "app/__init__.py",
-  "25": "TestTmdbMetadataService",
-  "26": "services/auth.py",
-  "27": "config.py",
-  "28": "TestCacheService",
-  "29": "AiService",
-  "30": "AuthService",
-  "31": "get_ai_status"
+  "24": "app/__init__.py"
 }

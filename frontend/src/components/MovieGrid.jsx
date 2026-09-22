@@ -1,70 +1,7 @@
-import React, { useRef } from 'react'
-import { Film, AlertCircle, ChevronLeft, ChevronRight, Loader2, Sparkles, TrendingUp, Star, Play, Compass } from 'lucide-react'
+import React, { useRef, useState, useEffect } from 'react'
+import { Film, AlertCircle, ChevronLeft, ChevronRight, Loader2, Sparkles, TrendingUp, Star, Play, Flame } from 'lucide-react'
 import MovieCard from './MovieCard'
-
-// Curated Cinema Rails with TMDb-ready titles
-// Curated Cinema Rails with TMDb-ready titles & authentic posters
-const CURATED_CATEGORIES = [
-  {
-    id: 'trending',
-    title: 'Trending Blockbusters',
-    tag: 'HOT PICKS',
-    icon: TrendingUp,
-    movies: [
-      { title: 'Avengers Endgame (2019)', details: '2.4GB - 1080p HEVC Dual Audio', poster: 'https://image.tmdb.org/t/p/w500/or06FN3Dka5tukK1e9sl16pB3iy.jpg', rating: '8.4', year: '2019' },
-      { title: 'Dune Part Two (2024)', details: '3.1GB - 1080p Web-DL Multi Audio', poster: 'https://image.tmdb.org/t/p/w500/1pdfLvkbY9ohJlCjQH2CZjjYVvJ.jpg', rating: '8.6', year: '2024' },
-      { title: 'Oppenheimer (2023)', details: '4.2GB - 4K UHD HDR Remux', poster: 'https://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg', rating: '8.9', year: '2023' },
-      { title: 'Interstellar (2014)', details: '2.8GB - 1080p BluRay', poster: 'https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg', rating: '8.7', year: '2014' },
-      { title: 'Spider-Man No Way Home (2021)', details: '2.6GB - 1080p FHD', poster: 'https://image.tmdb.org/t/p/w500/1g0dhYtq4irTY1GPXvft6k4YLjm.jpg', rating: '8.0', year: '2021' },
-      { title: 'The Batman (2022)', details: '3.4GB - 4K UHD HDR', poster: 'https://image.tmdb.org/t/p/w500/74xTEgt7R36Fpooo50r9T25onhq.jpg', rating: '7.7', year: '2022' },
-      { title: 'Avatar The Way of Water (2022)', details: '3.9GB - 1080p 3D Remux', poster: 'https://image.tmdb.org/t/p/w500/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg', rating: '7.6', year: '2022' },
-    ],
-  },
-  {
-    id: 'regional',
-    title: 'Malayalam & Regional Spotlight',
-    tag: 'SUPERHITS',
-    icon: Sparkles,
-    movies: [
-      { title: 'Aavesham (2024)', details: '2.1GB - 1080p Web-DL Dual Audio', poster: 'https://image.tmdb.org/t/p/w500/fWhJEc82YkQZpM6e6iM1gW6uQ70.jpg', rating: '8.0', year: '2024' },
-      { title: 'Manjummel Boys (2024)', details: '2.3GB - 1080p Multi Audio', poster: 'https://image.tmdb.org/t/p/w500/bCmsQp5pX25t79gB3zG3jMvT6d5.jpg', rating: '8.3', year: '2024' },
-      { title: 'Premalu (2024)', details: '1.9GB - 1080p Web-DL', poster: 'https://image.tmdb.org/t/p/w500/2L2fQp831QnZ5mS6B6w7r6Z4D.jpg', rating: '7.9', year: '2024' },
-      { title: 'Bramayugam (2024)', details: '2.4GB - 1080p Monochrome Edition', poster: 'https://image.tmdb.org/t/p/w500/fWhJEc82YkQZpM6e6iM1gW6uQ70.jpg', rating: '8.1', year: '2024' },
-      { title: 'The Goat Life (2024)', details: '2.7GB - 1080p Aadujeevitham', poster: 'https://image.tmdb.org/t/p/w500/1pdfLvkbY9ohJlCjQH2CZjjYVvJ.jpg', rating: '8.2', year: '2024' },
-      { title: 'Drishyam 2 (2021)', details: '2.0GB - 1080p Dual Audio', poster: 'https://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg', rating: '8.4', year: '2021' },
-      { title: 'Lucifer (2019)', details: '2.5GB - 1080p Remastered', poster: 'https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg', rating: '7.5', year: '2019' },
-    ],
-  },
-  {
-    id: 'top-rated',
-    title: 'Top Rated Masterpieces',
-    tag: 'ALL TIME CLASSICS',
-    icon: Star,
-    movies: [
-      { title: 'The Dark Knight (2008)', details: '2.1GB - 1080p Dual Audio', poster: 'https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911r6m7haRef0WH.jpg', rating: '9.0', year: '2008' },
-      { title: 'Inception (2010)', details: '1.9GB - 1080p HEVC', poster: 'https://image.tmdb.org/t/p/w500/ljsZTbVsrQSqZgWeep2B1QiDKuh.jpg', rating: '8.8', year: '2010' },
-      { title: 'The Matrix (1999)', details: '2.0GB - Remastered 1080p', poster: 'https://image.tmdb.org/t/p/w500/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg', rating: '8.7', year: '1999' },
-      { title: 'Fight Club (1999)', details: '1.8GB - 1080p 10bit', poster: 'https://image.tmdb.org/t/p/w500/pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg', rating: '8.4', year: '1999' },
-      { title: 'Gladiator (2000)', details: '2.5GB - 4K UHD Remux', poster: 'https://image.tmdb.org/t/p/w500/ty8TGRuvJLPUmAR1H1nRIsgwvim.jpg', rating: '8.5', year: '2000' },
-      { title: 'Pulp Fiction (1994)', details: '1.7GB - 1080p BluRay', poster: 'https://image.tmdb.org/t/p/w500/d5iIlFn5s0ImszYzBPb8JPIfbXD.jpg', rating: '8.9', year: '1994' },
-      { title: 'Interstellar (2014)', details: '2.8GB - 1080p BluRay', poster: 'https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg', rating: '8.7', year: '2014' },
-    ],
-  },
-  {
-    id: 'mind-benders',
-    title: 'Sci-Fi & Mind Benders',
-    tag: 'HIGH BITRATE',
-    icon: Compass,
-    movies: [
-      { title: 'Tenet (2020)', details: '2.9GB - 4K IMAX Enhanced', poster: 'https://image.tmdb.org/t/p/w500/aCIFMriQ2vtJHNxI9TISEn7YzOX.jpg', rating: '7.5', year: '2020' },
-      { title: 'Blade Runner 2049 (2017)', details: '3.2GB - 1080p Atmos', poster: 'https://image.tmdb.org/t/p/w500/gajva2L0rPYkEWjzgFlBXCAVBE5.jpg', rating: '8.0', year: '2017' },
-      { title: 'Arrival (2016)', details: '1.8GB - 1080p Dual Audio', poster: 'https://image.tmdb.org/t/p/w500/x2FJsf1ElAgr63Y3PNPtJrcmpoe.jpg', rating: '7.9', year: '2016' },
-      { title: 'Shutter Island (2010)', details: '2.2GB - 1080p FHD', poster: 'https://image.tmdb.org/t/p/w500/4GDy0PHYX3VRXUtwK5ysagvk2Az.jpg', rating: '8.2', year: '2010' },
-      { title: 'Everything Everywhere All at Once (2022)', details: '2.4GB - 1080p Web-DL', poster: 'https://image.tmdb.org/t/p/w500/w3LxiVYPqRLexPkaekcr9vg5UuJ.jpg', rating: '8.0', year: '2022' },
-      { title: 'Inception (2010)', details: '1.9GB - 1080p HEVC', poster: 'https://image.tmdb.org/t/p/w500/ljsZTbVsrQSqZgWeep2B1QiDKuh.jpg', rating: '8.8', year: '2010' },
-    ],
-  },
-]
+import { getTrendingMovies, getPopularMovies, getTopRatedMovies, getRegionalMovies } from '../services/api'
 
 // Single Horizontal Rail Component with Smooth Navigation
 function HorizontalRail({ category, onSelectMovie, onQuickSearch }) {
@@ -72,7 +9,7 @@ function HorizontalRail({ category, onSelectMovie, onQuickSearch }) {
 
   const handleScroll = (direction) => {
     if (rowRef.current) {
-      const scrollAmount = direction === 'left' ? -600 : 600
+      const scrollAmount = direction === 'left' ? -650 : 650
       rowRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' })
     }
   }
@@ -93,6 +30,7 @@ function HorizontalRail({ category, onSelectMovie, onQuickSearch }) {
             className="rail-nav-btn"
             onClick={() => handleScroll('left')}
             title="Scroll left"
+            aria-label="Scroll left"
           >
             <ChevronLeft size={18} />
           </button>
@@ -100,6 +38,7 @@ function HorizontalRail({ category, onSelectMovie, onQuickSearch }) {
             className="rail-nav-btn"
             onClick={() => handleScroll('right')}
             title="Scroll right"
+            aria-label="Scroll right"
           >
             <ChevronRight size={18} />
           </button>
@@ -109,18 +48,37 @@ function HorizontalRail({ category, onSelectMovie, onQuickSearch }) {
       <div className="rail-scroll-track" ref={rowRef}>
         {category.movies.map((m, idx) => (
           <div
-            key={idx}
+            key={m.tmdb_id || `${m.title}-${idx}`}
             className="rail-movie-item"
-            onClick={() => onQuickSearch(m.title.replace(/\s*\(\d+\)/, ''))}
+            onClick={() => onQuickSearch(m.title)}
           >
             <MovieCard
               group={{
                 title: m.title,
-                candidates: [{ title: m.title, details: m.details }],
-                metadata: m.poster ? { poster_url: m.poster, rating: m.rating, year: m.year } : null,
+                candidates: [
+                  {
+                    title: m.title,
+                    details: `${m.year || '2026'} • ★ ${m.rating ? Number(m.rating).toFixed(1) : '8.0'} • Ultra HD`,
+                    quality: '1080p FHD',
+                    language: 'Multi-Audio',
+                  },
+                ],
+                metadata: {
+                  poster_url: m.poster_url,
+                  backdrop_url: m.backdrop_url,
+                  rating: m.rating ? Number(m.rating).toFixed(1) : null,
+                  year: m.year,
+                  overview: m.overview,
+                },
               }}
-              metadata={m.poster ? { poster_url: m.poster, rating: m.rating, year: m.year } : null}
-              onSelect={() => onQuickSearch(m.title.replace(/\s*\(\d+\)/, ''))}
+              metadata={{
+                poster_url: m.poster_url,
+                backdrop_url: m.backdrop_url,
+                rating: m.rating ? Number(m.rating).toFixed(1) : null,
+                year: m.year,
+                overview: m.overview,
+              }}
+              onSelect={() => onQuickSearch(m.title)}
             />
           </div>
         ))}
@@ -142,7 +100,104 @@ export default function MovieGrid({
   onSelectMovie,
   onQuickSearch,
 }) {
-  // Loading State
+  const [rails, setRails] = useState([])
+  const [isLoadingRails, setIsLoadingRails] = useState(true)
+
+  // Fetch live, real-time movie rails from TMDb on mount
+  useEffect(() => {
+    let isMounted = true
+
+    async function fetchAllRails() {
+      try {
+        setIsLoadingRails(true)
+
+        // Request live data from backend/TMDb
+        const [trendingRes, popularRes, topRatedRes, regionalRes] = await Promise.allSettled([
+          getTrendingMovies('day', 1),
+          getPopularMovies(1),
+          getTopRatedMovies(1),
+          getRegionalMovies('ml', 1),
+        ])
+
+        if (!isMounted) return
+
+        const trendingMovies =
+          trendingRes.status === 'fulfilled' && trendingRes.value?.results?.length
+            ? trendingRes.value.results.filter((m) => m.poster_url)
+            : []
+
+        const popularMovies =
+          popularRes.status === 'fulfilled' && popularRes.value?.results?.length
+            ? popularRes.value.results.filter((m) => m.poster_url)
+            : []
+
+        const topRatedMovies =
+          topRatedRes.status === 'fulfilled' && topRatedRes.value?.results?.length
+            ? topRatedRes.value.results.filter((m) => m.poster_url)
+            : []
+
+        const regionalMovies =
+          regionalRes.status === 'fulfilled' && regionalRes.value?.results?.length
+            ? regionalRes.value.results.filter((m) => m.poster_url)
+            : []
+
+        // Assemble 4 dynamic rails with live, fresh movies
+        const dynamicRails = [
+          {
+            id: 'trending-today',
+            title: 'Trending Today',
+            tag: 'LIVE TRENDING',
+            icon: Flame,
+            movies: trendingMovies.slice(0, 16),
+          },
+          {
+            id: 'popular-theatres',
+            title: 'Popular in Theatres',
+            tag: 'NOW SHOWING',
+            icon: TrendingUp,
+            movies:
+              popularMovies.length > 0
+                ? popularMovies.slice(0, 16)
+                : trendingMovies.slice(4, 20),
+          },
+          {
+            id: 'regional-spotlight',
+            title: 'Malayalam & Regional Spotlight',
+            tag: 'REGIONAL HITS',
+            icon: Sparkles,
+            movies:
+              regionalMovies.length > 0
+                ? regionalMovies.slice(0, 16)
+                : trendingMovies.slice(8, 20),
+          },
+          {
+            id: 'top-rated-masterpieces',
+            title: 'Top Rated Masterpieces',
+            tag: 'CRITICS CHOICE',
+            icon: Star,
+            movies:
+              topRatedMovies.length > 0
+                ? topRatedMovies.slice(0, 16)
+                : trendingMovies.slice(0, 14),
+          },
+        ].filter((r) => r.movies && r.movies.length > 0)
+
+        setRails(dynamicRails)
+      } catch (err) {
+        console.error('Failed to load discovery rails:', err)
+      } finally {
+        if (isMounted) setIsLoadingRails(false)
+      }
+    }
+
+    fetchAllRails()
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
+
+  // Loading State during search
   if (isLoading) {
     return (
       <div className="grid-section">
@@ -213,7 +268,7 @@ export default function MovieGrid({
           )}
         </div>
 
-        {/* Featured Top Match Showcase Card (Solves Lonely Card Syndrome) */}
+        {/* Featured Top Match Showcase Card */}
         {featuredGroup && (
           <div
             className="featured-search-match"
@@ -299,11 +354,11 @@ export default function MovieGrid({
           </div>
         )}
 
-        {/* More Like This Rails to populate screen when few matches */}
-        {groupedItems.length <= 3 && (
+        {/* Dynamic Recommended Rails when few matches */}
+        {groupedItems.length <= 3 && rails.length > 0 && (
           <div className="related-discovery-section">
             <HorizontalRail
-              category={CURATED_CATEGORIES[0]}
+              category={rails[0]}
               onSelectMovie={onSelectMovie}
               onQuickSearch={onQuickSearch}
             />
@@ -328,10 +383,46 @@ export default function MovieGrid({
     )
   }
 
-  // Default Home State: Curated Discovery Rails
+  // Loading state for rails on initial load
+  if (isLoadingRails && rails.length === 0) {
+    return (
+      <div className="curated-discovery-rails">
+        {[1, 2].map((railIdx) => (
+          <div key={railIdx} className="content-rail-section">
+            <div className="rail-header">
+              <div
+                style={{
+                  width: '240px',
+                  height: '28px',
+                  background: 'rgba(255,255,255,0.08)',
+                  borderRadius: '6px',
+                }}
+                className="skeleton"
+              />
+            </div>
+            <div className="rail-scroll-track" style={{ overflow: 'hidden' }}>
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <div key={i} className="rail-movie-item">
+                  <div className="movie-card skeleton-card">
+                    <div className="skeleton skeleton-poster"></div>
+                    <div className="skeleton-details">
+                      <div className="skeleton skeleton-title"></div>
+                      <div className="skeleton skeleton-subtitle"></div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    )
+  }
+
+  // Default Home State: Fully Dynamic TMDb Discovery Rails
   return (
     <div className="curated-discovery-rails">
-      {CURATED_CATEGORIES.map((cat) => (
+      {rails.map((cat) => (
         <HorizontalRail
           key={cat.id}
           category={cat}
