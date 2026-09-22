@@ -148,6 +148,8 @@ Enjoy full theatrical playback directly in your browser.
             ffprobe_bin,
             "-v",
             "error",
+            "-headers",
+            "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)\r\n",
             "-select_streams",
             "s",
             "-show_entries",
@@ -165,7 +167,7 @@ Enjoy full theatrical playback directly in your browser.
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
             )
-            stdout, stderr = await asyncio.wait_for(process.communicate(), timeout=8.0)
+            stdout, stderr = await asyncio.wait_for(process.communicate(), timeout=15.0)
 
             if process.returncode == 0 and stdout:
                 probe_data = json.loads(stdout.decode("utf-8", errors="ignore"))
@@ -223,10 +225,18 @@ Enjoy full theatrical playback directly in your browser.
         cmd = [
             ffmpeg_bin,
             "-y",
+            "-headers",
+            "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)\r\n",
+            "-analyzeduration",
+            "5000000",
+            "-probesize",
+            "5000000",
             "-i",
             stream_url,
             "-map",
             f"0:s:{track_index}",
+            "-vn",
+            "-an",
             "-f",
             "webvtt",
             "-",
@@ -238,7 +248,7 @@ Enjoy full theatrical playback directly in your browser.
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
             )
-            stdout, stderr = await asyncio.wait_for(process.communicate(), timeout=15.0)
+            stdout, stderr = await asyncio.wait_for(process.communicate(), timeout=35.0)
 
             if process.returncode == 0 and stdout:
                 vtt_text = stdout.decode("utf-8", errors="ignore")

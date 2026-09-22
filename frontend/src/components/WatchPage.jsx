@@ -237,6 +237,46 @@ export default function WatchPage({
   }
 
   const activeSubtitleTrack = subtitleTracks.find((t) => t.id === selectedTrackId) || null
+  const [subtitleBlobUrl, setSubtitleBlobUrl] = useState(null)
+  const [isLoadingVtt, setIsLoadingVtt] = useState(false)
+
+  // Fetch VTT content and create a local same-origin Blob URL to bypass browser cross-origin track blocking
+  useEffect(() => {
+    if (!activeSubtitleTrack?.vtt_url) {
+      setSubtitleBlobUrl(null)
+      return
+    }
+
+    let isMounted = true
+    let createdUrl = null
+    setIsLoadingVtt(true)
+
+    fetch(activeSubtitleTrack.vtt_url)
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`)
+        return res.text()
+      })
+      .then((vttText) => {
+        if (!isMounted) return
+        const blob = new Blob([vttText], { type: 'text/vtt;charset=utf-8' })
+        createdUrl = URL.createObjectURL(blob)
+        setSubtitleBlobUrl(createdUrl)
+      })
+      .catch((err) => {
+        console.warn('Failed to load subtitle VTT into blob:', err)
+        if (isMounted) setSubtitleBlobUrl(null)
+      })
+      .finally(() => {
+        if (isMounted) setIsLoadingVtt(false)
+      })
+
+    return () => {
+      isMounted = false
+      if (createdUrl) {
+        URL.revokeObjectURL(createdUrl)
+      }
+    }
+  }, [activeSubtitleTrack?.vtt_url])
 
   const synopsis = tmdbData?.overview || extras.synopsis
   const directors = tmdbData?.directors?.length > 0 ? tmdbData.directors.join(', ') : extras.directors
@@ -432,13 +472,13 @@ export default function WatchPage({
           onError={() => setHasPlaybackError(true)}
           onClick={togglePlay}
         >
-          {activeSubtitleTrack && (
+          {activeSubtitleTrack && subtitleBlobUrl && (
             <track
-              key={activeSubtitleTrack.id}
+              key={`${activeSubtitleTrack.id}-${subtitleBlobUrl}`}
               kind="subtitles"
               label={activeSubtitleTrack.label}
               srcLang={activeSubtitleTrack.language}
-              src={activeSubtitleTrack.vtt_url}
+              src={subtitleBlobUrl}
               default
               onLoad={handleTrackLoad}
             />
@@ -563,6 +603,13 @@ export default function WatchPage({
                         <div className="subtitles-loading-state">
                           <Sparkles size={14} className="spin-icon text-primary" />
                           <span>Detecting embedded subtitle tracks...</span>
+                        </div>
+                      )}
+
+                      {isLoadingVtt && (
+                        <div className="subtitles-loading-state">
+                          <Sparkles size={14} className="spin-icon text-primary" />
+                          <span>Syncing WebVTT captions...</span>
                         </div>
                       )}
 
