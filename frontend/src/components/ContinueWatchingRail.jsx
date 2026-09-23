@@ -27,35 +27,31 @@ export default function ContinueWatchingRail({ items = [], onResume, onRemove })
   }
 
   return (
-    <section className="continue-watching-section">
-      <div className="continue-watching-header">
-        <div className="section-title-wrapper">
-          <div className="section-indicator-dot" />
-          <h2 className="continue-watching-title">Continue Watching</h2>
-          <span className="continue-watching-count">{items.length} in progress</span>
+    <section className="content-section continue-watching-section">
+      <div className="section-heading">
+        <h2>
+          <span />
+          Continue Watching
+        </h2>
+        <div className="section-actions">
+          <span style={{ fontSize: '13px', color: 'var(--mist)', fontWeight: 600 }}>
+            {items.length} in progress
+          </span>
         </div>
-
-        {items.length > 3 && (
-          <div className="rail-nav-controls">
-            <button
-              className="rail-nav-btn"
-              onClick={() => scroll('left')}
-              title="Scroll left"
-            >
-              <ChevronLeft size={18} />
-            </button>
-            <button
-              className="rail-nav-btn"
-              onClick={() => scroll('right')}
-              title="Scroll right"
-            >
-              <ChevronRight size={18} />
-            </button>
-          </div>
-        )}
       </div>
 
-      <div className="continue-watching-carousel" ref={scrollRef}>
+      <div className="rail-wrap">
+        <button
+          className="rail-control prev"
+          type="button"
+          onClick={() => scroll('left')}
+          title="Previous titles"
+          aria-label="Previous titles"
+        >
+          ‹
+        </button>
+
+        <div className="continue-watching-carousel media-rail" ref={scrollRef}>
         {items.map((item) => {
           const progressPercent = item.duration_seconds > 0
             ? Math.min(100, Math.round((item.progress_seconds / item.duration_seconds) * 100))
@@ -133,12 +129,22 @@ export default function ContinueWatchingRail({ items = [], onResume, onRemove })
                     </>
                   )}
                   <span className="continue-meta-sep">•</span>
-                  <span className="continue-progress-text">{progressPercent}%</span>
                 </div>
               </div>
             </div>
           )
         })}
+        </div>
+
+        <button
+          className="rail-control next"
+          type="button"
+          onClick={() => scroll('right')}
+          title="Next titles"
+          aria-label="Next titles"
+        >
+          ›
+        </button>
       </div>
     </section>
   )

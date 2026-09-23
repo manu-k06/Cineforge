@@ -123,7 +123,7 @@ const FALLBACK_TOP_RATED_CLASSICS = [
   },
 ]
 
-// Single Horizontal Rail Component with Smooth Navigation
+// Cineby Content Section Rail Component
 function HorizontalRail({ category, onSelectMovie, onQuickSearch }) {
   const rowRef = useRef(null)
 
@@ -134,56 +134,42 @@ function HorizontalRail({ category, onSelectMovie, onQuickSearch }) {
     }
   }
 
-  const Icon = category.icon || Sparkles
-  const isTrendingTop10 = category.id === 'trending-today'
-
   return (
-    <div className={`content-rail-section ${isTrendingTop10 ? 'top10-rail-section' : ''}`}>
-      <div className="rail-header">
-        <div className="rail-title-group">
-          <span className="badge badge-red rail-badge">
-            <Icon size={12} /> {isTrendingTop10 ? 'TOP 10 TODAY' : category.tag}
-          </span>
-          <h2 className="rail-title">
-            {isTrendingTop10 ? 'Top 10 Movies Today' : category.title}
-          </h2>
-        </div>
-        <div className="rail-nav-controls">
-          <button
-            className="rail-nav-btn"
-            onClick={() => handleScroll('left')}
-            title="Scroll left"
-            aria-label="Scroll left"
-          >
-            <ChevronLeft size={18} />
-          </button>
-          <button
-            className="rail-nav-btn"
-            onClick={() => handleScroll('right')}
-            title="Scroll right"
-            aria-label="Scroll right"
-          >
-            <ChevronRight size={18} />
+    <section className="content-section">
+      <div className="section-heading">
+        <h2>
+          <span />
+          {category.title}
+        </h2>
+        <div className="section-actions">
+          <button type="button" onClick={() => onQuickSearch(category.title)}>
+            See all
           </button>
         </div>
       </div>
 
-      <div className={`rail-scroll-track ${isTrendingTop10 ? 'top10-scroll-track' : ''}`} ref={rowRef}>
-        {category.movies.map((m, idx) => (
-          <div
-            key={m.tmdb_id || `${m.title}-${idx}`}
-            className={`rail-movie-item ${isTrendingTop10 && idx < 10 ? 'top10-movie-item' : ''}`}
-            onClick={() => onQuickSearch(m.title)}
-          >
+      <div className="rail-wrap">
+        <button
+          className="rail-control prev"
+          type="button"
+          onClick={() => handleScroll('left')}
+          title="Previous titles"
+          aria-label="Previous titles"
+        >
+          ‹
+        </button>
+
+        <div className="media-rail" ref={rowRef}>
+          {category.movies.map((m, idx) => (
             <MovieCard
-              rank={isTrendingTop10 && idx < 10 ? idx + 1 : null}
+              key={m.tmdb_id || `${m.title}-${idx}`}
               group={{
                 title: m.title,
                 candidates: [
                   {
                     title: m.title,
-                    details: `${m.year || '2024'} • ★ ${m.rating ? Number(m.rating).toFixed(1) : '8.0'} • Ultra HD`,
-                    quality: '1080p FHD',
+                    details: `${m.year || '2025'} • ★ ${m.rating ? Number(m.rating).toFixed(1) : '7.8'}`,
+                    quality: '1080p',
                     language: 'Multi-Audio',
                   },
                 ],
@@ -193,6 +179,7 @@ function HorizontalRail({ category, onSelectMovie, onQuickSearch }) {
                   rating: m.rating ? Number(m.rating).toFixed(1) : null,
                   year: m.year,
                   overview: m.overview,
+                  media_type: m.media_type,
                 },
               }}
               metadata={{
@@ -201,13 +188,25 @@ function HorizontalRail({ category, onSelectMovie, onQuickSearch }) {
                 rating: m.rating ? Number(m.rating).toFixed(1) : null,
                 year: m.year,
                 overview: m.overview,
+                media_type: m.media_type,
               }}
+              rank={category.isTop10 ? idx + 1 : null}
               onSelect={() => onQuickSearch(m.title)}
             />
-          </div>
-        ))}
+          ))}
+        </div>
+
+        <button
+          className="rail-control next"
+          type="button"
+          onClick={() => handleScroll('right')}
+          title="Next titles"
+          aria-label="Next titles"
+        >
+          ›
+        </button>
       </div>
-    </div>
+    </section>
   )
 }
 
@@ -320,34 +319,36 @@ export default function MovieGrid({
           topRatedMovies = [...topRatedMovies, ...validClassics].slice(0, 16)
         }
 
-        // Assemble 4 distinct dynamic rails
+        // Assemble Cineby's 5 signature rails
         const dynamicRails = [
           {
+            id: 'top-10',
+            title: 'TOP 10 Today',
+            isTop10: true,
+            movies: trendingMovies.slice(0, 10),
+          },
+          {
             id: 'trending-today',
-            title: 'Trending Today',
-            tag: 'LIVE TRENDING',
-            icon: Flame,
-            movies: trendingMovies,
+            title: 'Trending today',
+            isTop10: false,
+            movies: trendingMovies.slice(10),
           },
           {
             id: 'popular-theatres',
             title: 'Popular Cinema',
-            tag: 'FAN FAVORITES',
-            icon: TrendingUp,
+            isTop10: false,
             movies: popularMovies,
           },
           {
             id: 'regional-spotlight',
-            title: 'Malayalam & Regional Spotlight',
-            tag: 'REGIONAL SUPERHITS',
-            icon: Sparkles,
+            title: 'Only on Cineby',
+            isTop10: false,
             movies: regionalMovies,
           },
           {
             id: 'top-rated-masterpieces',
             title: 'Top Rated Masterpieces',
-            tag: 'ALL-TIME CLASSICS',
-            icon: Star,
+            isTop10: false,
             movies: topRatedMovies,
           },
         ].filter((r) => r.movies && r.movies.length > 0)
@@ -509,9 +510,14 @@ export default function MovieGrid({
 
         {/* Other Results Grid */}
         {otherGroups.length > 0 && (
-          <div className="more-results-section">
-            <h3 className="sub-section-title">All Matching Releases</h3>
-            <div className="movie-grid">
+          <div className="more-results-section" style={{ marginTop: '28px' }}>
+            <div className="section-heading">
+              <h2>
+                <span />
+                All Matching Releases
+              </h2>
+            </div>
+            <div className="browse-grid">
               {otherGroups.map((group, idx) => (
                 <MovieCard
                   key={idx}

@@ -101,7 +101,7 @@ export default function SearchBar({ onSearch, isLoading, currentQuery }) {
           <input
             type="text"
             className="search-input"
-            placeholder="Search movies, series, anime, or 4K releases..."
+            placeholder="Search by a title, person, or collection..."
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onFocus={() => {

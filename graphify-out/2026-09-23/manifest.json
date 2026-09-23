@@ -246,9 +246,9 @@
     "semantic_hash": ""
   },
   "frontend/src/App.jsx": {
-    "mtime": 1790156788.5252025,
-    "seen": 1790156898.235296,
-    "ast_hash": "0d5970d302fb996d85ced04fa060b3d4",
+    "mtime": 1790157952.9321716,
+    "seen": 1790158573.9584734,
+    "ast_hash": "5c83d9e2b170a0fe7c9b554f33a7d356",
     "semantic_hash": ""
   },
   "frontend/src/components/AuthModal.jsx": {
@@ -258,27 +258,27 @@
     "semantic_hash": ""
   },
   "frontend/src/components/DeliveryModal.jsx": {
-    "mtime": 1790096630.328747,
-    "seen": 1790098952.999619,
-    "ast_hash": "21b6d80082b75b3c8160440bea118329",
+    "mtime": 1790157927.2012088,
+    "seen": 1790158573.958757,
+    "ast_hash": "bf389fdd57192c5645378efc0d4fb0f9",
     "semantic_hash": ""
   },
   "frontend/src/components/HeroBanner.jsx": {
-    "mtime": 1790129145.2974403,
-    "seen": 1790129261.402932,
-    "ast_hash": "60b772bac7abca87005a69bfa31e90db",
+    "mtime": 1790158021.0059135,
+    "seen": 1790158573.9587598,
+    "ast_hash": "e961c0c3e6c47080589165aaed382d67",
     "semantic_hash": ""
   },
   "frontend/src/components/MovieCard.jsx": {
-    "mtime": 1790156696.3562424,
-    "seen": 1790156898.2357175,
-    "ast_hash": "5ce9f9afe1b02d77da5b5eaffc0a4401",
+    "mtime": 1790158096.104422,
+    "seen": 1790158573.9587615,
+    "ast_hash": "4b22fed7e82e17a4578ebc3bbc45e7c0",
     "semantic_hash": ""
   },
   "frontend/src/components/MovieGrid.jsx": {
-    "mtime": 1790101902.0484624,
-    "seen": 1790102094.1453197,
-    "ast_hash": "48aa4c67433c7d6e755abe6c1051f399",
+    "mtime": 1790158131.2768009,
+    "seen": 1790158573.9587638,
+    "ast_hash": "292e0d8df4cf43da815e864bb6748d86",
     "semantic_hash": ""
   },
   "frontend/src/components/Navbar.jsx": {
@@ -378,9 +378,9 @@
     "semantic_hash": ""
   },
   "docs/BACKEND_TODO.md": {
-    "mtime": 1790083214.257484,
-    "seen": 1790098952.9996388,
-    "ast_hash": "a0e25dcaec7680660a08067c66ec1893",
+    "mtime": 1790156922.960521,
+    "seen": 1790158573.9616973,
+    "ast_hash": "2a27179da474a77e4bab2aa2ae96ff3d",
     "semantic_hash": ""
   },
   "frontend/README.md": {
@@ -390,9 +390,9 @@
     "semantic_hash": ""
   },
   "frontend/index.html": {
-    "mtime": 1789927775.4557707,
-    "seen": 1790098952.999641,
-    "ast_hash": "f7acfcbba04e5d7ee8ab877a579608ed",
+    "mtime": 1790157895.9863229,
+    "seen": 1790158573.9618258,
+    "ast_hash": "16a89e005004558116538e3c4de0f86c",
     "semantic_hash": ""
   },
   "render.yaml": {
@@ -447,6 +447,12 @@
     "mtime": 1790156598.3806465,
     "seen": 1790156898.236435,
     "ast_hash": "9459222b2b05150b36fb512b22a33005",
+    "semantic_hash": ""
+  },
+  "frontend/src/utils/movieTrivia.js": {
+    "mtime": 1790157915.3353717,
+    "seen": 1790158573.9608402,
+    "ast_hash": "e65330c5c34b75868023c6bcd32fd82f",
     "semantic_hash": ""
   }
 }

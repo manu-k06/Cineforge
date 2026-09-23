@@ -9,6 +9,7 @@ import WatchPage from './components/WatchPage'
 import AuthModal from './components/AuthModal'
 import ContinueWatchingRail from './components/ContinueWatchingRail'
 import MovieCard from './components/MovieCard'
+import Footer from './components/Footer'
 import { Bookmark, History } from 'lucide-react'
 import { useAuth } from './context/AuthContext'
 import { useWatchHistory } from './context/WatchHistoryContext'
@@ -58,11 +59,19 @@ export default function App() {
     return () => clearInterval(interval)
   }, [])
 
-  // When clicking Trending tab, load top trending movies from TMDb
+  // Handle activeTab changes (Home, Movies, Shows, Trending)
   useEffect(() => {
-    if (activeTab === 'trending') {
+    if (activeTab === 'home') {
+      setSearchQuery('')
+      setRawCandidates([])
+      setGroupedCandidates([])
+    } else if (activeTab === 'trending' || activeTab === 'movies' || activeTab === 'shows') {
       setIsSearching(true)
-      getTrendingMovies('week', 1)
+      const fetchPromise = activeTab === 'movies'
+        ? getPopularMovies(1)
+        : getTrendingMovies('week', 1)
+
+      fetchPromise
         .then((data) => {
           if (data && data.results && data.results.length > 0) {
             const enrichment = {}
@@ -74,7 +83,7 @@ export default function App() {
                 candidates: [
                   {
                     title: m.title,
-                    display_text: `${m.title} (${m.year || '2024'}) - Stream Available`,
+                    display_text: `${m.title} (${m.year || '2025'}) - Stream Available`,
                     quality: '1080P',
                     container: 'mp4',
                     language: 'Dual Audio',
@@ -85,10 +94,16 @@ export default function App() {
             setMetadataEnrichment(enrichment)
             setGroupedCandidates(groups)
             setRawCandidates(groups.flatMap((g) => g.candidates))
-            setSearchQuery('Trending Movies')
+            setSearchQuery(
+              activeTab === 'movies'
+                ? 'Movies'
+                : activeTab === 'shows'
+                ? 'TV Shows'
+                : 'Trending Titles'
+            )
           }
         })
-        .catch((e) => console.error('Failed to load trending movies:', e))
+        .catch((e) => console.error('Failed to load catalogue:', e))
         .finally(() => setIsSearching(false))
     }
   }, [activeTab])
@@ -320,29 +335,34 @@ export default function App() {
 
               {/* Dedicated Watchlist Tab */}
               {activeTab === 'watchlist' && !searchQuery ? (
-                <div className="watchlist-tab-container">
-                  <div className="watchlist-header-bar">
-                    <div className="section-title-wrapper">
-                      <div className="section-indicator-dot" />
-                      <h2 className="section-main-title">My Watchlist</h2>
-                      <span className="section-meta-count">{watchlist.length} saved</span>
-                    </div>
-                    <p className="watchlist-subtitle">
-                      Your saved movies and series ready to stream anytime.
-                    </p>
+                <section className="content-section">
+                  <div className="section-heading">
+                    <h2>
+                      <span />
+                      Watchlist ({watchlist.length})
+                    </h2>
                   </div>
 
                   {watchlist.length === 0 ? (
-                    <div className="watchlist-empty-state">
-                      <Bookmark size={48} className="empty-icon text-secondary" />
-                      <h3>Your Watchlist is Empty</h3>
-                      <p>Browse our catalog or trending titles and click "+ Add to My List" to bookmark movies here.</p>
-                      <button className="btn btn-primary" onClick={() => setActiveTab('home')}>
-                        Explore Catalog
+                    <div className="empty-state">
+                      <div className="empty-icon-wrapper">
+                        <Bookmark size={48} className="text-muted" />
+                      </div>
+                      <h3 className="empty-title">Your Watchlist is Empty</h3>
+                      <p className="empty-description">
+                        Explore our catalogue or trending titles and click "+ Add to Watchlist" to save titles here.
+                      </p>
+                      <button
+                        type="button"
+                        className="button button-primary"
+                        style={{ marginTop: '16px' }}
+                        onClick={() => setActiveTab('home')}
+                      >
+                        Explore Catalogue
                       </button>
                     </div>
                   ) : (
-                    <div className="movies-grid">
+                    <div className="browse-grid">
                       {watchlist.map((item) => (
                         <MovieCard
                           key={item.title}
@@ -364,32 +384,37 @@ export default function App() {
                       ))}
                     </div>
                   )}
-                </div>
+                </section>
               ) : activeTab === 'history' && !searchQuery ? (
                 /* Dedicated History Tab */
-                <div className="watchlist-tab-container">
-                  <div className="watchlist-header-bar">
-                    <div className="section-title-wrapper">
-                      <div className="section-indicator-dot" />
-                      <h2 className="section-main-title">Watch History</h2>
-                      <span className="section-meta-count">{watchHistory.length} titles</span>
-                    </div>
-                    <p className="watchlist-subtitle">
-                      Review all titles you have streamed on Cineforge.
-                    </p>
+                <section className="content-section">
+                  <div className="section-heading">
+                    <h2>
+                      <span />
+                      Watch History ({watchHistory.length})
+                    </h2>
                   </div>
 
                   {watchHistory.length === 0 ? (
-                    <div className="watchlist-empty-state">
-                      <History size={48} className="empty-icon text-secondary" />
-                      <h3>No Watch History</h3>
-                      <p>Movies and shows you watch will automatically be recorded here with your progress.</p>
-                      <button className="btn btn-primary" onClick={() => setActiveTab('home')}>
+                    <div className="empty-state">
+                      <div className="empty-icon-wrapper">
+                        <History size={48} className="text-muted" />
+                      </div>
+                      <h3 className="empty-title">No Watch History</h3>
+                      <p className="empty-description">
+                        Movies and series you watch will automatically be recorded here with your playback progress.
+                      </p>
+                      <button
+                        type="button"
+                        className="button button-primary"
+                        style={{ marginTop: '16px' }}
+                        onClick={() => setActiveTab('home')}
+                      >
                         Start Watching
                       </button>
                     </div>
                   ) : (
-                    <div className="movies-grid">
+                    <div className="browse-grid">
                       {watchHistory.map((item) => (
                         <MovieCard
                           key={item.title}
@@ -411,7 +436,7 @@ export default function App() {
                       ))}
                     </div>
                   )}
-                </div>
+                </section>
               ) : (
                 /* Results / Discovery Movie Grid */
                 <MovieGrid
@@ -431,6 +456,9 @@ export default function App() {
             </div>
           </div>
         )}
+
+        {/* Cineby Global Footer */}
+        {currentView === 'browse' && <Footer />}
       </main>
 
       {/* Version Picker Modal */}
@@ -446,7 +474,6 @@ export default function App() {
       {candidateInDelivery && (
         <DeliveryModal
           candidate={candidateInDelivery}
-          metadata={activeMovieGroup?.metadata}
           error={deliveryError}
           onClose={() => {
             setCandidateInDelivery(null)

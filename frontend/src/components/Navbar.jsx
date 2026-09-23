@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { Play, Search, Bell, AlertCircle, LogIn, LogOut, Bookmark, History, Sparkles } from 'lucide-react'
+import { Bookmark, History, LogOut } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useWatchHistory } from '../context/WatchHistoryContext'
 
@@ -7,10 +7,13 @@ export default function Navbar({ onSearchClick, isBackendOnline, activeTab, setA
   const { user, openAuthModal, signOut } = useAuth()
   const { watchlist, watchHistory } = useWatchHistory()
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const [isBrowseOpen, setIsBrowseOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
+  
   const dropdownRef = useRef(null)
+  const browseRef = useRef(null)
 
-  // Track scroll position to transition navbar from transparent to frosted blur
+  // Track scroll position to transition header from transparent gradient to frosted blur
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20)
@@ -19,183 +22,180 @@ export default function Navbar({ onSearchClick, isBackendOnline, activeTab, setA
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  // Close dropdown on click outside
+  // Close dropdowns on outside click
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
         setIsDropdownOpen(false)
+      }
+      if (browseRef.current && !browseRef.current.contains(e.target)) {
+        setIsBrowseOpen(false)
       }
     }
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  // Derive display initials
-  const getInitials = () => {
-    if (!user) return 'CF'
-    const name = user.user_metadata?.full_name || ''
-    if (name) {
-      const parts = name.trim().split(' ')
-      if (parts.length >= 2) {
-        return (parts[0][0] + parts[1][0]).toUpperCase()
-      }
-      return parts[0].slice(0, 2).toUpperCase()
-    }
-    return (user.email || 'CF').slice(0, 2).toUpperCase()
-  }
-
   const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Member'
 
   return (
-    <header className={`streamvibe-navbar ${isScrolled ? 'scrolled' : 'transparent-header'}`}>
-      <div className="navbar-inner">
-        {/* Left Section: Brand Logo + Sleek Navigation Links */}
-        <div className="navbar-left">
-          <div className="navbar-brand" onClick={() => setActiveTab('home')}>
-            <div className="brand-icon">
-              <Play className="brand-play" fill="#E50914" size={16} />
-            </div>
-            <span className="brand-text">
-              CINE<span className="brand-accent">FORGE</span>
-            </span>
-          </div>
+    <header className={`site-header ${isScrolled ? 'is-scrolled' : ''}`}>
+      {/* Brand: Aperture Mark + Cineby in Archivo Black */}
+      <div className="brand" onClick={() => setActiveTab('home')} title="Cineby Home">
+        <img
+          className="brand-image"
+          src="/assets/images/aperture-mark.png"
+          alt="Cineby"
+          onError={(e) => {
+            // Fallback SVG if image not loaded
+            e.target.style.display = 'none'
+          }}
+        />
+        <span>Cineby</span>
+      </div>
 
-          <nav className="navbar-nav-links">
-            <button
-              className={`nav-tab-link ${activeTab === 'home' ? 'active' : ''}`}
-              onClick={() => setActiveTab('home')}
-            >
-              Home
-            </button>
-            <button
-              className={`nav-tab-link ${activeTab === 'movies' ? 'active' : ''}`}
-              onClick={() => setActiveTab('movies')}
-            >
-              Movies
-            </button>
-            <button
-              className={`nav-tab-link ${activeTab === 'shows' ? 'active' : ''}`}
-              onClick={() => setActiveTab('shows')}
-            >
-              TV Shows
-            </button>
-            <button
-              className={`nav-tab-link ${activeTab === 'trending' ? 'active' : ''}`}
-              onClick={() => setActiveTab('trending')}
-            >
-              Trending
-            </button>
-            <button
-              className={`nav-tab-link ${activeTab === 'watchlist' ? 'active' : ''}`}
-              onClick={() => setActiveTab('watchlist')}
-            >
-              <span>My List</span>
-              {watchlist.length > 0 && (
-                <span className="nav-badge-count">{watchlist.length}</span>
-              )}
-            </button>
-          </nav>
-        </div>
+      {/* Primary Nav */}
+      <nav className="primary-nav" aria-label="Primary navigation">
+        <button
+          className={activeTab === 'home' ? 'is-active' : ''}
+          onClick={() => setActiveTab('home')}
+        >
+          Home
+        </button>
 
-        {/* Right Section: Search Trigger, Live Node Status, and User Profile */}
-        <div className="navbar-right">
-          {/* Quick Search Trigger */}
+        {/* Browse Popover Dropdown */}
+        <div className="nav-menu nav-browse-menu" ref={browseRef}>
           <button
-            className="nav-action-search"
-            onClick={onSearchClick}
-            title="Search movies, shows, or actors"
-            aria-label="Search"
+            className={`nav-menu-trigger ${['movies', 'shows', 'history', 'watchlist'].includes(activeTab) ? 'is-active' : ''} ${isBrowseOpen ? 'is-open' : ''}`}
+            type="button"
+            onClick={() => setIsBrowseOpen((prev) => !prev)}
+            aria-expanded={isBrowseOpen}
           >
-            <Search size={18} />
+            Browse <span className="nav-chevron" aria-hidden="true">⏷</span>
           </button>
 
-          {/* Node Health Status Indicator */}
-          <div
-            className={`network-indicator ${isBackendOnline ? 'online' : 'offline'}`}
-            title={isBackendOnline ? 'Streaming Nodes Online' : 'Connecting to Stream Nodes...'}
-          >
-            <span className="indicator-dot"></span>
-          </div>
-
-          {/* User Profile / Auth */}
-          {user ? (
-            <div className="user-profile-container" ref={dropdownRef} style={{ position: 'relative' }}>
-              <div
-                className="user-avatar"
-                title={user.email}
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              >
-                <div className="avatar-placeholder">
-                  {getInitials()}
-                </div>
+          {isBrowseOpen && (
+            <div className="nav-popover nav-browse-panel">
+              <div className="browse-panel-top">
+                <strong className="browse-panel-title">Browse</strong>
+                <span>Library & discovery</span>
               </div>
 
-              {/* Profile Dropdown Menu */}
-              {isDropdownOpen && (
-                <div className="navbar-profile-dropdown">
-                  <div className="dropdown-user-header">
-                    <div className="dropdown-user-name">{displayName}</div>
-                    <div className="dropdown-user-email">{user.email}</div>
-                  </div>
+              <p className="menu-eyebrow">Discover</p>
+              <div className="menu-discovery-grid">
+                <button
+                  type="button"
+                  className="menu-discovery-card"
+                  onClick={() => {
+                    setActiveTab('movies')
+                    setIsBrowseOpen(false)
+                  }}
+                >
+                  <strong>Movies</strong>
+                  <small>Explore the catalogue</small>
+                </button>
+                <button
+                  type="button"
+                  className="menu-discovery-card"
+                  onClick={() => {
+                    setActiveTab('shows')
+                    setIsBrowseOpen(false)
+                  }}
+                >
+                  <strong>TV Shows</strong>
+                  <small>Series and episodes</small>
+                </button>
+              </div>
 
-                  <div className="dropdown-menu-list">
-                    <button
-                      type="button"
-                      className="dropdown-menu-item"
-                      onClick={() => {
-                        setIsDropdownOpen(false)
-                        setActiveTab('watchlist')
-                      }}
-                    >
-                      <Bookmark size={15} color="#8e95a5" />
-                      <span>My Watchlist</span>
-                      {watchlist.length > 0 && (
-                        <span className="menu-badge">{watchlist.length}</span>
-                      )}
-                    </button>
-
-                    <button
-                      type="button"
-                      className="dropdown-menu-item"
-                      onClick={() => {
-                        setIsDropdownOpen(false)
-                        setActiveTab('history')
-                      }}
-                    >
-                      <History size={15} color="#8e95a5" />
-                      <span>Watch History</span>
-                      {watchHistory.length > 0 && (
-                        <span className="menu-badge">{watchHistory.length}</span>
-                      )}
-                    </button>
-
-                    <div className="dropdown-divider" />
-
-                    <button
-                      type="button"
-                      className="dropdown-menu-item text-danger"
-                      onClick={() => {
-                        setIsDropdownOpen(false)
-                        signOut()
-                      }}
-                    >
-                      <LogOut size={15} />
-                      <span>Sign Out</span>
-                    </button>
-                  </div>
-                </div>
-              )}
+              <p className="menu-eyebrow">Your library</p>
+              <div className="menu-personal-grid">
+                <button
+                  type="button"
+                  className="personal-menu-card"
+                  onClick={() => {
+                    setActiveTab('history')
+                    setIsBrowseOpen(false)
+                  }}
+                >
+                  <strong>History</strong>
+                  <span>Pick up where you left off</span>
+                </button>
+                <button
+                  type="button"
+                  className="personal-menu-card"
+                  onClick={() => {
+                    setActiveTab('watchlist')
+                    setIsBrowseOpen(false)
+                  }}
+                >
+                  <strong>Watchlist</strong>
+                  <span>Saved for later {watchlist.length > 0 && `(${watchlist.length})`}</span>
+                </button>
+              </div>
             </div>
-          ) : (
-            <button
-              className="btn-nav-signin"
-              onClick={openAuthModal}
-            >
-              <LogIn size={15} />
-              <span>Sign In</span>
-            </button>
           )}
         </div>
+      </nav>
+
+      {/* Header Actions: Search & Library Sync / Auth */}
+      <div className="header-actions">
+        <button
+          className="icon-button"
+          type="button"
+          onClick={onSearchClick}
+          aria-label="Search titles"
+          title="Search titles"
+        >
+          ⌕
+        </button>
+
+        <button
+          className="text-button"
+          type="button"
+          onClick={user ? () => setIsDropdownOpen((prev) => !prev) : openAuthModal}
+        >
+          {user ? displayName : 'Library sync'}
+        </button>
+
+        {/* User Profile Dropdown when authenticated */}
+        {user && isDropdownOpen && (
+          <div className="user-profile-menu" ref={dropdownRef}>
+            <div className="user-profile-header">
+              <strong>{displayName}</strong>
+              <small>{user.email}</small>
+            </div>
+            <button
+              type="button"
+              className="user-profile-item"
+              onClick={() => {
+                setActiveTab('watchlist')
+                setIsDropdownOpen(false)
+              }}
+            >
+              <Bookmark size={14} /> Watchlist ({watchlist.length})
+            </button>
+            <button
+              type="button"
+              className="user-profile-item"
+              onClick={() => {
+                setActiveTab('history')
+                setIsDropdownOpen(false)
+              }}
+            >
+              <History size={14} /> History ({watchHistory.length})
+            </button>
+            <button
+              type="button"
+              className="user-profile-item text-danger"
+              onClick={() => {
+                signOut()
+                setIsDropdownOpen(false)
+              }}
+            >
+              <LogOut size={14} /> Sign Out
+            </button>
+          </div>
+        )}
       </div>
     </header>
   )
