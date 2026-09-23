@@ -246,9 +246,9 @@
     "semantic_hash": ""
   },
   "frontend/src/App.jsx": {
-    "mtime": 1790178844.2583559,
-    "seen": 1790179023.4130523,
-    "ast_hash": "f3c120936fa7680a8faef950016ab264",
+    "mtime": 1790184200.0622735,
+    "seen": 1790184477.7513587,
+    "ast_hash": "32eaeec6050292860ef6012b4cd643e0",
     "semantic_hash": ""
   },
   "frontend/src/components/AuthModal.jsx": {
@@ -258,9 +258,9 @@
     "semantic_hash": ""
   },
   "frontend/src/components/DeliveryModal.jsx": {
-    "mtime": 1790158888.627247,
-    "seen": 1790179023.4131646,
-    "ast_hash": "09a9a92e4e7f5d8079d543eeddcfe5b0",
+    "mtime": 1790184005.5434844,
+    "seen": 1790184477.7515635,
+    "ast_hash": "3bb4c06e9cf8e159816d81622191a7b9",
     "semantic_hash": ""
   },
   "frontend/src/components/HeroBanner.jsx": {
@@ -324,9 +324,9 @@
     "semantic_hash": ""
   },
   "frontend/src/services/api.js": {
-    "mtime": 1790182237.1261446,
-    "seen": 1790182504.8066328,
-    "ast_hash": "9b4f09f8a0d177b6f45cf5f025d090e9",
+    "mtime": 1790184039.8432977,
+    "seen": 1790184477.7539425,
+    "ast_hash": "16a5b822658265d686c04225dbb305b0",
     "semantic_hash": ""
   },
   "frontend/src/services/supabase.js": {
@@ -465,6 +465,12 @@
     "mtime": 1790179040.3213375,
     "seen": 1790182504.8067882,
     "ast_hash": "e56302a520a6c46a481ca7ce0ab2422e",
+    "semantic_hash": ""
+  },
+  "frontend/src/components/SearchModal.jsx": {
+    "mtime": 1790183979.238505,
+    "seen": 1790184477.7522914,
+    "ast_hash": "ee2fa20affefa9143ed9d568c97777d8",
     "semantic_hash": ""
   }
 }

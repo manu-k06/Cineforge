@@ -264,27 +264,27 @@
     "semantic_hash": ""
   },
   "frontend/src/components/HeroBanner.jsx": {
-    "mtime": 1790178636.224598,
-    "seen": 1790179023.4131682,
-    "ast_hash": "9fe8a10c2b604f923d5e150138eae8fe",
+    "mtime": 1790182301.889368,
+    "seen": 1790182504.8049567,
+    "ast_hash": "05e2f2cb704158250d71ce6fd0cd6546",
     "semantic_hash": ""
   },
   "frontend/src/components/MovieCard.jsx": {
-    "mtime": 1790178654.979005,
-    "seen": 1790179023.4131691,
-    "ast_hash": "deba4fb48bbdf6493e50a412d91680c7",
+    "mtime": 1790182436.7978866,
+    "seen": 1790182504.8049593,
+    "ast_hash": "ade312a0b921fd00384f51b52dc80379",
     "semantic_hash": ""
   },
   "frontend/src/components/MovieGrid.jsx": {
-    "mtime": 1790178754.0263045,
-    "seen": 1790179023.4131703,
-    "ast_hash": "b4ea97caae98d81527498fe7dd5fad3e",
+    "mtime": 1790182354.981299,
+    "seen": 1790182504.8049617,
+    "ast_hash": "aed2988f7752160b2849991ff6c7e96d",
     "semantic_hash": ""
   },
   "frontend/src/components/Navbar.jsx": {
-    "mtime": 1790178591.6668012,
-    "seen": 1790179023.4131715,
-    "ast_hash": "086503815d8d22be33fd4271fcfbd06c",
+    "mtime": 1790182384.520498,
+    "seen": 1790182504.804964,
+    "ast_hash": "ad734f4136d2e03be109f97c86311722",
     "semantic_hash": ""
   },
   "frontend/src/components/PlayerModal.jsx": {
@@ -324,9 +324,9 @@
     "semantic_hash": ""
   },
   "frontend/src/services/api.js": {
-    "mtime": 1790156584.0865998,
-    "seen": 1790156898.2364397,
-    "ast_hash": "2f531d8b64b9466c0dd1a40329f73ef7",
+    "mtime": 1790182237.1261446,
+    "seen": 1790182504.8066328,
+    "ast_hash": "9b4f09f8a0d177b6f45cf5f025d090e9",
     "semantic_hash": ""
   },
   "frontend/src/services/supabase.js": {
@@ -336,9 +336,9 @@
     "semantic_hash": ""
   },
   "frontend/src/utils/helpers.js": {
-    "mtime": 1790088818.4221518,
-    "seen": 1790098952.999632,
-    "ast_hash": "143be22b4e5ae592b1e32f60ff4728a5",
+    "mtime": 1790182186.6422849,
+    "seen": 1790182504.8067858,
+    "ast_hash": "8bf3509e59d7493700fb42949ad4d615",
     "semantic_hash": ""
   },
   "frontend/vercel.json": {
@@ -450,51 +450,21 @@
     "semantic_hash": ""
   },
   "frontend/src/components/Footer.jsx": {
-    "mtime": 1790178768.719174,
-    "seen": 1790179023.4131663,
-    "ast_hash": "7e3886f87c1cad2c38f09c8693c1309e",
-    "semantic_hash": ""
-  },
-  "scratch_cineby.html": {
-    "mtime": 1790177884.1460369,
-    "seen": 1790179023.4148748,
-    "ast_hash": "80e7d4da5d87e964d50d026d7299c170",
-    "semantic_hash": ""
-  },
-  "scratch_cineby_components.md": {
-    "mtime": 1790177960.7973075,
-    "seen": 1790179023.414877,
-    "ast_hash": "18ec5b829ab34c0c63d3131f3ebce981",
-    "semantic_hash": ""
-  },
-  "scratch_cineby_movie.html": {
-    "mtime": 1790177990.009609,
-    "seen": 1790179023.4148781,
-    "ast_hash": "c660681f7527c8a4950e21c9cad3b592",
-    "semantic_hash": ""
-  },
-  "scratch_cineby_movie_main.html": {
-    "mtime": 1790177990.0136356,
-    "seen": 1790179023.4148796,
-    "ast_hash": "654e021beb27aca7b0e8001ee566b6ea",
-    "semantic_hash": ""
-  },
-  "scratch_cineby_watch.html": {
-    "mtime": 1790177997.2750516,
-    "seen": 1790179023.4148805,
-    "ast_hash": "41876b64a18cfcd64df9aaf7dbeee64a",
-    "semantic_hash": ""
-  },
-  "scratch_cineby_watch_main.html": {
-    "mtime": 1790177997.278051,
-    "seen": 1790179023.4148812,
-    "ast_hash": "512b2f58973aea9b90aa5579e006b903",
+    "mtime": 1790182401.7364066,
+    "seen": 1790182504.804951,
+    "ast_hash": "cca53d97075f196736ccbff32c969bbf",
     "semantic_hash": ""
   },
   "frontend/public/assets/images/aperture-mark.png": {
     "mtime": 1790178221.6414907,
     "seen": 1790179023.4148827,
     "ast_hash": "c311982275c2e1c1f43f82ae5805e536",
+    "semantic_hash": ""
+  },
+  "frontend/src/utils/movieTrivia.js": {
+    "mtime": 1790179040.3213375,
+    "seen": 1790182504.8067882,
+    "ast_hash": "e56302a520a6c46a481ca7ce0ab2422e",
     "semantic_hash": ""
   }
 }

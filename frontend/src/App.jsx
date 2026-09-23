@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import Navbar from './components/Navbar'
 import HeroBanner from './components/HeroBanner'
 import SearchBar from './components/SearchBar'
+import SearchModal from './components/SearchModal'
 import MovieGrid from './components/MovieGrid'
 import VersionPickerModal from './components/VersionPickerModal'
 import DeliveryModal from './components/DeliveryModal'
@@ -23,6 +24,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('home')
   const [isBackendOnline, setIsBackendOnline] = useState(true)
   const [initialProgressSeconds, setInitialProgressSeconds] = useState(0)
+  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false)
 
   // Search state
   const [searchQuery, setSearchQuery] = useState('')
@@ -249,32 +251,23 @@ export default function App() {
     handleSearch(query, 1)
   }
 
-  const handleScrollToSearch = () => {
-    if (currentView === 'watch') {
-      setCurrentView('browse')
+  // Global '/' keyboard shortcut to open search modal
+  useEffect(() => {
+    const handleGlobalKey = (e) => {
+      if (e.key === '/' && !['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName)) {
+        e.preventDefault()
+        setIsSearchModalOpen(true)
+      }
     }
-    if (searchBarRef.current) {
-      const navOffset = 84
-      const elementPosition = searchBarRef.current.getBoundingClientRect().top + window.pageYOffset
-      window.scrollTo({
-        top: Math.max(0, elementPosition - navOffset),
-        behavior: 'smooth',
-      })
-      setTimeout(() => {
-        const input = searchBarRef.current?.querySelector('input')
-        if (input) {
-          input.focus()
-          input.select()
-        }
-      }, 300)
-    }
-  }
+    window.addEventListener('keydown', handleGlobalKey)
+    return () => window.removeEventListener('keydown', handleGlobalKey)
+  }, [])
 
   return (
     <div className="app-container">
       {/* StreamVibe Navigation Header */}
       <Navbar
-        onSearchClick={handleScrollToSearch}
+        onSearchClick={() => setIsSearchModalOpen(true)}
         isBackendOnline={isBackendOnline}
         activeTab={activeTab}
         setActiveTab={(tab) => {
@@ -324,14 +317,26 @@ export default function App() {
             )}
 
             <div className="browse-body-container">
-              {/* Search Bar Section */}
-              <div ref={searchBarRef} className="search-bar-wrapper">
-                <SearchBar
-                  onSearch={(q) => handleSearch(q, 1)}
-                  isLoading={isSearching}
-                  currentQuery={searchQuery}
-                />
-              </div>
+              {/* Active Search Results Header */}
+              {searchQuery && (
+                <div className="search-active-filter-bar">
+                  <div className="search-active-info">
+                    <span className="search-active-label">SEARCH RESULTS</span>
+                    <h2 className="search-active-query">"{searchQuery}"</h2>
+                  </div>
+                  <button
+                    type="button"
+                    className="search-active-clear-btn"
+                    onClick={() => {
+                      setSearchQuery('')
+                      setRawCandidates([])
+                      setGroupedCandidates([])
+                    }}
+                  >
+                    ✕ Clear
+                  </button>
+                </div>
+              )}
 
               {/* Dedicated Watchlist Tab */}
               {activeTab === 'watchlist' && !searchQuery ? (
@@ -482,6 +487,14 @@ export default function App() {
           onRetry={() => startDelivery(candidateInDelivery, activeMovieGroup)}
         />
       )}
+
+      {/* Cineby-styled Search Library Modal */}
+      <SearchModal
+        isOpen={isSearchModalOpen}
+        onClose={() => setIsSearchModalOpen(false)}
+        onSearch={(q) => handleSearch(q, 1)}
+        onSelectMovie={handleSelectMovie}
+      />
 
       {/* Supabase Authentication Modal */}
       <AuthModal

@@ -1,10 +1,10 @@
 {
-  "0": "models/__init__.py",
-  "1": "AiQueryInterpretation",
+  "0": "CacheService",
+  "1": "config.py",
   "2": "App.jsx",
-  "3": "TmdbService",
+  "3": "tmdb.py",
   "4": "TestCacheService",
-  "5": "._get_client",
+  "5": "TelegramService",
   "6": "TestTmdbMetadataService",
   "7": "MediaCompatibilityService",
   "8": "package.json",
@@ -27,11 +27,10 @@
   "25": "AuthService",
   "26": "SearchAggregatorService",
   "27": "api/search.py",
-  "28": "TelegramService",
-  "29": "services/telegram.py",
-  "30": "_get_supabase_client",
-  "31": "get",
+  "28": "SearchCandidate",
+  "29": "normalize_search_query",
+  "30": "history.py",
+  "31": "search_movies",
   "32": "get_my_profile",
-  "33": "scratch_cineby_components.md",
-  "36": "MediaWaiter"
+  "33": "movieTrivia.js"
 }
