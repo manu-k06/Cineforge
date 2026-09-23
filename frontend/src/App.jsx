@@ -204,7 +204,21 @@ export default function App() {
     if (currentView === 'watch') {
       setCurrentView('browse')
     }
-    searchBarRef.current?.scrollIntoView({ behavior: 'smooth' })
+    if (searchBarRef.current) {
+      const navOffset = 84
+      const elementPosition = searchBarRef.current.getBoundingClientRect().top + window.pageYOffset
+      window.scrollTo({
+        top: Math.max(0, elementPosition - navOffset),
+        behavior: 'smooth',
+      })
+      setTimeout(() => {
+        const input = searchBarRef.current?.querySelector('input')
+        if (input) {
+          input.focus()
+          input.select()
+        }
+      }, 300)
+    }
   }
 
   return (

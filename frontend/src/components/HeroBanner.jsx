@@ -121,7 +121,6 @@ export default function HeroBanner({ onQuickPlay }) {
   if (isLoading || movies.length === 0) {
     return (
       <div className="hero-banner-container skeleton-hero-container">
-        <div className="hero-overlay-top"></div>
         <div className="hero-overlay-radial"></div>
         <div className="hero-overlay-linear"></div>
         <div className="hero-content" style={{ opacity: 0.6 }}>
@@ -151,8 +150,6 @@ export default function HeroBanner({ onQuickPlay }) {
           backgroundImage: `url(${current.backdrop})`,
         }}
       >
-        {/* Top Dark Vignette: Completely eliminates bright backdrop glare behind navbar */}
-        <div className="hero-overlay-top"></div>
         <div className="hero-overlay-radial"></div>
         <div className="hero-overlay-linear"></div>
       </div>
