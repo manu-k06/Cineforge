@@ -541,16 +541,16 @@ body {
   right: 50%;
   margin-left: -50vw;
   margin-right: -50vw;
-  height: 75vh;
-  min-height: 520px;
-  max-height: 700px;
+  height: 86vh;
+  min-height: 640px;
+  max-height: 840px;
   margin-top: 0;
   margin-bottom: 24px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  padding: 40px 4% 48px 4%;
+  padding: 40px 4% 52px 4%;
   box-sizing: border-box;
   border: none;
   border-radius: 0;
@@ -573,9 +573,9 @@ body {
 
 @media (max-width: 768px) {
   .hero-banner-container {
-    height: 72vh;
-    min-height: 500px;
-    padding-top: 84px;
+    height: 74vh;
+    min-height: 520px;
+    padding-top: 60px;
     padding-bottom: 36px;
   }
 }
@@ -584,25 +584,26 @@ body {
   position: absolute;
   inset: 0;
   background-size: cover;
-  background-position: center top;
+  background-position: center 10%;
   transition: background-image 0.8s ease-in-out;
 }
 
-/* Subtle, seamless vignette blends into page background without harsh bands */
+/* Soft, natural ambient vignette - keeps the subject bright and vibrant */
 .hero-overlay-radial {
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at 80% 20%, transparent 35%, rgba(10, 10, 12, 0.4) 75%, rgba(10, 10, 12, 0.95) 100%);
+  background: radial-gradient(circle at 75% 30%, transparent 45%, rgba(10, 11, 15, 0.25) 80%, rgba(10, 11, 15, 0.7) 100%);
   pointer-events: none;
   z-index: 2;
 }
 
+/* Light text contrast fade on left, smooth fade to page background on bottom */
 .hero-overlay-linear {
   position: absolute;
   inset: 0;
   background: 
-    linear-gradient(to top, #0a0a0c 0%, rgba(10, 10, 12, 0.92) 20%, rgba(10, 10, 12, 0.25) 60%, transparent 100%),
-    linear-gradient(to right, #0a0a0c 0%, rgba(10, 10, 12, 0.88) 35%, rgba(10, 10, 12, 0.2) 70%, transparent 100%);
+    linear-gradient(to top, #0a0b0d 0%, rgba(10, 11, 13, 0.88) 12%, rgba(10, 11, 13, 0.2) 35%, transparent 60%),
+    linear-gradient(to right, rgba(10, 11, 15, 0.94) 0%, rgba(10, 11, 15, 0.65) 28%, rgba(10, 11, 15, 0.12) 55%, transparent 75%);
   pointer-events: none;
   z-index: 2;
 }
