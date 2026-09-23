@@ -40,18 +40,18 @@ export default function Navbar({ onSearchClick, isBackendOnline, activeTab, setA
 
   return (
     <header className={`site-header ${isScrolled ? 'is-scrolled' : ''}`}>
-      {/* Brand: Aperture Mark + Cineby in Archivo Black */}
-      <div className="brand" onClick={() => setActiveTab('home')} title="Cineby Home">
+      {/* Brand: Aperture Mark + Cineforge in Archivo Black */}
+      <div className="brand" onClick={() => setActiveTab('home')} title="Cineforge Home">
         <img
           className="brand-image"
           src="/assets/images/aperture-mark.png"
-          alt="Cineby"
+          alt="Cineforge"
           onError={(e) => {
             // Fallback SVG if image not loaded
             e.target.style.display = 'none'
           }}
         />
-        <span>Cineby</span>
+        <span>Cineforge</span>
       </div>
 
       {/* Primary Nav */}

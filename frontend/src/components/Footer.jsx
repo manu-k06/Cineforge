@@ -6,17 +6,17 @@ export default function Footer() {
       <img
         className="brand-image small"
         src="/assets/images/aperture-mark.png"
-        alt="Cineby"
+        alt="Cineforge"
         onError={(e) => {
           e.target.style.display = 'none'
         }}
       />
-      <strong>Cineby</strong>
+      <strong>Cineforge</strong>
       <span>Metadata and imagery supplied by TMDB.</span>
       <span>Your library stays in this browser unless you export it.</span>
       <a
         className="telegram-footer-link"
-        href="https://t.me/cinebytv"
+        href="https://t.me/cineforge"
         target="_blank"
         rel="noopener noreferrer"
         data-analytics-nav="telegram"

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Film } from 'lucide-react'
-import { parseMovieMetadata, getPosterGradient } from '../utils/helpers'
+import { parseMovieMetadata, getPosterGradient, getOptimizedImageUrl } from '../utils/helpers'
 import { getMovieMetadata } from '../services/api'
 import { useWatchHistory } from '../context/WatchHistoryContext'
 
@@ -36,7 +36,8 @@ export default function MovieCard({ group, metadata: initialMetadata, rank = nul
     }
   }, [initialMetadata, group?.title, primaryCandidate.title, meta.year])
 
-  const posterSrc = metadata?.poster_url || primaryCandidate?.poster_url || null
+  const rawPoster = metadata?.poster_url || primaryCandidate?.poster_url || null
+  const posterSrc = rawPoster ? getOptimizedImageUrl(rawPoster, 'w500') : null
   const effectiveYear = metadata?.year || meta.year || '2025'
   const displayRating = metadata?.rating ? Number(metadata.rating).toFixed(1) : (primaryCandidate.quality || 'HD')
   const mediaType = metadata?.media_type === 'tv' ? 'TV' : 'Movie'

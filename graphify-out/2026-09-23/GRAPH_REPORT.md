@@ -1,32 +1,32 @@
 # Graph Report - Cineforge  (2026-09-23)
 
 ## Corpus Check
-- 69 files · ~46,762 words
+- 70 files · ~49,545 words
 - Verdict: corpus is large enough that graph structure adds value.
-- Unclassified: 8 file(s) not represented in the graph (top: (none) 4, .example 2, .css 2)
+- Unclassified: 11 file(s) not represented in the graph (top: .css 5, (none) 4, .example 2)
 
 ## Summary
-- 682 nodes · 1357 edges · 34 communities (29 shown, 5 thin omitted)
+- 683 nodes · 1350 edges · 35 communities (31 shown, 4 thin omitted)
 - Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 49 edges (avg confidence: 0.95)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `24cb24af`
+- Built from commit: `0226de25`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
 - models/__init__.py
-- config.py
+- AiQueryInterpretation
 - App.jsx
-- tmdb.py
-- CacheService
+- TmdbService
+- TestCacheService
 - ._get_client
-- SubtitleService
+- TestTmdbMetadataService
 - MediaCompatibilityService
 - package.json
 - telethon_compat.py
-- TestSubtitleServiceAndEndpoints
+- subtitle_service.py
 - TestAiService
 - Cineforge Backend
 - TestAuthEndpointsAndService
@@ -42,26 +42,27 @@
 - workflows/graphify.md
 - app/__init__.py
 - AuthService
+- SearchAggregatorService
 - api/search.py
 - TelegramService
 - services/telegram.py
-- history.py
-- SubtitleTrack
-- subtitle_service.py
+- _get_supabase_client
+- get
+- get_my_profile
+- scratch_cineby_components.md
 - MediaWaiter
-- .download_and_convert_vtt
 
 ## God Nodes (most connected - your core abstractions)
 1. `TelegramService` - 28 edges
 2. `SearchCandidate` - 19 edges
 3. `TmdbService` - 18 edges
-4. `react` - 16 edges
+4. `react` - 17 edges
 5. `AiQueryInterpretation` - 15 edges
 6. `CacheService` - 14 edges
 7. `MovieMetadata` - 13 edges
 8. `AiService` - 13 edges
-9. `lucide-react` - 13 edges
-10. `TrendingMoviesResponse` - 12 edges
+9. `TrendingMoviesResponse` - 12 edges
+10. `MediaCompatibilityService` - 12 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `📋 Phase 2: Metadata Enrichment (TMDb / IMDb API Integration)` --references--> `MovieCard()`  [INFERRED]
@@ -78,51 +79,51 @@
 ## Import Cycles
 - None detected.
 
-## Communities (34 total, 5 thin omitted)
+## Communities (35 total, 4 thin omitted)
 
 ### Community 0 - "models/__init__.py"
 Cohesion: 0.17
 Nodes (21): get_telegram_status(), get, post, Check if the Telethon user client is connected and authenticated without…, Development-only endpoint: Sends query to bot in private chat and returns…, Development-only endpoint: Registers an isolated waiter and waits for the next…, Development-only endpoint: Initiates Telegram deep link interaction with target…, test_delivery_flow() (+13 more)
 
-### Community 1 - "config.py"
-Cohesion: 0.06
-Nodes (51): ask_companion(), get_ai_status(), get_recommendations(), get, post, Returns the operational status and model configured for CineAI., Interprets vague descriptions, corrects typos, and outputs a canonical search…, Generate movie or show recommendations matching a theme, mood, or natural… (+43 more)
+### Community 1 - "AiQueryInterpretation"
+Cohesion: 0.12
+Nodes (26): ask_companion(), get_ai_status(), get_recommendations(), get, post, Returns the operational status and model configured for CineAI., Interprets vague descriptions, corrects typos, and outputs a canonical search…, Generate movie or show recommendations matching a theme, mood, or natural… (+18 more)
 
 ### Community 2 - "App.jsx"
 Cohesion: 0.07
-Nodes (59): 📋 Phase 2: Metadata Enrichment (TMDb / IMDb API Integration), App(), AuthModal(), ContinueWatchingRail(), DeliveryModal(), HeroBanner(), fetchHeroMovies(), MovieCard() (+51 more)
+Nodes (57): 📋 Phase 2: Metadata Enrichment (TMDb / IMDb API Integration), App(), AuthModal(), ContinueWatchingRail(), DeliveryModal(), Footer(), HeroBanner(), fetchHeroMovies() (+49 more)
 
-### Community 3 - "tmdb.py"
-Cohesion: 0.05
-Nodes (43): discover_movies(), get_metadata_status(), get_movie_metadata(), get_popular_movies(), get_top_rated_movies(), get_trending_movies(), get, Check if TMDb API integration is configured and available. (+35 more)
+### Community 3 - "TmdbService"
+Cohesion: 0.13
+Nodes (16): TrendingMoviesResponse, Any, Search TMDb for movie metadata, fetch full details, credits, and videos.…, Extract a clean movie title and optional release year from messy release…, Parse raw TMDb API responses into MovieMetadata., Retrieve trending movies list for discovery carousel., Retrieve real, released popular movies from TMDb., Retrieve true top rated cinema masterpieces with high vote thresholds. (+8 more)
 
-### Community 4 - "CacheService"
-Cohesion: 0.07
-Nodes (19): CacheService, normalize_search_query(), Any, Persist newly discovered Telegram candidates into Supabase movies_cache., Check if CineAI already resolved this exact prompt/vague query., Normalize query for consistent database indexing (lowercase, stripped, single…, Persist a CineAI resolution in ai_query_cache to avoid future LLM tokens., Save generated stream & player URLs in movies_cache for instant replay. (+11 more)
+### Community 4 - "TestCacheService"
+Cohesion: 0.14
+Nodes (7): Verify GET /api/search returns is_cached=True on cache hit without calling…, Verify GET /api/cache/status returns status info., Verify search query normalization., When SUPABASE_URL is not set, cache operations must gracefully no-op., Verify conversion of Supabase database rows into SearchCandidate models., Verify caching of CineAI prompt interpretations., TestCacheService
 
 ### Community 5 - "._get_client"
 Cohesion: 0.11
 Nodes (16): Any, Targeted title search refinement: discovers all versions (1080p, 720p, MP4,…, Check connection and user authentication status., Development endpoint logic: Detailed search testing and button inspection in…, Extract detailed metadata from a Telegram media message without downloading., Automatically join a public channel or private invite link., Execute a delivery test for a given Telegram deep link with automated FSub…, Extract and normalize inline keyboard buttons from a Telegram message. (+8 more)
 
-### Community 6 - "SubtitleService"
-Cohesion: 0.25
-Nodes (8): clean_movie_title(), Scrub messy release strings, telegram handles, bot prefixes, and rip tags to…, Service for discovering, downloading, and streaming multi-language WebVTT…, Query Stremio OpenSubtitles v3 CDN API for verified movie subtitles. Bypasses…, Query OpenSubtitles REST API for verified movie subtitles. Supports lookup by…, Query community Yify Subtitles repository for verified SRT tracks. Supports…, Aggregate clean subtitle tracks from OpenSubtitles and community sources.…, SubtitleService
+### Community 6 - "TestTmdbMetadataService"
+Cohesion: 0.11
+Nodes (9): GET /api/metadata/movie endpoint returns MovieMetadata model., GET /api/metadata/trending endpoint returns TrendingMoviesResponse model., Verify search_movie_suggestions parses TMDb search results into clean…, GET /api/search/suggestions returns 200 with suggestions list., Verify messy torrent/release filenames are cleanly sanitized., GET /api/metadata/status returns current configuration status., When TMDB_API_KEY is not set, service gracefully returns fallback metadata., Verify successful TMDb search, details, credits, and video parsing. (+1 more)
 
 ### Community 7 - "MediaCompatibilityService"
 Cohesion: 0.07
 Nodes (17): MediaCompatibilityService, Any, Detects container tokens in title or button text using bounded word boundaries., Determines whether a media file is natively browser-playable or requires an…, Convenience boolean check., Ranks a list of SearchResultItem objects. Prioritizes: 1. Browser-compatible…, Centralized service to evaluate browser media compatibility and rank search…, Extracts container extension strictly from file suffix to prevent substring… (+9 more)
 
 ### Community 8 - "package.json"
-Cohesion: 0.07
-Nodes (26): dependencies, lucide-react, react, react-dom, @supabase/supabase-js, devDependencies, oxlint, @types/react (+18 more)
+Cohesion: 0.08
+Nodes (25): dependencies, lucide-react, react, react-dom, @supabase/supabase-js, devDependencies, oxlint, @types/react (+17 more)
 
 ### Community 9 - "telethon_compat.py"
 Cohesion: 0.11
 Nodes (15): Any, Isolated compatibility module for unmapped Telegram MTProto constructors.…, Compatibility implementation for Telegram constructor user#b1b8cc83 (Layer…, Idempotently registers constructor 0xb1b8cc83 into Telethon's type registry., register_telethon_compat(), UserCompatB1B8CC83, Verifies that serialization matches deserialization., Deserializes the exact byte structure captured from the live @Spoty_xbot error. (+7 more)
 
-### Community 10 - "TestSubtitleServiceAndEndpoints"
-Cohesion: 0.10
-Nodes (10): Verify direct UTF-8 SRT download from Stremio CDN and conversion to WebVTT., Verify OpenSubtitles gzip decompression, conversion, and in-memory caching., GET /api/subtitles/tracks returns 200 with track list and demo fallback., Verify SRT format is converted to compliant WebVTT format., GET /api/subtitles/vtt returns 200 with text/vtt media type., GET /api/subtitles/demo.vtt returns 200 with text/vtt content., Verify demo WebVTT contains movie title and valid cue blocks., Verify parsing of OpenSubtitles REST JSON and deduplication. (+2 more)
+### Community 10 - "subtitle_service.py"
+Cohesion: 0.05
+Nodes (38): get_demo_vtt(), get_subtitle_tracks(), get_vtt_track(), get, Search and return clean, multi-language subtitle tracks via API providers…, Fetch subtitle payload from provider, convert to standard W3C WebVTT, and…, Return synchronized test WebVTT captions., BaseModel (+30 more)
 
 ### Community 11 - "TestAiService"
 Cohesion: 0.12
@@ -165,12 +166,16 @@ Cohesion: 0.50
 Nodes (3): Expanding the Oxlint configuration, React Compiler, React + Vite
 
 ### Community 25 - "AuthService"
-Cohesion: 0.38
-Nodes (3): AuthService, Service for validating Supabase JWT tokens and retrieving user profiles., Verify Supabase JWT token and return authenticated user metadata.
+Cohesion: 0.19
+Nodes (9): AuthService, get_current_user_optional(), get_current_user_required(), Any, Service for validating Supabase JWT tokens and retrieving user profiles., Verify Supabase JWT token and return authenticated user metadata., FastAPI dependency for optionally authenticated endpoints., FastAPI dependency for strictly protected endpoints. (+1 more)
+
+### Community 26 - "SearchAggregatorService"
+Cohesion: 0.15
+Nodes (9): Any, Convert a candidate button into a rich SearchCandidate model., Aggregates paginated Telegram search candidate files, normalizes metadata, and…, Extract all candidate files and pagination metadata from a bot message., Deduplicate candidates preserving first-seen high-quality entries., Cluster candidate versions under canonical title keys., Rank candidates prioritizing browser compatibility, then quality, then size., Extract pagination indicators (e.g. 'Page: 1/220', 'Total Results: 2200',… (+1 more)
 
 ### Community 27 - "api/search.py"
-Cohesion: 0.09
-Nodes (36): asyncio, _enrich_groups_with_metadata(), find_title_versions(), get_search_suggestions(), get_search_ui(), Any, get, Concurrently resolve TMDb posters, backdrops, and ratings for movie title… (+28 more)
+Cohesion: 0.06
+Nodes (58): asyncio, _enrich_groups_with_metadata(), find_title_versions(), get_search_suggestions(), get_search_ui(), Any, get, Concurrently resolve TMDb posters, backdrops, and ratings for movie title… (+50 more)
 
 ### Community 28 - "TelegramService"
 Cohesion: 0.14
@@ -180,35 +185,39 @@ Nodes (12): Validate and resolve a selected search result reference for upcoming
 Cohesion: 0.16
 Nodes (12): deliver_candidate_file(), post, Trigger bot delivery for a candidate button, forward document to 'me', verify…, CandidateDeliveryRequest, CandidateDeliveryResponse, BaseModel, interactive_login(), Trigger bot delivery for a chosen candidate button, handle FSub gates, forward… (+4 more)
 
-### Community 30 - "history.py"
-Cohesion: 0.28
+### Community 30 - "_get_supabase_client"
+Cohesion: 0.23
 Nodes (16): add_to_watchlist(), BulkSyncPayload, delete_watch_history(), _get_supabase_client(), get_watch_history(), get_watchlist(), Any, BaseModel (+8 more)
 
-### Community 34 - "SubtitleTrack"
-Cohesion: 0.24
-Nodes (10): get_demo_vtt(), get_subtitle_tracks(), get_vtt_track(), get, Search and return clean, multi-language subtitle tracks via API providers…, Fetch subtitle payload from provider, convert to standard W3C WebVTT, and…, Return synchronized test WebVTT captions., BaseModel (+2 more)
+### Community 31 - "get"
+Cohesion: 0.15
+Nodes (13): discover_movies(), get_metadata_status(), get_movie_metadata(), get_popular_movies(), get_top_rated_movies(), get_trending_movies(), get, Check if TMDb API integration is configured and available. (+5 more)
 
-### Community 35 - "subtitle_service.py"
-Cohesion: 0.21
-Nodes (9): Convert SubRip (.srt) text format to W3C WebVTT (.vtt) format. Normalizes line…, srt_to_vtt(), Verify BOM stripping and empty content handling., gzip, httpx, io, time, urllib_parse (+1 more)
+### Community 32 - "get_my_profile"
+Cohesion: 0.33
+Nodes (6): get_auth_status(), get_my_profile(), Any, get, Check if Supabase Auth is configured on the backend., Retrieve profile information for the currently authenticated user.
+
+### Community 33 - "scratch_cineby_components.md"
+Cohesion: 0.50
+Nodes (3): FOOTER HTML, HEADER HTML, MAIN HTML (FIRST 8000 CHARS)
 
 ### Community 36 - "MediaWaiter"
 Cohesion: 0.33
 Nodes (4): MediaWaiter, Register an isolated waiter and await incoming media message with a timeout., Represents an isolated, asynchronous media waiter for a specific request., Future
 
 ## Knowledge Gaps
-- **61 isolated node(s):** `$schema`, `plugins`, `react/rules-of-hooks`, `react/only-export-components`, `name` (+56 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 277 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **5 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **62 isolated node(s):** `$schema`, `plugins`, `react/rules-of-hooks`, `react/only-export-components`, `name` (+57 more)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 278 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **4 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `TelegramService` connect `TelegramService` to `._get_client`, `MediaWaiter`, `services/telegram.py`?**
   _High betweenness centrality (0.081) - this node is a cross-community bridge._
-- **Why does `SearchCandidate` connect `api/search.py` to `models/__init__.py`, `config.py`, `CacheService`?**
-  _High betweenness centrality (0.048) - this node is a cross-community bridge._
-- **Why does `TestAiService` connect `TestAiService` to `config.py`?**
+- **Why does `SearchCandidate` connect `api/search.py` to `models/__init__.py`, `SearchAggregatorService`, `TestCacheService`?**
+  _High betweenness centrality (0.047) - this node is a cross-community bridge._
+- **Why does `TestAiService` connect `TestAiService` to `AiQueryInterpretation`?**
   _High betweenness centrality (0.040) - this node is a cross-community bridge._
 - **Are the 4 inferred relationships involving `TelegramService` (e.g. with `CandidateDeliveryRequest` and `CandidateDeliveryResponse`) actually correct?**
   _`TelegramService` has 4 INFERRED edges - model-reasoned connections that need verification._
@@ -217,4 +226,4 @@ _Questions this graph is uniquely positioned to answer:_
 - **Are the 3 inferred relationships involving `TmdbService` (e.g. with `CastMember` and `MovieMetadata`) actually correct?**
   _`TmdbService` has 3 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `$schema`, `plugins`, `react/rules-of-hooks` to the rest of the system?**
-  _61 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _62 weakly-connected nodes found - possible documentation gaps or missing edges._

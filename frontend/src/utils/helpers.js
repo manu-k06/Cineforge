@@ -89,3 +89,20 @@ export function formatBytes(bytes, decimals = 2) {
   const i = Math.floor(Math.log(bytes) / Math.log(k))
   return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i]
 }
+
+// Wrap TMDb image paths with Cloudflare wsrv.nl image proxy to bypass ISP throttling and convert to WebP
+export function getOptimizedImageUrl(rawPath, size = 'w500') {
+  if (!rawPath) return null
+  let fullUrl = String(rawPath).trim()
+  if (fullUrl.startsWith('/')) {
+    fullUrl = `https://image.tmdb.org/t/p/${size}${fullUrl}`
+  } else if (!fullUrl.startsWith('http://') && !fullUrl.startsWith('https://')) {
+    fullUrl = `https://image.tmdb.org/t/p/${size}/${fullUrl}`
+  }
+
+  // If already proxied via wsrv.nl, return as is
+  if (fullUrl.includes('wsrv.nl')) return fullUrl
+
+  // Proxy through Cloudflare-backed wsrv.nl edge CDN
+  return `https://wsrv.nl/?url=${encodeURIComponent(fullUrl)}&output=webp`
+}

@@ -1,9 +1,63 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { getPopularMovies, getTrendingMovies } from '../services/api'
+import { getOptimizedImageUrl } from '../utils/helpers'
+
+const DEFAULT_HERO_MOVIES = [
+  {
+    id: 693134,
+    title: 'Dune: Part Two',
+    searchQuery: 'Dune Part Two',
+    synopsis: 'Paul Atreides unites with Chani and the Fremen while seeking revenge against the conspirators who destroyed his family.',
+    year: '2024',
+    rating: '8.2',
+    mediaType: 'Movie',
+    backdrop: getOptimizedImageUrl('/xOMo8BRK7PfcJv9JCnx7s520Wio.jpg', 'w1280'),
+  },
+  {
+    id: 533535,
+    title: 'Deadpool & Wolverine',
+    searchQuery: 'Deadpool and Wolverine',
+    synopsis: 'A listless Wade Wilson toils in civilian life with his days as the morally flexible mercenary behind him, until the TVA pulls him into an epic mission.',
+    year: '2024',
+    rating: '7.7',
+    mediaType: 'Movie',
+    backdrop: getOptimizedImageUrl('/yDHYTfA3R0jFYba16jBB1jv8M9l.jpg', 'w1280'),
+  },
+  {
+    id: 872585,
+    title: 'Oppenheimer',
+    searchQuery: 'Oppenheimer',
+    synopsis: 'The story of J. Robert Oppenheimer’s role in the development of the atomic bomb during World War II.',
+    year: '2023',
+    rating: '8.1',
+    mediaType: 'Movie',
+    backdrop: getOptimizedImageUrl('/fm6K9vYvt39mgrVIezqp90uk8Ux.jpg', 'w1280'),
+  },
+  {
+    id: 157336,
+    title: 'Interstellar',
+    searchQuery: 'Interstellar',
+    synopsis: 'The adventures of a group of explorers who make use of a newly discovered wormhole to surpass the limitations on human space travel.',
+    year: '2014',
+    rating: '8.4',
+    mediaType: 'Movie',
+    backdrop: getOptimizedImageUrl('/xJHokMbljvjADYdit5fK5VQsXEG.jpg', 'w1280'),
+  },
+  {
+    id: 155,
+    title: 'The Dark Knight',
+    searchQuery: 'The Dark Knight',
+    synopsis: 'Batman raises the stakes in his war on crime against the Joker, a psychotic criminal mastermind who plunges Gotham into anarchy.',
+    year: '2008',
+    rating: '8.5',
+    mediaType: 'Movie',
+    backdrop: getOptimizedImageUrl('/nMKdUUepR0i5zn0y1T4CsSB5chy.jpg', 'w1280'),
+  },
+]
 
 export default function HeroBanner({ onQuickPlay }) {
-  const [movies, setMovies] = useState([])
-  const [isLoading, setIsLoading] = useState(true)
+  const [movies, setMovies] = useState(DEFAULT_HERO_MOVIES)
+  const [isLoading, setIsLoading] = useState(false)
   const [currentIndex, setCurrentIndex] = useState(0)
   const timerRef = useRef(null)
 
@@ -13,8 +67,6 @@ export default function HeroBanner({ onQuickPlay }) {
 
     async function fetchHeroMovies() {
       try {
-        setIsLoading(true)
-
         // Query popular released and weekly trending in parallel
         const [popRes, trendRes] = await Promise.allSettled([
           getPopularMovies(1),
@@ -51,7 +103,7 @@ export default function HeroBanner({ onQuickPlay }) {
               id: m.tmdb_id || m.title,
               title: m.title,
               searchQuery: m.title,
-              synopsis: m.overview || 'Newly released blockbuster streaming in high definition on Cineby.',
+              synopsis: m.overview || 'Newly released blockbuster streaming in high definition on Cineforge.',
               year: releaseYear,
               rating: displayRating,
               mediaType: m.media_type === 'tv' ? 'TV show' : 'Movie',
@@ -63,8 +115,6 @@ export default function HeroBanner({ onQuickPlay }) {
         }
       } catch (err) {
         console.error('Failed to load hero banner movies:', err)
-      } finally {
-        if (isMounted) setIsLoading(false)
       }
     }
 
@@ -98,7 +148,7 @@ export default function HeroBanner({ onQuickPlay }) {
     setCurrentIndex((prev) => (prev - 1 + movies.length) % movies.length)
   }
 
-  if (isLoading || movies.length === 0) {
+  if (movies.length === 0) {
     return (
       <section className="hero-slider-shell" style={{ height: '70vh', minHeight: '520px' }}>
         <div className="home-hero" style={{ background: '#07080b' }}>
