@@ -238,33 +238,34 @@ body {
 }
 
 /* ==========================================================================
-   NAVBAR (StreamVibe / Netflix OTT Header)
+   NAVBAR (StreamVibe / Standalone OTT Header)
    ========================================================================== */
 .streamvibe-navbar {
-  position: fixed;
+  position: sticky;
   top: 0;
-  left: 0;
-  right: 0;
   z-index: 1000;
   width: 100%;
   height: 68px;
   display: flex;
   align-items: center;
-  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.streamvibe-navbar.transparent-header {
-  background: linear-gradient(180deg, rgba(8, 8, 10, 0.95) 0%, rgba(8, 8, 10, 0.6) 45%, rgba(8, 8, 10, 0.15) 75%, transparent 100%);
-  border-bottom: 1px solid transparent;
-  box-shadow: none;
-}
-
-.streamvibe-navbar.scrolled {
-  background: rgba(10, 11, 14, 0.96);
+  background: rgba(10, 11, 15, 0.96);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.streamvibe-navbar.transparent-header {
+  background: rgba(10, 11, 15, 0.96);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.streamvibe-navbar.scrolled {
+  background: rgba(8, 9, 12, 0.98);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.85);
 }
 
 .navbar-inner {
@@ -540,16 +541,16 @@ body {
   right: 50%;
   margin-left: -50vw;
   margin-right: -50vw;
-  height: 80vh;
-  min-height: 580px;
-  max-height: 750px;
+  height: 75vh;
+  min-height: 520px;
+  max-height: 700px;
   margin-top: 0;
   margin-bottom: 24px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  padding: 110px 4% 48px 4%; /* Generous top padding keeps all content safely below the fixed navbar */
+  padding: 40px 4% 48px 4%;
   box-sizing: border-box;
   border: none;
   border-radius: 0;
@@ -561,11 +562,11 @@ body {
 }
 
 .browse-view-container.with-search {
-  padding-top: 80px;
+  padding-top: 16px;
 }
 
 .search-bar-wrapper {
-  scroll-margin-top: 88px; /* Fixed navbar offset for native scrollIntoView */
+  scroll-margin-top: 80px; /* Sticky navbar offset */
   position: relative;
   width: 100%;
 }

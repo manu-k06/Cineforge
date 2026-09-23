@@ -246,9 +246,9 @@
     "semantic_hash": ""
   },
   "frontend/src/App.jsx": {
-    "mtime": 1790101999.6297445,
-    "seen": 1790102094.1453142,
-    "ast_hash": "34ba3ecdb667f4d510c3bc4998fbac0e",
+    "mtime": 1790129120.3382988,
+    "seen": 1790129261.4029272,
+    "ast_hash": "19403a56d621efbbccaf14111b5b0c59",
     "semantic_hash": ""
   },
   "frontend/src/components/AuthModal.jsx": {
@@ -264,9 +264,9 @@
     "semantic_hash": ""
   },
   "frontend/src/components/HeroBanner.jsx": {
-    "mtime": 1790101876.6405241,
-    "seen": 1790102094.1453178,
-    "ast_hash": "18c479ba6839f9de8ef1705c0578c69b",
+    "mtime": 1790129145.2974403,
+    "seen": 1790129261.402932,
+    "ast_hash": "60b772bac7abca87005a69bfa31e90db",
     "semantic_hash": ""
   },
   "frontend/src/components/MovieCard.jsx": {
