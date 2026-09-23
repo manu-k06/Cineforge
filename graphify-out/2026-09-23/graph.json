@@ -452,7 +452,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 3,
-      "community_name": "TmdbService",
+      "community_name": "tmdb.py",
       "file_type": "code",
       "norm_label": "castmember",
       "source_file": "backend/app/models/metadata.py",
@@ -465,7 +465,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 3,
-      "community_name": "TmdbService",
+      "community_name": "tmdb.py",
       "file_type": "code",
       "norm_label": "crewmember",
       "source_file": "backend/app/models/metadata.py",
@@ -478,7 +478,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 3,
-      "community_name": "TmdbService",
+      "community_name": "tmdb.py",
       "file_type": "code",
       "norm_label": "moviemetadata",
       "source_file": "backend/app/models/metadata.py",
@@ -491,7 +491,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 3,
-      "community_name": "TmdbService",
+      "community_name": "tmdb.py",
       "file_type": "code",
       "norm_label": "trendingmoviesresponse",
       "source_file": "backend/app/models/metadata.py",
@@ -504,11 +504,11 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 3,
-      "community_name": "TmdbService",
+      "community_name": "tmdb.py",
       "file_type": "code",
       "norm_label": "tmdbservice",
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L65"
+      "source_location": "L66"
     },
     {
       "id": "backend_app_services_auth_authservice",
@@ -1455,7 +1455,7 @@
       "file_type": "code",
       "norm_label": "horizontalrail()",
       "source_file": "frontend/src/components/MovieGrid.jsx",
-      "source_location": "L7"
+      "source_location": "L127"
     },
     {
       "id": "frontend_src_components_moviegrid_moviegrid",
@@ -1467,7 +1467,7 @@
       "file_type": "code",
       "norm_label": "moviegrid()",
       "source_file": "frontend/src/components/MovieGrid.jsx",
-      "source_location": "L90"
+      "source_location": "L210"
     },
     {
       "id": "frontend_src_components_moviegrid_moviegrid_fetchallrails",
@@ -1479,7 +1479,7 @@
       "file_type": "code",
       "norm_label": "fetchallrails()",
       "source_file": "frontend/src/components/MovieGrid.jsx",
-      "source_location": "L110"
+      "source_location": "L230"
     },
     {
       "id": "frontend_src_components_navbar_navbar",
@@ -2135,7 +2135,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 3,
-      "community_name": "TmdbService",
+      "community_name": "tmdb.py",
       "file_type": "code",
       "norm_label": "discover_movies()",
       "source_file": "backend/app/api/metadata.py",
@@ -2147,7 +2147,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 3,
-      "community_name": "TmdbService",
+      "community_name": "tmdb.py",
       "file_type": "code",
       "norm_label": "get_metadata_status()",
       "source_file": "backend/app/api/metadata.py",
@@ -2159,7 +2159,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 3,
-      "community_name": "TmdbService",
+      "community_name": "tmdb.py",
       "file_type": "code",
       "norm_label": "get_movie_metadata()",
       "source_file": "backend/app/api/metadata.py",
@@ -2171,7 +2171,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 3,
-      "community_name": "TmdbService",
+      "community_name": "tmdb.py",
       "file_type": "code",
       "norm_label": "get_popular_movies()",
       "source_file": "backend/app/api/metadata.py",
@@ -2183,7 +2183,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 3,
-      "community_name": "TmdbService",
+      "community_name": "tmdb.py",
       "file_type": "code",
       "norm_label": "get_top_rated_movies()",
       "source_file": "backend/app/api/metadata.py",
@@ -2195,7 +2195,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 3,
-      "community_name": "TmdbService",
+      "community_name": "tmdb.py",
       "file_type": "code",
       "norm_label": "get_trending_movies()",
       "source_file": "backend/app/api/metadata.py",
@@ -2207,11 +2207,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 3,
-      "community_name": "TmdbService",
+      "community_name": "tmdb.py",
       "file_type": "code",
       "norm_label": "sanitize_movie_query()",
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L13"
+      "source_location": "L14"
     },
     {
       "id": "backend_app_services_tmdb_tmdbservice_create_fallback_metadata",
@@ -2219,11 +2219,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 3,
-      "community_name": "TmdbService",
+      "community_name": "tmdb.py",
       "file_type": "code",
       "norm_label": "._create_fallback_metadata()",
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L97"
+      "source_location": "L98"
     },
     {
       "id": "backend_app_services_tmdb_tmdbservice_discover_movies",
@@ -2231,11 +2231,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 3,
-      "community_name": "TmdbService",
+      "community_name": "tmdb.py",
       "file_type": "code",
       "norm_label": ".discover_movies()",
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L388"
+      "source_location": "L447"
     },
     {
       "id": "backend_app_services_tmdb_tmdbservice_fetch_movie_list",
@@ -2243,11 +2243,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 3,
-      "community_name": "TmdbService",
+      "community_name": "tmdb.py",
       "file_type": "code",
       "norm_label": "._fetch_movie_list()",
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L343"
+      "source_location": "L359"
     },
     {
       "id": "backend_app_services_tmdb_tmdbservice_format_image_url",
@@ -2255,11 +2255,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 3,
-      "community_name": "TmdbService",
+      "community_name": "tmdb.py",
       "file_type": "code",
       "norm_label": "._format_image_url()",
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L91"
+      "source_location": "L92"
     },
     {
       "id": "backend_app_services_tmdb_tmdbservice_get_auth_headers_and_params",
@@ -2267,11 +2267,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 3,
-      "community_name": "TmdbService",
+      "community_name": "tmdb.py",
       "file_type": "code",
       "norm_label": "._get_auth_headers_and_params()",
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L76"
+      "source_location": "L77"
     },
     {
       "id": "backend_app_services_tmdb_tmdbservice_get_popular_movies",
@@ -2279,11 +2279,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 3,
-      "community_name": "TmdbService",
+      "community_name": "tmdb.py",
       "file_type": "code",
       "norm_label": ".get_popular_movies()",
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L380"
+      "source_location": "L413"
     },
     {
       "id": "backend_app_services_tmdb_tmdbservice_get_top_rated_movies",
@@ -2291,11 +2291,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 3,
-      "community_name": "TmdbService",
+      "community_name": "tmdb.py",
       "file_type": "code",
       "norm_label": ".get_top_rated_movies()",
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L384"
+      "source_location": "L430"
     },
     {
       "id": "backend_app_services_tmdb_tmdbservice_get_trending_movies",
@@ -2303,11 +2303,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 3,
-      "community_name": "TmdbService",
+      "community_name": "tmdb.py",
       "file_type": "code",
       "norm_label": ".get_trending_movies()",
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L293"
+      "source_location": "L294"
     },
     {
       "id": "backend_app_services_tmdb_tmdbservice_init",
@@ -2315,11 +2315,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 3,
-      "community_name": "TmdbService",
+      "community_name": "tmdb.py",
       "file_type": "code",
       "norm_label": ".__init__()",
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L68"
+      "source_location": "L69"
     },
     {
       "id": "backend_app_services_tmdb_tmdbservice_is_configured",
@@ -2327,11 +2327,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 3,
-      "community_name": "TmdbService",
+      "community_name": "tmdb.py",
       "file_type": "code",
       "norm_label": ".is_configured()",
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L72"
+      "source_location": "L73"
     },
     {
       "id": "backend_app_services_tmdb_tmdbservice_parse_movie_dict",
@@ -2339,11 +2339,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 3,
-      "community_name": "TmdbService",
+      "community_name": "tmdb.py",
       "file_type": "code",
       "norm_label": "._parse_movie_dict()",
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L205"
+      "source_location": "L206"
     },
     {
       "id": "backend_app_services_tmdb_tmdbservice_search_and_get_metadata",
@@ -2351,11 +2351,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 3,
-      "community_name": "TmdbService",
+      "community_name": "tmdb.py",
       "file_type": "code",
       "norm_label": ".search_and_get_metadata()",
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L119"
+      "source_location": "L120"
     },
     {
       "id": "backend_app_services_tmdb_tmdbservice_search_movie_suggestions",
@@ -2363,11 +2363,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 3,
-      "community_name": "TmdbService",
+      "community_name": "tmdb.py",
       "file_type": "code",
       "norm_label": ".search_movie_suggestions()",
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L394"
+      "source_location": "L466"
     },
     {
       "id": "backend_app_services_auth_authservice_get_client",
@@ -4822,6 +4822,28 @@
       "source_location": "L1"
     },
     {
+      "id": "frontend_src_components_moviegrid_fallback_malayalam_hits",
+      "label": "FALLBACK_MALAYALAM_HITS",
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "App.jsx",
+      "file_type": "code",
+      "norm_label": "fallback_malayalam_hits",
+      "source_file": "frontend/src/components/MovieGrid.jsx",
+      "source_location": "L7"
+    },
+    {
+      "id": "frontend_src_components_moviegrid_fallback_top_rated_classics",
+      "label": "FALLBACK_TOP_RATED_CLASSICS",
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "App.jsx",
+      "file_type": "code",
+      "norm_label": "fallback_top_rated_classics",
+      "source_file": "frontend/src/components/MovieGrid.jsx",
+      "source_location": "L75"
+    },
+    {
       "id": "frontend_src_components_navbar",
       "label": "Navbar.jsx",
       "_origin": "ast",
@@ -5601,7 +5623,7 @@
       "label": "api/metadata.py",
       "_origin": "ast",
       "community": 3,
-      "community_name": "TmdbService",
+      "community_name": "tmdb.py",
       "file_type": "code",
       "norm_label": "api/metadata.py",
       "source_file": "backend/app/api/metadata.py",
@@ -5612,7 +5634,7 @@
       "label": "get",
       "_origin": "ast",
       "community": 3,
-      "community_name": "TmdbService",
+      "community_name": "tmdb.py",
       "file_type": "code",
       "norm_label": "get",
       "source_file": "",
@@ -5623,7 +5645,7 @@
       "label": "models/metadata.py",
       "_origin": "ast",
       "community": 3,
-      "community_name": "TmdbService",
+      "community_name": "tmdb.py",
       "file_type": "code",
       "norm_label": "models/metadata.py",
       "source_file": "backend/app/models/metadata.py",
@@ -5634,7 +5656,7 @@
       "label": "BaseModel",
       "_origin": "ast",
       "community": 3,
-      "community_name": "TmdbService",
+      "community_name": "tmdb.py",
       "file_type": "code",
       "norm_label": "basemodel",
       "source_file": "",
@@ -5645,7 +5667,7 @@
       "label": "tmdb.py",
       "_origin": "ast",
       "community": 3,
-      "community_name": "TmdbService",
+      "community_name": "tmdb.py",
       "file_type": "code",
       "norm_label": "tmdb.py",
       "source_file": "backend/app/services/tmdb.py",
@@ -5656,7 +5678,7 @@
       "label": "Any",
       "_origin": "ast",
       "community": 3,
-      "community_name": "TmdbService",
+      "community_name": "tmdb.py",
       "file_type": "code",
       "norm_label": "any",
       "source_file": "",
@@ -5667,7 +5689,7 @@
       "label": "test_tmdb.py",
       "_origin": "ast",
       "community": 3,
-      "community_name": "TmdbService",
+      "community_name": "tmdb.py",
       "file_type": "code",
       "norm_label": "test_tmdb.py",
       "source_file": "backend/tests/test_tmdb.py",
@@ -5678,7 +5700,7 @@
       "label": "Check if TMDb API integration is configured and available.",
       "_origin": "ast",
       "community": 3,
-      "community_name": "TmdbService",
+      "community_name": "tmdb.py",
       "file_type": "rationale",
       "norm_label": "check if tmdb api integration is configured and available.",
       "source_file": "backend/app/api/metadata.py",
@@ -5689,7 +5711,7 @@
       "label": "Retrieve enriched movie metadata including posters, backdrops, ratings,\u2026",
       "_origin": "ast",
       "community": 3,
-      "community_name": "TmdbService",
+      "community_name": "tmdb.py",
       "file_type": "rationale",
       "norm_label": "retrieve enriched movie metadata including posters, backdrops, ratings,...",
       "source_file": "backend/app/api/metadata.py",
@@ -5700,7 +5722,7 @@
       "label": "Retrieve top trending movies from TMDb for homepage discovery.",
       "_origin": "ast",
       "community": 3,
-      "community_name": "TmdbService",
+      "community_name": "tmdb.py",
       "file_type": "rationale",
       "norm_label": "retrieve top trending movies from tmdb for homepage discovery.",
       "source_file": "backend/app/api/metadata.py",
@@ -5711,7 +5733,7 @@
       "label": "Retrieve popular movies from TMDb.",
       "_origin": "ast",
       "community": 3,
-      "community_name": "TmdbService",
+      "community_name": "tmdb.py",
       "file_type": "rationale",
       "norm_label": "retrieve popular movies from tmdb.",
       "source_file": "backend/app/api/metadata.py",
@@ -5722,7 +5744,7 @@
       "label": "Retrieve top rated movies from TMDb.",
       "_origin": "ast",
       "community": 3,
-      "community_name": "TmdbService",
+      "community_name": "tmdb.py",
       "file_type": "rationale",
       "norm_label": "retrieve top rated movies from tmdb.",
       "source_file": "backend/app/api/metadata.py",
@@ -5733,143 +5755,143 @@
       "label": "Discover regional or category movies from TMDb.",
       "_origin": "ast",
       "community": 3,
-      "community_name": "TmdbService",
+      "community_name": "tmdb.py",
       "file_type": "rationale",
       "norm_label": "discover regional or category movies from tmdb.",
       "source_file": "backend/app/api/metadata.py",
       "source_location": "L60"
     },
     {
-      "id": "backend_app_services_tmdb_rationale_124",
+      "id": "backend_app_services_tmdb_rationale_125",
       "label": "Search TMDb for movie metadata, fetch full details, credits, and videos.\u2026",
       "_origin": "ast",
       "community": 3,
-      "community_name": "TmdbService",
+      "community_name": "tmdb.py",
       "file_type": "rationale",
       "norm_label": "search tmdb for movie metadata, fetch full details, credits, and videos....",
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L124"
+      "source_location": "L125"
     },
     {
-      "id": "backend_app_services_tmdb_rationale_14",
+      "id": "backend_app_services_tmdb_rationale_15",
       "label": "Extract a clean movie title and optional release year from messy release\u2026",
       "_origin": "ast",
       "community": 3,
-      "community_name": "TmdbService",
+      "community_name": "tmdb.py",
       "file_type": "rationale",
       "norm_label": "extract a clean movie title and optional release year from messy release...",
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L14"
+      "source_location": "L15"
     },
     {
-      "id": "backend_app_services_tmdb_rationale_210",
+      "id": "backend_app_services_tmdb_rationale_211",
       "label": "Parse raw TMDb API responses into MovieMetadata.",
       "_origin": "ast",
       "community": 3,
-      "community_name": "TmdbService",
+      "community_name": "tmdb.py",
       "file_type": "rationale",
       "norm_label": "parse raw tmdb api responses into moviemetadata.",
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L210"
+      "source_location": "L211"
     },
     {
-      "id": "backend_app_services_tmdb_rationale_298",
+      "id": "backend_app_services_tmdb_rationale_299",
       "label": "Retrieve trending movies list for discovery carousel.",
       "_origin": "ast",
       "community": 3,
-      "community_name": "TmdbService",
+      "community_name": "tmdb.py",
       "file_type": "rationale",
       "norm_label": "retrieve trending movies list for discovery carousel.",
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L298"
+      "source_location": "L299"
     },
     {
-      "id": "backend_app_services_tmdb_rationale_381",
-      "label": "Retrieve popular movies from TMDb.",
+      "id": "backend_app_services_tmdb_rationale_414",
+      "label": "Retrieve real, released popular movies from TMDb.",
       "_origin": "ast",
       "community": 3,
-      "community_name": "TmdbService",
+      "community_name": "tmdb.py",
       "file_type": "rationale",
-      "norm_label": "retrieve popular movies from tmdb.",
+      "norm_label": "retrieve real, released popular movies from tmdb.",
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L381"
+      "source_location": "L414"
     },
     {
-      "id": "backend_app_services_tmdb_rationale_385",
-      "label": "Retrieve top rated movies from TMDb.",
+      "id": "backend_app_services_tmdb_rationale_431",
+      "label": "Retrieve true top rated cinema masterpieces with high vote thresholds.",
       "_origin": "ast",
       "community": 3,
-      "community_name": "TmdbService",
+      "community_name": "tmdb.py",
       "file_type": "rationale",
-      "norm_label": "retrieve top rated movies from tmdb.",
+      "norm_label": "retrieve true top rated cinema masterpieces with high vote thresholds.",
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L385"
+      "source_location": "L431"
     },
     {
-      "id": "backend_app_services_tmdb_rationale_389",
-      "label": "Discover movies by language (e.g. 'ml' for Malayalam, 'ta' for Tamil, 'hi' for\u2026",
+      "id": "backend_app_services_tmdb_rationale_448",
+      "label": "Discover released regional movies (e.g. Malayalam 'ml', Tamil 'ta', etc.) with\u2026",
       "_origin": "ast",
       "community": 3,
-      "community_name": "TmdbService",
+      "community_name": "tmdb.py",
       "file_type": "rationale",
-      "norm_label": "discover movies by language (e.g. 'ml' for malayalam, 'ta' for tamil, 'hi' for...",
+      "norm_label": "discover released regional movies (e.g. malayalam 'ml', tamil 'ta', etc.) with...",
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L389"
+      "source_location": "L448"
     },
     {
-      "id": "backend_app_services_tmdb_rationale_395",
+      "id": "backend_app_services_tmdb_rationale_467",
       "label": "Fast autocomplete search returning top suggestions (title, year, poster\u2026",
       "_origin": "ast",
       "community": 3,
-      "community_name": "TmdbService",
+      "community_name": "tmdb.py",
       "file_type": "rationale",
       "norm_label": "fast autocomplete search returning top suggestions (title, year, poster...",
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L395"
+      "source_location": "L467"
     },
     {
-      "id": "backend_app_services_tmdb_rationale_66",
+      "id": "backend_app_services_tmdb_rationale_67",
       "label": "Service for enriching movies with official TMDb posters, backdrops, cast, and\u2026",
       "_origin": "ast",
       "community": 3,
-      "community_name": "TmdbService",
+      "community_name": "tmdb.py",
       "file_type": "rationale",
       "norm_label": "service for enriching movies with official tmdb posters, backdrops, cast, and...",
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L66"
+      "source_location": "L67"
     },
     {
-      "id": "backend_app_services_tmdb_rationale_73",
+      "id": "backend_app_services_tmdb_rationale_74",
       "label": "Check if TMDb API key or token is configured.",
       "_origin": "ast",
       "community": 3,
-      "community_name": "TmdbService",
+      "community_name": "tmdb.py",
       "file_type": "rationale",
       "norm_label": "check if tmdb api key or token is configured.",
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L73"
+      "source_location": "L74"
     },
     {
-      "id": "backend_app_services_tmdb_rationale_77",
+      "id": "backend_app_services_tmdb_rationale_78",
       "label": "Return headers and query parameters based on key type (Bearer JWT or API Key).",
       "_origin": "ast",
       "community": 3,
-      "community_name": "TmdbService",
+      "community_name": "tmdb.py",
       "file_type": "rationale",
       "norm_label": "return headers and query parameters based on key type (bearer jwt or api key).",
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L77"
+      "source_location": "L78"
     },
     {
-      "id": "backend_app_services_tmdb_rationale_98",
+      "id": "backend_app_services_tmdb_rationale_99",
       "label": "Construct fallback metadata when TMDb is not configured or title is not found.",
       "_origin": "ast",
       "community": 3,
-      "community_name": "TmdbService",
+      "community_name": "tmdb.py",
       "file_type": "rationale",
       "norm_label": "construct fallback metadata when tmdb is not configured or title is not found.",
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L98"
+      "source_location": "L99"
     },
     {
       "id": "backend_app_services_auth_py_any",
@@ -7454,6 +7476,17 @@
       "norm_label": "telethon_tl_types",
       "source_file": "",
       "type": "external"
+    },
+    {
+      "id": "datetime",
+      "label": "datetime",
+      "community": 3,
+      "community_name": "tmdb.py",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "datetime",
+      "source_file": "",
+      "type": "external"
     }
   ],
   "links": [
@@ -8498,7 +8531,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L99",
+      "source_location": "L100",
       "weight": 1.0
     },
     {
@@ -8510,7 +8543,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L391",
+      "source_location": "L458",
       "weight": 1.0
     },
     {
@@ -8522,7 +8555,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L355",
+      "source_location": "L373",
       "weight": 1.0
     },
     {
@@ -8534,7 +8567,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L358",
+      "source_location": "L376",
       "weight": 1.0
     },
     {
@@ -8546,7 +8579,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L367",
+      "source_location": "L399",
       "weight": 1.0
     },
     {
@@ -8558,7 +8591,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L382",
+      "source_location": "L423",
       "weight": 1.0
     },
     {
@@ -8570,7 +8603,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L386",
+      "source_location": "L440",
       "weight": 1.0
     },
     {
@@ -8582,7 +8615,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L307",
+      "source_location": "L308",
       "weight": 1.0
     },
     {
@@ -8594,7 +8627,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L316",
+      "source_location": "L317",
       "weight": 1.0
     },
     {
@@ -8606,7 +8639,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L320",
+      "source_location": "L321",
       "weight": 1.0
     },
     {
@@ -8618,7 +8651,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L330",
+      "source_location": "L345",
       "weight": 1.0
     },
     {
@@ -8630,7 +8663,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L233",
+      "source_location": "L234",
       "weight": 1.0
     },
     {
@@ -8642,7 +8675,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L250",
+      "source_location": "L251",
       "weight": 1.0
     },
     {
@@ -8654,24 +8687,12 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L128",
+      "source_location": "L129",
       "weight": 1.0
     },
     {
       "source": "backend_app_services_tmdb_tmdbservice_search_and_get_metadata",
       "target": "backend_app_services_tmdb_tmdbservice_is_configured",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L142",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_app_services_tmdb_tmdbservice_search_and_get_metadata",
-      "target": "backend_app_services_tmdb_tmdbservice_create_fallback_metadata",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -8683,6 +8704,18 @@
     },
     {
       "source": "backend_app_services_tmdb_tmdbservice_search_and_get_metadata",
+      "target": "backend_app_services_tmdb_tmdbservice_create_fallback_metadata",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "backend/app/services/tmdb.py",
+      "source_location": "L144",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_app_services_tmdb_tmdbservice_search_and_get_metadata",
       "target": "backend_app_services_tmdb_tmdbservice_get_auth_headers_and_params",
       "relation": "calls",
       "_origin": "ast",
@@ -8690,7 +8723,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L147",
+      "source_location": "L148",
       "weight": 1.0
     },
     {
@@ -8702,7 +8735,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L191",
+      "source_location": "L192",
       "weight": 1.0
     },
     {
@@ -8714,7 +8747,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L398",
+      "source_location": "L470",
       "weight": 1.0
     },
     {
@@ -8726,7 +8759,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L402",
+      "source_location": "L474",
       "weight": 1.0
     },
     {
@@ -8738,7 +8771,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L413",
+      "source_location": "L485",
       "weight": 1.0
     },
     {
@@ -8750,7 +8783,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L443",
+      "source_location": "L515",
       "weight": 1.0
     },
     {
@@ -8947,6 +8980,18 @@
     },
     {
       "source": "frontend_src_components_herobanner_herobanner",
+      "target": "frontend_src_services_api_getpopularmovies",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "frontend/src/components/HeroBanner.jsx",
+      "source_location": "L23",
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_src_components_herobanner_herobanner",
       "target": "frontend_src_services_api_gettrendingmovies",
       "relation": "calls",
       "_origin": "ast",
@@ -8954,7 +8999,19 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/HeroBanner.jsx",
-      "source_location": "L21",
+      "source_location": "L24",
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_src_components_herobanner_herobanner_fetchheromovies",
+      "target": "frontend_src_services_api_getpopularmovies",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "frontend/src/components/HeroBanner.jsx",
+      "source_location": "L23",
       "weight": 1.0
     },
     {
@@ -8966,7 +9023,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/HeroBanner.jsx",
-      "source_location": "L21",
+      "source_location": "L24",
       "weight": 1.0
     },
     {
@@ -9014,7 +9071,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/MovieGrid.jsx",
-      "source_location": "L116",
+      "source_location": "L236",
       "weight": 1.0
     },
     {
@@ -9026,7 +9083,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/MovieGrid.jsx",
-      "source_location": "L117",
+      "source_location": "L237",
       "weight": 1.0
     },
     {
@@ -9038,7 +9095,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/MovieGrid.jsx",
-      "source_location": "L118",
+      "source_location": "L238",
       "weight": 1.0
     },
     {
@@ -9050,7 +9107,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/MovieGrid.jsx",
-      "source_location": "L119",
+      "source_location": "L239",
       "weight": 1.0
     },
     {
@@ -9062,7 +9119,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/MovieGrid.jsx",
-      "source_location": "L116",
+      "source_location": "L236",
       "weight": 1.0
     },
     {
@@ -9074,7 +9131,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/MovieGrid.jsx",
-      "source_location": "L117",
+      "source_location": "L237",
       "weight": 1.0
     },
     {
@@ -9086,7 +9143,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/MovieGrid.jsx",
-      "source_location": "L118",
+      "source_location": "L238",
       "weight": 1.0
     },
     {
@@ -9098,7 +9155,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/MovieGrid.jsx",
-      "source_location": "L119",
+      "source_location": "L239",
       "weight": 1.0
     },
     {
@@ -9290,7 +9347,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/MovieGrid.jsx",
-      "source_location": "L110",
+      "source_location": "L230",
       "weight": 1.0
     },
     {
@@ -10358,7 +10415,7 @@
       "confidence_score": 1.0,
       "context": "generic_arg",
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L205",
+      "source_location": "L206",
       "weight": 1.0
     },
     {
@@ -10370,7 +10427,7 @@
       "confidence_score": 1.0,
       "context": "generic_arg",
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L394",
+      "source_location": "L466",
       "weight": 1.0
     },
     {
@@ -11719,7 +11776,7 @@
     },
     {
       "source": "backend_app_services_tmdb",
-      "target": "logging",
+      "target": "datetime",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -11731,7 +11788,7 @@
     },
     {
       "source": "backend_app_services_tmdb",
-      "target": "re",
+      "target": "logging",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -11743,7 +11800,7 @@
     },
     {
       "source": "backend_app_services_tmdb",
-      "target": "time",
+      "target": "re",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -11755,6 +11812,18 @@
     },
     {
       "source": "backend_app_services_tmdb",
+      "target": "time",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "backend/app/services/tmdb.py",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_app_services_tmdb",
       "target": "httpx",
       "relation": "imports",
       "_origin": "ast",
@@ -11762,7 +11831,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L5",
+      "source_location": "L6",
       "weight": 1.0
     },
     {
@@ -11774,7 +11843,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L8",
+      "source_location": "L9",
       "weight": 1.0
     },
     {
@@ -11786,7 +11855,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L8",
+      "source_location": "L9",
       "weight": 1.0
     },
     {
@@ -11798,7 +11867,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L8",
+      "source_location": "L9",
       "weight": 1.0
     },
     {
@@ -11810,7 +11879,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L8",
+      "source_location": "L9",
       "weight": 1.0
     },
     {
@@ -12518,6 +12587,18 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "frontend/src/components/AuthModal.jsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_src_components_herobanner",
+      "target": "frontend_src_services_api_getpopularmovies",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "frontend/src/components/HeroBanner.jsx",
       "source_location": "L3",
       "weight": 1.0
     },
@@ -13922,7 +14003,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L4",
+      "source_location": "L5",
       "weight": 1.0
     },
     {
@@ -13934,7 +14015,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L7",
+      "source_location": "L8",
       "weight": 1.0
     },
     {
@@ -13946,7 +14027,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L8",
+      "source_location": "L9",
       "weight": 1.0
     },
     {
@@ -15290,7 +15371,7 @@
       "confidence_score": 1.0,
       "context": "return_type",
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L97",
+      "source_location": "L98",
       "weight": 1.0
     },
     {
@@ -15302,7 +15383,7 @@
       "confidence_score": 1.0,
       "context": "return_type",
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L388",
+      "source_location": "L447",
       "weight": 1.0
     },
     {
@@ -15314,7 +15395,7 @@
       "confidence_score": 1.0,
       "context": "return_type",
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L343",
+      "source_location": "L359",
       "weight": 1.0
     },
     {
@@ -15326,7 +15407,7 @@
       "confidence_score": 1.0,
       "context": "return_type",
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L380",
+      "source_location": "L413",
       "weight": 1.0
     },
     {
@@ -15338,7 +15419,7 @@
       "confidence_score": 1.0,
       "context": "return_type",
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L384",
+      "source_location": "L430",
       "weight": 1.0
     },
     {
@@ -15350,7 +15431,7 @@
       "confidence_score": 1.0,
       "context": "return_type",
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L293",
+      "source_location": "L294",
       "weight": 1.0
     },
     {
@@ -15362,7 +15443,7 @@
       "confidence_score": 1.0,
       "context": "return_type",
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L205",
+      "source_location": "L206",
       "weight": 1.0
     },
     {
@@ -15374,7 +15455,7 @@
       "confidence_score": 1.0,
       "context": "return_type",
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L119",
+      "source_location": "L120",
       "weight": 1.0
     },
     {
@@ -16287,7 +16368,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L13",
+      "source_location": "L14",
       "weight": 1.0
     },
     {
@@ -16298,7 +16379,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L65",
+      "source_location": "L66",
       "weight": 1.0
     },
     {
@@ -17068,7 +17149,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/src/components/MovieGrid.jsx",
-      "source_location": "L7",
+      "source_location": "L127",
       "weight": 1.0
     },
     {
@@ -17079,7 +17160,29 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/src/components/MovieGrid.jsx",
-      "source_location": "L90",
+      "source_location": "L210",
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_src_components_moviegrid",
+      "target": "frontend_src_components_moviegrid_fallback_malayalam_hits",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/components/MovieGrid.jsx",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_src_components_moviegrid",
+      "target": "frontend_src_components_moviegrid_fallback_top_rated_classics",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/components/MovieGrid.jsx",
+      "source_location": "L75",
       "weight": 1.0
     },
     {
@@ -18597,7 +18700,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L119",
+      "source_location": "L120",
       "weight": 1.0
     },
     {
@@ -18608,7 +18711,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L205",
+      "source_location": "L206",
       "weight": 1.0
     },
     {
@@ -18619,7 +18722,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L293",
+      "source_location": "L294",
       "weight": 1.0
     },
     {
@@ -18630,7 +18733,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L343",
+      "source_location": "L359",
       "weight": 1.0
     },
     {
@@ -18641,7 +18744,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L380",
+      "source_location": "L413",
       "weight": 1.0
     },
     {
@@ -18652,7 +18755,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L384",
+      "source_location": "L430",
       "weight": 1.0
     },
     {
@@ -18663,7 +18766,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L388",
+      "source_location": "L447",
       "weight": 1.0
     },
     {
@@ -18674,7 +18777,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L394",
+      "source_location": "L466",
       "weight": 1.0
     },
     {
@@ -18685,7 +18788,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L68",
+      "source_location": "L69",
       "weight": 1.0
     },
     {
@@ -18696,7 +18799,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L72",
+      "source_location": "L73",
       "weight": 1.0
     },
     {
@@ -18707,7 +18810,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L76",
+      "source_location": "L77",
       "weight": 1.0
     },
     {
@@ -18718,7 +18821,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L91",
+      "source_location": "L92",
       "weight": 1.0
     },
     {
@@ -18729,7 +18832,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L97",
+      "source_location": "L98",
       "weight": 1.0
     },
     {
@@ -20482,135 +20585,135 @@
       "weight": 1.0
     },
     {
-      "source": "backend_app_services_tmdb_rationale_124",
+      "source": "backend_app_services_tmdb_rationale_125",
       "target": "backend_app_services_tmdb_tmdbservice_search_and_get_metadata",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L124",
+      "source_location": "L125",
       "weight": 1.0
     },
     {
-      "source": "backend_app_services_tmdb_rationale_14",
+      "source": "backend_app_services_tmdb_rationale_15",
       "target": "backend_app_services_tmdb_sanitize_movie_query",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L14",
+      "source_location": "L15",
       "weight": 1.0
     },
     {
-      "source": "backend_app_services_tmdb_rationale_210",
+      "source": "backend_app_services_tmdb_rationale_211",
       "target": "backend_app_services_tmdb_tmdbservice_parse_movie_dict",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L210",
+      "source_location": "L211",
       "weight": 1.0
     },
     {
-      "source": "backend_app_services_tmdb_rationale_298",
+      "source": "backend_app_services_tmdb_rationale_299",
       "target": "backend_app_services_tmdb_tmdbservice_get_trending_movies",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L298",
+      "source_location": "L299",
       "weight": 1.0
     },
     {
-      "source": "backend_app_services_tmdb_rationale_381",
+      "source": "backend_app_services_tmdb_rationale_414",
       "target": "backend_app_services_tmdb_tmdbservice_get_popular_movies",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L381",
+      "source_location": "L414",
       "weight": 1.0
     },
     {
-      "source": "backend_app_services_tmdb_rationale_385",
+      "source": "backend_app_services_tmdb_rationale_431",
       "target": "backend_app_services_tmdb_tmdbservice_get_top_rated_movies",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L385",
+      "source_location": "L431",
       "weight": 1.0
     },
     {
-      "source": "backend_app_services_tmdb_rationale_389",
+      "source": "backend_app_services_tmdb_rationale_448",
       "target": "backend_app_services_tmdb_tmdbservice_discover_movies",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L389",
+      "source_location": "L448",
       "weight": 1.0
     },
     {
-      "source": "backend_app_services_tmdb_rationale_395",
+      "source": "backend_app_services_tmdb_rationale_467",
       "target": "backend_app_services_tmdb_tmdbservice_search_movie_suggestions",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L395",
+      "source_location": "L467",
       "weight": 1.0
     },
     {
-      "source": "backend_app_services_tmdb_rationale_66",
+      "source": "backend_app_services_tmdb_rationale_67",
       "target": "backend_app_services_tmdb_tmdbservice",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L66",
+      "source_location": "L67",
       "weight": 1.0
     },
     {
-      "source": "backend_app_services_tmdb_rationale_73",
+      "source": "backend_app_services_tmdb_rationale_74",
       "target": "backend_app_services_tmdb_tmdbservice_is_configured",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L73",
+      "source_location": "L74",
       "weight": 1.0
     },
     {
-      "source": "backend_app_services_tmdb_rationale_77",
+      "source": "backend_app_services_tmdb_rationale_78",
       "target": "backend_app_services_tmdb_tmdbservice_get_auth_headers_and_params",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L77",
+      "source_location": "L78",
       "weight": 1.0
     },
     {
-      "source": "backend_app_services_tmdb_rationale_98",
+      "source": "backend_app_services_tmdb_rationale_99",
       "target": "backend_app_services_tmdb_tmdbservice_create_fallback_metadata",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L98",
+      "source_location": "L99",
       "weight": 1.0
     },
     {
@@ -21643,7 +21746,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.95,
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L238",
+      "source_location": "L239",
       "weight": 0.8
     },
     {
@@ -21654,7 +21757,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.95,
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L69",
+      "source_location": "L70",
       "weight": 0.8
     },
     {
@@ -21665,7 +21768,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.95,
       "source_file": "backend/app/services/tmdb.py",
-      "source_location": "L70",
+      "source_location": "L71",
       "weight": 0.8
     },
     {
@@ -21725,5 +21828,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "5db1de10f22bd8de62fe0f417833f6c4895a49d3"
+  "built_at_commit": "c71fab50213d60f8dc163ed8f7ad9c1a414bb2da"
 }

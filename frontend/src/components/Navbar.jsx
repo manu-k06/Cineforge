@@ -1,9 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { Play, Search, Bell, AlertCircle, LogIn, LogOut, Bookmark, History, Sparkles } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
+import { useWatchHistory } from '../context/WatchHistoryContext'
 
 export default function Navbar({ onSearchClick, isBackendOnline, activeTab, setActiveTab }) {
   const { user, openAuthModal, signOut } = useAuth()
+  const { watchlist, watchHistory } = useWatchHistory()
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
   const dropdownRef = useRef(null)
@@ -83,6 +85,15 @@ export default function Navbar({ onSearchClick, isBackendOnline, activeTab, setA
             >
               Trending
             </button>
+            <button
+              className={`nav-tab-link ${activeTab === 'watchlist' ? 'active' : ''}`}
+              onClick={() => setActiveTab('watchlist')}
+            >
+              <span>My List</span>
+              {watchlist.length > 0 && (
+                <span className="nav-badge-count">{watchlist.length}</span>
+              )}
+            </button>
           </nav>
         </div>
 
@@ -131,19 +142,31 @@ export default function Navbar({ onSearchClick, isBackendOnline, activeTab, setA
                     <button
                       type="button"
                       className="dropdown-menu-item"
-                      onClick={() => setIsDropdownOpen(false)}
+                      onClick={() => {
+                        setIsDropdownOpen(false)
+                        setActiveTab('watchlist')
+                      }}
                     >
                       <Bookmark size={15} color="#8e95a5" />
                       <span>My Watchlist</span>
+                      {watchlist.length > 0 && (
+                        <span className="menu-badge">{watchlist.length}</span>
+                      )}
                     </button>
 
                     <button
                       type="button"
                       className="dropdown-menu-item"
-                      onClick={() => setIsDropdownOpen(false)}
+                      onClick={() => {
+                        setIsDropdownOpen(false)
+                        setActiveTab('history')
+                      }}
                     >
                       <History size={15} color="#8e95a5" />
                       <span>Watch History</span>
+                      {watchHistory.length > 0 && (
+                        <span className="menu-badge">{watchHistory.length}</span>
+                      )}
                     </button>
 
                     <div className="dropdown-divider" />

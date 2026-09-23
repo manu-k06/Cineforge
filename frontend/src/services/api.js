@@ -201,4 +201,115 @@ export async function getSubtitleTracks(title = '', year = null, imdbId = null, 
   }
 }
 
+/**
+ * Watch History & Watchlist API Endpoints
+ */
+export async function getWatchHistoryApi(token) {
+  if (!token) return []
+  try {
+    const res = await fetch(`${API_BASE}/api/history`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+    if (!res.ok) return []
+    const data = await res.json()
+    return data.history || []
+  } catch {
+    return []
+  }
+}
+
+export async function saveWatchProgressApi(token, payload) {
+  if (!token) return null
+  try {
+    const res = await fetch(`${API_BASE}/api/history`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    })
+    if (!res.ok) return null
+    return await res.json()
+  } catch {
+    return null
+  }
+}
+
+export async function deleteWatchHistoryApi(token, title) {
+  if (!token) return false
+  try {
+    const res = await fetch(`${API_BASE}/api/history/${encodeURIComponent(title)}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` },
+    })
+    return res.ok
+  } catch {
+    return false
+  }
+}
+
+export async function getWatchlistApi(token) {
+  if (!token) return []
+  try {
+    const res = await fetch(`${API_BASE}/api/watchlist`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+    if (!res.ok) return []
+    const data = await res.json()
+    return data.watchlist || []
+  } catch {
+    return []
+  }
+}
+
+export async function saveWatchlistApi(token, payload) {
+  if (!token) return null
+  try {
+    const res = await fetch(`${API_BASE}/api/watchlist`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    })
+    if (!res.ok) return null
+    return await res.json()
+  } catch {
+    return null
+  }
+}
+
+export async function deleteWatchlistApi(token, title) {
+  if (!token) return false
+  try {
+    const res = await fetch(`${API_BASE}/api/watchlist/${encodeURIComponent(title)}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` },
+    })
+    return res.ok
+  } catch {
+    return false
+  }
+}
+
+export async function syncGuestDataApi(token, history, watchlist) {
+  if (!token) return null
+  try {
+    const res = await fetch(`${API_BASE}/api/history/sync-guest`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ history, watchlist }),
+    })
+    if (!res.ok) return null
+    return await res.json()
+  } catch {
+    return null
+  }
+}
+
 

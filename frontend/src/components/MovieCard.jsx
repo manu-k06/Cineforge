@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react'
-import { Play, Film, HardDrive, Sparkles, Layers, Star } from 'lucide-react'
+import { Play, Film, HardDrive, Sparkles, Layers, Star, Plus, BookmarkCheck } from 'lucide-react'
 import { parseMovieMetadata, getPosterGradient } from '../utils/helpers'
 import { getMovieMetadata } from '../services/api'
+import { useWatchHistory } from '../context/WatchHistoryContext'
 
 export default function MovieCard({ group, metadata: initialMetadata, onSelect }) {
+  const { isInWatchlist, toggleWatchlist } = useWatchHistory()
   // If grouped by title, group has { title, candidates }
   // Otherwise it's a single candidate
   const isGroup = Boolean(group.candidates && group.candidates.length > 0)
@@ -112,6 +114,31 @@ export default function MovieCard({ group, metadata: initialMetadata, onSelect }
           <span className="hover-cta-text">
             {releaseCount > 1 ? 'Choose Version' : 'Stream Now'}
           </span>
+
+          {/* Quick Watchlist Bookmark Button */}
+          <button
+            className={`card-watchlist-btn ${isInWatchlist(meta.cleanTitle || group.title) ? 'active' : ''}`}
+            onClick={(e) => {
+              e.stopPropagation()
+              toggleWatchlist({
+                title: meta.cleanTitle || group.title,
+                clean_title: meta.cleanTitle,
+                year: effectiveYear,
+                rating: metadata?.rating || null,
+                poster_url: metadata?.poster_url || null,
+                backdrop_url: metadata?.backdrop_url || null,
+                overview: metadata?.overview || null,
+                genres: metadata?.genres || [],
+              })
+            }}
+            title={isInWatchlist(meta.cleanTitle || group.title) ? 'Remove from My List' : 'Add to My List'}
+          >
+            {isInWatchlist(meta.cleanTitle || group.title) ? (
+              <BookmarkCheck size={16} fill="#E50000" color="#E50000" />
+            ) : (
+              <Plus size={16} color="#FFFFFF" />
+            )}
+          </button>
         </div>
       </div>
 

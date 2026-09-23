@@ -8,6 +8,7 @@ from app.api import (
     ai_router,
     auth_router,
     cache_router,
+    history_router,
     metadata_router,
     search_router,
     subtitles_router,
@@ -48,6 +49,7 @@ app.include_router(telegram_router, prefix="/api/telegram", tags=["Telegram"])
 app.include_router(ai_router, prefix="/api/ai", tags=["CineAI"])
 app.include_router(cache_router, prefix="/api/cache", tags=["Cache"])
 app.include_router(auth_router, prefix="/api/auth", tags=["Auth"])
+app.include_router(history_router, prefix="/api", tags=["History & Watchlist"])
 app.include_router(metadata_router, prefix="/api/metadata", tags=["Metadata"])
 app.include_router(subtitles_router, prefix="/api/subtitles", tags=["Subtitles"])
 

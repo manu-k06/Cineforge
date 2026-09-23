@@ -131,38 +131,17 @@ This document tracks all planned backend enhancements, data integrations, and fe
 
 **Goal**: Deliver a streaming service experience where user progress is saved in real-time.
 
-- [ ] **5.1. Watch History & Watchlist Tables in Supabase**
-  ```sql
-  -- User Watch History
-  CREATE TABLE public.user_watch_history (
-      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-      user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
-      movie_id UUID REFERENCES public.movies_cache(id) ON DELETE CASCADE,
-      title TEXT NOT NULL,
-      poster_url TEXT,
-      stream_url TEXT NOT NULL,
-      progress_seconds FLOAT NOT NULL DEFAULT 0,
-      duration_seconds FLOAT NOT NULL DEFAULT 0,
-      completed BOOLEAN DEFAULT FALSE,
-      updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-      UNIQUE(user_id, movie_id)
-  );
-
-  -- User Watchlist / Favorites
-  CREATE TABLE public.user_watchlist (
-      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-      user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
-      movie_id UUID REFERENCES public.movies_cache(id) ON DELETE CASCADE,
-      created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-      UNIQUE(user_id, movie_id)
-  );
-  ```
-- [ ] **5.2. Playback Progress Syncing**
-  - On `WatchPage.jsx`, sync playback position every 10 seconds to `user_watch_history`.
-- [ ] **5.3. "Continue Watching" UI Section**
-  - Fetch active watch history on the Homepage and render a progress bar on resumed movie thumbnails.
-- [ ] **5.4. Watchlist Toggle Buttons**
-  - Add "+ Watchlist" button on movie detail cards and watch page.
+- [x] **5.1. Watch History & Watchlist Tables in Supabase**
+  - Created `backend/user_history.sql` schema defining `user_watch_history` and `user_watchlist` with RLS policies.
+  - Implemented `backend/app/api/history.py` with endpoints for history upsert, retrieval, deletion, and guest sync.
+- [x] **5.2. Playback Progress Syncing**
+  - On `WatchPage.jsx`, sync playback position every 10 seconds to `WatchHistoryContext` and Supabase.
+  - Added support for seeking to `initialProgressSeconds` when resuming in-progress movies.
+- [x] **5.3. "Continue Watching" UI Section**
+  - Added `ContinueWatchingRail.jsx` with glassmorphic cards, glowing red progress bar, remaining time badges, resume hover overlay, and dismiss button.
+- [x] **5.4. Watchlist Toggle Buttons**
+  - Added "+ / ✓" bookmark button on `MovieCard.jsx` and `WatchPage.jsx`.
+  - Added dedicated "My List" tab and count badge in `Navbar.jsx` and `App.jsx`.
 
 ---
 

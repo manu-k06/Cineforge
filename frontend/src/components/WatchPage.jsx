@@ -31,9 +31,13 @@ import {
   Sparkles,
   Captions,
   CaptionsOff,
+  Bookmark,
+  BookmarkCheck,
+  Plus,
 } from 'lucide-react'
 import { formatBytes, parseMovieMetadata } from '../utils/helpers'
 import { getMovieMetadata, getSubtitleTracks } from '../services/api'
+import { useWatchHistory } from '../context/WatchHistoryContext'
 
 
 // Default fallback metadata generator for cast & reviews matching StreamVibe aesthetic
@@ -113,9 +117,11 @@ export default function WatchPage({
   delivery,
   candidate,
   group,
+  initialProgressSeconds = 0,
   onBack,
   onSwitchVersion,
 }) {
+  const { updateProgress, isInWatchlist, toggleWatchlist } = useWatchHistory()
   const [isPlaying, setIsPlaying] = useState(true)
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
@@ -129,12 +135,70 @@ export default function WatchPage({
   const videoRef = useRef(null)
   const playerContainerRef = useRef(null)
   const hideTimeoutRef = useRef(null)
+  const currentTimeRef = useRef(0)
+  const durationRef = useRef(0)
+  const lastSyncTimeRef = useRef(0)
 
   const title = delivery.candidate_title || candidate?.title || delivery.file_name || 'Movie'
   const meta = parseMovieMetadata(title, candidate?.display_text || candidate?.details || '')
   const extras = getMovieExtras(title)
 
   const [tmdbData, setTmdbData] = useState(null)
+
+  useEffect(() => {
+    currentTimeRef.current = currentTime
+  }, [currentTime])
+
+  useEffect(() => {
+    durationRef.current = duration
+  }, [duration])
+
+  // Periodic interval progress saving (every 10s during active playback)
+  useEffect(() => {
+    if (!isPlaying || currentTime < 15) return
+    const now = Date.now()
+    if (now - lastSyncTimeRef.current >= 10000) {
+      lastSyncTimeRef.current = now
+      const isCompleted = duration > 0 ? (currentTime / duration) >= 0.9 : false
+      updateProgress({
+        title: meta.cleanTitle || candidate?.title || delivery?.candidate_title,
+        clean_title: meta.cleanTitle,
+        year: meta.year || tmdbData?.year,
+        poster_url: tmdbData?.poster_url || null,
+        backdrop_url: tmdbData?.backdrop_url || null,
+        stream_url: delivery.stream_url,
+        candidate_title: candidate?.title || delivery?.candidate_title,
+        quality: candidate?.quality || '1080P',
+        progress_seconds: currentTime,
+        duration_seconds: duration,
+        completed: isCompleted,
+      })
+    }
+  }, [currentTime, isPlaying, duration, meta.cleanTitle, candidate, delivery, tmdbData, updateProgress])
+
+  // Sync on unmount if watched past 15s
+  useEffect(() => {
+    return () => {
+      const cur = currentTimeRef.current
+      const dur = durationRef.current
+      if (cur >= 15) {
+        const isCompleted = dur > 0 ? (cur / dur) >= 0.9 : false
+        updateProgress({
+          title: meta.cleanTitle || candidate?.title || delivery?.candidate_title,
+          clean_title: meta.cleanTitle,
+          year: meta.year || tmdbData?.year,
+          poster_url: tmdbData?.poster_url || null,
+          backdrop_url: tmdbData?.backdrop_url || null,
+          stream_url: delivery.stream_url,
+          candidate_title: candidate?.title || delivery?.candidate_title,
+          quality: candidate?.quality || '1080P',
+          progress_seconds: cur,
+          duration_seconds: dur,
+          completed: isCompleted,
+        })
+      }
+    }
+  }, [meta.cleanTitle, candidate, delivery, tmdbData, updateProgress])
 
   useEffect(() => {
     getMovieMetadata(meta.cleanTitle, meta.year)
@@ -355,9 +419,33 @@ export default function WatchPage({
 
   const handleLoadedMetadata = () => {
     if (videoRef.current) {
-      setDuration(videoRef.current.duration)
+      const dur = videoRef.current.duration || 0
+      setDuration(dur)
+      durationRef.current = dur
+      if (initialProgressSeconds && initialProgressSeconds > 0 && initialProgressSeconds < dur) {
+        videoRef.current.currentTime = initialProgressSeconds
+        setCurrentTime(initialProgressSeconds)
+        currentTimeRef.current = initialProgressSeconds
+      }
       videoRef.current.play().then(() => setIsPlaying(true)).catch(() => setIsPlaying(false))
     }
+  }
+
+  const handleVideoEnded = () => {
+    setIsPlaying(false)
+    updateProgress({
+      title: meta.cleanTitle || candidate?.title || delivery?.candidate_title,
+      clean_title: meta.cleanTitle,
+      year: meta.year || tmdbData?.year,
+      poster_url: tmdbData?.poster_url || null,
+      backdrop_url: tmdbData?.backdrop_url || null,
+      stream_url: delivery.stream_url,
+      candidate_title: candidate?.title || delivery?.candidate_title,
+      quality: candidate?.quality || '1080P',
+      progress_seconds: duration,
+      duration_seconds: duration,
+      completed: true,
+    })
   }
 
   const togglePlay = () => {
@@ -500,6 +588,7 @@ export default function WatchPage({
           autoPlay
           onTimeUpdate={handleTimeUpdate}
           onLoadedMetadata={handleLoadedMetadata}
+          onEnded={handleVideoEnded}
           onError={() => setHasPlaybackError(true)}
           onClick={togglePlay}
         >
@@ -792,6 +881,36 @@ export default function WatchPage({
       {/* Stream Actions Toolbar */}
       <div className="stream-action-bar">
         <div className="action-bar-left">
+          {/* Watchlist Bookmark Toggle */}
+          <button
+            className={`btn ${isInWatchlist(meta.cleanTitle || candidate?.title || delivery?.candidate_title) ? 'btn-watchlist-active' : 'btn-secondary'}`}
+            onClick={() => {
+              toggleWatchlist({
+                title: meta.cleanTitle || candidate?.title || delivery?.candidate_title,
+                clean_title: meta.cleanTitle,
+                year: meta.year || tmdbData?.year,
+                rating: tmdbData?.rating || extras.imdbRating,
+                poster_url: tmdbData?.poster_url || null,
+                backdrop_url: tmdbData?.backdrop_url || null,
+                overview: synopsis,
+                genres: genres,
+              })
+            }}
+            title={isInWatchlist(meta.cleanTitle || candidate?.title || delivery?.candidate_title) ? 'Saved in My List' : 'Add to My List'}
+          >
+            {isInWatchlist(meta.cleanTitle || candidate?.title || delivery?.candidate_title) ? (
+              <>
+                <BookmarkCheck size={16} className="text-primary" />
+                <span>In My List</span>
+              </>
+            ) : (
+              <>
+                <Plus size={16} />
+                <span>Add to My List</span>
+              </>
+            )}
+          </button>
+
           <a
             href={effectiveWatchUrl}
             target="_blank"

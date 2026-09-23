@@ -7,15 +7,21 @@ import VersionPickerModal from './components/VersionPickerModal'
 import DeliveryModal from './components/DeliveryModal'
 import WatchPage from './components/WatchPage'
 import AuthModal from './components/AuthModal'
+import ContinueWatchingRail from './components/ContinueWatchingRail'
+import MovieCard from './components/MovieCard'
+import { Bookmark, History } from 'lucide-react'
 import { useAuth } from './context/AuthContext'
+import { useWatchHistory } from './context/WatchHistoryContext'
 import { searchMovies, deliverCandidate, getBackendHealth, getTrendingMovies } from './services/api'
 import { parseMovieMetadata } from './utils/helpers'
 
 export default function App() {
   const { isAuthModalOpen, closeAuthModal } = useAuth()
+  const { continueWatchingList, removeFromHistory, watchlist, watchHistory } = useWatchHistory()
   const [currentView, setCurrentView] = useState('browse') // 'browse' | 'watch'
   const [activeTab, setActiveTab] = useState('home')
   const [isBackendOnline, setIsBackendOnline] = useState(true)
+  const [initialProgressSeconds, setInitialProgressSeconds] = useState(0)
 
   // Search state
   const [searchQuery, setSearchQuery] = useState('')
@@ -161,12 +167,40 @@ export default function App() {
 
   // Handle movie selection from grid
   const handleSelectMovie = (group) => {
+    setInitialProgressSeconds(0)
     setActiveMovieGroup(group)
     if (group.candidates && group.candidates.length > 1) {
       setSelectedGroup(group)
     } else {
       const single = group.candidates ? group.candidates[0] : group
       startDelivery(single, group)
+    }
+  }
+
+  // Resume playback from Continue Watching rail
+  const handleResumeFromRail = (item) => {
+    const resumeSeconds = item.progress_seconds || 0
+    setInitialProgressSeconds(resumeSeconds)
+
+    if (item.stream_url) {
+      setActiveCandidate({
+        title: item.candidate_title || item.title,
+        quality: item.quality || '1080P',
+        container: 'mp4',
+      })
+      setActiveDelivery({
+        stream_url: item.stream_url,
+        candidate_title: item.candidate_title || item.title,
+        watch_url: item.stream_url,
+      })
+      setActiveMovieGroup({
+        title: item.clean_title || item.title,
+        metadata: item,
+      })
+      setCurrentView('watch')
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    } else {
+      handleSearch(item.clean_title || item.title, 1)
     }
   }
 
@@ -248,15 +282,30 @@ export default function App() {
             delivery={activeDelivery}
             candidate={activeCandidate}
             group={activeMovieGroup}
-            onBack={() => setCurrentView('browse')}
+            initialProgressSeconds={initialProgressSeconds}
+            onBack={() => {
+              setCurrentView('browse')
+              setInitialProgressSeconds(0)
+            }}
             onSwitchVersion={(ver) => startDelivery(ver, activeMovieGroup)}
           />
         ) : (
           /* Browse & Discovery View */
           <div className={`browse-view-container ${searchQuery ? 'with-search' : ''}`}>
-            {/* Hero Showcase (full bleed when not searching) */}
-            {!searchQuery && (
+            {/* Hero Showcase (full bleed when not searching on home tab) */}
+            {!searchQuery && activeTab === 'home' && (
               <HeroBanner onQuickPlay={handleHeroQuickPlay} />
+            )}
+
+            {/* Continue Watching Rail (prominent below Hero Banner) */}
+            {!searchQuery && activeTab === 'home' && continueWatchingList.length > 0 && (
+              <div className="continue-watching-wrapper">
+                <ContinueWatchingRail
+                  items={continueWatchingList}
+                  onResume={handleResumeFromRail}
+                  onRemove={removeFromHistory}
+                />
+              </div>
             )}
 
             <div className="browse-body-container">
@@ -269,20 +318,116 @@ export default function App() {
                 />
               </div>
 
-              {/* Results / Discovery Movie Grid */}
-              <MovieGrid
-                items={rawCandidates}
-                groupedItems={groupedCandidates}
-                metadataEnrichment={metadataEnrichment}
-                isLoading={isSearching}
-                searchQuery={searchQuery}
-                page={page}
-                totalPages={totalPages}
-                hasNextPage={hasNextPage}
-                onPageChange={(newPage) => handleSearch(searchQuery, newPage)}
-                onSelectMovie={handleSelectMovie}
-                onQuickSearch={(q) => handleSearch(q, 1)}
-              />
+              {/* Dedicated Watchlist Tab */}
+              {activeTab === 'watchlist' && !searchQuery ? (
+                <div className="watchlist-tab-container">
+                  <div className="watchlist-header-bar">
+                    <div className="section-title-wrapper">
+                      <div className="section-indicator-dot" />
+                      <h2 className="section-main-title">My Watchlist</h2>
+                      <span className="section-meta-count">{watchlist.length} saved</span>
+                    </div>
+                    <p className="watchlist-subtitle">
+                      Your saved movies and series ready to stream anytime.
+                    </p>
+                  </div>
+
+                  {watchlist.length === 0 ? (
+                    <div className="watchlist-empty-state">
+                      <Bookmark size={48} className="empty-icon text-secondary" />
+                      <h3>Your Watchlist is Empty</h3>
+                      <p>Browse our catalog or trending titles and click "+ Add to My List" to bookmark movies here.</p>
+                      <button className="btn btn-primary" onClick={() => setActiveTab('home')}>
+                        Explore Catalog
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="movies-grid">
+                      {watchlist.map((item) => (
+                        <MovieCard
+                          key={item.title}
+                          group={{
+                            title: item.title,
+                            metadata: item,
+                            candidates: [
+                              {
+                                title: item.title,
+                                display_text: `${item.title} (${item.year || ''})`,
+                                quality: '1080P',
+                                container: 'mp4',
+                              },
+                            ],
+                          }}
+                          metadata={item}
+                          onSelect={() => handleSearch(item.clean_title || item.title, 1)}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ) : activeTab === 'history' && !searchQuery ? (
+                /* Dedicated History Tab */
+                <div className="watchlist-tab-container">
+                  <div className="watchlist-header-bar">
+                    <div className="section-title-wrapper">
+                      <div className="section-indicator-dot" />
+                      <h2 className="section-main-title">Watch History</h2>
+                      <span className="section-meta-count">{watchHistory.length} titles</span>
+                    </div>
+                    <p className="watchlist-subtitle">
+                      Review all titles you have streamed on Cineforge.
+                    </p>
+                  </div>
+
+                  {watchHistory.length === 0 ? (
+                    <div className="watchlist-empty-state">
+                      <History size={48} className="empty-icon text-secondary" />
+                      <h3>No Watch History</h3>
+                      <p>Movies and shows you watch will automatically be recorded here with your progress.</p>
+                      <button className="btn btn-primary" onClick={() => setActiveTab('home')}>
+                        Start Watching
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="movies-grid">
+                      {watchHistory.map((item) => (
+                        <MovieCard
+                          key={item.title}
+                          group={{
+                            title: item.title,
+                            metadata: item,
+                            candidates: [
+                              {
+                                title: item.title,
+                                display_text: `${item.title} (${item.year || ''}) - ${item.progress_percent || 0}%`,
+                                quality: item.quality || '1080P',
+                                container: 'mp4',
+                              },
+                            ],
+                          }}
+                          metadata={item}
+                          onSelect={() => handleResumeFromRail(item)}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                /* Results / Discovery Movie Grid */
+                <MovieGrid
+                  items={rawCandidates}
+                  groupedItems={groupedCandidates}
+                  metadataEnrichment={metadataEnrichment}
+                  isLoading={isSearching}
+                  searchQuery={searchQuery}
+                  page={page}
+                  totalPages={totalPages}
+                  hasNextPage={hasNextPage}
+                  onPageChange={(newPage) => handleSearch(searchQuery, newPage)}
+                  onSelectMovie={handleSelectMovie}
+                  onQuickSearch={(q) => handleSearch(q, 1)}
+                />
+              )}
             </div>
           </div>
         )}

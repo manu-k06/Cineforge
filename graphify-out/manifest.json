@@ -6,9 +6,9 @@
     "semantic_hash": ""
   },
   "backend/app/api/__init__.py": {
-    "mtime": 1790072299.6151826,
-    "seen": 1790098952.9995742,
-    "ast_hash": "8329aa8fb888ba624b64ca39a8457e71",
+    "mtime": 1790156516.8957698,
+    "seen": 1790156898.2299387,
+    "ast_hash": "7fd1147df5b3018cc0d7d0b017e6c4e8",
     "semantic_hash": ""
   },
   "backend/app/api/ai.py": {
@@ -60,9 +60,9 @@
     "semantic_hash": ""
   },
   "backend/app/main.py": {
-    "mtime": 1790072315.109093,
-    "seen": 1790098952.9995854,
-    "ast_hash": "f028f96b8298f087ff4b7ffe4b5d8ace",
+    "mtime": 1790156540.971368,
+    "seen": 1790156898.231166,
+    "ast_hash": "035625594c3d2aea74ea017f4697a7a9",
     "semantic_hash": ""
   },
   "backend/app/models/__init__.py": {
@@ -246,9 +246,9 @@
     "semantic_hash": ""
   },
   "frontend/src/App.jsx": {
-    "mtime": 1790129120.3382988,
-    "seen": 1790129261.4029272,
-    "ast_hash": "19403a56d621efbbccaf14111b5b0c59",
+    "mtime": 1790156788.5252025,
+    "seen": 1790156898.235296,
+    "ast_hash": "0d5970d302fb996d85ced04fa060b3d4",
     "semantic_hash": ""
   },
   "frontend/src/components/AuthModal.jsx": {
@@ -270,9 +270,9 @@
     "semantic_hash": ""
   },
   "frontend/src/components/MovieCard.jsx": {
-    "mtime": 1790069709.685158,
-    "seen": 1790098952.999621,
-    "ast_hash": "c0fbe64aa45ed79ca801a1f71c71bb20",
+    "mtime": 1790156696.3562424,
+    "seen": 1790156898.2357175,
+    "ast_hash": "5ce9f9afe1b02d77da5b5eaffc0a4401",
     "semantic_hash": ""
   },
   "frontend/src/components/MovieGrid.jsx": {
@@ -282,9 +282,9 @@
     "semantic_hash": ""
   },
   "frontend/src/components/Navbar.jsx": {
-    "mtime": 1790101846.0907638,
-    "seen": 1790102094.1453207,
-    "ast_hash": "ca014d799fcd9520b2bf173df2f68e4e",
+    "mtime": 1790156756.569983,
+    "seen": 1790156898.2358553,
+    "ast_hash": "39fe0d764587f331c4dabc3fba2b7a2a",
     "semantic_hash": ""
   },
   "frontend/src/components/PlayerModal.jsx": {
@@ -306,9 +306,9 @@
     "semantic_hash": ""
   },
   "frontend/src/components/WatchPage.jsx": {
-    "mtime": 1790096752.6136105,
-    "seen": 1790098952.9996266,
-    "ast_hash": "96d8dd5add8ff29eecbf5db0bcb989d6",
+    "mtime": 1790156665.8726437,
+    "seen": 1790156898.2363007,
+    "ast_hash": "496f63fb7e53afd0b5fd20b09463c412",
     "semantic_hash": ""
   },
   "frontend/src/context/AuthContext.jsx": {
@@ -318,15 +318,15 @@
     "semantic_hash": ""
   },
   "frontend/src/main.jsx": {
-    "mtime": 1789982231.5414283,
-    "seen": 1790098952.9996285,
-    "ast_hash": "2e7f1487ff80598da5d818266e2c64e4",
+    "mtime": 1790156611.6867619,
+    "seen": 1790156898.2364376,
+    "ast_hash": "c76d08418dac4ddb02b529443c7c2800",
     "semantic_hash": ""
   },
   "frontend/src/services/api.js": {
-    "mtime": 1790100504.8707254,
-    "seen": 1790100682.3865254,
-    "ast_hash": "945ebbf97bfec17c8779e17a48bbbd00",
+    "mtime": 1790156584.0865998,
+    "seen": 1790156898.2364397,
+    "ast_hash": "2f531d8b64b9466c0dd1a40329f73ef7",
     "semantic_hash": ""
   },
   "frontend/src/services/supabase.js": {
@@ -429,6 +429,24 @@
     "mtime": 1789926431.9149876,
     "seen": 1790098952.999647,
     "ast_hash": "9960a24288958394ac50e57ff638b036",
+    "semantic_hash": ""
+  },
+  "backend/app/api/history.py": {
+    "mtime": 1790156509.006828,
+    "seen": 1790156898.2304838,
+    "ast_hash": "852788d60a9ca8f1f55b5ee5c86cc1e7",
+    "semantic_hash": ""
+  },
+  "frontend/src/components/ContinueWatchingRail.jsx": {
+    "mtime": 1790156847.8988686,
+    "seen": 1790156898.235438,
+    "ast_hash": "4cd8f4bcb7131e36c347af6a1fcc8407",
+    "semantic_hash": ""
+  },
+  "frontend/src/context/WatchHistoryContext.jsx": {
+    "mtime": 1790156598.3806465,
+    "seen": 1790156898.236435,
+    "ast_hash": "9459222b2b05150b36fb512b22a33005",
     "semantic_hash": ""
   }
 }
