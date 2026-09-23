@@ -446,6 +446,7 @@ export default function App() {
       {candidateInDelivery && (
         <DeliveryModal
           candidate={candidateInDelivery}
+          metadata={activeMovieGroup?.metadata}
           error={deliveryError}
           onClose={() => {
             setCandidateInDelivery(null)

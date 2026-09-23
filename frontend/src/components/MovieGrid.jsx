@@ -135,15 +135,18 @@ function HorizontalRail({ category, onSelectMovie, onQuickSearch }) {
   }
 
   const Icon = category.icon || Sparkles
+  const isTrendingTop10 = category.id === 'trending-today'
 
   return (
-    <div className="content-rail-section">
+    <div className={`content-rail-section ${isTrendingTop10 ? 'top10-rail-section' : ''}`}>
       <div className="rail-header">
         <div className="rail-title-group">
           <span className="badge badge-red rail-badge">
-            <Icon size={12} /> {category.tag}
+            <Icon size={12} /> {isTrendingTop10 ? 'TOP 10 TODAY' : category.tag}
           </span>
-          <h2 className="rail-title">{category.title}</h2>
+          <h2 className="rail-title">
+            {isTrendingTop10 ? 'Top 10 Movies Today' : category.title}
+          </h2>
         </div>
         <div className="rail-nav-controls">
           <button
@@ -165,14 +168,15 @@ function HorizontalRail({ category, onSelectMovie, onQuickSearch }) {
         </div>
       </div>
 
-      <div className="rail-scroll-track" ref={rowRef}>
+      <div className={`rail-scroll-track ${isTrendingTop10 ? 'top10-scroll-track' : ''}`} ref={rowRef}>
         {category.movies.map((m, idx) => (
           <div
             key={m.tmdb_id || `${m.title}-${idx}`}
-            className="rail-movie-item"
+            className={`rail-movie-item ${isTrendingTop10 && idx < 10 ? 'top10-movie-item' : ''}`}
             onClick={() => onQuickSearch(m.title)}
           >
             <MovieCard
+              rank={isTrendingTop10 && idx < 10 ? idx + 1 : null}
               group={{
                 title: m.title,
                 candidates: [

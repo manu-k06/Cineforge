@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { Play, Plus, Check, Star, ChevronLeft, ChevronRight, Volume2, VolumeX, Sparkles, Loader2 } from 'lucide-react'
+import { Play, Plus, Check, Star, ChevronLeft, ChevronRight, Volume2, VolumeX, Sparkles, Loader2, Info } from 'lucide-react'
 import { getPopularMovies, getTrendingMovies } from '../services/api'
+import { useWatchHistory } from '../context/WatchHistoryContext'
 
 export default function HeroBanner({ onQuickPlay }) {
+  const { isInWatchlist, toggleWatchlist } = useWatchHistory()
   const [movies, setMovies] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [currentIndex, setCurrentIndex] = useState(0)
-  const [watchlist, setWatchlist] = useState(new Set())
   const [isMuted, setIsMuted] = useState(true)
   const timerRef = useRef(null)
 
@@ -48,9 +49,10 @@ export default function HeroBanner({ onQuickPlay }) {
         })
 
         if (valid.length > 0 && isMounted) {
-          const formatted = valid.slice(0, 6).map((m) => {
+          const formatted = valid.slice(0, 6).map((m, idx) => {
             const releaseYear = m.year || (m.release_date ? m.release_date.split('-')[0] : '2024')
             const displayRating = m.rating ? Number(m.rating).toFixed(1) : '8.4'
+            const matchScore = Math.min(99, Math.max(92, Math.round(Number(displayRating) * 10 + (idx % 3) * 2)))
             const genresList = m.genres && m.genres.length > 0 ? m.genres : ['Action', 'Thriller', 'Sci-Fi']
 
             return {
@@ -60,12 +62,14 @@ export default function HeroBanner({ onQuickPlay }) {
               synopsis: m.overview || 'Newly released blockbuster streaming in ultra high definition with multi-audio on Cineforge.',
               year: releaseYear,
               rating: displayRating,
+              matchScore: `${matchScore}% Match`,
               certificate: 'U/A 16+',
-              quality: '4K ULTRA HD',
-              audio: 'Dolby Atmos 5.1',
-              duration: '2h 15min',
+              quality: '4K UHD',
+              audio: 'Dolby Atmos',
+              duration: '2h 15m',
               genres: genresList,
               backdrop: m.backdrop_url,
+              poster_url: m.poster_url || null,
             }
           })
 
@@ -108,15 +112,6 @@ export default function HeroBanner({ onQuickPlay }) {
     setCurrentIndex((prev) => (prev - 1 + movies.length) % movies.length)
   }
 
-  const toggleWatchlist = (id) => {
-    setWatchlist((prev) => {
-      const next = new Set(prev)
-      if (next.has(id)) next.delete(id)
-      else next.add(id)
-      return next
-    })
-  }
-
   // Skeleton loading placeholder
   if (isLoading || movies.length === 0) {
     return (
@@ -126,7 +121,7 @@ export default function HeroBanner({ onQuickPlay }) {
         <div className="hero-content" style={{ opacity: 0.6 }}>
           <div className="hero-meta-top">
             <span className="badge badge-spotlight animate-pulse">
-              <Loader2 size={13} className="animate-spin" /> DISCOVERING SPOTLIGHT CINEMA...
+              <Loader2 size={13} className="animate-spin" /> SPOTLIGHT CINEMA...
             </span>
           </div>
           <div style={{ height: '48px', width: '380px', background: 'rgba(255,255,255,0.08)', borderRadius: '8px', margin: '16px 0' }} className="skeleton"></div>
@@ -138,7 +133,20 @@ export default function HeroBanner({ onQuickPlay }) {
   }
 
   const current = movies[currentIndex]
-  const isCurrentInWatchlist = watchlist.has(current.id)
+  const isSaved = isInWatchlist(current.title)
+
+  const handleToggleWatchlist = () => {
+    toggleWatchlist({
+      title: current.title,
+      clean_title: current.title,
+      year: current.year,
+      rating: current.rating,
+      poster_url: current.poster_url,
+      backdrop_url: current.backdrop,
+      overview: current.synopsis,
+      genres: current.genres,
+    })
+  }
 
   return (
     <div className="hero-banner-container">
@@ -156,64 +164,59 @@ export default function HeroBanner({ onQuickPlay }) {
 
       {/* Hero Content */}
       <div className="hero-content">
+        {/* OTT Spotlight Tag */}
         <div className="hero-meta-top">
-          <span className="badge badge-spotlight">
-            <Sparkles size={13} /> STREAM SPOTLIGHT
+          <span className="ott-spotlight-pill">
+            <Sparkles size={13} className="text-primary" />
+            <span>FEATURED SPOTLIGHT</span>
           </span>
-          <span className="badge badge-quality">{current.quality}</span>
-          {current.audio && <span className="badge badge-audio">{current.audio}</span>}
         </div>
 
         <h1 className="hero-title">{current.title}</h1>
 
+        {/* Netflix/Apple TV Style Metadata Badges */}
         <div className="hero-stats">
-          <div className="stat-rating">
-            <Star size={16} fill="#FFD700" color="#FFD700" />
-            <span>{current.rating}</span>
-          </div>
-          <span className="stat-dot">•</span>
-          <span className="stat-certificate">{current.certificate || 'U/A 16+'}</span>
+          <span className="ott-match-score">{current.matchScore}</span>
           <span className="stat-dot">•</span>
           <span className="stat-year">{current.year}</span>
           <span className="stat-dot">•</span>
+          <span className="ott-cert-badge">{current.certificate || 'PG-13'}</span>
+          <span className="stat-dot">•</span>
           <span className="stat-duration">{current.duration}</span>
           <span className="stat-dot">•</span>
-          <div className="stat-genres">
-            {current.genres.map((g) => (
-              <span key={g} className="badge badge-genre">
-                {g}
-              </span>
-            ))}
-          </div>
+          <span className="ott-tech-badge">{current.quality}</span>
+          <span className="ott-tech-badge">{current.audio}</span>
         </div>
 
         <p className="hero-synopsis">{current.synopsis}</p>
 
+        {/* Cinematic Action Buttons */}
         <div className="hero-actions">
           <button
             className="btn btn-hero-play"
             onClick={() => onQuickPlay(current.searchQuery)}
             id="hero-play-btn"
           >
-            <Play size={20} fill="#000000" />
+            <Play size={20} fill="#000000" color="#000000" className="translate-play" />
             <span>Play Now</span>
           </button>
 
           <button
-            className="btn btn-hero-watchlist"
-            onClick={() => toggleWatchlist(current.id)}
+            className={`btn btn-hero-watchlist ${isSaved ? 'in-watchlist' : ''}`}
+            onClick={handleToggleWatchlist}
             id="hero-watchlist-btn"
           >
-            {isCurrentInWatchlist ? <Check size={18} className="text-success" /> : <Plus size={18} />}
-            <span>{isCurrentInWatchlist ? 'In Watchlist' : 'Add to Watchlist'}</span>
+            {isSaved ? <Check size={18} className="text-primary" /> : <Plus size={18} />}
+            <span>{isSaved ? 'In My List' : 'Add to My List'}</span>
           </button>
 
           <button
-            className="btn-icon btn-hero-sound"
-            onClick={() => setIsMuted(!isMuted)}
-            title={isMuted ? 'Unmute' : 'Mute'}
+            className="btn btn-hero-info"
+            onClick={() => onQuickPlay(current.searchQuery)}
+            title="More Details & Versions"
           >
-            {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+            <Info size={18} />
+            <span>More Info</span>
           </button>
         </div>
       </div>

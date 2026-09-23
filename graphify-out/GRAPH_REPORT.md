@@ -1,17 +1,17 @@
 # Graph Report - Cineforge  (2026-09-23)
 
 ## Corpus Check
-- 68 files · ~45,117 words
+- 69 files · ~46,762 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 8 file(s) not represented in the graph (top: (none) 4, .example 2, .css 2)
 
 ## Summary
-- 677 nodes · 1343 edges · 38 communities (33 shown, 5 thin omitted)
+- 682 nodes · 1357 edges · 34 communities (29 shown, 5 thin omitted)
 - Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 49 edges (avg confidence: 0.95)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `03ba29e8`
+- Built from commit: `24cb24af`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -41,15 +41,11 @@
 - rules/graphify.md
 - workflows/graphify.md
 - app/__init__.py
-- TestTmdbMetadataService
-- services/auth.py
-- SearchCandidate
+- AuthService
+- api/search.py
 - TelegramService
 - services/telegram.py
 - history.py
-- TestPhase14MediaCompatibility
-- api/search.py
-- search_movies
 - SubtitleTrack
 - subtitle_service.py
 - MediaWaiter
@@ -72,33 +68,33 @@
   docs/BACKEND_TODO.md → frontend/src/components/MovieCard.jsx
 - `📋 Phase 2: Metadata Enrichment (TMDb / IMDb API Integration)` --references--> `WatchPage()`  [INFERRED]
   docs/BACKEND_TODO.md → frontend/src/components/WatchPage.jsx
-- `search_movies()` --uses--> `SearchCandidate`  [INFERRED]
-  backend/app/api/search.py → backend/app/models/search.py
-- `search_movies()` --uses--> `SearchPaginationInfo`  [INFERRED]
-  backend/app/api/search.py → backend/app/models/search.py
-- `search_movies()` --uses--> `SearchResponse`  [INFERRED]
-  backend/app/api/search.py → backend/app/models/search.py
+- `CacheService` --uses--> `AiQueryInterpretation`  [INFERRED]
+  backend/app/services/cache_service.py → backend/app/models/ai.py
+- `TestDeliveryResponse` --uses--> `ButtonInfo`  [INFERRED]
+  backend/app/models/delivery.py → backend/app/models/search.py
+- `TelegramService` --uses--> `CandidateDeliveryRequest`  [INFERRED]
+  backend/app/services/telegram.py → backend/app/models/delivery_flow.py
 
 ## Import Cycles
 - None detected.
 
-## Communities (38 total, 5 thin omitted)
+## Communities (34 total, 5 thin omitted)
 
 ### Community 0 - "models/__init__.py"
 Cohesion: 0.17
 Nodes (21): get_telegram_status(), get, post, Check if the Telethon user client is connected and authenticated without…, Development-only endpoint: Sends query to bot in private chat and returns…, Development-only endpoint: Registers an isolated waiter and waits for the next…, Development-only endpoint: Initiates Telegram deep link interaction with target…, test_delivery_flow() (+13 more)
 
 ### Community 1 - "config.py"
-Cohesion: 0.08
-Nodes (37): ask_companion(), get_ai_status(), get_recommendations(), get, post, Returns the operational status and model configured for CineAI., Interprets vague descriptions, corrects typos, and outputs a canonical search…, Generate movie or show recommendations matching a theme, mood, or natural… (+29 more)
+Cohesion: 0.06
+Nodes (51): ask_companion(), get_ai_status(), get_recommendations(), get, post, Returns the operational status and model configured for CineAI., Interprets vague descriptions, corrects typos, and outputs a canonical search…, Generate movie or show recommendations matching a theme, mood, or natural… (+43 more)
 
 ### Community 2 - "App.jsx"
 Cohesion: 0.07
-Nodes (56): 📋 Phase 2: Metadata Enrichment (TMDb / IMDb API Integration), App(), AuthModal(), ContinueWatchingRail(), DeliveryModal(), HeroBanner(), fetchHeroMovies(), MovieCard() (+48 more)
+Nodes (59): 📋 Phase 2: Metadata Enrichment (TMDb / IMDb API Integration), App(), AuthModal(), ContinueWatchingRail(), DeliveryModal(), HeroBanner(), fetchHeroMovies(), MovieCard() (+51 more)
 
 ### Community 3 - "tmdb.py"
-Cohesion: 0.08
-Nodes (34): discover_movies(), get_metadata_status(), get_movie_metadata(), get_popular_movies(), get_top_rated_movies(), get_trending_movies(), get, Check if TMDb API integration is configured and available. (+26 more)
+Cohesion: 0.05
+Nodes (43): discover_movies(), get_metadata_status(), get_movie_metadata(), get_popular_movies(), get_top_rated_movies(), get_trending_movies(), get, Check if TMDb API integration is configured and available. (+35 more)
 
 ### Community 4 - "CacheService"
 Cohesion: 0.07
@@ -113,12 +109,12 @@ Cohesion: 0.25
 Nodes (8): clean_movie_title(), Scrub messy release strings, telegram handles, bot prefixes, and rip tags to…, Service for discovering, downloading, and streaming multi-language WebVTT…, Query Stremio OpenSubtitles v3 CDN API for verified movie subtitles. Bypasses…, Query OpenSubtitles REST API for verified movie subtitles. Supports lookup by…, Query community Yify Subtitles repository for verified SRT tracks. Supports…, Aggregate clean subtitle tracks from OpenSubtitles and community sources.…, SubtitleService
 
 ### Community 7 - "MediaCompatibilityService"
-Cohesion: 0.12
-Nodes (11): MediaCompatibilityResult, MediaCompatibilityService, Any, Detects container tokens in title or button text using bounded word boundaries., Determines whether a media file is natively browser-playable or requires an…, Convenience boolean check., Ranks a list of SearchResultItem objects. Prioritizes: 1. Browser-compatible…, Centralized service to evaluate browser media compatibility and rank search… (+3 more)
+Cohesion: 0.07
+Nodes (17): MediaCompatibilityService, Any, Detects container tokens in title or button text using bounded word boundaries., Determines whether a media file is natively browser-playable or requires an…, Convenience boolean check., Ranks a list of SearchResultItem objects. Prioritizes: 1. Browser-compatible…, Centralized service to evaluate browser media compatibility and rank search…, Extracts container extension strictly from file suffix to prevent substring… (+9 more)
 
 ### Community 8 - "package.json"
-Cohesion: 0.08
-Nodes (25): dependencies, lucide-react, react, react-dom, @supabase/supabase-js, devDependencies, oxlint, @types/react (+17 more)
+Cohesion: 0.07
+Nodes (26): dependencies, lucide-react, react, react-dom, @supabase/supabase-js, devDependencies, oxlint, @types/react (+18 more)
 
 ### Community 9 - "telethon_compat.py"
 Cohesion: 0.11
@@ -168,17 +164,13 @@ Nodes (5): plugins, rules, react/only-export-components, react/rules-of-hooks, $
 Cohesion: 0.50
 Nodes (3): Expanding the Oxlint configuration, React Compiler, React + Vite
 
-### Community 25 - "TestTmdbMetadataService"
-Cohesion: 0.11
-Nodes (9): GET /api/metadata/movie endpoint returns MovieMetadata model., GET /api/metadata/trending endpoint returns TrendingMoviesResponse model., Verify search_movie_suggestions parses TMDb search results into clean…, GET /api/search/suggestions returns 200 with suggestions list., Verify messy torrent/release filenames are cleanly sanitized., GET /api/metadata/status returns current configuration status., When TMDB_API_KEY is not set, service gracefully returns fallback metadata., Verify successful TMDb search, details, credits, and video parsing. (+1 more)
+### Community 25 - "AuthService"
+Cohesion: 0.38
+Nodes (3): AuthService, Service for validating Supabase JWT tokens and retrieving user profiles., Verify Supabase JWT token and return authenticated user metadata.
 
-### Community 26 - "services/auth.py"
-Cohesion: 0.24
-Nodes (8): get_auth_status(), get_my_profile(), Any, get, Check if Supabase Auth is configured on the backend., Retrieve profile information for the currently authenticated user., FastAPI, fastapi_security
-
-### Community 27 - "SearchCandidate"
-Cohesion: 0.17
-Nodes (12): BaseModel, SearchCandidate, SearchPaginationInfo, Any, Convert a candidate button into a rich SearchCandidate model., Aggregates paginated Telegram search candidate files, normalizes metadata, and…, Extract all candidate files and pagination metadata from a bot message., Deduplicate candidates preserving first-seen high-quality entries. (+4 more)
+### Community 27 - "api/search.py"
+Cohesion: 0.09
+Nodes (36): asyncio, _enrich_groups_with_metadata(), find_title_versions(), get_search_suggestions(), get_search_ui(), Any, get, Concurrently resolve TMDb posters, backdrops, and ratings for movie title… (+28 more)
 
 ### Community 28 - "TelegramService"
 Cohesion: 0.14
@@ -189,20 +181,8 @@ Cohesion: 0.16
 Nodes (12): deliver_candidate_file(), post, Trigger bot delivery for a candidate button, forward document to 'me', verify…, CandidateDeliveryRequest, CandidateDeliveryResponse, BaseModel, interactive_login(), Trigger bot delivery for a chosen candidate button, handle FSub gates, forward… (+4 more)
 
 ### Community 30 - "history.py"
-Cohesion: 0.12
-Nodes (25): add_to_watchlist(), BulkSyncPayload, delete_watch_history(), _get_supabase_client(), get_watch_history(), get_watchlist(), Any, BaseModel (+17 more)
-
-### Community 31 - "TestPhase14MediaCompatibility"
-Cohesion: 0.13
-Nodes (9): SearchResultItem, Verify GET /api/search?mock=true returns ranked items with compatibility…, Verify GET /api/search/ui renders the search interface with compatibility cues., Verify GET / redirects to /api/search/ui., Verify browser playability is properly classified via MIME types., Verify extension fallback when MIME type is generic or missing., Verify filenames with embedded misleading substrings are correctly parsed by…, Verify candidate ranking: MP4 1080p > MP4 720p > MKV 1080p > MKV 720p. (+1 more)
-
-### Community 32 - "api/search.py"
-Cohesion: 0.33
-Nodes (9): asyncio, ButtonInfo, SearchResponse, dataclasses, fastapi_responses, hashlib, logging, re (+1 more)
-
-### Community 33 - "search_movies"
-Cohesion: 0.18
-Nodes (12): _enrich_groups_with_metadata(), find_title_versions(), get_search_suggestions(), get_search_ui(), Any, get, Concurrently resolve TMDb posters, backdrops, and ratings for movie title…, Targeted search refinement: discovers all versions (1080p, 720p, MP4, MKV) of a… (+4 more)
+Cohesion: 0.28
+Nodes (16): add_to_watchlist(), BulkSyncPayload, delete_watch_history(), _get_supabase_client(), get_watch_history(), get_watchlist(), Any, BaseModel (+8 more)
 
 ### Community 34 - "SubtitleTrack"
 Cohesion: 0.24
@@ -217,16 +197,16 @@ Cohesion: 0.33
 Nodes (4): MediaWaiter, Register an isolated waiter and await incoming media message with a timeout., Represents an isolated, asynchronous media waiter for a specific request., Future
 
 ## Knowledge Gaps
-- **59 isolated node(s):** `$schema`, `plugins`, `react/rules-of-hooks`, `react/only-export-components`, `name` (+54 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 275 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **61 isolated node(s):** `$schema`, `plugins`, `react/rules-of-hooks`, `react/only-export-components`, `name` (+56 more)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 277 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
 - **5 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `TelegramService` connect `TelegramService` to `._get_client`, `MediaWaiter`, `services/telegram.py`?**
-  _High betweenness centrality (0.083) - this node is a cross-community bridge._
-- **Why does `SearchCandidate` connect `SearchCandidate` to `api/search.py`, `search_movies`, `models/__init__.py`, `config.py`, `CacheService`?**
+  _High betweenness centrality (0.081) - this node is a cross-community bridge._
+- **Why does `SearchCandidate` connect `api/search.py` to `models/__init__.py`, `config.py`, `CacheService`?**
   _High betweenness centrality (0.048) - this node is a cross-community bridge._
 - **Why does `TestAiService` connect `TestAiService` to `config.py`?**
   _High betweenness centrality (0.040) - this node is a cross-community bridge._
@@ -237,4 +217,4 @@ _Questions this graph is uniquely positioned to answer:_
 - **Are the 3 inferred relationships involving `TmdbService` (e.g. with `CastMember` and `MovieMetadata`) actually correct?**
   _`TmdbService` has 3 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `$schema`, `plugins`, `react/rules-of-hooks` to the rest of the system?**
-  _59 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _61 weakly-connected nodes found - possible documentation gaps or missing edges._

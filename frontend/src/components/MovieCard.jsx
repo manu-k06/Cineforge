@@ -4,7 +4,7 @@ import { parseMovieMetadata, getPosterGradient } from '../utils/helpers'
 import { getMovieMetadata } from '../services/api'
 import { useWatchHistory } from '../context/WatchHistoryContext'
 
-export default function MovieCard({ group, metadata: initialMetadata, onSelect }) {
+export default function MovieCard({ group, metadata: initialMetadata, rank = null, onSelect }) {
   const { isInWatchlist, toggleWatchlist } = useWatchHistory()
   // If grouped by title, group has { title, candidates }
   // Otherwise it's a single candidate
@@ -45,9 +45,24 @@ export default function MovieCard({ group, metadata: initialMetadata, onSelect }
   const displaySize = primaryCandidate.size || meta.fileSize
   const displayQuality = primaryCandidate.quality || meta.resolution
   const effectiveYear = metadata?.year || meta.year
+  const matchPercent = Math.min(99, Math.max(90, Math.round(Number(metadata?.rating || 8.2) * 10 + 6)))
 
   return (
-    <div className="movie-card" onClick={() => onSelect(group)}>
+    <div className={`movie-card ${rank ? 'top10-ranked-card' : ''}`} onClick={() => onSelect(group)}>
+      {/* Netflix-Style Top 10 Stylized Rank Number */}
+      {rank && (
+        <div className="top10-rank-container">
+          <svg className="top10-rank-svg" viewBox="0 0 100 140">
+            <text x="50%" y="115" textAnchor="middle" className="top10-rank-stroke">
+              {rank}
+            </text>
+            <text x="50%" y="115" textAnchor="middle" className="top10-rank-fill">
+              {rank}
+            </text>
+          </svg>
+        </div>
+      )}
+
       {/* Poster Image or Cinematic Generator */}
       <div className="movie-poster" style={{ background: gradient, position: 'relative', overflow: 'hidden' }}>
         {/* Real TMDb HD Poster Image */}
@@ -106,39 +121,49 @@ export default function MovieCard({ group, metadata: initialMetadata, onSelect }
           </div>
         )}
 
-        {/* Hover Overlay with Glow Play Icon */}
+        {/* Netflix-Style Hover Overlay with Quick Action Buttons & OTT Metadata */}
         <div className="poster-hover-overlay" style={{ zIndex: 3 }}>
-          <div className="play-button-glow">
-            <Play size={24} fill="#FFFFFF" color="#FFFFFF" />
+          <div className="hover-actions-bar">
+            <button className="hover-circle-btn play-circle" title="Play Now">
+              <Play size={16} fill="#000000" color="#000000" className="translate-play" />
+            </button>
+            <button
+              className={`hover-circle-btn ${isInWatchlist(meta.cleanTitle || group.title) ? 'active' : ''}`}
+              onClick={(e) => {
+                e.stopPropagation()
+                toggleWatchlist({
+                  title: meta.cleanTitle || group.title,
+                  clean_title: meta.cleanTitle,
+                  year: effectiveYear,
+                  rating: metadata?.rating || null,
+                  poster_url: metadata?.poster_url || null,
+                  backdrop_url: metadata?.backdrop_url || null,
+                  overview: metadata?.overview || null,
+                  genres: metadata?.genres || [],
+                })
+              }}
+              title={isInWatchlist(meta.cleanTitle || group.title) ? 'In My List' : 'Add to My List'}
+            >
+              {isInWatchlist(meta.cleanTitle || group.title) ? (
+                <BookmarkCheck size={16} fill="#E50000" color="#E50000" />
+              ) : (
+                <Plus size={16} color="#FFFFFF" />
+              )}
+            </button>
           </div>
-          <span className="hover-cta-text">
-            {releaseCount > 1 ? 'Choose Version' : 'Stream Now'}
-          </span>
 
-          {/* Quick Watchlist Bookmark Button */}
-          <button
-            className={`card-watchlist-btn ${isInWatchlist(meta.cleanTitle || group.title) ? 'active' : ''}`}
-            onClick={(e) => {
-              e.stopPropagation()
-              toggleWatchlist({
-                title: meta.cleanTitle || group.title,
-                clean_title: meta.cleanTitle,
-                year: effectiveYear,
-                rating: metadata?.rating || null,
-                poster_url: metadata?.poster_url || null,
-                backdrop_url: metadata?.backdrop_url || null,
-                overview: metadata?.overview || null,
-                genres: metadata?.genres || [],
-              })
-            }}
-            title={isInWatchlist(meta.cleanTitle || group.title) ? 'Remove from My List' : 'Add to My List'}
-          >
-            {isInWatchlist(meta.cleanTitle || group.title) ? (
-              <BookmarkCheck size={16} fill="#E50000" color="#E50000" />
-            ) : (
-              <Plus size={16} color="#FFFFFF" />
-            )}
-          </button>
+          <div className="hover-ott-details">
+            <span className="hover-match-text">{matchPercent}% Match</span>
+            <div className="hover-chips-row">
+              <span className="hover-chip-cert">U/A 16+</span>
+              <span className="hover-chip-res">{displayQuality}</span>
+            </div>
+            <div className="hover-genres-list">
+              {metadata?.genres?.slice(0, 2).map((g) => (
+                <span key={g} className="hover-genre-pill">{g}</span>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 
