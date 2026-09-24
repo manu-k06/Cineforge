@@ -22,4 +22,14 @@ ping -n 4 127.0.0.1 >nul
 echo 3. Starting Ngrok Tunnel for https://oxidize-dandelion-outmost.ngrok-free.dev...
 start "Ngrok Tunnel" /min ngrok http 8000 --url=oxidize-dandelion-outmost.ngrok-free.dev
 
-echo Cineforge and Streamer Bot are live at: https://oxidize-dandelion-outmost.ngrok-free.dev
+echo.
+echo ======================================================================
+echo   Cineforge Local Server, Streamer Bot, and Ngrok are now LIVE!
+echo ======================================================================
+echo   * Ngrok Tunnel : https://oxidize-dandelion-outmost.ngrok-free.dev
+echo   * Web Player   : https://cineforge-v1.vercel.app
+echo   * Local API    : http://127.0.0.1:8000/health
+echo   * Streamer Bot : http://127.0.0.1:8088/
+echo ======================================================================
+echo   This window will close in 6 seconds (servers will keep running in background).
+timeout /t 6 >nul
