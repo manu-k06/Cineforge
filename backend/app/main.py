@@ -53,8 +53,51 @@ app.include_router(history_router, prefix="/api", tags=["History & Watchlist"])
 app.include_router(metadata_router, prefix="/api/metadata", tags=["Metadata"])
 app.include_router(subtitles_router, prefix="/api/subtitles", tags=["Subtitles"])
 
+import httpx
+from fastapi import Request
+from starlette.responses import StreamingResponse
+
+STREAMER_LOCAL_URL = "http://127.0.0.1:8088"
 
 
+@app.api_route("/stream/{path:path}", methods=["GET", "HEAD"])
+@app.api_route("/watch/{path:path}", methods=["GET", "HEAD"])
+@app.api_route("/download/{path:path}", methods=["GET", "HEAD"])
+async def proxy_to_streamer(request: Request, path: str):
+    """Proxy video streaming and download range requests to local Go FileStreamBot."""
+    target_url = f"{STREAMER_LOCAL_URL}{request.url.path}"
+    if request.url.query:
+        target_url += f"?{request.url.query}"
+
+    headers = dict(request.headers)
+    headers.pop("host", None)
+
+    client = httpx.AsyncClient(timeout=60.0)
+    req = client.build_request(
+        method=request.method,
+        url=target_url,
+        headers=headers,
+    )
+    resp = await client.send(req, stream=True)
+
+    excluded_headers = {"content-encoding", "content-length", "transfer-encoding", "connection"}
+    response_headers = {k: v for k, v in resp.headers.items() if k.lower() not in excluded_headers}
+    if "content-length" in resp.headers:
+        response_headers["content-length"] = resp.headers["content-length"]
+
+    async def body_stream():
+        try:
+            async for chunk in resp.aiter_bytes():
+                yield chunk
+        finally:
+            await resp.aclose()
+            await client.aclose()
+
+    return StreamingResponse(
+        body_stream(),
+        status_code=resp.status_code,
+        headers=response_headers,
+    )
 
 
 @app.get("/health", tags=["Health"])
