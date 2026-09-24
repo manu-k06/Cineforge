@@ -5,6 +5,21 @@
 
 const API_BASE = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '')
 
+// Automatically bypass ngrok free tier browser warning interstitial for API requests
+if (typeof window !== 'undefined' && window.fetch) {
+  const _origFetch = window.fetch
+  window.fetch = function (resource, init = {}) {
+    if (typeof resource === 'string' && API_BASE && resource.startsWith(API_BASE)) {
+      const headers = new Headers(init.headers || {})
+      if (!headers.has('ngrok-skip-browser-warning')) {
+        headers.set('ngrok-skip-browser-warning', 'true')
+      }
+      return _origFetch(resource, { ...init, headers })
+    }
+    return _origFetch(resource, init)
+  }
+}
+
 export async function searchMovies(query, page = 1, useAi = true) {
   if (API_BASE) {
     try {
