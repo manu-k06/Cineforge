@@ -39,52 +39,70 @@ export async function searchMovies(query, page = 1, useAi = true) {
     const response = await fetch(tmdbUrl)
     if (response.ok) {
       const data = await response.json()
-      const items = (data.results || [])
-        .filter((item) => item.media_type === 'movie' || item.media_type === 'tv')
-        .map(mapTmdbMovie)
+      const today = new Date().toISOString().split('T')[0]
+      const rawResults = (data.results || [])
+        .filter(
+          (item) =>
+            (item.media_type === 'movie' || item.media_type === 'tv') &&
+            item.poster_path &&
+            (!item.release_date || item.release_date <= today)
+        )
 
-      const title_groups = {}
-      items.forEach((m) => {
-        title_groups[m.title] = [
-          {
-            candidate_id: `cand-${m.tmdb_id}-1080p`,
-            title: m.title,
-            display_text: `${m.title} (${m.year || '2024'}) - 1080P Web-DL Multi-Audio`,
-            quality: '1080P',
-            container: 'mp4',
-            size: '2.4 GB',
-            language: 'Multi-Audio',
-            source_bot: 'Cineforge Stream Node',
-            source_message_id: m.tmdb_id,
-          },
-          {
-            candidate_id: `cand-${m.tmdb_id}-4k`,
-            title: m.title,
-            display_text: `${m.title} (${m.year || '2024'}) - 4K UHD HDR Atmos`,
-            quality: '4K UHD',
-            container: 'mkv',
-            size: '7.8 GB',
-            language: 'Multi-Audio',
-            source_bot: 'Cineforge Stream Node',
-            source_message_id: m.tmdb_id,
-          },
-          {
-            candidate_id: `cand-${m.tmdb_id}-720p`,
-            title: m.title,
-            display_text: `${m.title} (${m.year || '2024'}) - 720P Mobile Fast Stream`,
-            quality: '720P',
-            container: 'mp4',
-            size: '950 MB',
-            language: 'Multi-Audio',
-            source_bot: 'Cineforge Stream Node',
-            source_message_id: m.tmdb_id,
-          },
-        ]
+      const qLower = query.trim().toLowerCase()
+      rawResults.sort((a, b) => {
+        const aTitle = (a.title || a.name || '').trim().toLowerCase()
+        const bTitle = (b.title || b.name || '').trim().toLowerCase()
+        const aMatch = aTitle === qLower ? 5000 : aTitle.includes(qLower) ? 1000 : 0
+        const bMatch = bTitle === qLower ? 5000 : bTitle.includes(qLower) ? 1000 : 0
+        const aScore = aMatch + Math.min(a.vote_count || 0, 50000) * 1.5 + (a.popularity || 0) * 2
+        const bScore = bMatch + Math.min(b.vote_count || 0, 50000) * 1.5 + (b.popularity || 0) * 2
+        return bScore - aScore
       })
 
+      const items = rawResults.map(mapTmdbMovie).filter(Boolean)
+
+      const title_groups = {}
       const metadata_enrichment = {}
       items.forEach((m) => {
-        metadata_enrichment[m.title] = m
+        const existing = metadata_enrichment[m.title]
+        if (!existing || (m.vote_count || 0) > (existing.vote_count || 0)) {
+          metadata_enrichment[m.title] = m
+          title_groups[m.title] = [
+            {
+              candidate_id: `cand-${m.tmdb_id}-1080p`,
+              title: m.title,
+              display_text: `${m.title} (${m.year || '2024'}) - 1080P Web-DL Multi-Audio`,
+              quality: '1080P',
+              container: 'mp4',
+              size: '2.4 GB',
+              language: 'Multi-Audio',
+              source_bot: 'Cineforge Stream Node',
+              source_message_id: m.tmdb_id,
+            },
+            {
+              candidate_id: `cand-${m.tmdb_id}-4k`,
+              title: m.title,
+              display_text: `${m.title} (${m.year || '2024'}) - 4K UHD HDR Atmos`,
+              quality: '4K UHD',
+              container: 'mkv',
+              size: '7.8 GB',
+              language: 'Multi-Audio',
+              source_bot: 'Cineforge Stream Node',
+              source_message_id: m.tmdb_id,
+            },
+            {
+              candidate_id: `cand-${m.tmdb_id}-720p`,
+              title: m.title,
+              display_text: `${m.title} (${m.year || '2024'}) - 720P Mobile Fast Stream`,
+              quality: '720P',
+              container: 'mp4',
+              size: '950 MB',
+              language: 'Multi-Audio',
+              source_bot: 'Cineforge Stream Node',
+              source_message_id: m.tmdb_id,
+            },
+          ]
+        }
       })
 
       return {
@@ -126,19 +144,35 @@ export async function getSearchSuggestions(query, limit = 6) {
     const res = await fetch(tmdbUrl)
     if (res.ok) {
       const data = await res.json()
-      return (data.results || [])
-        .filter((item) => item.media_type === 'movie' || item.media_type === 'tv')
-        .slice(0, limit)
-        .map((m) => ({
-          id: m.id,
-          title: m.title || m.name,
-          year: m.release_date ? m.release_date.split('-')[0] : (m.first_air_date ? m.first_air_date.split('-')[0] : ''),
-          rating: m.vote_average ? Number(m.vote_average).toFixed(1) : null,
-          poster_url: m.poster_path ? getOptimizedImageUrl(m.poster_path, 'w500') : null,
-          backdrop_url: m.backdrop_path ? getOptimizedImageUrl(m.backdrop_path, 'w1280') : null,
-          media_type: m.media_type === 'tv' ? 'TV Show' : 'Movie',
-          overview: m.overview || '',
-        }))
+      const today = new Date().toISOString().split('T')[0]
+      const rawResults = (data.results || []).filter(
+        (item) =>
+          (item.media_type === 'movie' || item.media_type === 'tv') &&
+          item.poster_path &&
+          (!item.release_date || item.release_date <= today)
+      )
+
+      const qLower = query.trim().toLowerCase()
+      rawResults.sort((a, b) => {
+        const aTitle = (a.title || a.name || '').trim().toLowerCase()
+        const bTitle = (b.title || b.name || '').trim().toLowerCase()
+        const aMatch = aTitle === qLower ? 5000 : aTitle.includes(qLower) ? 1000 : 0
+        const bMatch = bTitle === qLower ? 5000 : bTitle.includes(qLower) ? 1000 : 0
+        const aScore = aMatch + Math.min(a.vote_count || 0, 50000) * 1.5 + (a.popularity || 0) * 2
+        const bScore = bMatch + Math.min(b.vote_count || 0, 50000) * 1.5 + (b.popularity || 0) * 2
+        return bScore - aScore
+      })
+
+      return rawResults.slice(0, limit).map((m) => ({
+        id: m.id,
+        title: m.title || m.name,
+        year: m.release_date ? m.release_date.split('-')[0] : (m.first_air_date ? m.first_air_date.split('-')[0] : ''),
+        rating: m.vote_average ? Number(m.vote_average).toFixed(1) : null,
+        poster_url: m.poster_path ? getOptimizedImageUrl(m.poster_path, 'w500') : null,
+        backdrop_url: m.backdrop_path ? getOptimizedImageUrl(m.backdrop_path, 'w1280') : null,
+        media_type: m.media_type === 'tv' ? 'TV Show' : 'Movie',
+        overview: m.overview || '',
+      }))
     }
   } catch (err) {
     console.warn('Direct TMDb search suggestions failed:', err)
@@ -329,13 +363,17 @@ export async function getTrendingMovies(timeWindow = 'week', page = 1) {
     }
   }
 
-  // Direct TMDb Trending
-  const tmdbUrl = `${TMDB_BASE_URL}/trending/movie/${timeWindow}?api_key=${TMDB_API_KEY}&page=${page}`
+  // Direct TMDb Trending strictly for OTT/Digital released films
+  const ottCutoff = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+  const tmdbUrl = `${TMDB_BASE_URL}/discover/movie?api_key=${TMDB_API_KEY}&sort_by=popularity.desc&with_release_type=4|5|6&primary_release_date.lte=${ottCutoff}&vote_count.gte=100&page=${page}`
   const res = await fetch(tmdbUrl)
   if (!res.ok) throw new Error('Failed to fetch trending movies from TMDb')
   const data = await res.json()
+  const validMovies = (data.results || []).filter(
+    (item) => item.poster_path && item.release_date && item.release_date <= ottCutoff && (item.vote_count || 0) >= 80
+  )
   return {
-    results: (data.results || []).map(mapTmdbMovie).filter(Boolean),
+    results: validMovies.map(mapTmdbMovie).filter(Boolean),
     total_pages: data.total_pages || 1,
   }
 }
@@ -363,14 +401,18 @@ export async function getPopularMovies(page = 1) {
     }
   }
 
-  // Direct TMDb Popular
+  // Direct TMDb Popular with strict OTT/Digital released-only filter
   try {
-    const tmdbUrl = `${TMDB_BASE_URL}/movie/popular?api_key=${TMDB_API_KEY}&page=${page}`
+    const ottCutoff = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+    const tmdbUrl = `${TMDB_BASE_URL}/discover/movie?api_key=${TMDB_API_KEY}&sort_by=popularity.desc&with_release_type=4|5|6&primary_release_date.lte=${ottCutoff}&vote_count.gte=150&page=${page}`
     const res = await fetch(tmdbUrl)
     if (res.ok) {
       const data = await res.json()
+      const validMovies = (data.results || []).filter(
+        (item) => item.poster_path && item.release_date && item.release_date <= ottCutoff && (item.vote_count || 0) >= 100
+      )
       return {
-        results: (data.results || []).map(mapTmdbMovie).filter(Boolean),
+        results: validMovies.map(mapTmdbMovie).filter(Boolean),
         total_pages: data.total_pages || 1,
       }
     }
@@ -403,14 +445,18 @@ export async function getTopRatedMovies(page = 1) {
     }
   }
 
-  // Direct TMDb Top Rated
+  // Direct TMDb Top Rated with strict released-only filter
   try {
-    const tmdbUrl = `${TMDB_BASE_URL}/movie/top_rated?api_key=${TMDB_API_KEY}&page=${page}`
+    const ottCutoff = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+    const tmdbUrl = `${TMDB_BASE_URL}/discover/movie?api_key=${TMDB_API_KEY}&sort_by=vote_average.desc&vote_count.gte=1000&primary_release_date.lte=${ottCutoff}&page=${page}`
     const res = await fetch(tmdbUrl)
     if (res.ok) {
       const data = await res.json()
+      const validMovies = (data.results || []).filter(
+        (item) => item.poster_path && item.release_date && item.release_date <= ottCutoff
+      )
       return {
-        results: (data.results || []).map(mapTmdbMovie).filter(Boolean),
+        results: validMovies.map(mapTmdbMovie).filter(Boolean),
         total_pages: data.total_pages || 1,
       }
     }
@@ -447,12 +493,16 @@ export async function getRegionalMovies(language = 'ml', page = 1) {
 
   // Direct TMDb Discover for Regional Language (e.g. 'ml' for Malayalam)
   try {
-    const tmdbUrl = `${TMDB_BASE_URL}/discover/movie?api_key=${TMDB_API_KEY}&with_original_language=${language}&sort_by=popularity.desc&page=${page}`
+    const ottCutoff = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+    const tmdbUrl = `${TMDB_BASE_URL}/discover/movie?api_key=${TMDB_API_KEY}&with_original_language=${language}&sort_by=popularity.desc&primary_release_date.lte=${ottCutoff}&vote_count.gte=10&page=${page}`
     const res = await fetch(tmdbUrl)
     if (res.ok) {
       const data = await res.json()
+      const validMovies = (data.results || []).filter(
+        (item) => item.poster_path && item.release_date && item.release_date <= ottCutoff
+      )
       return {
-        results: (data.results || []).map(mapTmdbMovie).filter(Boolean),
+        results: validMovies.map(mapTmdbMovie).filter(Boolean),
         total_pages: data.total_pages || 1,
       }
     }

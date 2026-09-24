@@ -157,6 +157,11 @@ body {
   flex-direction: column;
 }
 
+.browse-view-container.with-search {
+  padding-top: 96px;
+  min-height: calc(100vh - 120px);
+}
+
 .browse-body-container {
   width: 100%;
   max-width: 100%;

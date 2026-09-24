@@ -246,14 +246,19 @@ export default function MovieGrid({
         if (!isMounted) return
 
         const currentYear = new Date().getFullYear()
-        const today = new Date()
+        // 90-day post-theatrical window to ensure title has arrived on OTT/Digital streaming platforms
+        const ottCutoff = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000)
 
-        // Filter function: Must have poster and be strictly released
+        // Filter function: Must have poster and be strictly released on OTT/Digital
         const isReleasedValid = (m) => {
           if (!m || !m.title || !m.poster_url) return false
-          const yr = parseInt(m.year || '0', 10)
-          if (yr > currentYear) return false
-          if (m.release_date && new Date(m.release_date) > today) return false
+          if (m.release_date) {
+            const relDate = new Date(m.release_date)
+            if (relDate > ottCutoff) return false
+          } else {
+            const yr = parseInt(m.year || '0', 10)
+            if (yr >= currentYear) return false
+          }
           return true
         }
 
@@ -399,19 +404,12 @@ export default function MovieGrid({
 
   // Active search with results
   if (searchQuery && items && items.length > 0) {
-    const featuredGroup = groupedItems[0]
-    const featuredMeta = metadataEnrichment?.[featuredGroup?.title]
-    const otherGroups = groupedItems.slice(1)
-
     return (
       <div className="search-results-container">
-        {/* Search Header */}
-        <div className="section-header">
+        {/* Search stream count & pagination */}
+        <div className="section-header" style={{ marginBottom: '16px' }}>
           <div>
-            <h2 className="section-title">
-              Results for <span className="text-red">"{searchQuery}"</span>
-            </h2>
-            <p className="section-subtitle">
+            <p className="section-subtitle" style={{ margin: 0 }}>
               Found {items.length} verified streams across {groupedItems.length} title releases
             </p>
           </div>
@@ -440,96 +438,17 @@ export default function MovieGrid({
           )}
         </div>
 
-        {/* Featured Top Match Showcase Card */}
-        {featuredGroup && (
-          <div
-            className="featured-search-match"
-            onClick={() => onSelectMovie(featuredGroup)}
-          >
-            <div className="featured-match-inner">
-              {featuredMeta?.backdrop_url && (
-                <div
-                  className="featured-match-backdrop"
-                  style={{ backgroundImage: `url(${featuredMeta.backdrop_url})` }}
-                />
-              )}
-              <div className="featured-match-overlay" />
-
-              <div className="featured-match-content">
-                <div className="featured-match-poster-col">
-                  {featuredMeta?.poster_url ? (
-                    <img
-                      src={featuredMeta.poster_url}
-                      alt={featuredGroup.title}
-                      className="featured-match-poster"
-                    />
-                  ) : (
-                    <div className="featured-match-poster-fallback">
-                      <Film size={40} />
-                    </div>
-                  )}
-                </div>
-
-                <div className="featured-match-info-col">
-                  <div className="featured-match-badges">
-                    <span className="badge badge-red">TOP MATCH</span>
-                    {featuredMeta?.rating && (
-                      <span className="badge badge-gold">
-                        <Star size={12} fill="#FFD700" /> {featuredMeta.rating}
-                      </span>
-                    )}
-                    {featuredMeta?.year && (
-                      <span className="badge badge-quality">{featuredMeta.year}</span>
-                    )}
-                    <span className="badge badge-quality">
-                      {featuredGroup.candidates.length} Streams Available
-                    </span>
-                  </div>
-
-                  <h3 className="featured-match-title">{featuredGroup.title}</h3>
-
-                  {featuredMeta?.overview && (
-                    <p className="featured-match-overview">{featuredMeta.overview}</p>
-                  )}
-
-                  <div className="featured-match-actions">
-                    <button
-                      className="btn btn-primary"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        onSelectMovie(featuredGroup)
-                      }}
-                    >
-                      <Play size={16} fill="#FFFFFF" /> Select Quality & Stream
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Other Results Grid */}
-        {otherGroups.length > 0 && (
-          <div className="more-results-section" style={{ marginTop: '28px' }}>
-            <div className="section-heading">
-              <h2>
-                <span />
-                All Matching Releases
-              </h2>
-            </div>
-            <div className="browse-grid">
-              {otherGroups.map((group, idx) => (
-                <MovieCard
-                  key={idx}
-                  group={group}
-                  metadata={metadataEnrichment?.[group.title]}
-                  onSelect={onSelectMovie}
-                />
-              ))}
-            </div>
-          </div>
-        )}
+        {/* Clean Unified Cineby-Style Movie Grid */}
+        <div className="browse-grid">
+          {groupedItems.map((group, idx) => (
+            <MovieCard
+              key={group.title || idx}
+              group={group}
+              metadata={metadataEnrichment?.[group.title]}
+              onSelect={onSelectMovie}
+            />
+          ))}
+        </div>
 
         {/* Dynamic Recommended Rails when few matches */}
         {groupedItems.length <= 3 && rails.length > 0 && (

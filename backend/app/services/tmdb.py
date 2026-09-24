@@ -174,7 +174,38 @@ class TmdbService:
                     self._cache[cache_key] = (now, fallback)
                     return fallback
 
-                # Take top result
+                # Disambiguate and sort results to prioritize:
+                # 1. Exact year match if year provided
+                # 2. Exact title match (case-insensitive)
+                # 3. High vote count (avoids 0-vote student/indie stubs overwriting blockbusters)
+                # 4. Popularity
+                def _score_movie(m: Dict[str, Any]) -> float:
+                    score = 0.0
+                    m_title = (m.get("title") or m.get("original_title") or "").strip().lower()
+                    m_date = m.get("release_date") or ""
+                    m_year = int(m_date[:4]) if len(m_date) >= 4 and m_date[:4].isdigit() else None
+                    vote_cnt = m.get("vote_count", 0) or 0
+                    pop = float(m.get("popularity", 0.0) or 0.0)
+
+                    # Title match
+                    if m_title == clean_title.lower():
+                        score += 5000.0
+                    elif clean_title.lower() in m_title:
+                        score += 1000.0
+
+                    # Year match
+                    if effective_year and m_year:
+                        if m_year == effective_year:
+                            score += 10000.0
+                        elif abs(m_year - effective_year) <= 1:
+                            score += 500.0
+
+                    # Prioritize real releases with high audience votes
+                    score += min(vote_cnt, 50000) * 1.5
+                    score += pop * 2.0
+                    return score
+
+                results.sort(key=_score_movie, reverse=True)
                 top_movie = results[0]
                 movie_id = top_movie.get("id")
                 if not movie_id:
@@ -296,8 +327,8 @@ class TmdbService:
         time_window: str = "week",
         page: int = 1,
     ) -> TrendingMoviesResponse:
-        """Retrieve trending movies list for discovery carousel."""
-        cache_key = f"{time_window}:{page}"
+        """Retrieve trending movies strictly available on OTT / Digital streaming."""
+        cache_key = f"ott_trending:{time_window}:{page}"
         now = time.time()
 
         if cache_key in self._trending_cache:
@@ -306,7 +337,7 @@ class TmdbService:
                 return cached_trending
 
         if not self.is_configured():
-            # Return curated fallback list
+            # Return curated fallback list of released cinema
             sample_titles = [
                 ("Inception", 2010),
                 ("Interstellar", 2014),
@@ -318,43 +349,22 @@ class TmdbService:
             res = TrendingMoviesResponse(page=1, total_pages=1, results=fallback_items)
             return res
 
-        headers, base_params = self._get_auth_headers_and_params()
-        params = {**base_params, "page": str(page)}
-        url = f"{settings.TMDB_BASE_URL}/trending/movie/{time_window}"
-        today_str = datetime.date.today().isoformat()
-
-        try:
-            async with httpx.AsyncClient(timeout=5.0) as client:
-                resp = await client.get(url, headers=headers, params=params)
-                if resp.status_code == 200:
-                    data = resp.json()
-                    raw_results = data.get("results", [])
-                    parsed = []
-                    for item in raw_results:
-                        # 1. Reject if no poster_path (avoids broken cards)
-                        if not item.get("poster_path"):
-                            continue
-                        # 2. Reject unreleased movies (release_date in future or missing)
-                        rel_date = item.get("release_date")
-                        if not rel_date or rel_date > today_str:
-                            continue
-                        # 3. Reject low-vote hype stubs
-                        if item.get("vote_count", 0) < 40:
-                            continue
-
-                        parsed.append(self._parse_movie_dict(item))
-
-                    response_obj = TrendingMoviesResponse(
-                        page=data.get("page", 1),
-                        total_pages=data.get("total_pages", 1),
-                        results=parsed,
-                    )
-                    self._trending_cache[cache_key] = (now, response_obj)
-                    return response_obj
-        except Exception as e:
-            logger.warning("Error fetching trending movies: %s", str(e))
-
-        return TrendingMoviesResponse(page=1, total_pages=1, results=[])
+        # 90-day theatrical-to-OTT buffer: excludes movies still in theatrical exclusivity or unreleased
+        ott_cutoff = (datetime.date.today() - datetime.timedelta(days=90)).isoformat()
+        params = {
+            "sort_by": "popularity.desc",
+            "with_release_type": "4|5|6",  # 4 = Digital (OTT/VOD), 5 = Physical, 6 = TV
+            "primary_release_date.lte": ott_cutoff,
+            "vote_count.gte": "100",
+            "include_adult": "false",
+            "page": str(page),
+        }
+        return await self._fetch_movie_list(
+            f"{settings.TMDB_BASE_URL}/discover/movie",
+            params,
+            cache_key,
+            min_votes=100,
+        )
 
     async def _fetch_movie_list(
         self,
@@ -375,7 +385,7 @@ class TmdbService:
 
         headers, base_params = self._get_auth_headers_and_params()
         params = {**base_params, **extra_params}
-        today_str = datetime.date.today().isoformat()
+        ott_cutoff = (datetime.date.today() - datetime.timedelta(days=75)).isoformat()
 
         try:
             async with httpx.AsyncClient(timeout=6.0) as client:
@@ -388,9 +398,9 @@ class TmdbService:
                         # Must have valid poster
                         if require_poster and not item.get("poster_path"):
                             continue
-                        # Must have release date on or before today (strictly no unreleased movies)
+                        # Strictly reject unreleased or theatrical-only titles
                         rel_date = item.get("release_date")
-                        if not rel_date or rel_date > today_str:
+                        if not rel_date or rel_date > ott_cutoff:
                             continue
                         # Must have sufficient viewer vote count
                         if item.get("vote_count", 0) < min_votes:
@@ -411,29 +421,30 @@ class TmdbService:
         return TrendingMoviesResponse(page=1, total_pages=1, results=[])
 
     async def get_popular_movies(self, page: int = 1) -> TrendingMoviesResponse:
-        """Retrieve real, released popular movies from TMDb."""
-        today_str = datetime.date.today().isoformat()
+        """Retrieve real, released popular movies from TMDb with confirmed OTT/Digital availability."""
+        ott_cutoff = (datetime.date.today() - datetime.timedelta(days=90)).isoformat()
         params = {
             "sort_by": "popularity.desc",
-            "primary_release_date.lte": today_str,
-            "vote_count.gte": "100",
+            "with_release_type": "4|5|6",
+            "primary_release_date.lte": ott_cutoff,
+            "vote_count.gte": "150",
             "include_adult": "false",
             "page": str(page),
         }
         return await self._fetch_movie_list(
             f"{settings.TMDB_BASE_URL}/discover/movie",
             params,
-            f"popular_released:{page}",
-            min_votes=100,
+            f"popular_ott_released:{page}",
+            min_votes=150,
         )
 
     async def get_top_rated_movies(self, page: int = 1) -> TrendingMoviesResponse:
         """Retrieve true top rated cinema masterpieces with high vote thresholds."""
-        today_str = datetime.date.today().isoformat()
+        ott_cutoff = (datetime.date.today() - datetime.timedelta(days=90)).isoformat()
         params = {
             "sort_by": "vote_average.desc",
             "vote_count.gte": "1000",
-            "primary_release_date.lte": today_str,
+            "primary_release_date.lte": ott_cutoff,
             "include_adult": "false",
             "page": str(page),
         }
@@ -446,11 +457,11 @@ class TmdbService:
 
     async def discover_movies(self, language: str = "ml", sort_by: str = "popularity.desc", page: int = 1) -> TrendingMoviesResponse:
         """Discover released regional movies (e.g. Malayalam 'ml', Tamil 'ta', etc.) with real votes."""
-        today_str = datetime.date.today().isoformat()
+        ott_cutoff = (datetime.date.today() - datetime.timedelta(days=60)).isoformat()
         params = {
             "with_original_language": language,
             "sort_by": sort_by,
-            "primary_release_date.lte": today_str,
+            "primary_release_date.lte": ott_cutoff,
             "vote_count.gte": "10",
             "include_adult": "false",
             "page": str(page),
@@ -502,6 +513,13 @@ class TmdbService:
                         res2 = await client.get(search_url, headers=headers, params=search_params)
                         if res2.status_code == 200:
                             results = res2.json().get("results", [])
+
+                    results.sort(
+                        key=lambda m: (
+                            5000 if (m.get("title") or "").strip().lower() == clean_title.lower() else 0
+                        ) + min(m.get("vote_count", 0) or 0, 50000) * 1.5 + float(m.get("popularity", 0.0) or 0.0),
+                        reverse=True,
+                    )
 
                     for m in results[:limit]:
                         release_date = m.get("release_date") or ""

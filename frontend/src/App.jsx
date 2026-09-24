@@ -299,7 +299,7 @@ export default function App() {
           />
         ) : (
           /* Browse & Discovery View */
-          <div className={`browse-view-container ${searchQuery ? 'with-search' : ''}`}>
+          <div className={`browse-view-container ${searchQuery || activeTab !== 'home' ? 'with-search' : ''}`}>
             {/* Hero Showcase (full bleed when not searching on home tab) */}
             {!searchQuery && activeTab === 'home' && (
               <HeroBanner onQuickPlay={handleHeroQuickPlay} />
