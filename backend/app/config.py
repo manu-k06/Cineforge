@@ -32,7 +32,7 @@ class Settings(BaseSettings):
 
     # Phase 2: Metadata Enrichment (TMDb / IMDb API Integration)
     TMDB_API_KEY: Optional[str] = None
-    TMDB_BASE_URL: str = "https://api.themoviedb.org/3"
+    TMDB_BASE_URL: str = "https://api.tmdb.org/3"
     TMDB_IMAGE_BASE_URL: str = "https://image.tmdb.org/t/p"
     METADATA_CACHE_TTL: int = 86400  # 24-hour cache TTL
 

@@ -236,7 +236,7 @@ export async function askAiCompanion(movieTitle, question) {
 import { getOptimizedImageUrl } from '../utils/helpers'
 
 const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY || '27c65ee52f2aa6f980dc01b4162d2daf'
-const TMDB_BASE_URL = 'https://api.themoviedb.org/3'
+const TMDB_BASE_URL = 'https://api.tmdb.org/3'
 
 function mapTmdbMovie(m) {
   if (!m) return null
