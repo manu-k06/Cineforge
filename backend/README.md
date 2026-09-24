@@ -1,3 +1,13 @@
+---
+title: Cineforge API
+emoji: 🎬
+colorFrom: blue
+colorTo: indigo
+sdk: docker
+app_port: 7860
+pinned: false
+---
+
 # Cineforge Backend
 
 Backend service for the Cineforge personal movie streaming web application.
