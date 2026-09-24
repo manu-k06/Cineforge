@@ -31,5 +31,4 @@ echo   * Web Player   : https://cineforge-v1.vercel.app
 echo   * Local API    : http://127.0.0.1:8000/health
 echo   * Streamer Bot : http://127.0.0.1:8088/
 echo ======================================================================
-echo   This window will close in 6 seconds (servers will keep running in background).
-timeout /t 6 >nul
+ping -n 6 127.0.0.1 >nul
