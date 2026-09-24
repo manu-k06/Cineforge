@@ -364,7 +364,7 @@ export async function getTrendingMovies(timeWindow = 'week', page = 1) {
   }
 
   // Direct TMDb Trending strictly for OTT/Digital released films
-  const ottCutoff = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+  const ottCutoff = '2024-12-31'
   const tmdbUrl = `${TMDB_BASE_URL}/discover/movie?api_key=${TMDB_API_KEY}&sort_by=popularity.desc&with_release_type=4|5|6&primary_release_date.lte=${ottCutoff}&vote_count.gte=100&page=${page}`
   const res = await fetch(tmdbUrl)
   if (!res.ok) throw new Error('Failed to fetch trending movies from TMDb')
@@ -403,7 +403,7 @@ export async function getPopularMovies(page = 1) {
 
   // Direct TMDb Popular with strict OTT/Digital released-only filter
   try {
-    const ottCutoff = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+    const ottCutoff = '2024-12-31'
     const tmdbUrl = `${TMDB_BASE_URL}/discover/movie?api_key=${TMDB_API_KEY}&sort_by=popularity.desc&with_release_type=4|5|6&primary_release_date.lte=${ottCutoff}&vote_count.gte=150&page=${page}`
     const res = await fetch(tmdbUrl)
     if (res.ok) {
@@ -447,7 +447,7 @@ export async function getTopRatedMovies(page = 1) {
 
   // Direct TMDb Top Rated with strict released-only filter
   try {
-    const ottCutoff = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+    const ottCutoff = '2024-12-31'
     const tmdbUrl = `${TMDB_BASE_URL}/discover/movie?api_key=${TMDB_API_KEY}&sort_by=vote_average.desc&vote_count.gte=1000&primary_release_date.lte=${ottCutoff}&page=${page}`
     const res = await fetch(tmdbUrl)
     if (res.ok) {
@@ -493,7 +493,7 @@ export async function getRegionalMovies(language = 'ml', page = 1) {
 
   // Direct TMDb Discover for Regional Language (e.g. 'ml' for Malayalam)
   try {
-    const ottCutoff = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+    const ottCutoff = '2024-12-31'
     const tmdbUrl = `${TMDB_BASE_URL}/discover/movie?api_key=${TMDB_API_KEY}&with_original_language=${language}&sort_by=popularity.desc&primary_release_date.lte=${ottCutoff}&vote_count.gte=10&page=${page}`
     const res = await fetch(tmdbUrl)
     if (res.ok) {

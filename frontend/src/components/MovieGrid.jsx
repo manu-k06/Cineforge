@@ -245,20 +245,12 @@ export default function MovieGrid({
 
         if (!isMounted) return
 
-        const currentYear = new Date().getFullYear()
-        // 90-day post-theatrical window to ensure title has arrived on OTT/Digital streaming platforms
-        const ottCutoff = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000)
-
-        // Filter function: Must have poster and be strictly released on OTT/Digital
+        // Strict OTT release filter: Confirmed released cinema only (excludes unreleased future hype titles like Toy Story 5, etc.)
         const isReleasedValid = (m) => {
           if (!m || !m.title || !m.poster_url) return false
-          if (m.release_date) {
-            const relDate = new Date(m.release_date)
-            if (relDate > ottCutoff) return false
-          } else {
-            const yr = parseInt(m.year || '0', 10)
-            if (yr >= currentYear) return false
-          }
+          const yr = parseInt(m.year || '0', 10)
+          if (yr > 2024 || yr < 1920) return false
+          if (m.release_date && m.release_date > '2024-12-31') return false
           return true
         }
 
