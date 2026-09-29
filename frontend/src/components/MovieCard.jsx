@@ -41,7 +41,7 @@ export default function MovieCard({ group, metadata: initialMetadata, rank = nul
   const effectiveYear = metadata?.year || meta.year || '2025'
   const displayRating = metadata?.rating ? Number(metadata.rating).toFixed(1) : (primaryCandidate.quality || 'HD')
   const mediaType = metadata?.media_type === 'tv' ? 'TV' : 'Movie'
-  const cleanTitle = meta.cleanTitle || group?.title || primaryCandidate.title || 'Untitled'
+  const cleanTitle = metadata?.title || group?.title || meta.cleanTitle || primaryCandidate.title || 'Untitled'
   const isSaved = isInWatchlist(cleanTitle)
 
   const handleWatchlistClick = (e) => {

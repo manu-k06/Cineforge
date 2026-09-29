@@ -261,23 +261,43 @@ class SearchAggregatorService:
         candidates: List[SearchCandidate],
     ) -> Dict[str, List[SearchCandidate]]:
         """Cluster candidate versions under canonical title keys."""
+        from app.services.tmdb import sanitize_movie_query
+
         groups: Dict[str, List[SearchCandidate]] = {}
+        group_display_titles: Dict[str, str] = {}
+
         for c in candidates:
-            # Normalize title key by removing resolution/year variations
-            norm_key = re.sub(r"\b(1080p|720p|480p|4k|2160p|hdrip|bluray|x264|x265)\b", "", c.title, flags=re.IGNORECASE)
-            norm_key = re.sub(r"\s+", " ", norm_key).strip()
-            if not norm_key:
-                norm_key = c.title
+            raw_hint = c.display_text or c.title
+            # Strip brackets and parens for grouping stability
+            t_clean = re.sub(r"[\(\[].*?[\)\]]", " ", raw_hint)
+            clean_title, year = sanitize_movie_query(t_clean)
+
+            # Strip edition and format words
+            clean_title = re.sub(
+                r"(?i)\b(the\s+final\s+cut|final\s+cut|director\'?s\s+cut|extended|unrated|remastered|cam|web\s*dl|bluray|dvdrip|hdr)\b",
+                "",
+                clean_title,
+            )
+            clean_title = re.sub(r"\s+", " ", clean_title).strip(" -:[]()#")
+            if not clean_title or len(clean_title) < 2:
+                clean_title = c.title or "Unknown Title"
+
+            norm_key = clean_title.lower()
 
             if norm_key not in groups:
                 groups[norm_key] = []
+                # Nicely formatted display title (e.g. 'Blade Runner 2049')
+                import string
+                group_display_titles[norm_key] = string.capwords(clean_title)
+
             groups[norm_key].append(c)
 
-        # Sort each title group using Phase 14 ranking rules
-        for k in groups:
-            groups[k] = self.rank_candidates(groups[k])
+        final_groups: Dict[str, List[SearchCandidate]] = {}
+        for norm_key, cands in groups.items():
+            display_title = group_display_titles.get(norm_key, norm_key)
+            final_groups[display_title] = self.rank_candidates(cands)
 
-        return groups
+        return final_groups
 
     def rank_candidates(
         self,

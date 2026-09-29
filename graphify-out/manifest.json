@@ -144,9 +144,9 @@
     "semantic_hash": ""
   },
   "backend/app/services/search_aggregator.py": {
-    "mtime": 1788801293.109033,
-    "seen": 1790098952.9995997,
-    "ast_hash": "372fdaddb9277a82cd40dcdf3090683d",
+    "mtime": 1790663998.2884367,
+    "seen": 1790664196.1557686,
+    "ast_hash": "63087b43441bf3d35490c9ba74231e72",
     "semantic_hash": ""
   },
   "backend/app/services/subtitle_service.py": {
@@ -168,9 +168,9 @@
     "semantic_hash": ""
   },
   "backend/app/services/tmdb.py": {
-    "mtime": 1790269585.4726045,
-    "seen": 1790269991.8087204,
-    "ast_hash": "24779ef6df6d29bd95165126745f3c88",
+    "mtime": 1790663716.18502,
+    "seen": 1790664196.156083,
+    "ast_hash": "e7f57ed706c9bb9dc2c1032a89b827d4",
     "semantic_hash": ""
   },
   "backend/export_session.py": {
@@ -270,9 +270,9 @@
     "semantic_hash": ""
   },
   "frontend/src/components/MovieCard.jsx": {
-    "mtime": 1790182436.7978866,
-    "seen": 1790182504.8049593,
-    "ast_hash": "ade312a0b921fd00384f51b52dc80379",
+    "mtime": 1790664052.7185903,
+    "seen": 1790664196.1581516,
+    "ast_hash": "0a71de4cf9e99989c017f87412038bb6",
     "semantic_hash": ""
   },
   "frontend/src/components/MovieGrid.jsx": {
@@ -336,9 +336,9 @@
     "semantic_hash": ""
   },
   "frontend/src/utils/helpers.js": {
-    "mtime": 1790182186.6422849,
-    "seen": 1790182504.8067858,
-    "ast_hash": "8bf3509e59d7493700fb42949ad4d615",
+    "mtime": 1790664029.3537736,
+    "seen": 1790664196.159312,
+    "ast_hash": "3f4ccd7cd6d8692d380f941f716e673b",
     "semantic_hash": ""
   },
   "frontend/vercel.json": {

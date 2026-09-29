@@ -6,9 +6,32 @@
 export function parseMovieMetadata(rawTitle, rawDetails = '') {
   const combined = `${rawTitle} ${rawDetails}`
 
-  // Year regex (1900 - 2099)
-  const yearMatch = combined.match(/\b(19\d\d|20\d\d)\b/)
-  const year = yearMatch ? yearMatch[1] : ''
+  // Realistic year threshold (1900 to currentYear + 2)
+  const maxYear = new Date().getFullYear() + 2
+  let year = ''
+
+  // 1. Explicit parenthesized/bracketed year: (2017) or [1982]
+  const parenYearMatch = combined.match(/[\(\[]\s*(19\d\d|20[0-2]\d)\s*[\)\]]/)
+  if (parenYearMatch) {
+    const y = parseInt(parenYearMatch[1], 10)
+    if (y >= 1900 && y <= maxYear) {
+      year = String(y)
+    }
+  }
+
+  // 2. Trailing or standalone release year
+  if (!year) {
+    const matches = Array.from(combined.matchAll(/\b(19\d\d|20[0-2]\d)\b/g))
+    if (matches.length > 0) {
+      const lastMatch = matches[matches.length - 1]
+      const y = parseInt(lastMatch[1], 10)
+      if (y >= 1900 && y <= maxYear) {
+        if (!(matches.length === 1 && lastMatch.index === 0 && combined.trim().split(/\s+/).length > 1)) {
+          year = String(y)
+        }
+      }
+    }
+  }
 
   // Resolution detection
   let resolution = '1080P'
@@ -44,7 +67,11 @@ export function parseMovieMetadata(rawTitle, rawDetails = '') {
     .trim()
 
   if (year && cleanTitle.endsWith(year)) {
-    cleanTitle = cleanTitle.slice(0, -year.length).trim()
+    const beforeYear = cleanTitle.slice(0, -year.length).trim()
+    const isTitleNumber = /\b(2049|2077|2012|1917|2001|1984)\b/i.test(cleanTitle)
+    if (beforeYear.length >= 2 && !isTitleNumber) {
+      cleanTitle = beforeYear
+    }
   }
 
   if (!cleanTitle || cleanTitle.length < 2) {

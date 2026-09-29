@@ -1,17 +1,17 @@
 # Graph Report - Cineforge  (2026-09-29)
 
 ## Corpus Check
-- 74 files · ~51,060 words
+- 74 files · ~51,353 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 12 file(s) not represented in the graph (top: (none) 4, .bat 3, .example 2)
 
 ## Summary
-- 753 nodes · 1502 edges · 32 communities (27 shown, 5 thin omitted)
+- 753 nodes · 1504 edges · 32 communities (27 shown, 5 thin omitted)
 - Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 55 edges (avg confidence: 0.94)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `f5a617ed`
+- Built from commit: `7bb827b5`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -197,7 +197,7 @@ _Questions this graph is uniquely positioned to answer:_
 - **Why does `TelegramService` connect `TelegramService` to `api/search.py`?**
   _High betweenness centrality (0.075) - this node is a cross-community bridge._
 - **Why does `SearchCandidate` connect `SearchCandidate` to `api/search.py`?**
-  _High betweenness centrality (0.043) - this node is a cross-community bridge._
+  _High betweenness centrality (0.042) - this node is a cross-community bridge._
 - **Are the 4 inferred relationships involving `TelegramService` (e.g. with `CandidateDeliveryRequest` and `CandidateDeliveryResponse`) actually correct?**
   _`TelegramService` has 4 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 4 inferred relationships involving `SearchCandidate` (e.g. with `search_movies()` and `CacheService`) actually correct?**

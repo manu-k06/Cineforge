@@ -42,23 +42,43 @@ def sanitize_movie_query(raw_title: str) -> Tuple[str, Optional[int]]:
     # Normalize whitespace
     text = re.sub(r"\s+", " ", text).strip()
 
-    # Search for a 4-digit year between 1900 and 2099
-    year_match = re.search(r"\b(19\d\d|20\d\d)\b", text)
+    current_year = datetime.datetime.now().year
+    max_valid_year = current_year + 2  # Realistic release year threshold
+
     year: Optional[int] = None
-    if year_match:
-        try:
-            year = int(year_match.group(1))
-            # Cut off everything after the year
-            text = text[: year_match.start()].strip()
-        except ValueError:
-            pass
+
+    # 1. First look for explicit parenthesized/bracketed year: (2017) or [1982]
+    paren_year_match = re.search(r"[\(\[]\s*(19\d\d|20[0-2]\d)\s*[\)\]]", text)
+    if paren_year_match:
+        cand_y = int(paren_year_match.group(1))
+        if 1900 <= cand_y <= max_valid_year:
+            year = cand_y
+            text = text[: paren_year_match.start()] + " " + text[paren_year_match.end() :]
+
+    # 2. Look for standalone 4-digit release years (1900 - max_valid_year)
+    if not year:
+        year_matches = list(re.finditer(r"\b(19\d\d|20[0-2]\d)\b", text))
+        if year_matches:
+            # If the only match is at the very beginning (index 0) and more text follows,
+            # it might be a title like '1917' or '2001 A Space Odyssey'.
+            if len(year_matches) == 1 and year_matches[0].start() == 0 and len(text.split()) > 1:
+                pass
+            else:
+                # Pick the last valid year match (e.g. in 'Blade Runner 2049 2017', 2017 is the year)
+                last_m = year_matches[-1]
+                cand_y = int(last_m.group(1))
+                if 1900 <= cand_y <= max_valid_year:
+                    year = cand_y
+                    text = text[: last_m.start()].strip()
 
     # Strip quality/audio keywords if still lingering
     junk_pattern = (
         r"(?i)\b(1080p|720p|480p|2160p|4k|uhd|bluray|web-?dl|webrip|hdrip|x264|x265|"
-        r"hevc|aac|dts|remux|dual\s*audio|multi\s*sub|esubs?|proper|repack|org\s*audio)\b.*"
+        r"hevc|aac|dts|remux|dual\s*audio|multi\s*audio|multi\s*sub|msubs?|esubs?|"
+        r"proper|repack|org\s*audio|tamildubbed|tamil|telugu|hindi|malayalam|kannada|english)\b.*"
     )
-    clean_title = re.sub(junk_pattern, "", text).strip(" -:[]()")
+    clean_title = re.sub(junk_pattern, "", text).strip(" -:[]()#")
+    clean_title = re.sub(r"\s+", " ", clean_title).strip()
 
     return clean_title or raw_title.strip(), year
 
