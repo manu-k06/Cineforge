@@ -945,7 +945,7 @@ class TelegramService:
         # Deduplicate, rank, and group
         unique_candidates = search_aggregator.deduplicate_candidates(candidates)
         ranked_candidates = search_aggregator.rank_candidates(unique_candidates)
-        title_groups = search_aggregator.group_candidates_by_title(ranked_candidates)
+        title_groups = search_aggregator.group_candidates_by_title(ranked_candidates, query=query)
 
         elapsed = round(time.perf_counter() - start_time, 2)
         logger.info(

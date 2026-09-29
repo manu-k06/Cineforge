@@ -259,8 +259,9 @@ class SearchAggregatorService:
     def group_candidates_by_title(
         self,
         candidates: List[SearchCandidate],
+        query: Optional[str] = None,
     ) -> Dict[str, List[SearchCandidate]]:
-        """Cluster candidate versions under canonical title keys."""
+        """Cluster candidate versions under canonical title keys and sort by query relevance."""
         from app.services.tmdb import sanitize_movie_query
 
         groups: Dict[str, List[SearchCandidate]] = {}
@@ -271,6 +272,16 @@ class SearchAggregatorService:
             # Strip brackets and parens for grouping stability
             t_clean = re.sub(r"[\(\[].*?[\)\]]", " ", raw_hint)
             clean_title, year = sanitize_movie_query(t_clean)
+
+            # Strip TV show season / episode tags (e.g. S06E26, Season 1, Ep 12)
+            clean_title = re.sub(r"(?i)\b(?:s\d{1,2}\s*[eex]\d{1,3}|season\s*\d+|s\d{1,2}|ep(?:isode)?\s*\d+)\b.*", "", clean_title)
+
+            # Strip compound audio/format words
+            clean_title = re.sub(
+                r"(?i)\b(?:eng|hin|tam|tel|mal)?(?:bray|bluray|bdrip|brrip|dvdrip|web-?dl|webrip|hdrip)?(?:\d{3,4}p)?(?:hevc|x264|x265)?\b",
+                "",
+                clean_title,
+            )
 
             # Strip edition and format words
             clean_title = re.sub(
@@ -286,7 +297,6 @@ class SearchAggregatorService:
 
             if norm_key not in groups:
                 groups[norm_key] = []
-                # Nicely formatted display title (e.g. 'Blade Runner 2049')
                 import string
                 group_display_titles[norm_key] = string.capwords(clean_title)
 
@@ -297,7 +307,52 @@ class SearchAggregatorService:
             display_title = group_display_titles.get(norm_key, norm_key)
             final_groups[display_title] = self.rank_candidates(cands)
 
+        if query:
+            final_groups = self.rank_title_groups(final_groups, query)
+
         return final_groups
+
+    def rank_title_groups(
+        self,
+        title_groups: Dict[str, List[SearchCandidate]],
+        query: str,
+    ) -> Dict[str, List[SearchCandidate]]:
+        """Sort title groups by relevance to query (exact match first, then prefix, etc.)."""
+        if not title_groups or not query:
+            return title_groups
+
+        q = query.strip().lower()
+        q_words = set(q.split())
+
+        def _score(item):
+            title, cands = item
+            t_low = title.strip().lower()
+
+            # 1. Exact match (e.g. "Joker" for query "Joker")
+            if t_low == q:
+                return (100000, len(cands))
+
+            # 2. Query is prefix followed by separator or space (e.g. "Joker: Folie a Deux" for "Joker")
+            if t_low.startswith(q + " ") or t_low.startswith(q + ":") or t_low.startswith(q + "-"):
+                return (50000 - len(t_low), len(cands))
+
+            # 3. Exact word boundary match (e.g. "The Joker")
+            if re.search(rf"\b{re.escape(q)}\b", t_low):
+                if t_low.startswith("the " + q):
+                    return (40000 - len(t_low), len(cands))
+                return (30000 - len(t_low), len(cands))
+
+            # 4. Partial substring match (e.g. "Impractical Jokers")
+            if q in t_low:
+                return (10000 - len(t_low), len(cands))
+
+            # 5. Overlapping words
+            t_words = set(t_low.split())
+            overlap = len(q_words & t_words)
+            return (overlap * 1000 - len(t_low), len(cands))
+
+        sorted_items = sorted(title_groups.items(), key=_score, reverse=True)
+        return {k: v for k, v in sorted_items}
 
     def rank_candidates(
         self,

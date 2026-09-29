@@ -39,8 +39,8 @@ def sanitize_movie_query(raw_title: str) -> Tuple[str, Optional[int]]:
     text = re.sub(r"\[.*?\]", "", text)
     # Replace separators with spaces
     text = re.sub(r"[._\-–—]", " ", text)
-    # Normalize whitespace
-    text = re.sub(r"\s+", " ", text).strip()
+    # Strip TV show season / episode tags (e.g. S06E26, Season 1, Ep 12) and anything following
+    text = re.sub(r"(?i)\b(?:s\d{1,2}\s*[eex]\d{1,3}|season\s*\d+|s\d{1,2}|ep(?:isode)?\s*\d+)\b.*", "", text)
 
     current_year = datetime.datetime.now().year
     max_valid_year = current_year + 2  # Realistic release year threshold
@@ -75,7 +75,8 @@ def sanitize_movie_query(raw_title: str) -> Tuple[str, Optional[int]]:
     junk_pattern = (
         r"(?i)\b(1080p|720p|480p|2160p|4k|uhd|bluray|web-?dl|webrip|hdrip|x264|x265|"
         r"hevc|aac|dts|remux|dual\s*audio|multi\s*audio|multi\s*sub|msubs?|esubs?|"
-        r"proper|repack|org\s*audio|tamildubbed|tamil|telugu|hindi|malayalam|kannada|english)\b.*"
+        r"proper|repack|org\s*audio|tamildubbed|tamil|telugu|hindi|malayalam|kannada|english|"
+        r"engbray\w*|bray\w*|bluray\w*)\b.*"
     )
     clean_title = re.sub(junk_pattern, "", text).strip(" -:[]()#")
     clean_title = re.sub(r"\s+", " ", clean_title).strip()
@@ -190,6 +191,39 @@ class TmdbService:
                         results = search_res.json().get("results", [])
 
                 if not results:
+                    # Check TV search if movie search yielded 0 results (e.g. TV series like Impractical Jokers)
+                    try:
+                        tv_search_url = f"{settings.TMDB_BASE_URL}/search/tv"
+                        tv_params = {**base_params, "query": clean_title, "include_adult": "false"}
+                        tv_res = await client.get(tv_search_url, headers=headers, params=tv_params)
+                        if tv_res.status_code == 200:
+                            tv_results = tv_res.json().get("results", [])
+                            if tv_results:
+                                top_tv = tv_results[0]
+                                first_air = top_tv.get("first_air_date") or ""
+                                tv_year = first_air[:4] if len(first_air) >= 4 else str(effective_year or "")
+                                tv_meta = MovieMetadata(
+                                    tmdb_id=top_tv.get("id"),
+                                    title=top_tv.get("name") or clean_title,
+                                    original_title=top_tv.get("original_name") or clean_title,
+                                    overview=top_tv.get("overview") or f"Watch {clean_title} on Cineforge.",
+                                    year=tv_year or None,
+                                    rating=float(top_tv.get("vote_average", 0.0)) or None,
+                                    vote_count=top_tv.get("vote_count"),
+                                    runtime=None,
+                                    genres=[],
+                                    poster_url=self._format_image_url(top_tv.get("poster_path")),
+                                    backdrop_url=self._format_image_url(top_tv.get("backdrop_path"), size="w1280"),
+                                    trailer_key=None,
+                                    directors=[],
+                                    cast=[],
+                                    source="tmdb",
+                                )
+                                self._cache[cache_key] = (now, tv_meta)
+                                return tv_meta
+                    except Exception as tv_err:
+                        logger.debug("TMDb TV search fallback error for '%s': %s", clean_title, tv_err)
+
                     fallback = self._create_fallback_metadata(clean_title, effective_year)
                     self._cache[cache_key] = (now, fallback)
                     return fallback

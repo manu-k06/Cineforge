@@ -292,7 +292,7 @@ async def search_movies(
     if not callback_data and not mock:
         cached_candidates = await cache_service.get_cached_candidates(query_str)
         if cached_candidates:
-            cached_groups = search_aggregator.group_candidates_by_title(cached_candidates)
+            cached_groups = search_aggregator.group_candidates_by_title(cached_candidates, query=query_str)
             enrichment = await _enrich_groups_with_metadata(cached_groups)
             return SearchResponse(
                 query=query_str,
@@ -347,7 +347,7 @@ async def search_movies(
             for c in candidates
         ]
 
-        title_groups = data.get("title_groups", {})
+        title_groups = search_aggregator.rank_title_groups(data.get("title_groups", {}), query=query_str)
         enrichment = await _enrich_groups_with_metadata(title_groups)
 
         return SearchResponse(

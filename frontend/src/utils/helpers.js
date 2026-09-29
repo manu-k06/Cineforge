@@ -61,6 +61,8 @@ export function parseMovieMetadata(rawTitle, rawDetails = '') {
     .replace(/@[\w\d_]+/g, '')
     .replace(/\b\d*(?:tamilmv|tamilblasters|cinemavilla|moviesda|filmywap|cineforge|spoty_xbot)[\w\.-]*/gi, '')
     .replace(/\[.*?\]|\(.*?\)/g, '')
+    .replace(/\b(?:s\d{1,2}\s*[eex]\d{1,3}|season\s*\d+|s\d{1,2}|ep(?:isode)?\s*\d+)\b.*/i, '')
+    .replace(/\b(?:eng|hin|tam|tel|mal)?(?:bray|bluray|bdrip|brrip|dvdrip|web-?dl|webrip|hdrip)?(?:\d{3,4}p)?(?:hevc|x264|x265)?\b/gi, '')
     .replace(/\b(1080p|720p|480p|2160p|4k|uhd|hevc|x264|x265|bluray|web-?dl|webrip|hdrip|hdtv|esubs?|dual\s*audio|multi\s*sub|proper|repack|org\s*audio)\b.*/i, '')
     .replace(/[._\-–—]/g, ' ')
     .replace(/\s+/g, ' ')
