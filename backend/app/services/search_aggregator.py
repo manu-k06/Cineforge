@@ -153,17 +153,53 @@ class SearchAggregatorService:
             elif "kb" in unit.lower():
                 size_bytes = int(val * 1024)
 
-        # Extract quality
+        # Extract quality: prioritize true resolution
         quality: Optional[str] = None
-        qual_match = re.search(r"\b(4k|2160p|1080p|720p|480p|360p|hdrip|bluray|web-dl|webrip|dvdrip)\b", btn_text, re.IGNORECASE)
-        if qual_match:
-            quality = qual_match.group(1).upper()
+        res_match = re.search(r"\b(2160p|4k|1080p|720p|480p|360p)\b", btn_text, re.IGNORECASE)
+        if res_match:
+            quality = res_match.group(1).upper()
+            if quality == "4K":
+                quality = "2160P"
+        else:
+            qual_match = re.search(r"\b(bluray|web-?dl|webrip|hdrip|dvdrip|brrip|bdrip)\b", btn_text, re.IGNORECASE)
+            if qual_match:
+                quality = qual_match.group(1).upper()
 
         # Extract language
         language: Optional[str] = None
-        lang_match = re.search(r"\b(Dual Audio|Multi Audio|Hindi|English|Tamil|Telugu|Malayalam|Kannada)\b", btn_text, re.IGNORECASE)
-        if lang_match:
-            language = lang_match.group(1)
+        lower_btn = btn_text.lower()
+        is_multi = bool(re.search(r"\b(dual\s*audio|multi\s*audio|multi\s*lang|multi)\b", lower_btn))
+        has_eng = bool(re.search(r"\b(english|eng)\b", lower_btn))
+        has_tam = bool(re.search(r"\b(tamil|tam)\b", lower_btn))
+        has_tel = bool(re.search(r"\b(telugu|tel|telug)\b", lower_btn))
+        has_hin = bool(re.search(r"\b(hindi|hin)\b", lower_btn))
+        has_mal = bool(re.search(r"\b(malayalam|mal)\b", lower_btn))
+        has_kan = bool(re.search(r"\b(kannada|kan)\b", lower_btn))
+
+        langs_found = []
+        if has_eng:
+            langs_found.append("English")
+        if has_tam:
+            langs_found.append("Tamil")
+        if has_tel:
+            langs_found.append("Telugu")
+        if has_hin:
+            langs_found.append("Hindi")
+        if has_mal:
+            langs_found.append("Malayalam")
+        if has_kan:
+            langs_found.append("Kannada")
+
+        if is_multi or len(langs_found) > 1:
+            if langs_found:
+                language = "Multi Audio (" + " + ".join(langs_found) + ")"
+            else:
+                language = "Multi Audio"
+        elif len(langs_found) == 1:
+            language = langs_found[0]
+        else:
+            if re.search(r"\b(pahe|psa|yts|yify|rarbg|eztv|galaxyrg|flux|bluray\s*x265|bluray\s*x264)\b", lower_btn):
+                language = "English"
 
         # Determine container extension
         ext_match = re.search(r"\b(mp4|mkv|webm|avi|mov|ts)\b", btn_text, re.IGNORECASE)
@@ -269,9 +305,9 @@ class SearchAggregatorService:
 
         for c in candidates:
             raw_hint = c.display_text or c.title
-            # Strip brackets and parens for grouping stability
-            t_clean = re.sub(r"[\(\[].*?[\)\]]", " ", raw_hint)
-            clean_title, year = sanitize_movie_query(t_clean)
+            # Normalize ampersands for consistent grouping
+            raw_hint = re.sub(r"\s*&\s*", " and ", raw_hint)
+            clean_title, year = sanitize_movie_query(raw_hint)
 
             # Strip TV show season / episode tags (e.g. S06E26, Season 1, Ep 12)
             clean_title = re.sub(r"(?i)\b(?:s\d{1,2}\s*[eex]\d{1,3}|season\s*\d+|s\d{1,2}|ep(?:isode)?\s*\d+)\b.*", "", clean_title)
@@ -293,7 +329,8 @@ class SearchAggregatorService:
             if not clean_title or len(clean_title) < 2:
                 clean_title = c.title or "Unknown Title"
 
-            norm_key = clean_title.lower()
+            # Strip non-alphanumeric punctuation and extra spaces for uniform dictionary grouping key
+            norm_key = re.sub(r"\s+", " ", re.sub(r"[^\w\s]", " ", clean_title.lower())).strip()
 
             if norm_key not in groups:
                 groups[norm_key] = []
@@ -358,9 +395,21 @@ class SearchAggregatorService:
         self,
         candidates: List[SearchCandidate],
     ) -> List[SearchCandidate]:
-        """Rank candidates prioritizing browser compatibility, then quality, then size."""
+        """Rank candidates prioritizing browser compatibility, original/English audio, quality, and size."""
         def sort_key(c: SearchCandidate):
             compat_score = 100 if c.browser_playable else 0
+
+            # Language score: prioritize English, Original, or Multi-Audio
+            lang = (c.language or "").lower()
+            if "english" in lang:
+                lang_score = 60
+            elif "multi audio" in lang or "dual audio" in lang:
+                lang_score = 45
+            elif not lang:
+                lang_score = 30  # generic / clean release (typically original language)
+            else:
+                lang_score = 10  # single-language regional dub
+
             # Quality score
             q = (c.quality or "").upper()
             if "2160P" in q or "4K" in q:
@@ -374,11 +423,11 @@ class SearchAggregatorService:
             else:
                 q_score = 5
 
-            # Size score (prefer sizes between 700MB and 3GB)
+            # Size score (prefer sizes between 500MB and 3.5GB)
             s_bytes = c.size_bytes or 0
-            size_score = 10 if (500 * 1024 * 1024 <= s_bytes <= 3 * 1024 * 1024 * 1024) else 0
+            size_score = 10 if (500 * 1024 * 1024 <= s_bytes <= 3.5 * 1024 * 1024 * 1024) else 0
 
-            return (compat_score, q_score, size_score)
+            return (compat_score, lang_score, q_score, size_score)
 
         return sorted(candidates, key=sort_key, reverse=True)
 

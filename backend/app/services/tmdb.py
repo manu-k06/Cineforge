@@ -25,8 +25,13 @@ def sanitize_movie_query(raw_title: str) -> Tuple[str, Optional[int]]:
     text = re.sub(r"\.(?:mkv|mp4|avi|webm|mov)$", "", text, flags=re.IGNORECASE)
     # Strip word extensions (e.g. ' mp4' or ' mkv')
     text = re.sub(r"(?i)\b(?:mkv|mp4|avi|webm|mov)\b", "", text)
-    # Split merged year and resolution like 2019720p -> 2019 720p
-    text = re.sub(r"(\d{4})(?=\d{3,4}p)", r"\1 ", text)
+    # Split year and resolution like 20241080p -> 2024 1080p
+    text = re.sub(r"(19\d\d|20[0-2]\d)(?=(?:2160|1080|720|480|360)\s*p)", r"\1 ", text, flags=re.IGNORECASE)
+    # Split year and format words e.g. 2024bdrip -> 2024 bdrip, wolverine2024 -> wolverine 2024
+    text = re.sub(r"(19\d\d|20[0-2]\d)([a-zA-Z]+)", r"\1 \2", text)
+    text = re.sub(r"([a-zA-Z]+)(19\d\d|20[0-2]\d)", r"\1 \2", text)
+    # Normalize ampersands to 'and' for uniform grouping
+    text = re.sub(r"\s*&\s*", " and ", text)
     # Strip Telegram channels/handles
     text = re.sub(r"@[\w\d_]+", "", text)
     # Strip common pirate site watermarks
@@ -35,8 +40,8 @@ def sanitize_movie_query(raw_title: str) -> Tuple[str, Optional[int]]:
         "",
         text,
     )
-    # Strip brackets [ ... ]
-    text = re.sub(r"\[.*?\]", "", text)
+    # Replace all brackets and parens with spaces so unclosed truncated brackets don't linger
+    text = re.sub(r"[\[\]\(\)]", " ", text)
     # Replace separators with spaces
     text = re.sub(r"[._\-–—]", " ", text)
     # Strip TV show season / episode tags (e.g. S06E26, Season 1, Ep 12) and anything following
@@ -47,36 +52,27 @@ def sanitize_movie_query(raw_title: str) -> Tuple[str, Optional[int]]:
 
     year: Optional[int] = None
 
-    # 1. First look for explicit parenthesized/bracketed year: (2017) or [1982]
-    paren_year_match = re.search(r"[\(\[]\s*(19\d\d|20[0-2]\d)\s*[\)\]]", text)
-    if paren_year_match:
-        cand_y = int(paren_year_match.group(1))
-        if 1900 <= cand_y <= max_valid_year:
-            year = cand_y
-            text = text[: paren_year_match.start()] + " " + text[paren_year_match.end() :]
-
-    # 2. Look for standalone 4-digit release years (1900 - max_valid_year)
-    if not year:
-        year_matches = list(re.finditer(r"\b(19\d\d|20[0-2]\d)\b", text))
-        if year_matches:
-            # If the only match is at the very beginning (index 0) and more text follows,
-            # it might be a title like '1917' or '2001 A Space Odyssey'.
-            if len(year_matches) == 1 and year_matches[0].start() == 0 and len(text.split()) > 1:
-                pass
-            else:
-                # Pick the last valid year match (e.g. in 'Blade Runner 2049 2017', 2017 is the year)
-                last_m = year_matches[-1]
-                cand_y = int(last_m.group(1))
-                if 1900 <= cand_y <= max_valid_year:
-                    year = cand_y
-                    text = text[: last_m.start()].strip()
+    # Standalone 4-digit release years (1900 - max_valid_year)
+    year_matches = list(re.finditer(r"\b(19\d\d|20[0-2]\d)\b", text))
+    if year_matches:
+        # If the only match is at the very beginning (index 0) and more text follows,
+        # it might be a title like '1917' or '2001 A Space Odyssey'.
+        if len(year_matches) == 1 and year_matches[0].start() == 0 and len(text.split()) > 1:
+            pass
+        else:
+            # Pick the last valid year match (e.g. in 'Blade Runner 2049 2017', 2017 is the year)
+            last_m = year_matches[-1]
+            cand_y = int(last_m.group(1))
+            if 1900 <= cand_y <= max_valid_year:
+                year = cand_y
+                text = text[: last_m.start()].strip()
 
     # Strip quality/audio keywords if still lingering
     junk_pattern = (
-        r"(?i)\b(1080p|720p|480p|2160p|4k|uhd|bluray|web-?dl|webrip|hdrip|x264|x265|"
+        r"(?i)\b(1080\s*p|720\s*p|480\s*p|2160\s*p|4k|uhd|bluray|bdrip|brrip|dvdrip|web-?dl|webrip|hdrip|x264|x265|"
         r"hevc|aac|dts|remux|dual\s*audio|multi\s*audio|multi\s*sub|msubs?|esubs?|"
         r"proper|repack|org\s*audio|tamildubbed|tamil|telugu|hindi|malayalam|kannada|english|"
-        r"engbray\w*|bray\w*|bluray\w*)\b.*"
+        r"engbray\w*|bray\w*|bluray\w*|bdrip\w*|brrip\w*)\b.*"
     )
     clean_title = re.sub(junk_pattern, "", text).strip(" -:[]()#")
     clean_title = re.sub(r"\s+", " ", clean_title).strip()

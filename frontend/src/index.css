@@ -3232,6 +3232,146 @@ video::cue {
   padding-top: 12px;
 }
 
+/* Language / Audio Selector Drawer */
+.language-selector-section {
+  margin-top: 16px;
+  margin-bottom: 8px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  padding: 12px 16px;
+}
+
+.lang-section-header {
+  margin-bottom: 10px;
+}
+
+.lang-header-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #a1a1aa;
+}
+
+.language-tabs-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.lang-tab-pill {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #d4d4d8;
+  padding: 6px 13px;
+  border-radius: 9999px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.lang-tab-pill:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.22);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.lang-tab-pill.active {
+  background: linear-gradient(135deg, rgba(229, 9, 20, 0.85) 0%, rgba(184, 0, 10, 0.95) 100%);
+  border-color: rgba(229, 9, 20, 0.8);
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(229, 9, 20, 0.35);
+}
+
+.lang-count {
+  background: rgba(0, 0, 0, 0.35);
+  padding: 1px 6px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 700;
+  color: inherit;
+}
+
+.lang-tab-pill.active .lang-count {
+  background: rgba(255, 255, 255, 0.22);
+  color: #ffffff;
+}
+
+/* Distinctive Language Badges */
+.badge-lang-eng {
+  background: rgba(59, 130, 246, 0.18) !important;
+  border: 1px solid rgba(59, 130, 246, 0.45) !important;
+  color: #93c5fd !important;
+  font-weight: 700;
+}
+
+.badge-lang-multi {
+  background: rgba(168, 85, 247, 0.18) !important;
+  border: 1px solid rgba(168, 85, 247, 0.45) !important;
+  color: #d8b4fe !important;
+  font-weight: 700;
+}
+
+.badge-lang-tam {
+  background: rgba(245, 158, 11, 0.18) !important;
+  border: 1px solid rgba(245, 158, 11, 0.45) !important;
+  color: #fcd34d !important;
+  font-weight: 700;
+}
+
+.badge-lang-tel {
+  background: rgba(16, 185, 129, 0.18) !important;
+  border: 1px solid rgba(16, 185, 129, 0.45) !important;
+  color: #6ee7b7 !important;
+  font-weight: 700;
+}
+
+.badge-lang-hin {
+  background: rgba(236, 72, 153, 0.18) !important;
+  border: 1px solid rgba(236, 72, 153, 0.45) !important;
+  color: #f472b6 !important;
+  font-weight: 700;
+}
+
+.badge-lang-mal,
+.badge-lang-kan {
+  background: rgba(14, 165, 233, 0.18) !important;
+  border: 1px solid rgba(14, 165, 233, 0.45) !important;
+  color: #7dd3fc !important;
+  font-weight: 700;
+}
+
+.badge-lang-other {
+  background: rgba(113, 113, 122, 0.2) !important;
+  border: 1px solid rgba(113, 113, 122, 0.35) !important;
+  color: #d4d4d8 !important;
+}
+
+.empty-tier-notice {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 30px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  color: #a1a1aa;
+}
+
+.empty-tier-notice p {
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+
 /* ==========================================================================
    CINEMATIC STREAM BUFFERING DIALOG
    ========================================================================== */

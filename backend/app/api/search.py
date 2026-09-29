@@ -41,6 +41,41 @@ async def _enrich_groups_with_metadata(title_groups: Dict[str, Any]) -> Dict[str
     return enrichment
 
 
+def _consolidate_title_groups(
+    title_groups: Dict[str, List[Any]],
+    enrichment: Dict[str, Any],
+) -> Tuple[Dict[str, List[Any]], Dict[str, Any]]:
+    """Merge title groups that share the exact same TMDb movie ID,
+
+    guaranteeing only 1 card per movie release.
+    """
+    if not title_groups or len(title_groups) <= 1:
+        return title_groups, enrichment
+
+    consolidated_groups: Dict[str, List[Any]] = {}
+    consolidated_enrichment: Dict[str, Any] = {}
+    tmdb_to_title: Dict[int, str] = {}
+
+    for title, cands in title_groups.items():
+        meta = enrichment.get(title)
+        tmdb_id = getattr(meta, "tmdb_id", None) if meta else None
+
+        if tmdb_id and tmdb_id in tmdb_to_title:
+            primary_title = tmdb_to_title[tmdb_id]
+            # Merge candidates under primary title
+            existing = consolidated_groups[primary_title]
+            merged = search_aggregator.deduplicate_candidates(existing + cands)
+            consolidated_groups[primary_title] = search_aggregator.rank_candidates(merged)
+        else:
+            if tmdb_id:
+                tmdb_to_title[tmdb_id] = title
+            consolidated_groups[title] = cands
+            if meta:
+                consolidated_enrichment[title] = meta
+
+    return consolidated_groups, consolidated_enrichment
+
+
 @router.get("/search/suggestions", summary="Live Movie Autocomplete Suggestions")
 async def get_search_suggestions(
     q: str = Query(..., min_length=1, description="Partial search query"),
@@ -276,6 +311,7 @@ async def search_movies(
         )
         title_groups = search_aggregator.group_candidates_by_title(mock_candidates)
         enrichment = await _enrich_groups_with_metadata(title_groups)
+        title_groups, enrichment = _consolidate_title_groups(title_groups, enrichment)
 
         return SearchResponse(
             query=query_str,
@@ -294,6 +330,7 @@ async def search_movies(
         if cached_candidates:
             cached_groups = search_aggregator.group_candidates_by_title(cached_candidates, query=query_str)
             enrichment = await _enrich_groups_with_metadata(cached_groups)
+            cached_groups, enrichment = _consolidate_title_groups(cached_groups, enrichment)
             return SearchResponse(
                 query=query_str,
                 results=[],
@@ -349,6 +386,7 @@ async def search_movies(
 
         title_groups = search_aggregator.rank_title_groups(data.get("title_groups", {}), query=query_str)
         enrichment = await _enrich_groups_with_metadata(title_groups)
+        title_groups, enrichment = _consolidate_title_groups(title_groups, enrichment)
 
         return SearchResponse(
             query=query_str,
@@ -415,6 +453,7 @@ async def find_title_versions(
         ]
         title_groups = data.get("title_groups", {})
         enrichment = await _enrich_groups_with_metadata(title_groups)
+        title_groups, enrichment = _consolidate_title_groups(title_groups, enrichment)
 
         return SearchResponse(
             query=title,
