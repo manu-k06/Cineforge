@@ -2059,7 +2059,7 @@
       "file_type": "code",
       "norm_label": "getmovieextras()",
       "source_file": "frontend/src/components/WatchPage.jsx",
-      "source_location": "L44"
+      "source_location": "L45"
     },
     {
       "id": "frontend_src_components_watchpage_watchpage",
@@ -2071,7 +2071,7 @@
       "file_type": "code",
       "norm_label": "watchpage()",
       "source_file": "frontend/src/components/WatchPage.jsx",
-      "source_location": "L116"
+      "source_location": "L117"
     },
     {
       "id": "frontend_src_context_authcontext_authprovider",
@@ -2131,7 +2131,7 @@
       "file_type": "code",
       "norm_label": "usewatchhistory()",
       "source_file": "frontend/src/context/WatchHistoryContext.jsx",
-      "source_location": "L275"
+      "source_location": "L279"
     },
     {
       "id": "frontend_src_context_watchhistorycontext_watchhistoryprovider",
@@ -5982,6 +5982,17 @@
       "source_location": "L15"
     },
     {
+      "id": "ref_react_dom",
+      "label": "react-dom",
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "App.jsx",
+      "file_type": "concept",
+      "norm_label": "react-dom",
+      "source_file": "frontend/package.json",
+      "source_location": "L16"
+    },
+    {
       "id": "ref_supabase_supabase_js",
       "label": "@supabase/supabase-js",
       "_origin": "ast",
@@ -8164,17 +8175,6 @@
       "norm_label": "oxlint",
       "source_file": "frontend/package.json",
       "source_location": "L22"
-    },
-    {
-      "id": "ref_react_dom",
-      "label": "react-dom",
-      "_origin": "ast",
-      "community": 8,
-      "community_name": "package.json",
-      "file_type": "concept",
-      "norm_label": "react-dom",
-      "source_file": "frontend/package.json",
-      "source_location": "L16"
     },
     {
       "id": "ref_types_react",
@@ -10447,6 +10447,18 @@
     },
     {
       "source": "frontend_src_app_app",
+      "target": "frontend_src_services_api_resolveapibase",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "frontend/src/App.jsx",
+      "source_location": "L205",
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_src_app_app",
       "target": "frontend_src_context_authcontext_useauth",
       "relation": "calls",
       "_origin": "ast",
@@ -10478,7 +10490,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/App.jsx",
-      "source_location": "L234",
+      "source_location": "L277",
       "weight": 1.0
     },
     {
@@ -10838,7 +10850,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/WatchPage.jsx",
-      "source_location": "L124",
+      "source_location": "L126",
       "weight": 1.0
     },
     {
@@ -10850,7 +10862,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/WatchPage.jsx",
-      "source_location": "L143",
+      "source_location": "L148",
       "weight": 1.0
     },
     {
@@ -10862,7 +10874,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/WatchPage.jsx",
-      "source_location": "L144",
+      "source_location": "L149",
       "weight": 1.0
     },
     {
@@ -10874,7 +10886,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/WatchPage.jsx",
-      "source_location": "L204",
+      "source_location": "L217",
       "weight": 1.0
     },
     {
@@ -10886,7 +10898,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/WatchPage.jsx",
-      "source_location": "L225",
+      "source_location": "L238",
       "weight": 1.0
     },
     {
@@ -10898,7 +10910,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/WatchPage.jsx",
-      "source_location": "L873",
+      "source_location": "L964",
       "weight": 1.0
     },
     {
@@ -10910,7 +10922,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/context/WatchHistoryContext.jsx",
-      "source_location": "L162",
+      "source_location": "L166",
       "weight": 1.0
     },
     {
@@ -10922,7 +10934,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/context/WatchHistoryContext.jsx",
-      "source_location": "L175",
+      "source_location": "L179",
       "weight": 1.0
     },
     {
@@ -10934,7 +10946,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/context/WatchHistoryContext.jsx",
-      "source_location": "L205",
+      "source_location": "L209",
       "weight": 1.0
     },
     {
@@ -10946,7 +10958,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/context/WatchHistoryContext.jsx",
-      "source_location": "L224",
+      "source_location": "L228",
       "weight": 1.0
     },
     {
@@ -15163,6 +15175,18 @@
     },
     {
       "source": "frontend_src_app",
+      "target": "frontend_src_services_api_resolveapibase",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "frontend/src/App.jsx",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_src_app",
       "target": "frontend_src_services_api_searchmovies",
       "relation": "imports",
       "_origin": "ast",
@@ -15542,7 +15566,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "frontend/src/components/WatchPage.jsx",
-      "source_location": "L38",
+      "source_location": "L39",
       "weight": 1.0
     },
     {
@@ -15554,7 +15578,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "frontend/src/components/WatchPage.jsx",
-      "source_location": "L38",
+      "source_location": "L39",
       "weight": 1.0
     },
     {
@@ -15566,7 +15590,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "frontend/src/components/WatchPage.jsx",
-      "source_location": "L39",
+      "source_location": "L40",
       "weight": 1.0
     },
     {
@@ -15578,7 +15602,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "frontend/src/components/WatchPage.jsx",
-      "source_location": "L39",
+      "source_location": "L40",
       "weight": 1.0
     },
     {
@@ -15590,7 +15614,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "frontend/src/components/WatchPage.jsx",
-      "source_location": "L40",
+      "source_location": "L41",
       "weight": 1.0
     },
     {
@@ -18410,7 +18434,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "frontend/src/components/WatchPage.jsx",
-      "source_location": "L38",
+      "source_location": "L39",
       "weight": 1.0
     },
     {
@@ -18422,7 +18446,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "frontend/src/components/WatchPage.jsx",
-      "source_location": "L39",
+      "source_location": "L40",
       "weight": 1.0
     },
     {
@@ -18434,7 +18458,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "frontend/src/components/WatchPage.jsx",
-      "source_location": "L40",
+      "source_location": "L41",
       "weight": 1.0
     },
     {
@@ -21090,7 +21114,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/src/components/WatchPage.jsx",
-      "source_location": "L116",
+      "source_location": "L117",
       "weight": 1.0
     },
     {
@@ -21101,7 +21125,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/src/components/WatchPage.jsx",
-      "source_location": "L44",
+      "source_location": "L45",
       "weight": 1.0
     },
     {
@@ -21167,7 +21191,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/src/context/WatchHistoryContext.jsx",
-      "source_location": "L275",
+      "source_location": "L279",
       "weight": 1.0
     },
     {
@@ -26436,5 +26460,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "3c7a2b6e5f4c3cdeb615757d035bb7144cdc912e"
+  "built_at_commit": "cbcd924bbf07574396a3b6ea73260eca99d89315"
 }

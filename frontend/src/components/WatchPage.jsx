@@ -34,6 +34,7 @@ import {
   Bookmark,
   BookmarkCheck,
   Plus,
+  RefreshCw,
 } from 'lucide-react'
 import { formatBytes, parseMovieMetadata } from '../utils/helpers'
 import { getMovieMetadata, getSubtitleTracks } from '../services/api'
@@ -120,6 +121,7 @@ export default function WatchPage({
   initialProgressSeconds = 0,
   onBack,
   onSwitchVersion,
+  onReconnectStream,
 }) {
   const { updateProgress, isInWatchlist, toggleWatchlist } = useWatchHistory()
   const [isPlaying, setIsPlaying] = useState(true)
@@ -131,6 +133,9 @@ export default function WatchPage({
   const [controlsVisible, setControlsVisible] = useState(true)
   const [copied, setCopied] = useState(false)
   const [hasPlaybackError, setHasPlaybackError] = useState(false)
+  const [playbackErrorType, setPlaybackErrorType] = useState('codec') // 'network' | 'codec'
+  const [isReconnecting, setIsReconnecting] = useState(false)
+  const [copiedVlc, setCopiedVlc] = useState(false)
 
   const videoRef = useRef(null)
   const playerContainerRef = useRef(null)
@@ -168,6 +173,10 @@ export default function WatchPage({
         backdrop_url: tmdbData?.backdrop_url || null,
         stream_url: delivery.stream_url,
         candidate_title: candidate?.title || delivery?.candidate_title,
+        candidate_id: candidate?.candidate_id || delivery?.candidate_id,
+        source_bot: candidate?.source_bot || delivery?.source_bot,
+        start_payload: candidate?.start_payload || delivery?.start_payload,
+        file_size: delivery?.file_size || null,
         quality: candidate?.quality || '1080P',
         progress_seconds: currentTime,
         duration_seconds: duration,
@@ -191,6 +200,10 @@ export default function WatchPage({
           backdrop_url: tmdbData?.backdrop_url || null,
           stream_url: delivery.stream_url,
           candidate_title: candidate?.title || delivery?.candidate_title,
+          candidate_id: candidate?.candidate_id || delivery?.candidate_id,
+          source_bot: candidate?.source_bot || delivery?.source_bot,
+          start_payload: candidate?.start_payload || delivery?.start_payload,
+          file_size: delivery?.file_size || null,
           quality: candidate?.quality || '1080P',
           progress_seconds: cur,
           duration_seconds: dur,
@@ -441,6 +454,10 @@ export default function WatchPage({
       backdrop_url: tmdbData?.backdrop_url || null,
       stream_url: delivery.stream_url,
       candidate_title: candidate?.title || delivery?.candidate_title,
+      candidate_id: candidate?.candidate_id || delivery?.candidate_id,
+      source_bot: candidate?.source_bot || delivery?.source_bot,
+      start_payload: candidate?.start_payload || delivery?.start_payload,
+      file_size: delivery?.file_size || null,
       quality: candidate?.quality || '1080P',
       progress_seconds: duration,
       duration_seconds: duration,
@@ -589,7 +606,31 @@ export default function WatchPage({
           onTimeUpdate={handleTimeUpdate}
           onLoadedMetadata={handleLoadedMetadata}
           onEnded={handleVideoEnded}
-          onError={() => setHasPlaybackError(true)}
+          onError={() => {
+            const err = videoRef.current?.error
+            console.warn('Video playback error:', err)
+            if (err && (err.code === 2 || err.code === 1)) {
+              setPlaybackErrorType('network')
+              setHasPlaybackError(true)
+            } else if (err && err.code === 4) {
+              fetch(delivery.stream_url, { method: 'HEAD' })
+                .then((res) => {
+                  if (res.ok || res.status === 206 || res.status === 200) {
+                    setPlaybackErrorType('codec')
+                  } else {
+                    setPlaybackErrorType('network')
+                  }
+                  setHasPlaybackError(true)
+                })
+                .catch(() => {
+                  setPlaybackErrorType('network')
+                  setHasPlaybackError(true)
+                })
+            } else {
+              setPlaybackErrorType('codec')
+              setHasPlaybackError(true)
+            }
+          }}
           onClick={togglePlay}
         >
           {activeSubtitleTrack && subtitleBlobUrl && (
@@ -845,35 +886,87 @@ export default function WatchPage({
           </div>
         </div>
 
-        {/* Fallback Overlay for MKV / Unsupported Browser Codecs */}
+        {/* Fallback Overlay for Network / Codec Playback Errors */}
         {hasPlaybackError && (
           <div className="streamvibe-player-error">
-            <div className="error-card">
-              <AlertCircle size={40} className="text-warning mb-2" />
-              <h3>Direct Browser Playback Restricted</h3>
-              <p>
-                This video container (MKV) or video codec (HEVC) cannot be natively decoded by your browser.
-                Click below to stream with the bot's web player or open in VLC.
-              </p>
-              <div className="error-buttons">
-                <a
-                  href={effectiveWatchUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn btn-primary"
-                >
-                  <Tv size={16} /> Open in Bot Web Player
-                </a>
-                <a
-                  href={effectiveDownloadUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn btn-secondary"
-                >
-                  <Download size={16} /> Download Video ({formatBytes(delivery.file_size)})
-                </a>
+            {playbackErrorType === 'network' ? (
+              <div className="error-card">
+                <AlertCircle size={42} className="text-warning mb-2" />
+                <h3>Stream Connection Expired</h3>
+                <p>
+                  The stream host or tunnel connection has refreshed since this movie was last played.
+                  Click below to reconnect and resume streaming right where you left off.
+                </p>
+                <div className="error-buttons">
+                  <button
+                    className="btn btn-primary"
+                    onClick={async () => {
+                      setIsReconnecting(true)
+                      try {
+                        if (onReconnectStream) {
+                          await onReconnectStream(candidate, group, currentTimeRef.current || currentTime || initialProgressSeconds)
+                        } else if (onBack) {
+                          onBack()
+                        }
+                      } finally {
+                        setIsReconnecting(false)
+                      }
+                    }}
+                    disabled={isReconnecting}
+                  >
+                    <RefreshCw size={16} className={isReconnecting ? 'spin-icon' : ''} />
+                    <span>{isReconnecting ? 'Reconnecting Stream...' : 'Reconnect & Resume'}</span>
+                  </button>
+                  <a
+                    href={effectiveWatchUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn-secondary"
+                  >
+                    <Tv size={16} /> Open in Web Player
+                  </a>
+                </div>
               </div>
-            </div>
+            ) : (
+              <div className="error-card">
+                <AlertCircle size={42} className="text-warning mb-2" />
+                <h3>Direct Browser Playback Restricted</h3>
+                <p>
+                  This video container (MKV) or audio track (DTS/AC3) cannot be natively decoded by your browser.
+                  Click below to stream with the bot's web player or open in VLC.
+                </p>
+                <div className="error-buttons">
+                  <a
+                    href={effectiveWatchUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn-primary"
+                  >
+                    <Tv size={16} /> Open in Bot Web Player
+                  </a>
+                  <button
+                    className="btn btn-secondary"
+                    onClick={() => {
+                      navigator.clipboard.writeText(delivery.stream_url)
+                      setCopiedVlc(true)
+                      setTimeout(() => setCopiedVlc(false), 3000)
+                    }}
+                  >
+                    <Copy size={16} /> {copiedVlc ? 'Stream URL Copied!' : 'Copy Stream Link for VLC'}
+                  </button>
+                  {delivery.file_size && delivery.file_size > 0 ? (
+                    <a
+                      href={effectiveDownloadUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn btn-secondary"
+                    >
+                      <Download size={16} /> Download Video ({formatBytes(delivery.file_size)})
+                    </a>
+                  ) : null}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>

@@ -14,7 +14,7 @@ import Footer from './components/Footer'
 import { Bookmark, History } from 'lucide-react'
 import { useAuth } from './context/AuthContext'
 import { useWatchHistory } from './context/WatchHistoryContext'
-import { searchMovies, deliverCandidate, getBackendHealth, getTrendingMovies } from './services/api'
+import { searchMovies, deliverCandidate, getBackendHealth, getTrendingMovies, resolveApiBase } from './services/api'
 import { parseMovieMetadata } from './utils/helpers'
 
 export default function App() {
@@ -195,20 +195,45 @@ export default function App() {
   }
 
   // Resume playback from Continue Watching rail
-  const handleResumeFromRail = (item) => {
+  const handleResumeFromRail = async (item) => {
     const resumeSeconds = item.progress_seconds || 0
     setInitialProgressSeconds(resumeSeconds)
 
     if (item.stream_url) {
-      setActiveCandidate({
+      let resolvedStreamUrl = item.stream_url
+      try {
+        const apiBase = await resolveApiBase()
+        if (apiBase) {
+          const streamObj = new URL(item.stream_url)
+          const apiObj = new URL(apiBase)
+          // If the hostname differs (e.g. rotated Cloudflare tunnel), re-anchor origin!
+          if (streamObj.origin !== apiObj.origin && streamObj.pathname.includes('/stream')) {
+            resolvedStreamUrl = `${apiObj.origin}${streamObj.pathname}${streamObj.search}`
+          }
+        }
+      } catch (e) {
+        console.warn('Could not re-anchor stream URL:', e)
+      }
+
+      const cand = {
         title: item.candidate_title || item.title,
         quality: item.quality || '1080P',
-        container: 'mp4',
-      })
+        container: item.container || 'mp4',
+        candidate_id: item.candidate_id,
+        source_bot: item.source_bot,
+        start_payload: item.start_payload,
+      }
+
+      setActiveCandidate(cand)
       setActiveDelivery({
-        stream_url: item.stream_url,
+        stream_url: resolvedStreamUrl,
         candidate_title: item.candidate_title || item.title,
-        watch_url: item.stream_url,
+        file_name: item.candidate_title || item.title,
+        watch_url: resolvedStreamUrl,
+        file_size: item.file_size || null,
+        candidate_id: item.candidate_id,
+        source_bot: item.source_bot,
+        start_payload: item.start_payload,
       })
       setActiveMovieGroup({
         title: item.clean_title || item.title,
@@ -218,6 +243,24 @@ export default function App() {
       window.scrollTo({ top: 0, behavior: 'smooth' })
     } else {
       handleSearch(item.clean_title || item.title, 1)
+    }
+  }
+
+  // Auto-reconnect stream if session is expired or tunnel rotated
+  const handleReconnectStream = async (cand, grp, resumeTime = null) => {
+    if (resumeTime !== null && resumeTime > 0) {
+      setInitialProgressSeconds(resumeTime)
+    }
+    const targetCandidate = cand || activeCandidate
+    const targetGroup = grp || activeMovieGroup
+    if (targetCandidate?.start_payload || targetCandidate?.candidate_id) {
+      await startDelivery(targetCandidate, targetGroup)
+    } else {
+      const searchTitle = targetGroup?.title || targetCandidate?.title || activeDelivery?.candidate_title
+      if (searchTitle) {
+        setCurrentView('browse')
+        handleSearch(searchTitle, 1)
+      }
     }
   }
 
@@ -296,6 +339,7 @@ export default function App() {
               setInitialProgressSeconds(0)
             }}
             onSwitchVersion={(ver) => startDelivery(ver, activeMovieGroup)}
+            onReconnectStream={handleReconnectStream}
           />
         ) : (
           /* Browse & Discovery View */

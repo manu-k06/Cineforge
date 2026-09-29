@@ -1,17 +1,17 @@
 # Graph Report - Cineforge  (2026-09-29)
 
 ## Corpus Check
-- 74 files · ~52,525 words
+- 74 files · ~52,998 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 12 file(s) not represented in the graph (top: (none) 4, .bat 3, .example 2)
 
 ## Summary
-- 760 nodes · 1519 edges · 34 communities (30 shown, 4 thin omitted)
+- 760 nodes · 1521 edges · 34 communities (30 shown, 4 thin omitted)
 - Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 56 edges (avg confidence: 0.93)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `3c7a2b6e`
+- Built from commit: `cbcd924b`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -53,8 +53,8 @@
 
 ## God Nodes (most connected - your core abstractions)
 1. `TelegramService` - 28 edges
-2. `SearchCandidate` - 20 edges
-3. `resolveApiBase()` - 19 edges
+2. `resolveApiBase()` - 21 edges
+3. `SearchCandidate` - 20 edges
 4. `TmdbService` - 18 edges
 5. `react` - 18 edges
 6. `CineforgeTrayApp` - 18 edges
@@ -90,7 +90,7 @@ Nodes (5): fastapi_testclient, json, pydantic_settings, unittest, unittest_mock
 
 ### Community 2 - "App.jsx"
 Cohesion: 0.07
-Nodes (70): 📋 Phase 2: Metadata Enrichment (TMDb / IMDb API Integration), App(), AuthModal(), ContinueWatchingRail(), CINEMA_TRIVIA, DeliveryModal(), Footer(), DEFAULT_HERO_MOVIES (+62 more)
+Nodes (71): 📋 Phase 2: Metadata Enrichment (TMDb / IMDb API Integration), App(), AuthModal(), ContinueWatchingRail(), CINEMA_TRIVIA, DeliveryModal(), Footer(), DEFAULT_HERO_MOVIES (+63 more)
 
 ### Community 3 - "tmdb.py"
 Cohesion: 0.08
@@ -113,8 +113,8 @@ Cohesion: 0.07
 Nodes (17): MediaCompatibilityService, Any, Detects container tokens in title or button text using bounded word boundaries., Determines whether a media file is natively browser-playable or requires an…, Convenience boolean check., Ranks a list of SearchResultItem objects. Prioritizes: 1. Browser-compatible…, Centralized service to evaluate browser media compatibility and rank search…, Extracts container extension strictly from file suffix to prevent substring… (+9 more)
 
 ### Community 8 - "package.json"
-Cohesion: 0.07
-Nodes (26): dependencies, lucide-react, react, react-dom, @supabase/supabase-js, devDependencies, oxlint, @types/react (+18 more)
+Cohesion: 0.08
+Nodes (25): dependencies, lucide-react, react, react-dom, @supabase/supabase-js, devDependencies, oxlint, @types/react (+17 more)
 
 ### Community 9 - "telethon_compat.py"
 Cohesion: 0.11
