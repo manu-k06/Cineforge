@@ -2,10 +2,61 @@
  * Cineforge API Client
  * Connects frontend to FastAPI Telegram bot delivery backend and CineAI service
  */
+import { supabase, isSupabaseConfigured } from './supabase'
 
-const API_BASE = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '')
+let API_BASE = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '')
+let _lastResolvedTime = 0
+let _resolvePromise = null
 
-// Automatically bypass ngrok free tier browser warning interstitial for API requests
+export async function resolveApiBase(forceRefresh = false) {
+  const now = Date.now()
+  if (!forceRefresh && API_BASE && (now - _lastResolvedTime < 60000)) {
+    return API_BASE
+  }
+
+  if (_resolvePromise && !forceRefresh) {
+    return _resolvePromise
+  }
+
+  _resolvePromise = (async () => {
+    // 1. Try discovering the live backend URL from Supabase server_status
+    if (isSupabaseConfigured && supabase) {
+      try {
+        const { data, error } = await supabase
+          .from('server_status')
+          .select('backend_url, is_online')
+          .eq('id', 'live')
+          .single()
+
+        if (!error && data?.backend_url && data.is_online !== false) {
+          API_BASE = data.backend_url.replace(/\/$/, '')
+          _lastResolvedTime = Date.now()
+          return API_BASE
+        }
+      } catch {
+        // Fall through to environment variable
+      }
+    }
+
+    // 2. Fallback to hardcoded or Vercel environment variable
+    API_BASE = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '')
+    _lastResolvedTime = Date.now()
+    return API_BASE
+  })()
+
+  try {
+    return await _resolvePromise
+  } finally {
+    _resolvePromise = null
+  }
+}
+
+// Immediate eager discovery on client load
+if (typeof window !== 'undefined') {
+  resolveApiBase().catch(() => {})
+}
+
+// Automatically bypass ngrok free tier browser warning interstitial for API requests if used
 if (typeof window !== 'undefined' && window.fetch) {
   const _origFetch = window.fetch
   window.fetch = function (resource, init = {}) {
@@ -21,6 +72,7 @@ if (typeof window !== 'undefined' && window.fetch) {
 }
 
 export async function searchMovies(query, page = 1, useAi = true) {
+  await resolveApiBase()
   if (API_BASE) {
     try {
       const url = `${API_BASE}/api/search?q=${encodeURIComponent(query)}&page=${page}&use_ai=${useAi}`
@@ -125,6 +177,7 @@ export async function searchMovies(query, page = 1, useAi = true) {
 
 export async function getSearchSuggestions(query, limit = 6) {
   if (!query || !query.trim() || query.trim().length < 2) return []
+  await resolveApiBase()
   if (API_BASE) {
     try {
       const url = `${API_BASE}/api/search/suggestions?q=${encodeURIComponent(query.trim())}&limit=${limit}`
@@ -181,6 +234,7 @@ export async function getSearchSuggestions(query, limit = 6) {
 }
 
 export async function deliverCandidate(candidate) {
+  await resolveApiBase()
   if (API_BASE) {
     try {
       const payload = {
@@ -222,7 +276,9 @@ export async function deliverCandidate(candidate) {
 
 export async function getBackendHealth() {
   try {
-    const response = await fetch(`${API_BASE}/health`)
+    await resolveApiBase(true)
+    if (!API_BASE) return false
+    const response = await fetch(`${API_BASE}/health`, { signal: AbortSignal.timeout(3500) })
     return response.ok
   } catch {
     return false
@@ -234,6 +290,8 @@ export async function getBackendHealth() {
  */
 export async function getAiStatus() {
   try {
+    await resolveApiBase()
+    if (!API_BASE) return null
     const response = await fetch(`${API_BASE}/api/ai/status`)
     return response.ok ? await response.json() : null
   } catch {
@@ -242,6 +300,8 @@ export async function getAiStatus() {
 }
 
 export async function getAiRecommendations(prompt, count = 5) {
+  await resolveApiBase()
+  if (!API_BASE) throw new Error('Backend offline')
   const response = await fetch(`${API_BASE}/api/ai/recommend`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -255,6 +315,8 @@ export async function getAiRecommendations(prompt, count = 5) {
 }
 
 export async function askAiCompanion(movieTitle, question) {
+  await resolveApiBase()
+  if (!API_BASE) throw new Error('Backend offline')
   const response = await fetch(`${API_BASE}/api/ai/ask`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -293,6 +355,7 @@ function mapTmdbMovie(m) {
  * TMDb Metadata Enrichment Endpoints (Dynamic Backend + Direct TMDb Fallback)
  */
 export async function getMetadataStatus() {
+  await resolveApiBase()
   if (API_BASE) {
     try {
       const response = await fetch(`${API_BASE}/api/metadata/status`)
@@ -305,6 +368,7 @@ export async function getMetadataStatus() {
 }
 
 export async function getMovieMetadata(title, year = null) {
+  await resolveApiBase()
   if (API_BASE) {
     try {
       let url = `${API_BASE}/api/metadata/movie?title=${encodeURIComponent(title)}`
@@ -339,6 +403,7 @@ export async function getMovieMetadata(title, year = null) {
 }
 
 export async function getTrendingMovies(timeWindow = 'week', page = 1) {
+  await resolveApiBase()
   if (API_BASE) {
     try {
       const controller = new AbortController()
@@ -536,6 +601,9 @@ export async function getSubtitleTracks(title = '', year = null, imdbId = null, 
     if (effectiveImdbId && String(effectiveImdbId).trim()) params.set('imdb_id', String(effectiveImdbId).trim())
     if (effectiveStreamUrl && String(effectiveStreamUrl).trim()) params.set('stream_url', String(effectiveStreamUrl).trim())
 
+    await resolveApiBase()
+    if (!API_BASE) return { tracks: [] }
+
     const response = await fetch(`${API_BASE}/api/subtitles/tracks?${params.toString()}`)
     if (!response.ok) return { tracks: [] }
     const data = await response.json()
@@ -556,6 +624,8 @@ export async function getSubtitleTracks(title = '', year = null, imdbId = null, 
  */
 export async function getWatchHistoryApi(token) {
   if (!token) return []
+  await resolveApiBase()
+  if (!API_BASE) return []
   try {
     const res = await fetch(`${API_BASE}/api/history`, {
       headers: { Authorization: `Bearer ${token}` },
@@ -570,6 +640,8 @@ export async function getWatchHistoryApi(token) {
 
 export async function saveWatchProgressApi(token, payload) {
   if (!token) return null
+  await resolveApiBase()
+  if (!API_BASE) return null
   try {
     const res = await fetch(`${API_BASE}/api/history`, {
       method: 'POST',
@@ -588,6 +660,8 @@ export async function saveWatchProgressApi(token, payload) {
 
 export async function deleteWatchHistoryApi(token, title) {
   if (!token) return false
+  await resolveApiBase()
+  if (!API_BASE) return false
   try {
     const res = await fetch(`${API_BASE}/api/history/${encodeURIComponent(title)}`, {
       method: 'DELETE',
@@ -601,6 +675,8 @@ export async function deleteWatchHistoryApi(token, title) {
 
 export async function getWatchlistApi(token) {
   if (!token) return []
+  await resolveApiBase()
+  if (!API_BASE) return []
   try {
     const res = await fetch(`${API_BASE}/api/watchlist`, {
       headers: { Authorization: `Bearer ${token}` },
@@ -615,6 +691,8 @@ export async function getWatchlistApi(token) {
 
 export async function saveWatchlistApi(token, payload) {
   if (!token) return null
+  await resolveApiBase()
+  if (!API_BASE) return null
   try {
     const res = await fetch(`${API_BASE}/api/watchlist`, {
       method: 'POST',
@@ -633,6 +711,8 @@ export async function saveWatchlistApi(token, payload) {
 
 export async function deleteWatchlistApi(token, title) {
   if (!token) return false
+  await resolveApiBase()
+  if (!API_BASE) return false
   try {
     const res = await fetch(`${API_BASE}/api/watchlist/${encodeURIComponent(title)}`, {
       method: 'DELETE',
@@ -646,6 +726,8 @@ export async function deleteWatchlistApi(token, title) {
 
 export async function syncGuestDataApi(token, history, watchlist) {
   if (!token) return null
+  await resolveApiBase()
+  if (!API_BASE) return null
   try {
     const res = await fetch(`${API_BASE}/api/history/sync-guest`, {
       method: 'POST',

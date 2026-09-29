@@ -1081,6 +1081,7 @@ class TelegramService:
         self,
         request: CandidateDeliveryRequest,
         timeout: float = 30.0,
+        public_base_url: Optional[str] = None,
     ) -> CandidateDeliveryResponse:
         """Trigger bot delivery for a chosen candidate button, handle FSub gates,
 
@@ -1257,9 +1258,32 @@ class TelegramService:
             )
 
             session_id = uuid.uuid4().hex[:16]
-            final_stream_url = streamer_links.get("stream_url") or f"/api/stream/{canonical_msg_id}"
-            final_watch_url = streamer_links.get("watch_url") or final_stream_url
-            final_download_url = streamer_links.get("download_url")
+            stream_url_raw = streamer_links.get("stream_url") or f"/api/stream/{canonical_msg_id}"
+            watch_url_raw = streamer_links.get("watch_url") or stream_url_raw
+            download_url_raw = streamer_links.get("download_url")
+
+            # Dynamically adapt hostname to active public base URL (e.g. Cloudflare tunnel or reverse proxy)
+            effective_base = (public_base_url or getattr(settings, "PUBLIC_STREAM_BASE_URL", None) or "").rstrip("/")
+            if effective_base and stream_url_raw:
+                from urllib.parse import urlparse
+                parsed_stream = urlparse(stream_url_raw)
+                stream_path = parsed_stream.path + (f"?{parsed_stream.query}" if parsed_stream.query else "")
+                final_stream_url = f"{effective_base}{stream_path}" if stream_path.startswith("/") else f"{effective_base}/{stream_path}"
+
+                parsed_watch = urlparse(watch_url_raw)
+                watch_path = parsed_watch.path + (f"?{parsed_watch.query}" if parsed_watch.query else "")
+                final_watch_url = f"{effective_base}{watch_path}" if watch_path.startswith("/") else f"{effective_base}/{watch_path}"
+
+                if download_url_raw:
+                    parsed_down = urlparse(download_url_raw)
+                    down_path = parsed_down.path + (f"?{parsed_down.query}" if parsed_down.query else "")
+                    final_download_url = f"{effective_base}{down_path}" if down_path.startswith("/") else f"{effective_base}/{down_path}"
+                else:
+                    final_download_url = f"{final_stream_url}&d=true" if "?" in final_stream_url else f"{final_stream_url}?d=true"
+            else:
+                final_stream_url = stream_url_raw
+                final_watch_url = watch_url_raw
+                final_download_url = download_url_raw
 
             elapsed = round(time.perf_counter() - start_time, 2)
             logger.info(

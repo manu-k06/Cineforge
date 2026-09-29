@@ -4,7 +4,7 @@ import logging
 import re
 from typing import Any, Dict, List, Optional
 
-from fastapi import APIRouter, HTTPException, Query, status
+from fastapi import APIRouter, HTTPException, Query, Request, status
 from fastapi.responses import HTMLResponse
 
 from app.models.delivery import SelectedResultRequest, SelectedResultResponse
@@ -435,6 +435,7 @@ async def find_title_versions(
 @router.post("/search/deliver", response_model=CandidateDeliveryResponse, summary="Trigger Candidate Delivery and Session Creation")
 async def deliver_candidate_file(
     request: CandidateDeliveryRequest,
+    http_request: Request,
 ) -> CandidateDeliveryResponse:
     """Trigger bot delivery for a candidate button, forward document to 'me',
 
@@ -466,8 +467,9 @@ async def deliver_candidate_file(
             elapsed_seconds=0.75,
         )
 
+    base_url = str(http_request.base_url).rstrip("/") if http_request else None
     try:
-        resp = await telegram_service.deliver_candidate(request)
+        resp = await telegram_service.deliver_candidate(request, public_base_url=base_url)
         if resp.stream_url:
             asyncio.create_task(cache_service.save_stream_link(
                 candidate_id=request.candidate_id,
