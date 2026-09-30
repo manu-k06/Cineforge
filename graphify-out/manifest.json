@@ -264,9 +264,9 @@
     "semantic_hash": ""
   },
   "frontend/src/components/HeroBanner.jsx": {
-    "mtime": 1790750582.7856467,
-    "seen": 1790750671.1707299,
-    "ast_hash": "85b2b42b1adb192d09b9b9b5d0e0b697",
+    "mtime": 1790750826.317038,
+    "seen": 1790750903.754705,
+    "ast_hash": "9065021280fd2fcbf5e531f2bb896db2",
     "semantic_hash": ""
   },
   "frontend/src/components/MovieCard.jsx": {

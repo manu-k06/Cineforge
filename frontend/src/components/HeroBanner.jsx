@@ -354,14 +354,6 @@ export default function HeroBanner({ onQuickPlay }) {
               <div className="hero-info-main-col">
                 <h4 className="hero-info-section-title">Storyline</h4>
                 <p className="hero-info-synopsis">{selectedMovieForInfo.synopsis}</p>
-
-                <h4 className="hero-info-section-title">Streaming Highlights</h4>
-                <div className="hero-info-highlights-chips">
-                  <span className="hero-info-chip">🎬 Ultra HD Remux Available</span>
-                  <span className="hero-info-chip">🔊 Dolby Atmos / Multi-Audio</span>
-                  <span className="hero-info-chip">⚡ Instant Peer-to-Peer CDN Stream</span>
-                  <span className="hero-info-chip">📝 High-Accuracy Subtitles Included</span>
-                </div>
               </div>
 
               <div className="hero-info-side-col">

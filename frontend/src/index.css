@@ -1049,26 +1049,7 @@ button:active,
   font-size: 15px;
   line-height: 1.7;
   color: #d0d4dc;
-  margin: 0 0 24px;
-}
-
-.hero-info-highlights-chips {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.hero-info-chip {
-  font-size: 13px;
-  font-weight: 500;
-  color: #cfd4dc;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  padding: 10px 14px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  margin: 0;
 }
 
 .hero-info-meta-card {
