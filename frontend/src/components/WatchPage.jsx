@@ -1256,7 +1256,15 @@ export default function WatchPage({
               <div className="releases-list">
                 {versions.map((ver, idx) => {
                   const verMeta = parseMovieMetadata(ver.title, ver.display_text || ver.size || '')
-                  const isCurrent = (candidate?.candidate_id === ver.candidate_id) || (ver.title === candidate?.title)
+                  const currentId = candidate?.candidate_id || delivery?.candidate_id
+                  const currentText = (candidate?.display_text || candidate?.file_name || delivery?.file_name || delivery?.candidate_title || '').trim().toLowerCase()
+                  const verText = (ver.display_text || ver.file_name || ver.details || '').trim().toLowerCase()
+
+                  const isCurrent = Boolean(
+                    (currentId && ver.candidate_id && currentId === ver.candidate_id) ||
+                    (currentText && verText && currentText === verText) ||
+                    (candidate?.start_payload && ver.start_payload && candidate.start_payload === ver.start_payload)
+                  )
 
                   return (
                     <div
@@ -1277,7 +1285,14 @@ export default function WatchPage({
                         </span>
                       </div>
                       {!isCurrent && (
-                        <button className="btn btn-secondary btn-sm btn-switch">
+                        <button
+                          type="button"
+                          className="btn btn-secondary btn-sm btn-switch"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            onSwitchVersion(ver)
+                          }}
+                        >
                           <Play size={10} fill="#FFFFFF" /> Switch
                         </button>
                       )}
