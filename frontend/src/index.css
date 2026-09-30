@@ -3158,9 +3158,141 @@ video::cue {
 /* ==========================================================================
    2-ZONE SEARCH RESULTS & FEATURED MATCH
    ========================================================================== */
-.search-results-container {
+.search-results-container,
+.search-loading-container,
+.grid-section {
   width: 100%;
+  padding: 0 var(--page-gutter);
   animation: fadeIn 0.3s ease-out;
+  box-sizing: border-box;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 22px;
+}
+
+.section-title {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--paper);
+  margin: 0 0 4px 0;
+  letter-spacing: -0.02em;
+}
+
+.section-subtitle {
+  font-size: 13.5px;
+  color: var(--mist);
+  margin: 0;
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.page-indicator {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--mist);
+  padding: 0 4px;
+}
+
+/* Skeleton Pulse Loading Cards */
+.skeleton-card {
+  position: relative;
+  background: #141720 !important;
+  border: 1px solid var(--soft-edge);
+  border-radius: 11px;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 14px;
+  box-sizing: border-box;
+  cursor: default !important;
+  pointer-events: none;
+}
+
+.skeleton-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.01) 0%,
+    rgba(255, 255, 255, 0.06) 50%,
+    rgba(255, 255, 255, 0.01) 100%
+  );
+  background-size: 200% 100%;
+  animation: skeletonShimmer 1.8s infinite ease-in-out;
+}
+
+@keyframes skeletonShimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.skeleton-details {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.skeleton-line {
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.09);
+}
+
+.skeleton-title-line {
+  width: 75%;
+  height: 13px;
+}
+
+.skeleton-subtitle-line {
+  width: 45%;
+  height: 9px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
 }
 
 .featured-search-match {

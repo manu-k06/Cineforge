@@ -379,7 +379,7 @@ export default function MovieGrid({
   // Loading State during search
   if (isLoading) {
     return (
-      <div className="grid-section">
+      <div className="search-loading-container">
         <div className="section-header">
           <div>
             <h2 className="section-title">Searching Cinema Index...</h2>
@@ -389,13 +389,12 @@ export default function MovieGrid({
             <Loader2 size={13} className="animate-spin" /> Scanning releases
           </span>
         </div>
-        <div className="movie-grid">
-          {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-            <div key={i} className="movie-card skeleton-card">
-              <div className="skeleton skeleton-poster"></div>
+        <div className="browse-grid">
+          {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((i) => (
+            <div key={i} className="poster-card skeleton-card">
               <div className="skeleton-details">
-                <div className="skeleton skeleton-title"></div>
-                <div className="skeleton skeleton-subtitle"></div>
+                <div className="skeleton-line skeleton-title-line" />
+                <div className="skeleton-line skeleton-subtitle-line" />
               </div>
             </div>
           ))}
@@ -517,11 +516,10 @@ export default function MovieGrid({
             <div className="rail-scroll-track" style={{ overflow: 'hidden' }}>
               {[1, 2, 3, 4, 5, 6].map((i) => (
                 <div key={i} className="rail-movie-item">
-                  <div className="movie-card skeleton-card">
-                    <div className="skeleton skeleton-poster"></div>
+                  <div className="poster-card skeleton-card">
                     <div className="skeleton-details">
-                      <div className="skeleton skeleton-title"></div>
-                      <div className="skeleton skeleton-subtitle"></div>
+                      <div className="skeleton-line skeleton-title-line" />
+                      <div className="skeleton-line skeleton-subtitle-line" />
                     </div>
                   </div>
                 </div>
