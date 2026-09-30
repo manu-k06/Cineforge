@@ -140,7 +140,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 15,
-      "community_name": "api/__init__.py",
+      "community_name": "pydantic",
       "file_type": "code",
       "norm_label": "cachedcandidaterecord",
       "source_file": "backend/app/models/cache.py",
@@ -153,7 +153,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 15,
-      "community_name": "api/__init__.py",
+      "community_name": "pydantic",
       "file_type": "code",
       "norm_label": "cachestatsresponse",
       "source_file": "backend/app/models/cache.py",
@@ -197,19 +197,6 @@
       "norm_label": "teststreamerbotintegration",
       "source_file": "backend/tests/test_streamer_bot_integration.py",
       "source_location": "L9"
-    },
-    {
-      "id": "backend_tests_test_tmdb_testtmdbmetadataservice",
-      "label": "TestTmdbMetadataService",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 28,
-      "community_name": "TestTmdbMetadataService",
-      "file_type": "code",
-      "norm_label": "testtmdbmetadataservice",
-      "source_file": "backend/tests/test_tmdb.py",
-      "source_location": "L12"
     },
     {
       "id": "backend_app_models_metadata_castmember",
@@ -275,6 +262,19 @@
       "norm_label": "tmdbservice",
       "source_file": "backend/app/services/tmdb.py",
       "source_location": "L83"
+    },
+    {
+      "id": "backend_tests_test_tmdb_testtmdbmetadataservice",
+      "label": "TestTmdbMetadataService",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "tmdb.py",
+      "file_type": "code",
+      "norm_label": "testtmdbmetadataservice",
+      "source_file": "backend/tests/test_tmdb.py",
+      "source_location": "L12"
     },
     {
       "id": "backend_app_api_history_bulksyncpayload",
@@ -399,8 +399,8 @@
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
-      "community": 36,
-      "community_name": "AuthService",
+      "community": 39,
+      "community_name": "services/auth.py",
       "file_type": "code",
       "norm_label": "authservice",
       "source_file": "backend/app/services/auth.py",
@@ -418,19 +418,6 @@
       "norm_label": "aiservice",
       "source_file": "backend/app/services/ai_service.py",
       "source_location": "L19"
-    },
-    {
-      "id": "backend_app_services_telegram_mediawaiter",
-      "label": "MediaWaiter",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 5,
-      "community_name": "TelegramService",
-      "file_type": "code",
-      "norm_label": "mediawaiter",
-      "source_file": "backend/app/services/telegram.py",
-      "source_location": "L40"
     },
     {
       "id": "backend_app_services_telegram_telegramservice",
@@ -652,6 +639,19 @@
       "norm_label": "mediacompatibilityresult",
       "source_file": "backend/app/services/compatibility.py",
       "source_location": "L8"
+    },
+    {
+      "id": "backend_app_services_telegram_mediawaiter",
+      "label": "MediaWaiter",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "api/search.py",
+      "file_type": "code",
+      "norm_label": "mediawaiter",
+      "source_file": "backend/app/services/telegram.py",
+      "source_location": "L40"
     },
     {
       "id": "backend_app_services_compatibility_mediacompatibilityservice",
@@ -1030,6 +1030,18 @@
       "source_location": "L30"
     },
     {
+      "id": "backend_app_main_get_streamer_client",
+      "label": "get_streamer_client()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "main.py",
+      "file_type": "code",
+      "norm_label": "get_streamer_client()",
+      "source_file": "backend/app/main.py",
+      "source_location": "L27"
+    },
+    {
       "id": "backend_app_main_health_check",
       "label": "health_check()",
       "_callable": true,
@@ -1040,6 +1052,42 @@
       "norm_label": "health_check()",
       "source_file": "backend/app/main.py",
       "source_location": "L135"
+    },
+    {
+      "id": "backend_app_main_lifespan",
+      "label": "lifespan()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "main.py",
+      "file_type": "code",
+      "norm_label": "lifespan()",
+      "source_file": "backend/app/main.py",
+      "source_location": "L39"
+    },
+    {
+      "id": "backend_app_main_proxy_to_streamer",
+      "label": "proxy_to_streamer()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "main.py",
+      "file_type": "code",
+      "norm_label": "proxy_to_streamer()",
+      "source_file": "backend/app/main.py",
+      "source_location": "L88"
+    },
+    {
+      "id": "backend_app_main_proxy_to_streamer_body_stream",
+      "label": "body_stream()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "main.py",
+      "file_type": "code",
+      "norm_label": "body_stream()",
+      "source_file": "backend/app/main.py",
+      "source_location": "L120"
     },
     {
       "id": "backend_app_main_root_redirect",
@@ -1539,7 +1587,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 15,
-      "community_name": "api/__init__.py",
+      "community_name": "pydantic",
       "file_type": "code",
       "norm_label": "get_cache_status()",
       "source_file": "backend/app/api/cache.py",
@@ -1987,7 +2035,7 @@
       "file_type": "code",
       "norm_label": "navbar()",
       "source_file": "frontend/src/components/Navbar.jsx",
-      "source_location": "L6"
+      "source_location": "L15"
     },
     {
       "id": "frontend_src_components_playermodal_playermodal",
@@ -2482,24 +2530,12 @@
       "source_location": "L6"
     },
     {
-      "id": "backend_app_main_lifespan",
-      "label": "lifespan()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 27,
-      "community_name": "typing",
-      "file_type": "code",
-      "norm_label": "lifespan()",
-      "source_file": "backend/app/main.py",
-      "source_location": "L39"
-    },
-    {
       "id": "backend_app_services_publish_tunnel_main",
       "label": "main()",
       "_callable": true,
       "_origin": "ast",
       "community": 27,
-      "community_name": "typing",
+      "community_name": "publish_tunnel.py",
       "file_type": "code",
       "norm_label": "main()",
       "source_file": "backend/app/services/publish_tunnel.py",
@@ -2511,119 +2547,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 27,
-      "community_name": "typing",
+      "community_name": "publish_tunnel.py",
       "file_type": "code",
       "norm_label": "publish_tunnel_url()",
       "source_file": "backend/app/services/publish_tunnel.py",
       "source_location": "L16"
-    },
-    {
-      "id": "backend_tests_test_tmdb_testtmdbmetadataservice_setup",
-      "label": ".setUp()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 28,
-      "community_name": "TestTmdbMetadataService",
-      "file_type": "code",
-      "norm_label": ".setup()",
-      "source_file": "backend/tests/test_tmdb.py",
-      "source_location": "L13"
-    },
-    {
-      "id": "backend_tests_test_tmdb_testtmdbmetadataservice_test_api_metadata_movie_endpoint",
-      "label": ".test_api_metadata_movie_endpoint()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 28,
-      "community_name": "TestTmdbMetadataService",
-      "file_type": "code",
-      "norm_label": ".test_api_metadata_movie_endpoint()",
-      "source_file": "backend/tests/test_tmdb.py",
-      "source_location": "L131"
-    },
-    {
-      "id": "backend_tests_test_tmdb_testtmdbmetadataservice_test_api_metadata_trending_endpoint",
-      "label": ".test_api_metadata_trending_endpoint()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 28,
-      "community_name": "TestTmdbMetadataService",
-      "file_type": "code",
-      "norm_label": ".test_api_metadata_trending_endpoint()",
-      "source_file": "backend/tests/test_tmdb.py",
-      "source_location": "L138"
-    },
-    {
-      "id": "backend_tests_test_tmdb_testtmdbmetadataservice_test_api_search_suggestions_endpoint",
-      "label": ".test_api_search_suggestions_endpoint()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 28,
-      "community_name": "TestTmdbMetadataService",
-      "file_type": "code",
-      "norm_label": ".test_api_search_suggestions_endpoint()",
-      "source_file": "backend/tests/test_tmdb.py",
-      "source_location": "L171"
-    },
-    {
-      "id": "backend_tests_test_tmdb_testtmdbmetadataservice_test_metadata_status_endpoint",
-      "label": ".test_metadata_status_endpoint()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 28,
-      "community_name": "TestTmdbMetadataService",
-      "file_type": "code",
-      "norm_label": ".test_metadata_status_endpoint()",
-      "source_file": "backend/tests/test_tmdb.py",
-      "source_location": "L32"
-    },
-    {
-      "id": "backend_tests_test_tmdb_testtmdbmetadataservice_test_sanitize_movie_query",
-      "label": ".test_sanitize_movie_query()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 28,
-      "community_name": "TestTmdbMetadataService",
-      "file_type": "code",
-      "norm_label": ".test_sanitize_movie_query()",
-      "source_file": "backend/tests/test_tmdb.py",
-      "source_location": "L18"
-    },
-    {
-      "id": "backend_tests_test_tmdb_testtmdbmetadataservice_test_search_and_get_metadata_mocked_success",
-      "label": ".test_search_and_get_metadata_mocked_success()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 28,
-      "community_name": "TestTmdbMetadataService",
-      "file_type": "code",
-      "norm_label": ".test_search_and_get_metadata_mocked_success()",
-      "source_file": "backend/tests/test_tmdb.py",
-      "source_location": "L50"
-    },
-    {
-      "id": "backend_tests_test_tmdb_testtmdbmetadataservice_test_search_movie_suggestions_mocked",
-      "label": ".test_search_movie_suggestions_mocked()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 28,
-      "community_name": "TestTmdbMetadataService",
-      "file_type": "code",
-      "norm_label": ".test_search_movie_suggestions_mocked()",
-      "source_file": "backend/tests/test_tmdb.py",
-      "source_location": "L146"
-    },
-    {
-      "id": "backend_tests_test_tmdb_testtmdbmetadataservice_test_unconfigured_fallback",
-      "label": ".test_unconfigured_fallback()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 28,
-      "community_name": "TestTmdbMetadataService",
-      "file_type": "code",
-      "norm_label": ".test_unconfigured_fallback()",
-      "source_file": "backend/tests/test_tmdb.py",
-      "source_location": "L40"
     },
     {
       "id": "backend_app_api_metadata_discover_movies",
@@ -2878,6 +2806,114 @@
       "source_location": "L527"
     },
     {
+      "id": "backend_tests_test_tmdb_testtmdbmetadataservice_setup",
+      "label": ".setUp()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "tmdb.py",
+      "file_type": "code",
+      "norm_label": ".setup()",
+      "source_file": "backend/tests/test_tmdb.py",
+      "source_location": "L13"
+    },
+    {
+      "id": "backend_tests_test_tmdb_testtmdbmetadataservice_test_api_metadata_movie_endpoint",
+      "label": ".test_api_metadata_movie_endpoint()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "tmdb.py",
+      "file_type": "code",
+      "norm_label": ".test_api_metadata_movie_endpoint()",
+      "source_file": "backend/tests/test_tmdb.py",
+      "source_location": "L131"
+    },
+    {
+      "id": "backend_tests_test_tmdb_testtmdbmetadataservice_test_api_metadata_trending_endpoint",
+      "label": ".test_api_metadata_trending_endpoint()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "tmdb.py",
+      "file_type": "code",
+      "norm_label": ".test_api_metadata_trending_endpoint()",
+      "source_file": "backend/tests/test_tmdb.py",
+      "source_location": "L138"
+    },
+    {
+      "id": "backend_tests_test_tmdb_testtmdbmetadataservice_test_api_search_suggestions_endpoint",
+      "label": ".test_api_search_suggestions_endpoint()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "tmdb.py",
+      "file_type": "code",
+      "norm_label": ".test_api_search_suggestions_endpoint()",
+      "source_file": "backend/tests/test_tmdb.py",
+      "source_location": "L171"
+    },
+    {
+      "id": "backend_tests_test_tmdb_testtmdbmetadataservice_test_metadata_status_endpoint",
+      "label": ".test_metadata_status_endpoint()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "tmdb.py",
+      "file_type": "code",
+      "norm_label": ".test_metadata_status_endpoint()",
+      "source_file": "backend/tests/test_tmdb.py",
+      "source_location": "L32"
+    },
+    {
+      "id": "backend_tests_test_tmdb_testtmdbmetadataservice_test_sanitize_movie_query",
+      "label": ".test_sanitize_movie_query()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "tmdb.py",
+      "file_type": "code",
+      "norm_label": ".test_sanitize_movie_query()",
+      "source_file": "backend/tests/test_tmdb.py",
+      "source_location": "L18"
+    },
+    {
+      "id": "backend_tests_test_tmdb_testtmdbmetadataservice_test_search_and_get_metadata_mocked_success",
+      "label": ".test_search_and_get_metadata_mocked_success()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "tmdb.py",
+      "file_type": "code",
+      "norm_label": ".test_search_and_get_metadata_mocked_success()",
+      "source_file": "backend/tests/test_tmdb.py",
+      "source_location": "L50"
+    },
+    {
+      "id": "backend_tests_test_tmdb_testtmdbmetadataservice_test_search_movie_suggestions_mocked",
+      "label": ".test_search_movie_suggestions_mocked()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "tmdb.py",
+      "file_type": "code",
+      "norm_label": ".test_search_movie_suggestions_mocked()",
+      "source_file": "backend/tests/test_tmdb.py",
+      "source_location": "L146"
+    },
+    {
+      "id": "backend_tests_test_tmdb_testtmdbmetadataservice_test_unconfigured_fallback",
+      "label": ".test_unconfigured_fallback()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "tmdb.py",
+      "file_type": "code",
+      "norm_label": ".test_unconfigured_fallback()",
+      "source_file": "backend/tests/test_tmdb.py",
+      "source_location": "L40"
+    },
+    {
       "id": "backend_app_api_history_add_to_watchlist",
       "label": "add_to_watchlist()",
       "_callable": true,
@@ -3046,96 +3082,12 @@
       "source_location": "L28"
     },
     {
-      "id": "backend_app_services_auth_authservice_get_client",
-      "label": "._get_client()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 36,
-      "community_name": "AuthService",
-      "file_type": "code",
-      "norm_label": "._get_client()",
-      "source_file": "backend/app/services/auth.py",
-      "source_location": "L21"
-    },
-    {
-      "id": "backend_app_services_auth_authservice_init",
-      "label": ".__init__()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 36,
-      "community_name": "AuthService",
-      "file_type": "code",
-      "norm_label": ".__init__()",
-      "source_file": "backend/app/services/auth.py",
-      "source_location": "L15"
-    },
-    {
-      "id": "backend_app_services_auth_authservice_is_configured",
-      "label": ".is_configured()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 36,
-      "community_name": "AuthService",
-      "file_type": "code",
-      "norm_label": ".is_configured()",
-      "source_file": "backend/app/services/auth.py",
-      "source_location": "L18"
-    },
-    {
-      "id": "backend_app_services_auth_authservice_verify_token",
-      "label": ".verify_token()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 36,
-      "community_name": "AuthService",
-      "file_type": "code",
-      "norm_label": ".verify_token()",
-      "source_file": "backend/app/services/auth.py",
-      "source_location": "L34"
-    },
-    {
-      "id": "backend_app_main_get_streamer_client",
-      "label": "get_streamer_client()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 38,
-      "community_name": "proxy_to_streamer",
-      "file_type": "code",
-      "norm_label": "get_streamer_client()",
-      "source_file": "backend/app/main.py",
-      "source_location": "L27"
-    },
-    {
-      "id": "backend_app_main_proxy_to_streamer",
-      "label": "proxy_to_streamer()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 38,
-      "community_name": "proxy_to_streamer",
-      "file_type": "code",
-      "norm_label": "proxy_to_streamer()",
-      "source_file": "backend/app/main.py",
-      "source_location": "L88"
-    },
-    {
-      "id": "backend_app_main_proxy_to_streamer_body_stream",
-      "label": "body_stream()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 38,
-      "community_name": "proxy_to_streamer",
-      "file_type": "code",
-      "norm_label": "body_stream()",
-      "source_file": "backend/app/main.py",
-      "source_location": "L120"
-    },
-    {
       "id": "backend_app_api_auth_get_auth_status",
       "label": "get_auth_status()",
       "_callable": true,
       "_origin": "ast",
       "community": 39,
-      "community_name": "api/auth.py",
+      "community_name": "services/auth.py",
       "file_type": "code",
       "norm_label": "get_auth_status()",
       "source_file": "backend/app/api/auth.py",
@@ -3147,11 +3099,59 @@
       "_callable": true,
       "_origin": "ast",
       "community": 39,
-      "community_name": "api/auth.py",
+      "community_name": "services/auth.py",
       "file_type": "code",
       "norm_label": "get_my_profile()",
       "source_file": "backend/app/api/auth.py",
       "source_location": "L19"
+    },
+    {
+      "id": "backend_app_services_auth_authservice_get_client",
+      "label": "._get_client()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 39,
+      "community_name": "services/auth.py",
+      "file_type": "code",
+      "norm_label": "._get_client()",
+      "source_file": "backend/app/services/auth.py",
+      "source_location": "L21"
+    },
+    {
+      "id": "backend_app_services_auth_authservice_init",
+      "label": ".__init__()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 39,
+      "community_name": "services/auth.py",
+      "file_type": "code",
+      "norm_label": ".__init__()",
+      "source_file": "backend/app/services/auth.py",
+      "source_location": "L15"
+    },
+    {
+      "id": "backend_app_services_auth_authservice_is_configured",
+      "label": ".is_configured()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 39,
+      "community_name": "services/auth.py",
+      "file_type": "code",
+      "norm_label": ".is_configured()",
+      "source_file": "backend/app/services/auth.py",
+      "source_location": "L18"
+    },
+    {
+      "id": "backend_app_services_auth_authservice_verify_token",
+      "label": ".verify_token()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 39,
+      "community_name": "services/auth.py",
+      "file_type": "code",
+      "norm_label": ".verify_token()",
+      "source_file": "backend/app/services/auth.py",
+      "source_location": "L34"
     },
     {
       "id": "backend_app_services_auth_get_current_user_optional",
@@ -3159,7 +3159,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 39,
-      "community_name": "api/auth.py",
+      "community_name": "services/auth.py",
       "file_type": "code",
       "norm_label": "get_current_user_optional()",
       "source_file": "backend/app/services/auth.py",
@@ -3171,7 +3171,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 39,
-      "community_name": "api/auth.py",
+      "community_name": "services/auth.py",
       "file_type": "code",
       "norm_label": "get_current_user_required()",
       "source_file": "backend/app/services/auth.py",
@@ -3262,18 +3262,6 @@
       "source_location": "L17"
     },
     {
-      "id": "backend_app_services_telegram_mediawaiter_init",
-      "label": ".__init__()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 5,
-      "community_name": "TelegramService",
-      "file_type": "code",
-      "norm_label": ".__init__()",
-      "source_file": "backend/app/services/telegram.py",
-      "source_location": "L43"
-    },
-    {
       "id": "backend_app_services_telegram_telegramservice_connect",
       "label": ".connect()",
       "_callable": true,
@@ -3284,18 +3272,6 @@
       "norm_label": ".connect()",
       "source_file": "backend/app/services/telegram.py",
       "source_location": "L95"
-    },
-    {
-      "id": "backend_app_services_telegram_telegramservice_deliver_candidate",
-      "label": ".deliver_candidate()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 5,
-      "community_name": "TelegramService",
-      "file_type": "code",
-      "norm_label": ".deliver_candidate()",
-      "source_file": "backend/app/services/telegram.py",
-      "source_location": "L1080"
     },
     {
       "id": "backend_app_services_telegram_telegramservice_deliver_candidate_trigger_task",
@@ -3368,18 +3344,6 @@
       "norm_label": "._extract_media_metadata()",
       "source_file": "backend/app/services/telegram.py",
       "source_location": "L142"
-    },
-    {
-      "id": "backend_app_services_telegram_telegramservice_extract_streamer_links",
-      "label": "._extract_streamer_links()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 5,
-      "community_name": "TelegramService",
-      "file_type": "code",
-      "norm_label": "._extract_streamer_links()",
-      "source_file": "backend/app/services/telegram.py",
-      "source_location": "L1319"
     },
     {
       "id": "backend_app_services_telegram_telegramservice_find_all_versions_for_title",
@@ -3740,6 +3704,42 @@
       "norm_label": "interactive_login()",
       "source_file": "backend/app/services/telegram.py",
       "source_location": "L1405"
+    },
+    {
+      "id": "backend_app_services_telegram_mediawaiter_init",
+      "label": ".__init__()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "api/search.py",
+      "file_type": "code",
+      "norm_label": ".__init__()",
+      "source_file": "backend/app/services/telegram.py",
+      "source_location": "L43"
+    },
+    {
+      "id": "backend_app_services_telegram_telegramservice_deliver_candidate",
+      "label": ".deliver_candidate()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "api/search.py",
+      "file_type": "code",
+      "norm_label": ".deliver_candidate()",
+      "source_file": "backend/app/services/telegram.py",
+      "source_location": "L1080"
+    },
+    {
+      "id": "backend_app_services_telegram_telegramservice_extract_streamer_links",
+      "label": "._extract_streamer_links()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "api/search.py",
+      "file_type": "code",
+      "norm_label": "._extract_streamer_links()",
+      "source_file": "backend/app/services/telegram.py",
+      "source_location": "L1319"
     },
     {
       "id": "backend_app_services_telegram_telegramservice_select_result",
@@ -4329,6 +4329,28 @@
       "source_location": "L81"
     },
     {
+      "id": "api_route",
+      "label": "api_route",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "main.py",
+      "file_type": "code",
+      "norm_label": "api_route",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "asyncclient",
+      "label": "AsyncClient",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "main.py",
+      "file_type": "code",
+      "norm_label": "asyncclient",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
       "id": "backend_app_main",
       "label": "main.py",
       "_origin": "ast",
@@ -4351,59 +4373,37 @@
       "source_location": ""
     },
     {
-      "id": "backend_tests_test_ai_service",
-      "label": "test_ai_service.py",
+      "id": "backend_app_main_py_request",
+      "label": "Request",
       "_origin": "ast",
       "community": 1,
       "community_name": "main.py",
       "file_type": "code",
-      "norm_label": "test_ai_service.py",
-      "source_file": "backend/tests/test_ai_service.py",
-      "source_location": "L1"
+      "norm_label": "request",
+      "source_file": "",
+      "source_location": ""
     },
     {
-      "id": "backend_tests_test_auth",
-      "label": "test_auth.py",
+      "id": "fastapi",
+      "label": "FastAPI",
       "_origin": "ast",
       "community": 1,
       "community_name": "main.py",
       "file_type": "code",
-      "norm_label": "test_auth.py",
-      "source_file": "backend/tests/test_auth.py",
-      "source_location": "L1"
+      "norm_label": "fastapi",
+      "source_file": "",
+      "source_location": ""
     },
     {
-      "id": "backend_tests_test_cache_service",
-      "label": "test_cache_service.py",
+      "id": "backend_app_main_rationale_89",
+      "label": "Proxy video streaming and download range requests to local Go FileStreamBot\u2026",
       "_origin": "ast",
       "community": 1,
       "community_name": "main.py",
-      "file_type": "code",
-      "norm_label": "test_cache_service.py",
-      "source_file": "backend/tests/test_cache_service.py",
-      "source_location": "L1"
-    },
-    {
-      "id": "backend_tests_test_streamer_bot_integration",
-      "label": "test_streamer_bot_integration.py",
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "main.py",
-      "file_type": "code",
-      "norm_label": "test_streamer_bot_integration.py",
-      "source_file": "backend/tests/test_streamer_bot_integration.py",
-      "source_location": "L1"
-    },
-    {
-      "id": "backend_tests_test_tmdb",
-      "label": "test_tmdb.py",
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "main.py",
-      "file_type": "code",
-      "norm_label": "test_tmdb.py",
-      "source_file": "backend/tests/test_tmdb.py",
-      "source_location": "L1"
+      "file_type": "rationale",
+      "norm_label": "proxy video streaming and download range requests to local go filestreambot...",
+      "source_file": "backend/app/main.py",
+      "source_location": "L89"
     },
     {
       "id": "backend_app_api_subtitles",
@@ -5141,18 +5141,6 @@
       "source_location": "L41"
     },
     {
-      "id": "docs_backend_todo_phase_2_metadata_enrichment_tmdb_imdb_api_integration",
-      "label": "\ud83d\udccb Phase 2: Metadata Enrichment (TMDb / IMDb API Integration)",
-      "_origin": "ast",
-      "community": 14,
-      "community_name": "Cineforge Master Architecture & Implementation Roadmap (TODO)",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "\ud83d\udccb phase 2: metadata enrichment (tmdb / imdb api integration)",
-      "source_file": "docs/BACKEND_TODO.md",
-      "source_location": "L66"
-    },
-    {
       "id": "docs_backend_todo_phase_3_supabase_persistence_zero_latency_stream_caching",
       "label": "\ud83d\udccb Phase 3: Supabase Persistence & Zero-Latency Stream Caching",
       "_origin": "ast",
@@ -5229,7 +5217,7 @@
       "label": "api/cache.py",
       "_origin": "ast",
       "community": 15,
-      "community_name": "api/__init__.py",
+      "community_name": "pydantic",
       "file_type": "code",
       "norm_label": "api/cache.py",
       "source_file": "backend/app/api/cache.py",
@@ -5240,29 +5228,18 @@
       "label": "get",
       "_origin": "ast",
       "community": 15,
-      "community_name": "api/__init__.py",
+      "community_name": "pydantic",
       "file_type": "code",
       "norm_label": "get",
       "source_file": "",
       "source_location": ""
     },
     {
-      "id": "backend_app_api_init",
-      "label": "api/__init__.py",
-      "_origin": "ast",
-      "community": 15,
-      "community_name": "api/__init__.py",
-      "file_type": "code",
-      "norm_label": "api/__init__.py",
-      "source_file": "backend/app/api/__init__.py",
-      "source_location": "L1"
-    },
-    {
       "id": "backend_app_models_cache",
       "label": "models/cache.py",
       "_origin": "ast",
       "community": 15,
-      "community_name": "api/__init__.py",
+      "community_name": "pydantic",
       "file_type": "code",
       "norm_label": "models/cache.py",
       "source_file": "backend/app/models/cache.py",
@@ -5273,7 +5250,7 @@
       "label": "BaseModel",
       "_origin": "ast",
       "community": 15,
-      "community_name": "api/__init__.py",
+      "community_name": "pydantic",
       "file_type": "code",
       "norm_label": "basemodel",
       "source_file": "",
@@ -5284,7 +5261,7 @@
       "label": "Returns whether Supabase caching is active, along with total cached movies and\u2026",
       "_origin": "ast",
       "community": 15,
-      "community_name": "api/__init__.py",
+      "community_name": "pydantic",
       "file_type": "rationale",
       "norm_label": "returns whether supabase caching is active, along with total cached movies and...",
       "source_file": "backend/app/api/cache.py",
@@ -5295,7 +5272,7 @@
       "label": "Operational statistics for Cineforge Supabase cache.",
       "_origin": "ast",
       "community": 15,
-      "community_name": "api/__init__.py",
+      "community_name": "pydantic",
       "file_type": "rationale",
       "norm_label": "operational statistics for cineforge supabase cache.",
       "source_file": "backend/app/models/cache.py",
@@ -5306,7 +5283,7 @@
       "label": "Database representation of a cached movie candidate in Supabase.",
       "_origin": "ast",
       "community": 15,
-      "community_name": "api/__init__.py",
+      "community_name": "pydantic",
       "file_type": "rationale",
       "norm_label": "database representation of a cached movie candidate in supabase.",
       "source_file": "backend/app/models/cache.py",
@@ -5753,6 +5730,17 @@
       "source_location": "L1"
     },
     {
+      "id": "frontend_src_components_navbar_avatar_presets",
+      "label": "AVATAR_PRESETS",
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "App.jsx",
+      "file_type": "code",
+      "norm_label": "avatar_presets",
+      "source_file": "frontend/src/components/Navbar.jsx",
+      "source_location": "L6"
+    },
+    {
       "id": "frontend_src_components_playermodal",
       "label": "PlayerModal.jsx",
       "_origin": "ast",
@@ -6006,6 +5994,18 @@
       "source_location": "L13"
     },
     {
+      "id": "docs_backend_todo_phase_2_metadata_enrichment_tmdb_imdb_api_integration",
+      "label": "\ud83d\udccb Phase 2: Metadata Enrichment (TMDb / IMDb API Integration)",
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "App.jsx",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "\ud83d\udccb phase 2: metadata enrichment (tmdb / imdb api integration)",
+      "source_file": "docs/BACKEND_TODO.md",
+      "source_location": "L66"
+    },
+    {
       "id": "frontend_readme",
       "label": "frontend/README.md",
       "_origin": "ast",
@@ -6168,33 +6168,55 @@
       "id": "backend_app_config",
       "label": "config.py",
       "_origin": "ast",
-      "community": 27,
-      "community_name": "typing",
+      "community": 25,
+      "community_name": "config.py",
       "file_type": "code",
       "norm_label": "config.py",
       "source_file": "backend/app/config.py",
       "source_location": "L1"
     },
     {
-      "id": "backend_app_services_auth",
-      "label": "services/auth.py",
+      "id": "backend_tests_test_ai_service",
+      "label": "test_ai_service.py",
       "_origin": "ast",
-      "community": 27,
-      "community_name": "typing",
+      "community": 25,
+      "community_name": "config.py",
       "file_type": "code",
-      "norm_label": "services/auth.py",
-      "source_file": "backend/app/services/auth.py",
+      "norm_label": "test_ai_service.py",
+      "source_file": "backend/tests/test_ai_service.py",
       "source_location": "L1"
     },
     {
-      "id": "backend_app_services_cache_service",
-      "label": "cache_service.py",
+      "id": "backend_tests_test_auth",
+      "label": "test_auth.py",
       "_origin": "ast",
-      "community": 27,
-      "community_name": "typing",
+      "community": 25,
+      "community_name": "config.py",
       "file_type": "code",
-      "norm_label": "cache_service.py",
-      "source_file": "backend/app/services/cache_service.py",
+      "norm_label": "test_auth.py",
+      "source_file": "backend/tests/test_auth.py",
+      "source_location": "L1"
+    },
+    {
+      "id": "backend_tests_test_cache_service",
+      "label": "test_cache_service.py",
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "config.py",
+      "file_type": "code",
+      "norm_label": "test_cache_service.py",
+      "source_file": "backend/tests/test_cache_service.py",
+      "source_location": "L1"
+    },
+    {
+      "id": "backend_tests_test_streamer_bot_integration",
+      "label": "test_streamer_bot_integration.py",
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "config.py",
+      "file_type": "code",
+      "norm_label": "test_streamer_bot_integration.py",
+      "source_file": "backend/tests/test_streamer_bot_integration.py",
       "source_location": "L1"
     },
     {
@@ -6202,29 +6224,18 @@
       "label": "publish_tunnel.py",
       "_origin": "ast",
       "community": 27,
-      "community_name": "typing",
+      "community_name": "publish_tunnel.py",
       "file_type": "code",
       "norm_label": "publish_tunnel.py",
       "source_file": "backend/app/services/publish_tunnel.py",
       "source_location": "L1"
     },
     {
-      "id": "fastapi",
-      "label": "FastAPI",
-      "_origin": "ast",
-      "community": 27,
-      "community_name": "typing",
-      "file_type": "code",
-      "norm_label": "fastapi",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
       "id": "backend_app_services_publish_tunnel_rationale_1",
       "label": "Utility to publish live tunnel URL and server status into Supabase. Enables the\u2026",
       "_origin": "ast",
       "community": 27,
-      "community_name": "typing",
+      "community_name": "publish_tunnel.py",
       "file_type": "rationale",
       "norm_label": "utility to publish live tunnel url and server status into supabase. enables the...",
       "source_file": "backend/app/services/publish_tunnel.py",
@@ -6235,99 +6246,11 @@
       "label": "Upsert the active backend URL and online status to Supabase server_status table.",
       "_origin": "ast",
       "community": 27,
-      "community_name": "typing",
+      "community_name": "publish_tunnel.py",
       "file_type": "rationale",
       "norm_label": "upsert the active backend url and online status to supabase server_status table.",
       "source_file": "backend/app/services/publish_tunnel.py",
       "source_location": "L17"
-    },
-    {
-      "id": "backend_tests_test_tmdb_rationale_132",
-      "label": "GET /api/metadata/movie endpoint returns MovieMetadata model.",
-      "_origin": "ast",
-      "community": 28,
-      "community_name": "TestTmdbMetadataService",
-      "file_type": "rationale",
-      "norm_label": "get /api/metadata/movie endpoint returns moviemetadata model.",
-      "source_file": "backend/tests/test_tmdb.py",
-      "source_location": "L132"
-    },
-    {
-      "id": "backend_tests_test_tmdb_rationale_139",
-      "label": "GET /api/metadata/trending endpoint returns TrendingMoviesResponse model.",
-      "_origin": "ast",
-      "community": 28,
-      "community_name": "TestTmdbMetadataService",
-      "file_type": "rationale",
-      "norm_label": "get /api/metadata/trending endpoint returns trendingmoviesresponse model.",
-      "source_file": "backend/tests/test_tmdb.py",
-      "source_location": "L139"
-    },
-    {
-      "id": "backend_tests_test_tmdb_rationale_147",
-      "label": "Verify search_movie_suggestions parses TMDb search results into clean\u2026",
-      "_origin": "ast",
-      "community": 28,
-      "community_name": "TestTmdbMetadataService",
-      "file_type": "rationale",
-      "norm_label": "verify search_movie_suggestions parses tmdb search results into clean...",
-      "source_file": "backend/tests/test_tmdb.py",
-      "source_location": "L147"
-    },
-    {
-      "id": "backend_tests_test_tmdb_rationale_172",
-      "label": "GET /api/search/suggestions returns 200 with suggestions list.",
-      "_origin": "ast",
-      "community": 28,
-      "community_name": "TestTmdbMetadataService",
-      "file_type": "rationale",
-      "norm_label": "get /api/search/suggestions returns 200 with suggestions list.",
-      "source_file": "backend/tests/test_tmdb.py",
-      "source_location": "L172"
-    },
-    {
-      "id": "backend_tests_test_tmdb_rationale_19",
-      "label": "Verify messy torrent/release filenames are cleanly sanitized.",
-      "_origin": "ast",
-      "community": 28,
-      "community_name": "TestTmdbMetadataService",
-      "file_type": "rationale",
-      "norm_label": "verify messy torrent/release filenames are cleanly sanitized.",
-      "source_file": "backend/tests/test_tmdb.py",
-      "source_location": "L19"
-    },
-    {
-      "id": "backend_tests_test_tmdb_rationale_33",
-      "label": "GET /api/metadata/status returns current configuration status.",
-      "_origin": "ast",
-      "community": 28,
-      "community_name": "TestTmdbMetadataService",
-      "file_type": "rationale",
-      "norm_label": "get /api/metadata/status returns current configuration status.",
-      "source_file": "backend/tests/test_tmdb.py",
-      "source_location": "L33"
-    },
-    {
-      "id": "backend_tests_test_tmdb_rationale_41",
-      "label": "When TMDB_API_KEY is not set, service gracefully returns fallback metadata.",
-      "_origin": "ast",
-      "community": 28,
-      "community_name": "TestTmdbMetadataService",
-      "file_type": "rationale",
-      "norm_label": "when tmdb_api_key is not set, service gracefully returns fallback metadata.",
-      "source_file": "backend/tests/test_tmdb.py",
-      "source_location": "L41"
-    },
-    {
-      "id": "backend_tests_test_tmdb_rationale_51",
-      "label": "Verify successful TMDb search, details, credits, and video parsing.",
-      "_origin": "ast",
-      "community": 28,
-      "community_name": "TestTmdbMetadataService",
-      "file_type": "rationale",
-      "norm_label": "verify successful tmdb search, details, credits, and video parsing.",
-      "source_file": "backend/tests/test_tmdb.py",
-      "source_location": "L51"
     },
     {
       "id": "backend_app_api_metadata",
@@ -6394,6 +6317,17 @@
       "norm_label": "any",
       "source_file": "",
       "source_location": ""
+    },
+    {
+      "id": "backend_tests_test_tmdb",
+      "label": "test_tmdb.py",
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "tmdb.py",
+      "file_type": "code",
+      "norm_label": "test_tmdb.py",
+      "source_file": "backend/tests/test_tmdb.py",
+      "source_location": "L1"
     },
     {
       "id": "backend_app_api_metadata_rationale_12",
@@ -6592,6 +6526,94 @@
       "norm_label": "return headers and query parameters based on key type (bearer jwt or api key).",
       "source_file": "backend/app/services/tmdb.py",
       "source_location": "L95"
+    },
+    {
+      "id": "backend_tests_test_tmdb_rationale_132",
+      "label": "GET /api/metadata/movie endpoint returns MovieMetadata model.",
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "tmdb.py",
+      "file_type": "rationale",
+      "norm_label": "get /api/metadata/movie endpoint returns moviemetadata model.",
+      "source_file": "backend/tests/test_tmdb.py",
+      "source_location": "L132"
+    },
+    {
+      "id": "backend_tests_test_tmdb_rationale_139",
+      "label": "GET /api/metadata/trending endpoint returns TrendingMoviesResponse model.",
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "tmdb.py",
+      "file_type": "rationale",
+      "norm_label": "get /api/metadata/trending endpoint returns trendingmoviesresponse model.",
+      "source_file": "backend/tests/test_tmdb.py",
+      "source_location": "L139"
+    },
+    {
+      "id": "backend_tests_test_tmdb_rationale_147",
+      "label": "Verify search_movie_suggestions parses TMDb search results into clean\u2026",
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "tmdb.py",
+      "file_type": "rationale",
+      "norm_label": "verify search_movie_suggestions parses tmdb search results into clean...",
+      "source_file": "backend/tests/test_tmdb.py",
+      "source_location": "L147"
+    },
+    {
+      "id": "backend_tests_test_tmdb_rationale_172",
+      "label": "GET /api/search/suggestions returns 200 with suggestions list.",
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "tmdb.py",
+      "file_type": "rationale",
+      "norm_label": "get /api/search/suggestions returns 200 with suggestions list.",
+      "source_file": "backend/tests/test_tmdb.py",
+      "source_location": "L172"
+    },
+    {
+      "id": "backend_tests_test_tmdb_rationale_19",
+      "label": "Verify messy torrent/release filenames are cleanly sanitized.",
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "tmdb.py",
+      "file_type": "rationale",
+      "norm_label": "verify messy torrent/release filenames are cleanly sanitized.",
+      "source_file": "backend/tests/test_tmdb.py",
+      "source_location": "L19"
+    },
+    {
+      "id": "backend_tests_test_tmdb_rationale_33",
+      "label": "GET /api/metadata/status returns current configuration status.",
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "tmdb.py",
+      "file_type": "rationale",
+      "norm_label": "get /api/metadata/status returns current configuration status.",
+      "source_file": "backend/tests/test_tmdb.py",
+      "source_location": "L33"
+    },
+    {
+      "id": "backend_tests_test_tmdb_rationale_41",
+      "label": "When TMDB_API_KEY is not set, service gracefully returns fallback metadata.",
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "tmdb.py",
+      "file_type": "rationale",
+      "norm_label": "when tmdb_api_key is not set, service gracefully returns fallback metadata.",
+      "source_file": "backend/tests/test_tmdb.py",
+      "source_location": "L41"
+    },
+    {
+      "id": "backend_tests_test_tmdb_rationale_51",
+      "label": "Verify successful TMDb search, details, credits, and video parsing.",
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "tmdb.py",
+      "file_type": "rationale",
+      "norm_label": "verify successful tmdb search, details, credits, and video parsing.",
+      "source_file": "backend/tests/test_tmdb.py",
+      "source_location": "L51"
     },
     {
       "id": "backend_app_api_history",
@@ -6825,88 +6847,11 @@
       "source_location": "L6"
     },
     {
-      "id": "backend_app_services_auth_py_any",
-      "label": "Any",
-      "_origin": "ast",
-      "community": 36,
-      "community_name": "AuthService",
-      "file_type": "code",
-      "norm_label": "any",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "backend_app_services_auth_rationale_13",
-      "label": "Service for validating Supabase JWT tokens and retrieving user profiles.",
-      "_origin": "ast",
-      "community": 36,
-      "community_name": "AuthService",
-      "file_type": "rationale",
-      "norm_label": "service for validating supabase jwt tokens and retrieving user profiles.",
-      "source_file": "backend/app/services/auth.py",
-      "source_location": "L13"
-    },
-    {
-      "id": "backend_app_services_auth_rationale_35",
-      "label": "Verify Supabase JWT token and return authenticated user metadata.",
-      "_origin": "ast",
-      "community": 36,
-      "community_name": "AuthService",
-      "file_type": "rationale",
-      "norm_label": "verify supabase jwt token and return authenticated user metadata.",
-      "source_file": "backend/app/services/auth.py",
-      "source_location": "L35"
-    },
-    {
-      "id": "api_route",
-      "label": "api_route",
-      "_origin": "ast",
-      "community": 38,
-      "community_name": "proxy_to_streamer",
-      "file_type": "code",
-      "norm_label": "api_route",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "asyncclient",
-      "label": "AsyncClient",
-      "_origin": "ast",
-      "community": 38,
-      "community_name": "proxy_to_streamer",
-      "file_type": "code",
-      "norm_label": "asyncclient",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "backend_app_main_py_request",
-      "label": "Request",
-      "_origin": "ast",
-      "community": 38,
-      "community_name": "proxy_to_streamer",
-      "file_type": "code",
-      "norm_label": "request",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "backend_app_main_rationale_89",
-      "label": "Proxy video streaming and download range requests to local Go FileStreamBot\u2026",
-      "_origin": "ast",
-      "community": 38,
-      "community_name": "proxy_to_streamer",
-      "file_type": "rationale",
-      "norm_label": "proxy video streaming and download range requests to local go filestreambot...",
-      "source_file": "backend/app/main.py",
-      "source_location": "L89"
-    },
-    {
       "id": "backend_app_api_auth",
       "label": "api/auth.py",
       "_origin": "ast",
       "community": 39,
-      "community_name": "api/auth.py",
+      "community_name": "services/auth.py",
       "file_type": "code",
       "norm_label": "api/auth.py",
       "source_file": "backend/app/api/auth.py",
@@ -6917,7 +6862,7 @@
       "label": "Any",
       "_origin": "ast",
       "community": 39,
-      "community_name": "api/auth.py",
+      "community_name": "services/auth.py",
       "file_type": "code",
       "norm_label": "any",
       "source_file": "",
@@ -6928,9 +6873,42 @@
       "label": "get",
       "_origin": "ast",
       "community": 39,
-      "community_name": "api/auth.py",
+      "community_name": "services/auth.py",
       "file_type": "code",
       "norm_label": "get",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "backend_app_api_init",
+      "label": "api/__init__.py",
+      "_origin": "ast",
+      "community": 39,
+      "community_name": "services/auth.py",
+      "file_type": "code",
+      "norm_label": "api/__init__.py",
+      "source_file": "backend/app/api/__init__.py",
+      "source_location": "L1"
+    },
+    {
+      "id": "backend_app_services_auth",
+      "label": "services/auth.py",
+      "_origin": "ast",
+      "community": 39,
+      "community_name": "services/auth.py",
+      "file_type": "code",
+      "norm_label": "services/auth.py",
+      "source_file": "backend/app/services/auth.py",
+      "source_location": "L1"
+    },
+    {
+      "id": "backend_app_services_auth_py_any",
+      "label": "Any",
+      "_origin": "ast",
+      "community": 39,
+      "community_name": "services/auth.py",
+      "file_type": "code",
+      "norm_label": "any",
       "source_file": "",
       "source_location": ""
     },
@@ -6939,7 +6917,7 @@
       "label": "HTTPAuthorizationCredentials",
       "_origin": "ast",
       "community": 39,
-      "community_name": "api/auth.py",
+      "community_name": "services/auth.py",
       "file_type": "code",
       "norm_label": "httpauthorizationcredentials",
       "source_file": "",
@@ -6950,7 +6928,7 @@
       "label": "Check if Supabase Auth is configured on the backend.",
       "_origin": "ast",
       "community": 39,
-      "community_name": "api/auth.py",
+      "community_name": "services/auth.py",
       "file_type": "rationale",
       "norm_label": "check if supabase auth is configured on the backend.",
       "source_file": "backend/app/api/auth.py",
@@ -6961,18 +6939,40 @@
       "label": "Retrieve profile information for the currently authenticated user.",
       "_origin": "ast",
       "community": 39,
-      "community_name": "api/auth.py",
+      "community_name": "services/auth.py",
       "file_type": "rationale",
       "norm_label": "retrieve profile information for the currently authenticated user.",
       "source_file": "backend/app/api/auth.py",
       "source_location": "L20"
     },
     {
+      "id": "backend_app_services_auth_rationale_13",
+      "label": "Service for validating Supabase JWT tokens and retrieving user profiles.",
+      "_origin": "ast",
+      "community": 39,
+      "community_name": "services/auth.py",
+      "file_type": "rationale",
+      "norm_label": "service for validating supabase jwt tokens and retrieving user profiles.",
+      "source_file": "backend/app/services/auth.py",
+      "source_location": "L13"
+    },
+    {
+      "id": "backend_app_services_auth_rationale_35",
+      "label": "Verify Supabase JWT token and return authenticated user metadata.",
+      "_origin": "ast",
+      "community": 39,
+      "community_name": "services/auth.py",
+      "file_type": "rationale",
+      "norm_label": "verify supabase jwt token and return authenticated user metadata.",
+      "source_file": "backend/app/services/auth.py",
+      "source_location": "L35"
+    },
+    {
       "id": "backend_app_services_auth_rationale_67",
       "label": "FastAPI dependency for optionally authenticated endpoints.",
       "_origin": "ast",
       "community": 39,
-      "community_name": "api/auth.py",
+      "community_name": "services/auth.py",
       "file_type": "rationale",
       "norm_label": "fastapi dependency for optionally authenticated endpoints.",
       "source_file": "backend/app/services/auth.py",
@@ -6983,7 +6983,7 @@
       "label": "FastAPI dependency for strictly protected endpoints.",
       "_origin": "ast",
       "community": 39,
-      "community_name": "api/auth.py",
+      "community_name": "services/auth.py",
       "file_type": "rationale",
       "norm_label": "fastapi dependency for strictly protected endpoints.",
       "source_file": "backend/app/services/auth.py",
@@ -7078,17 +7078,6 @@
       "source_location": ""
     },
     {
-      "id": "future",
-      "label": "Future",
-      "_origin": "ast",
-      "community": 5,
-      "community_name": "TelegramService",
-      "file_type": "code",
-      "norm_label": "future",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
       "id": "telegramclient",
       "label": "TelegramClient",
       "_origin": "ast",
@@ -7111,17 +7100,6 @@
       "source_location": "L1067"
     },
     {
-      "id": "backend_app_services_telegram_rationale_1086",
-      "label": "Trigger bot delivery for a chosen candidate button, handle FSub gates, forward\u2026",
-      "_origin": "ast",
-      "community": 5,
-      "community_name": "TelegramService",
-      "file_type": "rationale",
-      "norm_label": "trigger bot delivery for a chosen candidate button, handle fsub gates, forward...",
-      "source_file": "backend/app/services/telegram.py",
-      "source_location": "L1086"
-    },
-    {
       "id": "backend_app_services_telegram_rationale_114",
       "label": "Disconnect the Telegram client during application shutdown.",
       "_origin": "ast",
@@ -7142,17 +7120,6 @@
       "norm_label": "check connection and user authentication status.",
       "source_file": "backend/app/services/telegram.py",
       "source_location": "L123"
-    },
-    {
-      "id": "backend_app_services_telegram_rationale_1320",
-      "label": "Extract stream_url, watch_url, and download_url from Streamer Bot response.",
-      "_origin": "ast",
-      "community": 5,
-      "community_name": "TelegramService",
-      "file_type": "rationale",
-      "norm_label": "extract stream_url, watch_url, and download_url from streamer bot response.",
-      "source_file": "backend/app/services/telegram.py",
-      "source_location": "L1320"
     },
     {
       "id": "backend_app_services_telegram_rationale_1355",
@@ -7219,17 +7186,6 @@
       "norm_label": "execute a delivery test for a given telegram deep link with automated fsub...",
       "source_file": "backend/app/services/telegram.py",
       "source_location": "L408"
-    },
-    {
-      "id": "backend_app_services_telegram_rationale_41",
-      "label": "Represents an isolated, asynchronous media waiter for a specific request.",
-      "_origin": "ast",
-      "community": 5,
-      "community_name": "TelegramService",
-      "file_type": "rationale",
-      "norm_label": "represents an isolated, asynchronous media waiter for a specific request.",
-      "source_file": "backend/app/services/telegram.py",
-      "source_location": "L41"
     },
     {
       "id": "backend_app_services_telegram_rationale_620",
@@ -7496,6 +7452,17 @@
       "source_location": ""
     },
     {
+      "id": "backend_app_services_cache_service",
+      "label": "cache_service.py",
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "api/search.py",
+      "file_type": "code",
+      "norm_label": "cache_service.py",
+      "source_file": "backend/app/services/cache_service.py",
+      "source_location": "L1"
+    },
+    {
       "id": "backend_app_services_compatibility",
       "label": "compatibility.py",
       "_origin": "ast",
@@ -7560,6 +7527,17 @@
       "norm_label": "test_phase14_compatibility.py",
       "source_file": "backend/tests/test_phase14_compatibility.py",
       "source_location": "L1"
+    },
+    {
+      "id": "future",
+      "label": "Future",
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "api/search.py",
+      "file_type": "code",
+      "norm_label": "future",
+      "source_file": "",
+      "source_location": ""
     },
     {
       "id": "backend_app_api_search_rationale_102",
@@ -7727,6 +7705,28 @@
       "source_location": "L1"
     },
     {
+      "id": "backend_app_services_telegram_rationale_1086",
+      "label": "Trigger bot delivery for a chosen candidate button, handle FSub gates, forward\u2026",
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "api/search.py",
+      "file_type": "rationale",
+      "norm_label": "trigger bot delivery for a chosen candidate button, handle fsub gates, forward...",
+      "source_file": "backend/app/services/telegram.py",
+      "source_location": "L1086"
+    },
+    {
+      "id": "backend_app_services_telegram_rationale_1320",
+      "label": "Extract stream_url, watch_url, and download_url from Streamer Bot response.",
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "api/search.py",
+      "file_type": "rationale",
+      "norm_label": "extract stream_url, watch_url, and download_url from streamer bot response.",
+      "source_file": "backend/app/services/telegram.py",
+      "source_location": "L1320"
+    },
+    {
       "id": "backend_app_services_telegram_rationale_1406",
       "label": "CLI utility for one-time interactive Telegram login.",
       "_origin": "ast",
@@ -7747,6 +7747,17 @@
       "norm_label": "validate and resolve a selected search result reference for delivery.",
       "source_file": "backend/app/services/telegram.py",
       "source_location": "L288"
+    },
+    {
+      "id": "backend_app_services_telegram_rationale_41",
+      "label": "Represents an isolated, asynchronous media waiter for a specific request.",
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "api/search.py",
+      "file_type": "rationale",
+      "norm_label": "represents an isolated, asynchronous media waiter for a specific request.",
+      "source_file": "backend/app/services/telegram.py",
+      "source_location": "L41"
     },
     {
       "id": "backend_app_services_compatibility_py_any",
@@ -8345,18 +8356,6 @@
       "type": "external"
     },
     {
-      "id": "fastapi_testclient",
-      "label": "fastapi_testclient",
-      "_origin": "semantic",
-      "community": 1,
-      "community_name": "main.py",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "fastapi_testclient",
-      "source_file": "",
-      "type": "external"
-    },
-    {
       "id": "httpx",
       "label": "httpx",
       "_origin": "semantic",
@@ -8377,30 +8376,6 @@
       "external": true,
       "file_type": "concept",
       "norm_label": "starlette_responses",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "unittest",
-      "label": "unittest",
-      "_origin": "semantic",
-      "community": 1,
-      "community_name": "main.py",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "unittest",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "unittest_mock",
-      "label": "unittest_mock",
-      "_origin": "semantic",
-      "community": 1,
-      "community_name": "main.py",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "unittest_mock",
       "source_file": "",
       "type": "external"
     },
@@ -8457,7 +8432,7 @@
       "label": "pydantic",
       "_origin": "semantic",
       "community": 15,
-      "community_name": "api/__init__.py",
+      "community_name": "pydantic",
       "external": true,
       "file_type": "concept",
       "norm_label": "pydantic",
@@ -8609,11 +8584,71 @@
       "type": "external"
     },
     {
+      "id": "fastapi_testclient",
+      "label": "fastapi_testclient",
+      "_origin": "semantic",
+      "community": 25,
+      "community_name": "config.py",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "fastapi_testclient",
+      "source_file": "",
+      "type": "external"
+    },
+    {
+      "id": "json",
+      "label": "json",
+      "_origin": "semantic",
+      "community": 25,
+      "community_name": "config.py",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "json",
+      "source_file": "",
+      "type": "external"
+    },
+    {
+      "id": "pydantic_settings",
+      "label": "pydantic_settings",
+      "_origin": "semantic",
+      "community": 25,
+      "community_name": "config.py",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "pydantic_settings",
+      "source_file": "",
+      "type": "external"
+    },
+    {
+      "id": "unittest",
+      "label": "unittest",
+      "_origin": "semantic",
+      "community": 25,
+      "community_name": "config.py",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "unittest",
+      "source_file": "",
+      "type": "external"
+    },
+    {
+      "id": "unittest_mock",
+      "label": "unittest_mock",
+      "_origin": "semantic",
+      "community": 25,
+      "community_name": "config.py",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "unittest_mock",
+      "source_file": "",
+      "type": "external"
+    },
+    {
       "id": "argparse",
       "label": "argparse",
       "_origin": "semantic",
       "community": 27,
-      "community_name": "typing",
+      "community_name": "publish_tunnel.py",
       "external": true,
       "file_type": "concept",
       "norm_label": "argparse",
@@ -8625,7 +8660,7 @@
       "label": "datetime",
       "_origin": "semantic",
       "community": 27,
-      "community_name": "typing",
+      "community_name": "publish_tunnel.py",
       "external": true,
       "file_type": "concept",
       "norm_label": "datetime",
@@ -8636,59 +8671,11 @@
       "id": "fastapi_security",
       "label": "fastapi_security",
       "_origin": "semantic",
-      "community": 27,
-      "community_name": "typing",
+      "community": 39,
+      "community_name": "services/auth.py",
       "external": true,
       "file_type": "concept",
       "norm_label": "fastapi_security",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "json",
-      "label": "json",
-      "_origin": "semantic",
-      "community": 27,
-      "community_name": "typing",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "json",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "logging",
-      "label": "logging",
-      "_origin": "semantic",
-      "community": 27,
-      "community_name": "typing",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "logging",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "pydantic_settings",
-      "label": "pydantic_settings",
-      "_origin": "semantic",
-      "community": 27,
-      "community_name": "typing",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "pydantic_settings",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "typing",
-      "label": "typing",
-      "_origin": "semantic",
-      "community": 27,
-      "community_name": "typing",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "typing",
       "source_file": "",
       "type": "external"
     },
@@ -8741,6 +8728,18 @@
       "type": "external"
     },
     {
+      "id": "logging",
+      "label": "logging",
+      "_origin": "semantic",
+      "community": 6,
+      "community_name": "api/search.py",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "logging",
+      "source_file": "",
+      "type": "external"
+    },
+    {
       "id": "re",
       "label": "re",
       "_origin": "semantic",
@@ -8773,6 +8772,18 @@
       "external": true,
       "file_type": "concept",
       "norm_label": "time",
+      "source_file": "",
+      "type": "external"
+    },
+    {
+      "id": "typing",
+      "label": "typing",
+      "_origin": "semantic",
+      "community": 6,
+      "community_name": "api/search.py",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "typing",
       "source_file": "",
       "type": "external"
     },
@@ -10803,7 +10814,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/Navbar.jsx",
-      "source_location": "L7",
+      "source_location": "L16",
       "weight": 1.0
     },
     {
@@ -10815,7 +10826,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/Navbar.jsx",
-      "source_location": "L8",
+      "source_location": "L17",
       "weight": 1.0
     },
     {
@@ -21150,6 +21161,17 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/src/components/Navbar.jsx",
+      "source_location": "L15",
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_src_components_navbar",
+      "target": "frontend_src_components_navbar_avatar_presets",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/components/Navbar.jsx",
       "source_location": "L6",
       "weight": 1.0
     },
@@ -26617,5 +26639,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "2b35baef4f3ec726f46bd0a127389241effdc72f"
+  "built_at_commit": "94eb8aa3e888a54ff7bdc36299086c76280560f9"
 }

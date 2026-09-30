@@ -1,7 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { Bookmark, History, LogOut } from 'lucide-react'
+import { Bookmark, History, LogOut, User, ChevronDown, Check } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useWatchHistory } from '../context/WatchHistoryContext'
+
+export const AVATAR_PRESETS = [
+  { id: 'director', icon: '🎬', label: 'Director', gradient: 'linear-gradient(135deg, #e50914, #8b0000)' },
+  { id: 'astronaut', icon: '🚀', label: 'Cosmonaut', gradient: 'linear-gradient(135deg, #3b82f6, #1d4ed8)' },
+  { id: 'agent', icon: '🕶️', label: 'Agent', gradient: 'linear-gradient(135deg, #8b5cf6, #5b21b6)' },
+  { id: 'cinephile', icon: '🍿', label: 'Cinephile', gradient: 'linear-gradient(135deg, #f59e0b, #b45309)' },
+  { id: 'neon', icon: '⚡', label: 'Neon', gradient: 'linear-gradient(135deg, #ec4899, #9d174d)' },
+  { id: 'dramatic', icon: '🎭', label: 'Dramatic', gradient: 'linear-gradient(135deg, #10b981, #047857)' },
+]
 
 export default function Navbar({ onSearchClick, isBackendOnline, activeTab, setActiveTab }) {
   const { user, openAuthModal, signOut } = useAuth()
@@ -9,6 +18,25 @@ export default function Navbar({ onSearchClick, isBackendOnline, activeTab, setA
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [isBrowseOpen, setIsBrowseOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
+
+  const [selectedAvatarId, setSelectedAvatarId] = useState(() => {
+    try {
+      return localStorage.getItem('cineforge_user_avatar') || 'director'
+    } catch {
+      return 'director'
+    }
+  })
+
+  const handleSelectAvatar = (id) => {
+    setSelectedAvatarId(id)
+    try {
+      localStorage.setItem('cineforge_user_avatar', id)
+    } catch {
+      // Ignore storage errors
+    }
+  }
+
+  const currentAvatar = AVATAR_PRESETS.find((a) => a.id === selectedAvatarId) || AVATAR_PRESETS[0]
   
   const dropdownRef = useRef(null)
   const browseRef = useRef(null)
@@ -37,6 +65,7 @@ export default function Navbar({ onSearchClick, isBackendOnline, activeTab, setA
   }, [])
 
   const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Member'
+  const firstName = displayName.split(' ')[0]
 
   return (
     <header className={`site-header ${isScrolled ? 'is-scrolled' : ''}`}>
@@ -137,7 +166,7 @@ export default function Navbar({ onSearchClick, isBackendOnline, activeTab, setA
         </div>
       </nav>
 
-      {/* Header Actions: Search & Library Sync / Auth */}
+      {/* Header Actions: Search & User Profile / Auth */}
       <div className="header-actions">
         <button
           className="icon-button"
@@ -149,51 +178,143 @@ export default function Navbar({ onSearchClick, isBackendOnline, activeTab, setA
           ⌕
         </button>
 
-        <button
-          className="text-button"
-          type="button"
-          onClick={user ? () => setIsDropdownOpen((prev) => !prev) : openAuthModal}
-        >
-          {user ? displayName : 'Library sync'}
-        </button>
+        {user ? (
+          <button
+            className="nav-profile-pill"
+            type="button"
+            onClick={() => setIsDropdownOpen((prev) => !prev)}
+            aria-expanded={isDropdownOpen}
+            aria-label="User account menu"
+            title={`${displayName} (${user.email})`}
+          >
+            <div className="nav-profile-avatar-wrap" style={{ background: currentAvatar.gradient }}>
+              <span className="nav-profile-avatar-emoji">{currentAvatar.icon}</span>
+              <span className="nav-profile-beacon" title="Cloud Sync Active" />
+            </div>
+            <span className="nav-profile-name">{firstName}</span>
+            <ChevronDown size={13} className={`nav-profile-chevron ${isDropdownOpen ? 'is-rotated' : ''}`} />
+          </button>
+        ) : (
+          <button
+            className="nav-guest-pill"
+            type="button"
+            onClick={openAuthModal}
+            title="Sign in to sync your library across devices"
+          >
+            <div className="nav-guest-icon-badge">
+              <User size={14} />
+            </div>
+            <span className="nav-guest-text">Sign In</span>
+            <span className="nav-guest-tag">Sync</span>
+          </button>
+        )}
 
         {/* User Profile Dropdown when authenticated */}
         {user && isDropdownOpen && (
           <div className="user-profile-menu" ref={dropdownRef}>
-            <div className="user-profile-header">
-              <strong>{displayName}</strong>
-              <small>{user.email}</small>
+            {/* Profile Hero Header */}
+            <div className="user-profile-hero">
+              <div className="user-hero-avatar" style={{ background: currentAvatar.gradient }}>
+                <span className="user-hero-avatar-emoji">{currentAvatar.icon}</span>
+                <span className="user-hero-status-beacon" />
+              </div>
+              <div className="user-hero-info">
+                <strong className="user-hero-name">{displayName}</strong>
+                <span className="user-hero-email" title={user.email}>{user.email}</span>
+                <div className="user-hero-badge">
+                  <span className="user-status-dot" />
+                  <span>Cloud Sync Active</span>
+                </div>
+              </div>
             </div>
-            <button
-              type="button"
-              className="user-profile-item"
-              onClick={() => {
-                setActiveTab('watchlist')
-                setIsDropdownOpen(false)
-              }}
-            >
-              <Bookmark size={14} /> Watchlist ({watchlist.length})
-            </button>
-            <button
-              type="button"
-              className="user-profile-item"
-              onClick={() => {
-                setActiveTab('history')
-                setIsDropdownOpen(false)
-              }}
-            >
-              <History size={14} /> History ({watchHistory.length})
-            </button>
-            <button
-              type="button"
-              className="user-profile-item text-danger"
-              onClick={() => {
-                signOut()
-                setIsDropdownOpen(false)
-              }}
-            >
-              <LogOut size={14} /> Sign Out
-            </button>
+
+            {/* Cinema Persona / Avatar Strip */}
+            <div className="user-avatar-selector-section">
+              <div className="user-avatar-section-title">
+                <span>Cinema Persona</span>
+                <small>Select avatar</small>
+              </div>
+              <div className="user-avatar-grid">
+                {AVATAR_PRESETS.map((avatar) => (
+                  <button
+                    key={avatar.id}
+                    type="button"
+                    className={`user-avatar-option ${selectedAvatarId === avatar.id ? 'is-selected' : ''}`}
+                    style={{ background: avatar.gradient }}
+                    onClick={() => handleSelectAvatar(avatar.id)}
+                    title={avatar.label}
+                    aria-label={avatar.label}
+                  >
+                    <span className="avatar-option-emoji">{avatar.icon}</span>
+                    {selectedAvatarId === avatar.id && (
+                      <span className="avatar-option-check">
+                        <Check size={9} strokeWidth={3} />
+                      </span>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Quick Library Shortcuts */}
+            <div className="user-library-shortcuts">
+              <button
+                type="button"
+                className="user-shortcut-card"
+                onClick={() => {
+                  setActiveTab('watchlist')
+                  setIsDropdownOpen(false)
+                }}
+              >
+                <div className="shortcut-icon-wrap watchlist">
+                  <Bookmark size={14} />
+                </div>
+                <div className="shortcut-meta">
+                  <strong className="shortcut-number">{watchlist.length}</strong>
+                  <span className="shortcut-name">Watchlist</span>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                className="user-shortcut-card"
+                onClick={() => {
+                  setActiveTab('history')
+                  setIsDropdownOpen(false)
+                }}
+              >
+                <div className="shortcut-icon-wrap history">
+                  <History size={14} />
+                </div>
+                <div className="shortcut-meta">
+                  <strong className="shortcut-number">{watchHistory.length}</strong>
+                  <span className="shortcut-name">History</span>
+                </div>
+              </button>
+            </div>
+
+            {/* System Status & Sign Out */}
+            <div className="user-profile-footer">
+              <div className="user-system-row">
+                <span className="system-row-label">Engine Service</span>
+                <span className={`system-row-pill ${isBackendOnline ? 'online' : 'offline'}`}>
+                  <span className="system-dot" />
+                  {isBackendOnline ? 'Operational' : 'Connecting'}
+                </span>
+              </div>
+
+              <button
+                type="button"
+                className="user-signout-button"
+                onClick={() => {
+                  signOut()
+                  setIsDropdownOpen(false)
+                }}
+              >
+                <LogOut size={13} />
+                <span>Sign Out</span>
+              </button>
+            </div>
           </div>
         )}
       </div>
