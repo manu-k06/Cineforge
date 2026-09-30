@@ -2690,11 +2690,21 @@ video::cue {
   grid-template-columns: 1fr;
   gap: 24px;
   margin-top: 28px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 @media (min-width: 992px) {
   .streamvibe-details-grid {
-    grid-template-columns: 1fr 380px;
+    grid-template-columns: minmax(0, 1fr) 340px;
+    gap: 28px;
+  }
+}
+
+@media (min-width: 1400px) {
+  .streamvibe-details-grid {
+    grid-template-columns: minmax(0, 1fr) 360px;
     gap: 32px;
   }
 }
@@ -2703,12 +2713,15 @@ video::cue {
   display: flex;
   flex-direction: column;
   gap: 24px;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .details-right-pane {
   display: flex;
   flex-direction: column;
   gap: 18px;
+  min-width: 0;
 }
 
 /* OTT Card Base */
@@ -2770,6 +2783,13 @@ video::cue {
   gap: 16px;
   overflow-x: auto;
   padding-bottom: 8px;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.cast-carousel::-webkit-scrollbar {
+  display: none;
 }
 
 .cast-member-card {

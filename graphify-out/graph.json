@@ -10862,7 +10862,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/WatchPage.jsx",
-      "source_location": "L148",
+      "source_location": "L156",
       "weight": 1.0
     },
     {
@@ -10874,7 +10874,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/WatchPage.jsx",
-      "source_location": "L149",
+      "source_location": "L157",
       "weight": 1.0
     },
     {
@@ -10886,7 +10886,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/WatchPage.jsx",
-      "source_location": "L217",
+      "source_location": "L225",
       "weight": 1.0
     },
     {
@@ -10898,7 +10898,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/WatchPage.jsx",
-      "source_location": "L230",
+      "source_location": "L238",
       "weight": 1.0
     },
     {
@@ -10910,7 +10910,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/WatchPage.jsx",
-      "source_location": "L263",
+      "source_location": "L271",
       "weight": 1.0
     },
     {
@@ -10922,7 +10922,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/WatchPage.jsx",
-      "source_location": "L985",
+      "source_location": "L993",
       "weight": 1.0
     },
     {
@@ -26496,5 +26496,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "99176e3a9877f66012778d3bb29bc664ce1f3b56"
+  "built_at_commit": "bcbde775673465ea65ae1975213ac5fcc268bd16"
 }

@@ -143,6 +143,14 @@ export default function WatchPage({
   const currentTimeRef = useRef(0)
   const durationRef = useRef(0)
   const lastSyncTimeRef = useRef(0)
+  const castCarouselRef = useRef(null)
+
+  const scrollCast = (direction) => {
+    if (castCarouselRef.current) {
+      const scrollAmount = direction === 'left' ? -350 : 350
+      castCarouselRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' })
+    }
+  }
 
   const title = delivery.candidate_title || candidate?.title || delivery.file_name || 'Movie'
   const meta = parseMovieMetadata(title, candidate?.display_text || candidate?.details || '')
@@ -1081,16 +1089,26 @@ export default function WatchPage({
             <div className="ott-card-header">
               <h3 className="ott-section-title">Cast</h3>
               <div className="cast-nav-arrows">
-                <button className="arrow-btn" title="Previous Cast">
+                <button
+                  className="arrow-btn"
+                  title="Previous Cast"
+                  onClick={() => scrollCast('left')}
+                  type="button"
+                >
                   <ChevronLeft size={16} />
                 </button>
-                <button className="arrow-btn" title="Next Cast">
+                <button
+                  className="arrow-btn"
+                  title="Next Cast"
+                  onClick={() => scrollCast('right')}
+                  type="button"
+                >
                   <ChevronRight size={16} />
                 </button>
               </div>
             </div>
 
-            <div className="cast-carousel">
+            <div className="cast-carousel" ref={castCarouselRef}>
               {castList.map((actor, idx) => (
                 <div key={idx} className="cast-member-card">
                   <div className="actor-img-box">
