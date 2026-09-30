@@ -48,124 +48,110 @@ export default function Navbar({ onSearchClick, isBackendOnline, activeTab, setA
 
   return (
     <header className={`site-header ${isScrolled ? 'is-scrolled' : ''}`}>
-      {/* Brand: Aperture Mark + Cineforge in Archivo Black */}
+      {/* Brand: Aperture Mark + Cineforge */}
       <div className="brand" onClick={() => setActiveTab('home')} title="Cineforge Home">
         <img
           className="brand-image"
           src="/assets/images/aperture-mark.png"
           alt="Cineforge"
+          onError={(e) => {
+            e.target.style.display = 'none'
+          }}
         />
-        <div className="brand-text">
-          <span className="brand-title">CINEFORGE</span>
-        </div>
+        <span>Cineforge</span>
       </div>
 
-      {/* Main Navigation Links */}
-      <nav className="site-nav" aria-label="Primary navigation">
+      {/* Primary Nav */}
+      <nav className="primary-nav" aria-label="Primary navigation">
         <button
-          className={`nav-link ${activeTab === 'home' ? 'is-active' : ''}`}
-          type="button"
+          className={activeTab === 'home' ? 'is-active' : ''}
           onClick={() => setActiveTab('home')}
         >
           Home
         </button>
 
-        <button
-          className={`nav-link ${activeTab === 'library' ? 'is-active' : ''}`}
-          type="button"
-          onClick={() => setActiveTab('library')}
-        >
-          Movies
-        </button>
-
-        {/* Series Dropdown */}
-        <div className="nav-dropdown" ref={browseRef}>
+        {/* Browse Popover Dropdown */}
+        <div className="nav-menu nav-browse-menu" ref={browseRef}>
           <button
-            className={`nav-link nav-dropdown-trigger ${activeTab === 'series' ? 'is-active' : ''}`}
+            className={`nav-menu-trigger ${['movies', 'shows', 'history', 'watchlist'].includes(activeTab) ? 'is-active' : ''} ${isBrowseOpen ? 'is-open' : ''}`}
             type="button"
             onClick={() => setIsBrowseOpen((prev) => !prev)}
             aria-expanded={isBrowseOpen}
           >
-            <span>Series</span>
-            <ChevronDown size={14} className={`nav-chevron ${isBrowseOpen ? 'is-rotated' : ''}`} />
+            Browse <span className="nav-chevron" aria-hidden="true">⏷</span>
           </button>
 
           {isBrowseOpen && (
-            <div className="nav-dropdown-menu">
-              <button
-                type="button"
-                className="dropdown-item"
-                onClick={() => {
-                  setActiveTab('series')
-                  setIsBrowseOpen(false)
-                }}
-              >
-                All Series
-              </button>
-              <button
-                type="button"
-                className="dropdown-item"
-                onClick={() => {
-                  setActiveTab('series')
-                  setIsBrowseOpen(false)
-                }}
-              >
-                Anime Series
-              </button>
-              <button
-                type="button"
-                className="dropdown-item"
-                onClick={() => {
-                  setActiveTab('series')
-                  setIsBrowseOpen(false)
-                }}
-              >
-                Docuseries
-              </button>
+            <div className="nav-popover nav-browse-panel">
+              <div className="browse-panel-top">
+                <strong className="browse-panel-title">Browse</strong>
+                <span>Library & discovery</span>
+              </div>
+
+              <p className="menu-eyebrow">Discover</p>
+              <div className="menu-discovery-grid">
+                <button
+                  type="button"
+                  className="menu-discovery-card"
+                  onClick={() => {
+                    setActiveTab('movies')
+                    setIsBrowseOpen(false)
+                  }}
+                >
+                  <strong>Movies</strong>
+                  <small>Explore the catalogue</small>
+                </button>
+                <button
+                  type="button"
+                  className="menu-discovery-card"
+                  onClick={() => {
+                    setActiveTab('shows')
+                    setIsBrowseOpen(false)
+                  }}
+                >
+                  <strong>TV Shows</strong>
+                  <small>Series and episodes</small>
+                </button>
+              </div>
+
+              <p className="menu-eyebrow">Your library</p>
+              <div className="menu-personal-grid">
+                <button
+                  type="button"
+                  className="personal-menu-card"
+                  onClick={() => {
+                    setActiveTab('history')
+                    setIsBrowseOpen(false)
+                  }}
+                >
+                  <strong>History</strong>
+                  <span>Pick up where you left off</span>
+                </button>
+                <button
+                  type="button"
+                  className="personal-menu-card"
+                  onClick={() => {
+                    setActiveTab('watchlist')
+                    setIsBrowseOpen(false)
+                  }}
+                >
+                  <strong>Watchlist</strong>
+                  <span>Saved for later {watchlist.length > 0 && `(${watchlist.length})`}</span>
+                </button>
+              </div>
             </div>
           )}
         </div>
-
-        <button
-          className={`nav-link ${activeTab === 'watchlist' ? 'is-active' : ''}`}
-          type="button"
-          onClick={() => setActiveTab('watchlist')}
-        >
-          Watchlist
-          {watchlist.length > 0 && (
-            <span className="nav-badge">{watchlist.length}</span>
-          )}
-        </button>
-
-        <button
-          className={`nav-link ${activeTab === 'community' ? 'is-active' : ''}`}
-          type="button"
-          onClick={() => setActiveTab('community')}
-        >
-          Community
-        </button>
       </nav>
 
-      {/* Right Actions: Search + Profile & Auth Menu */}
-      <div className="nav-actions">
+      {/* Header Actions: Search & User Profile / Auth */}
+      <div className="header-actions">
         <button
-          className="search-pill-button"
+          className="icon-button"
           type="button"
           onClick={onSearchClick}
-          aria-label="Search Cineforge"
-          title="Search movies, TV shows, anime (Press /)"
-        >
-          <span className="search-pill-icon">⌕</span>
-          <span className="search-pill-text">Search titles...</span>
-          <kbd className="search-pill-shortcut">/</kbd>
-        </button>
-
-        <button
-          className="icon-button mobile-search-button"
-          type="button"
-          onClick={onSearchClick}
-          aria-label="Search"
-          title="Search movies and series"
+          aria-label="Search titles"
+          title="Search titles"
         >
           ⌕
         </button>
@@ -237,7 +223,7 @@ export default function Navbar({ onSearchClick, isBackendOnline, activeTab, setA
                     justifyContent: 'center',
                     boxShadow: '0 2px 6px rgba(0,0,0,0.5)',
                   }}
-                  title="Change superhero avatar"
+                  title="Change avatar"
                 >
                   <Sparkles size={10} />
                 </div>

@@ -282,9 +282,9 @@
     "semantic_hash": ""
   },
   "frontend/src/components/Navbar.jsx": {
-    "mtime": 1790761664.1313715,
-    "seen": 1790761715.6974037,
-    "ast_hash": "86cab621160a2d1c5422b60b75af4926",
+    "mtime": 1790761920.8650255,
+    "seen": 1790761949.895789,
+    "ast_hash": "b24cef6edafe04c635b9a3688867db79",
     "semantic_hash": ""
   },
   "frontend/src/components/PlayerModal.jsx": {
