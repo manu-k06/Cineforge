@@ -14,6 +14,7 @@ const DEFAULT_HERO_MOVIES = [
     rating: '8.2',
     mediaType: 'Movie',
     backdrop: getOptimizedImageUrl('/xOMo8BRK7PfcJv9JCnx7s520Wio.jpg', 'w1280'),
+    poster_url: getOptimizedImageUrl('/1pdfLvkbY9ohJlCjQH2CZjjYVvJ.jpg', 'w500'),
   },
   {
     id: 533535,
@@ -24,6 +25,7 @@ const DEFAULT_HERO_MOVIES = [
     rating: '7.7',
     mediaType: 'Movie',
     backdrop: getOptimizedImageUrl('/yDHYTfA3R0jFYba16jBB1jv8M9l.jpg', 'w1280'),
+    poster_url: getOptimizedImageUrl('/8cdWjvZQUExUUTzyp4t6EDMubfO.jpg', 'w500'),
   },
   {
     id: 872585,
@@ -34,6 +36,7 @@ const DEFAULT_HERO_MOVIES = [
     rating: '8.1',
     mediaType: 'Movie',
     backdrop: getOptimizedImageUrl('/fm6K9vYvt39mgrVIezqp90uk8Ux.jpg', 'w1280'),
+    poster_url: getOptimizedImageUrl('/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg', 'w500'),
   },
   {
     id: 157336,
@@ -44,6 +47,7 @@ const DEFAULT_HERO_MOVIES = [
     rating: '8.4',
     mediaType: 'Movie',
     backdrop: getOptimizedImageUrl('/xJHokMbljvjADYdit5fK5VQsXEG.jpg', 'w1280'),
+    poster_url: getOptimizedImageUrl('/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg', 'w500'),
   },
   {
     id: 155,
@@ -54,6 +58,7 @@ const DEFAULT_HERO_MOVIES = [
     rating: '8.5',
     mediaType: 'Movie',
     backdrop: getOptimizedImageUrl('/nMKdUUepR0i5zn0y1T4CsSB5chy.jpg', 'w1280'),
+    poster_url: getOptimizedImageUrl('/qJ2tW6WMUDux911r6m7haRef0WH.jpg', 'w500'),
   },
 ]
 
@@ -131,6 +136,7 @@ export default function HeroBanner({ onQuickPlay }) {
               rating: displayRating,
               mediaType: m.media_type === 'tv' ? 'TV show' : 'Movie',
               backdrop: m.backdrop_url,
+              poster_url: m.poster_url || (m.poster_path ? getOptimizedImageUrl(m.poster_path, 'w500') : null),
             }
           })
 
@@ -338,6 +344,7 @@ export default function HeroBanner({ onQuickPlay }) {
                         clean_title: selectedMovieForInfo.title,
                         year: selectedMovieForInfo.year,
                         rating: selectedMovieForInfo.rating,
+                        poster_url: selectedMovieForInfo.poster_url,
                         backdrop_url: selectedMovieForInfo.backdrop,
                         overview: selectedMovieForInfo.synopsis,
                       })

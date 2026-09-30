@@ -21,22 +21,29 @@ export default function MovieCard({ group, metadata: initialMetadata, rank = nul
   const [imgError, setImgError] = useState(false)
 
   useEffect(() => {
-    if (initialMetadata) {
+    if (initialMetadata?.poster_url) {
       setMetadata(initialMetadata)
       setImgError(false)
-    } else if (!metadata && (group?.title || primaryCandidate.title)) {
-      const searchTitle = group?.title || primaryCandidate.title
-      getMovieMetadata(searchTitle, meta.year)
-        .then((data) => {
-          if (data && data.source !== 'fallback') {
-            setMetadata(data)
-          }
-        })
-        .catch(() => {})
+    } else {
+      if (initialMetadata) {
+        setMetadata(initialMetadata)
+      }
+      const searchTitle = initialMetadata?.title || group?.title || primaryCandidate.title
+      const effectiveYr = initialMetadata?.year || meta.year
+      if (searchTitle) {
+        getMovieMetadata(searchTitle, effectiveYr)
+          .then((data) => {
+            if (data && (data.poster_url || data.poster_path) && data.source !== 'fallback') {
+              setMetadata((prev) => ({ ...(prev || {}), ...data }))
+              setImgError(false)
+            }
+          })
+          .catch(() => {})
+      }
     }
   }, [initialMetadata, group?.title, primaryCandidate.title, meta.year])
 
-  const rawPoster = metadata?.poster_url || primaryCandidate?.poster_url || null
+  const rawPoster = metadata?.poster_url || primaryCandidate?.poster_url || metadata?.backdrop_url || null
   const posterSrc = rawPoster ? getOptimizedImageUrl(rawPoster, 'w500') : null
   const effectiveYear = metadata?.year || meta.year || '2025'
   const displayRating = metadata?.rating ? Number(metadata.rating).toFixed(1) : (primaryCandidate.quality || 'HD')

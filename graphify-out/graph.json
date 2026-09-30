@@ -1915,7 +1915,7 @@
       "file_type": "code",
       "norm_label": "herobanner()",
       "source_file": "frontend/src/components/HeroBanner.jsx",
-      "source_location": "L60"
+      "source_location": "L65"
     },
     {
       "id": "frontend_src_components_herobanner_herobanner_fetchheromovies",
@@ -1927,7 +1927,7 @@
       "file_type": "code",
       "norm_label": "fetchheromovies()",
       "source_file": "frontend/src/components/HeroBanner.jsx",
-      "source_location": "L91"
+      "source_location": "L96"
     },
     {
       "id": "frontend_src_components_moviecard_moviecard",
@@ -10556,6 +10556,42 @@
     },
     {
       "source": "frontend_src_components_herobanner_herobanner",
+      "target": "frontend_src_services_api_getpopularmovies",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "frontend/src/components/HeroBanner.jsx",
+      "source_location": "L100",
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_src_components_herobanner_herobanner",
+      "target": "frontend_src_services_api_gettrendingmovies",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "frontend/src/components/HeroBanner.jsx",
+      "source_location": "L101",
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_src_components_herobanner_herobanner",
+      "target": "frontend_src_utils_helpers_getoptimizedimageurl",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "frontend/src/components/HeroBanner.jsx",
+      "source_location": "L139",
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_src_components_herobanner_herobanner",
       "target": "frontend_src_context_watchhistorycontext_usewatchhistory",
       "relation": "calls",
       "_origin": "ast",
@@ -10563,31 +10599,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/HeroBanner.jsx",
-      "source_location": "L61",
-      "weight": 1.0
-    },
-    {
-      "source": "frontend_src_components_herobanner_herobanner",
-      "target": "frontend_src_services_api_getpopularmovies",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "frontend/src/components/HeroBanner.jsx",
-      "source_location": "L95",
-      "weight": 1.0
-    },
-    {
-      "source": "frontend_src_components_herobanner_herobanner",
-      "target": "frontend_src_services_api_gettrendingmovies",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "frontend/src/components/HeroBanner.jsx",
-      "source_location": "L96",
+      "source_location": "L66",
       "weight": 1.0
     },
     {
@@ -10599,7 +10611,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/HeroBanner.jsx",
-      "source_location": "L95",
+      "source_location": "L100",
       "weight": 1.0
     },
     {
@@ -10611,7 +10623,19 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/HeroBanner.jsx",
-      "source_location": "L96",
+      "source_location": "L101",
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_src_components_herobanner_herobanner_fetchheromovies",
+      "target": "frontend_src_utils_helpers_getoptimizedimageurl",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "frontend/src/components/HeroBanner.jsx",
+      "source_location": "L139",
       "weight": 1.0
     },
     {
@@ -10635,7 +10659,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/MovieCard.jsx",
-      "source_location": "L29",
+      "source_location": "L34",
       "weight": 1.0
     },
     {
@@ -10647,7 +10671,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/MovieCard.jsx",
-      "source_location": "L40",
+      "source_location": "L47",
       "weight": 1.0
     },
     {
@@ -10671,7 +10695,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/MovieCard.jsx",
-      "source_location": "L83",
+      "source_location": "L90",
       "weight": 1.0
     },
     {
@@ -11739,7 +11763,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/HeroBanner.jsx",
-      "source_location": "L91",
+      "source_location": "L96",
       "weight": 1.0
     },
     {
@@ -21049,7 +21073,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/src/components/HeroBanner.jsx",
-      "source_location": "L60",
+      "source_location": "L65",
       "weight": 1.0
     },
     {
@@ -26593,5 +26617,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "d9dbbf421626f64208574c38f62af537b67ef2aa"
+  "built_at_commit": "79cd1c067f2033ff904b6679973a74f31ff2dbc0"
 }

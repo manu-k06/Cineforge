@@ -264,15 +264,15 @@
     "semantic_hash": ""
   },
   "frontend/src/components/HeroBanner.jsx": {
-    "mtime": 1790750826.317038,
-    "seen": 1790750903.754705,
-    "ast_hash": "9065021280fd2fcbf5e531f2bb896db2",
+    "mtime": 1790751254.2307293,
+    "seen": 1790751281.872419,
+    "ast_hash": "7f99993e2ff81c1a38aa8ee5a3168793",
     "semantic_hash": ""
   },
   "frontend/src/components/MovieCard.jsx": {
-    "mtime": 1790664052.7185903,
-    "seen": 1790664196.1581516,
-    "ast_hash": "0a71de4cf9e99989c017f87412038bb6",
+    "mtime": 1790751189.4888651,
+    "seen": 1790751281.872422,
+    "ast_hash": "a997f46006ce0cde7cf5057727b29fd3",
     "semantic_hash": ""
   },
   "frontend/src/components/MovieGrid.jsx": {
