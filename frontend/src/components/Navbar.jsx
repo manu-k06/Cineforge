@@ -1,16 +1,18 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { Bookmark, LogOut, User, ChevronDown, UserPlus } from 'lucide-react'
+import { Bookmark, LogOut, User, ChevronDown, UserPlus, Sparkles } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useWatchHistory } from '../context/WatchHistoryContext'
+import { getAvatarSrc, getAvatarInfo } from '../utils/avatars'
+import AvatarPickerModal from './AvatarPickerModal'
 
 export default function Navbar({ onSearchClick, isBackendOnline, activeTab, setActiveTab }) {
-  const { user, profile, openAuthModal, signOut } = useAuth()
+  const { user, profile, openAuthModal, signOut, updateProfile } = useAuth()
   const { watchlist } = useWatchHistory()
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [isBrowseOpen, setIsBrowseOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
+  const [isAvatarPickerOpen, setIsAvatarPickerOpen] = useState(false)
 
-  const cartoonAvatarSrc = '/assets/images/avatars/cartoon-avatar.svg'
   const dropdownRef = useRef(null)
   const browseRef = useRef(null)
 
@@ -37,6 +39,10 @@ export default function Navbar({ onSearchClick, isBackendOnline, activeTab, setA
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
+  const currentAvatarId = profile?.avatar_id || (typeof window !== 'undefined' ? localStorage.getItem('cineforge_user_avatar') : null) || 'spider_man'
+  const currentAvatarSrc = getAvatarSrc(currentAvatarId)
+  const currentAvatarInfo = getAvatarInfo(currentAvatarId)
+
   const displayName = profile?.full_name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Member'
   const firstName = displayName.split(' ')[0]
 
@@ -48,105 +54,118 @@ export default function Navbar({ onSearchClick, isBackendOnline, activeTab, setA
           className="brand-image"
           src="/assets/images/aperture-mark.png"
           alt="Cineforge"
-          onError={(e) => {
-            // Fallback SVG if image not loaded
-            e.target.style.display = 'none'
-          }}
         />
-        <span>Cineforge</span>
+        <div className="brand-text">
+          <span className="brand-title">CINEFORGE</span>
+        </div>
       </div>
 
-      {/* Primary Nav */}
-      <nav className="primary-nav" aria-label="Primary navigation">
+      {/* Main Navigation Links */}
+      <nav className="site-nav" aria-label="Primary navigation">
         <button
-          className={activeTab === 'home' ? 'is-active' : ''}
+          className={`nav-link ${activeTab === 'home' ? 'is-active' : ''}`}
+          type="button"
           onClick={() => setActiveTab('home')}
         >
           Home
         </button>
 
-        {/* Browse Popover Dropdown */}
-        <div className="nav-menu nav-browse-menu" ref={browseRef}>
+        <button
+          className={`nav-link ${activeTab === 'library' ? 'is-active' : ''}`}
+          type="button"
+          onClick={() => setActiveTab('library')}
+        >
+          Movies
+        </button>
+
+        {/* Series Dropdown */}
+        <div className="nav-dropdown" ref={browseRef}>
           <button
-            className={`nav-menu-trigger ${['movies', 'shows', 'history', 'watchlist'].includes(activeTab) ? 'is-active' : ''} ${isBrowseOpen ? 'is-open' : ''}`}
+            className={`nav-link nav-dropdown-trigger ${activeTab === 'series' ? 'is-active' : ''}`}
             type="button"
             onClick={() => setIsBrowseOpen((prev) => !prev)}
             aria-expanded={isBrowseOpen}
           >
-            Browse <span className="nav-chevron" aria-hidden="true">⏷</span>
+            <span>Series</span>
+            <ChevronDown size={14} className={`nav-chevron ${isBrowseOpen ? 'is-rotated' : ''}`} />
           </button>
 
           {isBrowseOpen && (
-            <div className="nav-popover nav-browse-panel">
-              <div className="browse-panel-top">
-                <strong className="browse-panel-title">Browse</strong>
-                <span>Library & discovery</span>
-              </div>
-
-              <p className="menu-eyebrow">Discover</p>
-              <div className="menu-discovery-grid">
-                <button
-                  type="button"
-                  className="menu-discovery-card"
-                  onClick={() => {
-                    setActiveTab('movies')
-                    setIsBrowseOpen(false)
-                  }}
-                >
-                  <strong>Movies</strong>
-                  <small>Explore the catalogue</small>
-                </button>
-                <button
-                  type="button"
-                  className="menu-discovery-card"
-                  onClick={() => {
-                    setActiveTab('shows')
-                    setIsBrowseOpen(false)
-                  }}
-                >
-                  <strong>TV Shows</strong>
-                  <small>Series and episodes</small>
-                </button>
-              </div>
-
-              <p className="menu-eyebrow">Your library</p>
-              <div className="menu-personal-grid">
-                <button
-                  type="button"
-                  className="personal-menu-card"
-                  onClick={() => {
-                    setActiveTab('history')
-                    setIsBrowseOpen(false)
-                  }}
-                >
-                  <strong>History</strong>
-                  <span>Pick up where you left off</span>
-                </button>
-                <button
-                  type="button"
-                  className="personal-menu-card"
-                  onClick={() => {
-                    setActiveTab('watchlist')
-                    setIsBrowseOpen(false)
-                  }}
-                >
-                  <strong>Watchlist</strong>
-                  <span>Saved for later {watchlist.length > 0 && `(${watchlist.length})`}</span>
-                </button>
-              </div>
+            <div className="nav-dropdown-menu">
+              <button
+                type="button"
+                className="dropdown-item"
+                onClick={() => {
+                  setActiveTab('series')
+                  setIsBrowseOpen(false)
+                }}
+              >
+                All Series
+              </button>
+              <button
+                type="button"
+                className="dropdown-item"
+                onClick={() => {
+                  setActiveTab('series')
+                  setIsBrowseOpen(false)
+                }}
+              >
+                Anime Series
+              </button>
+              <button
+                type="button"
+                className="dropdown-item"
+                onClick={() => {
+                  setActiveTab('series')
+                  setIsBrowseOpen(false)
+                }}
+              >
+                Docuseries
+              </button>
             </div>
           )}
         </div>
+
+        <button
+          className={`nav-link ${activeTab === 'watchlist' ? 'is-active' : ''}`}
+          type="button"
+          onClick={() => setActiveTab('watchlist')}
+        >
+          Watchlist
+          {watchlist.length > 0 && (
+            <span className="nav-badge">{watchlist.length}</span>
+          )}
+        </button>
+
+        <button
+          className={`nav-link ${activeTab === 'community' ? 'is-active' : ''}`}
+          type="button"
+          onClick={() => setActiveTab('community')}
+        >
+          Community
+        </button>
       </nav>
 
-      {/* Header Actions: Search & User Profile / Auth */}
-      <div className="header-actions">
+      {/* Right Actions: Search + Profile & Auth Menu */}
+      <div className="nav-actions">
         <button
-          className="icon-button"
+          className="search-pill-button"
           type="button"
           onClick={onSearchClick}
-          aria-label="Search titles"
-          title="Search titles"
+          aria-label="Search Cineforge"
+          title="Search movies, TV shows, anime (Press /)"
+        >
+          <span className="search-pill-icon">⌕</span>
+          <span className="search-pill-text">Search titles...</span>
+          <kbd className="search-pill-shortcut">/</kbd>
+        </button>
+
+        <button
+          className="icon-button mobile-search-button"
+          type="button"
+          onClick={onSearchClick}
+          aria-label="Search"
+          title="Search movies and series"
         >
           ⌕
         </button>
@@ -162,8 +181,8 @@ export default function Navbar({ onSearchClick, isBackendOnline, activeTab, setA
           >
             <div className="nav-profile-avatar-wrap">
               <img
-                src={cartoonAvatarSrc}
-                alt="Cartoon Avatar"
+                src={currentAvatarSrc}
+                alt={currentAvatarInfo.name}
                 className="nav-profile-avatar-img"
               />
             </div>
@@ -190,16 +209,62 @@ export default function Navbar({ onSearchClick, isBackendOnline, activeTab, setA
           <div className="user-profile-menu" ref={dropdownRef}>
             {/* Profile Hero Header */}
             <div className="user-profile-hero">
-              <div className="user-hero-avatar">
-                <img
-                  src={cartoonAvatarSrc}
-                  alt="Cartoon Avatar"
-                  className="user-hero-avatar-img"
-                />
+              <div
+                style={{ position: 'relative', cursor: 'pointer' }}
+                onClick={() => setIsAvatarPickerOpen(true)}
+                title="Click to choose a superhero avatar"
+              >
+                <div className="user-hero-avatar">
+                  <img
+                    src={currentAvatarSrc}
+                    alt={currentAvatarInfo.name}
+                    className="user-hero-avatar-img"
+                  />
+                </div>
+                <div
+                  style={{
+                    position: 'absolute',
+                    bottom: '-2px',
+                    right: '-2px',
+                    width: '18px',
+                    height: '18px',
+                    borderRadius: '50%',
+                    backgroundColor: '#E50000',
+                    border: '2px solid #11131a',
+                    color: '#ffffff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    boxShadow: '0 2px 6px rgba(0,0,0,0.5)',
+                  }}
+                  title="Change superhero avatar"
+                >
+                  <Sparkles size={10} />
+                </div>
               </div>
+
               <div className="user-hero-info">
                 <strong className="user-hero-name">{displayName}</strong>
                 <span className="user-hero-email" title={user.email}>{user.email}</span>
+                <button
+                  type="button"
+                  onClick={() => setIsAvatarPickerOpen(true)}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: '#E50000',
+                    fontSize: '11px',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    padding: '2px 0 0',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                  }}
+                >
+                  <span>Avatar: {currentAvatarInfo.name}</span>
+                  <span style={{ fontSize: '10px', opacity: 0.8 }}>✎</span>
+                </button>
               </div>
             </div>
 
@@ -254,6 +319,16 @@ export default function Navbar({ onSearchClick, isBackendOnline, activeTab, setA
           </div>
         )}
       </div>
+
+      {/* Superhero Avatar Picker Modal */}
+      <AvatarPickerModal
+        isOpen={isAvatarPickerOpen}
+        onClose={() => setIsAvatarPickerOpen(false)}
+        currentAvatarId={currentAvatarId}
+        onSelectAvatar={(newAvatarId) => {
+          updateProfile({ avatarId: newAvatarId })
+        }}
+      />
     </header>
   )
 }

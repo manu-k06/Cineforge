@@ -282,9 +282,9 @@
     "semantic_hash": ""
   },
   "frontend/src/components/Navbar.jsx": {
-    "mtime": 1790760774.1948,
-    "seen": 1790760961.7379565,
-    "ast_hash": "6dd20e34cedf7c5c040e616eb64fcf01",
+    "mtime": 1790761664.1313715,
+    "seen": 1790761715.6974037,
+    "ast_hash": "86cab621160a2d1c5422b60b75af4926",
     "semantic_hash": ""
   },
   "frontend/src/components/PlayerModal.jsx": {
@@ -312,9 +312,9 @@
     "semantic_hash": ""
   },
   "frontend/src/context/AuthContext.jsx": {
-    "mtime": 1790760763.7202814,
-    "seen": 1790760961.738896,
-    "ast_hash": "b2c4cbbf75ea86bb0df9d810bcf94256",
+    "mtime": 1790761564.3048997,
+    "seen": 1790761715.6978843,
+    "ast_hash": "018f48e4dae11ad380cfe719261bc42c",
     "semantic_hash": ""
   },
   "frontend/src/main.jsx": {
@@ -495,6 +495,162 @@
     "mtime": 1790759938.731425,
     "seen": 1790760155.8570445,
     "ast_hash": "ce2e4d557bde90a7325508613df20e32",
+    "semantic_hash": ""
+  },
+  "frontend/src/components/AvatarPickerModal.jsx": {
+    "mtime": 1790761547.7617736,
+    "seen": 1790761715.6967132,
+    "ast_hash": "3107a1414800dd211d6cdd28402aa1f4",
+    "semantic_hash": ""
+  },
+  "frontend/src/utils/avatars.js": {
+    "mtime": 1790761529.554771,
+    "seen": 1790761715.6982794,
+    "ast_hash": "293c31b7a09711401b2abb436448588e",
+    "semantic_hash": ""
+  },
+  "frontend/public/assets/images/avatars/ant_man.png": {
+    "mtime": 1790761413.7485993,
+    "seen": 1790761715.699608,
+    "ast_hash": "7f81b93ab46c052b9e006d9644893477",
+    "semantic_hash": ""
+  },
+  "frontend/public/assets/images/avatars/arc_reactor.png": {
+    "mtime": 1790761413.7071488,
+    "seen": 1790761715.699613,
+    "ast_hash": "aeeb4ba0b6b2cc8ca87715edcfb31396",
+    "semantic_hash": ""
+  },
+  "frontend/public/assets/images/avatars/avengers.png": {
+    "mtime": 1790761414.0127,
+    "seen": 1790761715.6996148,
+    "ast_hash": "c4abdb18e61f276df4cd291981d70632",
+    "semantic_hash": ""
+  },
+  "frontend/public/assets/images/avatars/black_panther.png": {
+    "mtime": 1790761413.5407639,
+    "seen": 1790761715.6996157,
+    "ast_hash": "0f878c92e189345922aab1a7c0abec95",
+    "semantic_hash": ""
+  },
+  "frontend/public/assets/images/avatars/black_widow.png": {
+    "mtime": 1790761413.3220305,
+    "seen": 1790761715.699617,
+    "ast_hash": "08529f9efc2c5b32a07d9d83e2f62f1a",
+    "semantic_hash": ""
+  },
+  "frontend/public/assets/images/avatars/captain_america.png": {
+    "mtime": 1790761414.1073146,
+    "seen": 1790761715.699618,
+    "ast_hash": "247ee52a6ad924172cf91a8fceaf0b89",
+    "semantic_hash": ""
+  },
+  "frontend/public/assets/images/avatars/captain_marvel.png": {
+    "mtime": 1790761413.5846791,
+    "seen": 1790761715.6996195,
+    "ast_hash": "6b883059b4864c0c960187bae34aac44",
+    "semantic_hash": ""
+  },
+  "frontend/public/assets/images/avatars/deadpool.png": {
+    "mtime": 1790761414.1885328,
+    "seen": 1790761715.699743,
+    "ast_hash": "f5f650e25129e71acc596d16b1d81952",
+    "semantic_hash": ""
+  },
+  "frontend/public/assets/images/avatars/doctor_strange.png": {
+    "mtime": 1790761413.3689275,
+    "seen": 1790761715.6997445,
+    "ast_hash": "de966d6463821556f2cb3be9caa84792",
+    "semantic_hash": ""
+  },
+  "frontend/public/assets/images/avatars/falcon.png": {
+    "mtime": 1790761414.149475,
+    "seen": 1790761715.6997461,
+    "ast_hash": "a7a53366ce321cf854ac361d17dd1657",
+    "semantic_hash": ""
+  },
+  "frontend/public/assets/images/avatars/fantastic_four.png": {
+    "mtime": 1790761414.2714992,
+    "seen": 1790761715.6997473,
+    "ast_hash": "153d253e7c1e2cd0c79e6a43d07e5bef",
+    "semantic_hash": ""
+  },
+  "frontend/public/assets/images/avatars/hawkeye.png": {
+    "mtime": 1790761413.7962644,
+    "seen": 1790761715.6997483,
+    "ast_hash": "e18405ce96cfd4f36e6ceb9267c87f37",
+    "semantic_hash": ""
+  },
+  "frontend/public/assets/images/avatars/hulk.png": {
+    "mtime": 1790761413.9280362,
+    "seen": 1790761715.6997495,
+    "ast_hash": "420c1e4fb06cd536bda73b161f421759",
+    "semantic_hash": ""
+  },
+  "frontend/public/assets/images/avatars/iron_man.png": {
+    "mtime": 1790761413.448202,
+    "seen": 1790761715.6997507,
+    "ast_hash": "6db80bb34a978a2d1e1421333aa0e3f8",
+    "semantic_hash": ""
+  },
+  "frontend/public/assets/images/avatars/loki.png": {
+    "mtime": 1790761413.6244462,
+    "seen": 1790761715.6997519,
+    "ast_hash": "4f620c23e4b7361672268b019aca7398",
+    "semantic_hash": ""
+  },
+  "frontend/public/assets/images/avatars/miles_morales.png": {
+    "mtime": 1790761413.844565,
+    "seen": 1790761715.6997533,
+    "ast_hash": "053aee8ca86aabf5dfd7f25475a01494",
+    "semantic_hash": ""
+  },
+  "frontend/public/assets/images/avatars/scarlet_witch.png": {
+    "mtime": 1790761413.4080899,
+    "seen": 1790761715.6997545,
+    "ast_hash": "a79362eb18455a8d5069a87fcc74d4a7",
+    "semantic_hash": ""
+  },
+  "frontend/public/assets/images/avatars/shang_chi.png": {
+    "mtime": 1790761414.3170164,
+    "seen": 1790761715.6997554,
+    "ast_hash": "e435ab4a470061f1ac146ec4128e1586",
+    "semantic_hash": ""
+  },
+  "frontend/public/assets/images/avatars/shield.png": {
+    "mtime": 1790761413.8860364,
+    "seen": 1790761715.6997566,
+    "ast_hash": "03ae3918fda2620c5a855c160672abcf",
+    "semantic_hash": ""
+  },
+  "frontend/public/assets/images/avatars/spider_man.png": {
+    "mtime": 1790761413.9682345,
+    "seen": 1790761715.6997576,
+    "ast_hash": "1e5c5aa06364633b3cdb856be41bcac5",
+    "semantic_hash": ""
+  },
+  "frontend/public/assets/images/avatars/storm.png": {
+    "mtime": 1790761414.0677056,
+    "seen": 1790761715.6998632,
+    "ast_hash": "2d4305c92826ae17f4b0406f5cf95194",
+    "semantic_hash": ""
+  },
+  "frontend/public/assets/images/avatars/thor.png": {
+    "mtime": 1790761413.6627247,
+    "seen": 1790761715.6998646,
+    "ast_hash": "039fbcbd1e1ae226c9e1177313ce9970",
+    "semantic_hash": ""
+  },
+  "frontend/public/assets/images/avatars/wasp.png": {
+    "mtime": 1790761413.494011,
+    "seen": 1790761715.699866,
+    "ast_hash": "e1171c27febebf3a98bbe0d7d4f1d919",
+    "semantic_hash": ""
+  },
+  "frontend/public/assets/images/avatars/x_men.png": {
+    "mtime": 1790761414.230502,
+    "seen": 1790761715.6998675,
+    "ast_hash": "c94f5d8f6ac8a62b7316b66db7da84b2",
     "semantic_hash": ""
   }
 }

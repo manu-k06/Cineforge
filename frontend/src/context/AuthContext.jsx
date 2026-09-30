@@ -155,7 +155,7 @@ export function AuthProvider({ children }) {
         emailRedirectTo: redirectUrl,
         data: {
           full_name: fullName,
-          avatar_id: localStorage.getItem('cineforge_user_avatar') || 'director',
+          avatar_id: localStorage.getItem('cineforge_user_avatar') || 'spider_man',
         },
       },
     })
