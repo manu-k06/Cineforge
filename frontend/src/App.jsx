@@ -256,10 +256,11 @@ export default function App() {
     if (targetCandidate?.start_payload || targetCandidate?.candidate_id) {
       await startDelivery(targetCandidate, targetGroup)
     } else {
-      const searchTitle = targetGroup?.title || targetCandidate?.title || activeDelivery?.candidate_title
-      if (searchTitle) {
+      const rawTitle = targetGroup?.title || targetCandidate?.title || activeDelivery?.candidate_title
+      if (rawTitle) {
+        const cleanQuery = parseMovieMetadata(rawTitle).cleanTitle || rawTitle
         setCurrentView('browse')
-        handleSearch(searchTitle, 1)
+        handleSearch(cleanQuery, 1)
       }
     }
   }

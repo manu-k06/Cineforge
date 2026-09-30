@@ -246,9 +246,9 @@
     "semantic_hash": ""
   },
   "frontend/src/App.jsx": {
-    "mtime": 1790695102.1160777,
-    "seen": 1790695172.458818,
-    "ast_hash": "3793acf15d62f3ba08e03d1443dbf572",
+    "mtime": 1790739428.1302617,
+    "seen": 1790739522.627022,
+    "ast_hash": "be6c46600f7cee2cd4fc6982cab5a1df",
     "semantic_hash": ""
   },
   "frontend/src/components/AuthModal.jsx": {
@@ -276,9 +276,9 @@
     "semantic_hash": ""
   },
   "frontend/src/components/MovieGrid.jsx": {
-    "mtime": 1790738764.2307854,
-    "seen": 1790738987.5960817,
-    "ast_hash": "8c060dfccb8790c2c21a0e9133b7ed3d",
+    "mtime": 1790739403.7517405,
+    "seen": 1790739522.6297472,
+    "ast_hash": "d96469c23850f6f1b524407ab5926a35",
     "semantic_hash": ""
   },
   "frontend/src/components/Navbar.jsx": {

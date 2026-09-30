@@ -10490,7 +10490,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/App.jsx",
-      "source_location": "L277",
+      "source_location": "L278",
       "weight": 1.0
     },
     {
@@ -26484,5 +26484,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "4b3061f6c8c749cd76611131e90bf7395cd1964f"
+  "built_at_commit": "5774daa025c5b08b005907ac7513ce0f9cf058fa"
 }

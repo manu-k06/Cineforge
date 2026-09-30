@@ -468,15 +468,31 @@ export default function MovieGrid({
 
   // Active search with no results
   if (searchQuery && items && items.length === 0) {
+    const popularSuggestions = ['The Wild Robot', 'Deadpool & Wolverine', 'Interstellar', 'Dune: Part Two', 'Aavesham']
     return (
       <div className="empty-state">
         <div className="empty-icon-wrapper">
-          <AlertCircle size={48} className="text-muted" />
+          <AlertCircle size={36} color="var(--ember)" />
         </div>
         <h3 className="empty-title">No releases found for "{searchQuery}"</h3>
         <p className="empty-description">
-          Check your spelling or try searching for popular titles like "Avengers", "Interstellar", "Aavesham", or "Dune".
+          We couldn't find an exact release for this query on Telegram nodes. Try searching with a cleaner title or explore one of these popular cinema releases:
         </p>
+        <div className="empty-suggestions-container">
+          <span className="empty-suggestions-label">Popular Releases:</span>
+          <div className="empty-suggestions-pills">
+            {popularSuggestions.map((title) => (
+              <button
+                key={title}
+                type="button"
+                className="empty-suggestion-pill"
+                onClick={() => onQuickSearch && onQuickSearch(title)}
+              >
+                {title}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
     )
   }
