@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { Bookmark, LogOut, User, ChevronDown, UserPlus, Sparkles } from 'lucide-react'
+import { Bookmark, LogOut, User, ChevronDown, UserPlus } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useWatchHistory } from '../context/WatchHistoryContext'
 import { getAvatarSrc, getAvatarInfo } from '../utils/avatars'
@@ -196,61 +196,21 @@ export default function Navbar({ onSearchClick, isBackendOnline, activeTab, setA
             {/* Profile Hero Header */}
             <div className="user-profile-hero">
               <div
-                style={{ position: 'relative', cursor: 'pointer' }}
+                className="user-hero-avatar"
                 onClick={() => setIsAvatarPickerOpen(true)}
+                style={{ cursor: 'pointer' }}
                 title="Click to choose a superhero avatar"
               >
-                <div className="user-hero-avatar">
-                  <img
-                    src={currentAvatarSrc}
-                    alt={currentAvatarInfo.name}
-                    className="user-hero-avatar-img"
-                  />
-                </div>
-                <div
-                  style={{
-                    position: 'absolute',
-                    bottom: '-2px',
-                    right: '-2px',
-                    width: '18px',
-                    height: '18px',
-                    borderRadius: '50%',
-                    backgroundColor: '#E50000',
-                    border: '2px solid #11131a',
-                    color: '#ffffff',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    boxShadow: '0 2px 6px rgba(0,0,0,0.5)',
-                  }}
-                  title="Change avatar"
-                >
-                  <Sparkles size={10} />
-                </div>
+                <img
+                  src={currentAvatarSrc}
+                  alt={currentAvatarInfo.name}
+                  className="user-hero-avatar-img"
+                />
               </div>
 
               <div className="user-hero-info">
                 <strong className="user-hero-name">{displayName}</strong>
                 <span className="user-hero-email" title={user.email}>{user.email}</span>
-                <button
-                  type="button"
-                  onClick={() => setIsAvatarPickerOpen(true)}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    color: '#E50000',
-                    fontSize: '11px',
-                    fontWeight: '600',
-                    cursor: 'pointer',
-                    padding: '2px 0 0',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '4px',
-                  }}
-                >
-                  <span>Avatar: {currentAvatarInfo.name}</span>
-                  <span style={{ fontSize: '10px', opacity: 0.8 }}>✎</span>
-                </button>
               </div>
             </div>
 
