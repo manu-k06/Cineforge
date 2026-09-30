@@ -199,30 +199,17 @@
       "source_location": "L82"
     },
     {
-      "id": "backend_app_services_telethon_compat_usercompatb1b8cc83",
-      "label": "UserCompatB1B8CC83",
+      "id": "backend_app_api_auth_profileupdatepayload",
+      "label": "ProfileUpdatePayload",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
       "community": 18,
-      "community_name": "UserCompatB1B8CC83",
+      "community_name": "api/auth.py",
       "file_type": "code",
-      "norm_label": "usercompatb1b8cc83",
-      "source_file": "backend/app/services/telethon_compat.py",
-      "source_location": "L21"
-    },
-    {
-      "id": "backend_tests_test_telethon_compat_testtelethoncompat",
-      "label": "TestTelethonCompat",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 25,
-      "community_name": "TestTelethonCompat",
-      "file_type": "code",
-      "norm_label": "testtelethoncompat",
-      "source_file": "backend/tests/test_telethon_compat.py",
-      "source_location": "L10"
+      "norm_label": "profileupdatepayload",
+      "source_file": "backend/app/api/auth.py",
+      "source_location": "L12"
     },
     {
       "id": "backend_app_models_metadata_castmember",
@@ -407,19 +394,6 @@
       "source_location": "L9"
     },
     {
-      "id": "backend_app_api_auth_profileupdatepayload",
-      "label": "ProfileUpdatePayload",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 39,
-      "community_name": "history.py",
-      "file_type": "code",
-      "norm_label": "profileupdatepayload",
-      "source_file": "backend/app/api/auth.py",
-      "source_location": "L12"
-    },
-    {
       "id": "backend_app_api_history_bulksyncpayload",
       "label": "BulkSyncPayload",
       "_callable": true,
@@ -464,8 +438,8 @@
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
-      "community": 39,
-      "community_name": "history.py",
+      "community": 4,
+      "community_name": "services/auth.py",
       "file_type": "code",
       "norm_label": "authservice",
       "source_file": "backend/app/services/auth.py",
@@ -717,6 +691,32 @@
       "norm_label": "testphase14mediacompatibility",
       "source_file": "backend/tests/test_phase14_compatibility.py",
       "source_location": "L13"
+    },
+    {
+      "id": "backend_app_services_telethon_compat_usercompatb1b8cc83",
+      "label": "UserCompatB1B8CC83",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 9,
+      "community_name": "telethon_compat.py",
+      "file_type": "code",
+      "norm_label": "usercompatb1b8cc83",
+      "source_file": "backend/app/services/telethon_compat.py",
+      "source_location": "L21"
+    },
+    {
+      "id": "backend_tests_test_telethon_compat_testtelethoncompat",
+      "label": "TestTelethonCompat",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 9,
+      "community_name": "telethon_compat.py",
+      "file_type": "code",
+      "norm_label": "testtelethoncompat",
+      "source_file": "backend/tests/test_telethon_compat.py",
+      "source_location": "L10"
     },
     {
       "id": "backend_app_services_cache_service_cacheservice_get_cached_ai_query",
@@ -1043,6 +1043,18 @@
       "source_location": "L30"
     },
     {
+      "id": "backend_app_main_get_streamer_client",
+      "label": "get_streamer_client()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "main.py",
+      "file_type": "code",
+      "norm_label": "get_streamer_client()",
+      "source_file": "backend/app/main.py",
+      "source_location": "L27"
+    },
+    {
       "id": "backend_app_main_health_check",
       "label": "health_check()",
       "_callable": true,
@@ -1065,6 +1077,30 @@
       "norm_label": "lifespan()",
       "source_file": "backend/app/main.py",
       "source_location": "L39"
+    },
+    {
+      "id": "backend_app_main_proxy_to_streamer",
+      "label": "proxy_to_streamer()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "main.py",
+      "file_type": "code",
+      "norm_label": "proxy_to_streamer()",
+      "source_file": "backend/app/main.py",
+      "source_location": "L88"
+    },
+    {
+      "id": "backend_app_main_proxy_to_streamer_body_stream",
+      "label": "body_stream()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "main.py",
+      "file_type": "code",
+      "norm_label": "body_stream()",
+      "source_file": "backend/app/main.py",
+      "source_location": "L120"
     },
     {
       "id": "backend_app_main_root_redirect",
@@ -1847,52 +1883,52 @@
       "source_location": "L45"
     },
     {
-      "id": "backend_app_services_telethon_compat_usercompatb1b8cc83_bytes",
-      "label": "._bytes()",
+      "id": "backend_app_api_auth_get_auth_status",
+      "label": "get_auth_status()",
       "_callable": true,
       "_origin": "ast",
       "community": 18,
-      "community_name": "UserCompatB1B8CC83",
+      "community_name": "api/auth.py",
       "file_type": "code",
-      "norm_label": "._bytes()",
-      "source_file": "backend/app/services/telethon_compat.py",
-      "source_location": "L360"
+      "norm_label": "get_auth_status()",
+      "source_file": "backend/app/api/auth.py",
+      "source_location": "L19"
     },
     {
-      "id": "backend_app_services_telethon_compat_usercompatb1b8cc83_from_reader",
-      "label": ".from_reader()",
+      "id": "backend_app_api_auth_get_my_profile",
+      "label": "get_my_profile()",
       "_callable": true,
       "_origin": "ast",
       "community": 18,
-      "community_name": "UserCompatB1B8CC83",
+      "community_name": "api/auth.py",
       "file_type": "code",
-      "norm_label": ".from_reader()",
-      "source_file": "backend/app/services/telethon_compat.py",
-      "source_location": "L158"
+      "norm_label": "get_my_profile()",
+      "source_file": "backend/app/api/auth.py",
+      "source_location": "L28"
     },
     {
-      "id": "backend_app_services_telethon_compat_usercompatb1b8cc83_init",
-      "label": ".__init__()",
+      "id": "backend_app_api_auth_get_public_profile",
+      "label": "get_public_profile()",
       "_callable": true,
       "_origin": "ast",
       "community": 18,
-      "community_name": "UserCompatB1B8CC83",
+      "community_name": "api/auth.py",
       "file_type": "code",
-      "norm_label": ".__init__()",
-      "source_file": "backend/app/services/telethon_compat.py",
-      "source_location": "L48"
+      "norm_label": "get_public_profile()",
+      "source_file": "backend/app/api/auth.py",
+      "source_location": "L37"
     },
     {
-      "id": "backend_app_services_telethon_compat_usercompatb1b8cc83_to_dict",
-      "label": ".to_dict()",
+      "id": "backend_app_api_auth_update_public_profile",
+      "label": "update_public_profile()",
       "_callable": true,
       "_origin": "ast",
       "community": 18,
-      "community_name": "UserCompatB1B8CC83",
+      "community_name": "api/auth.py",
       "file_type": "code",
-      "norm_label": ".to_dict()",
-      "source_file": "backend/app/services/telethon_compat.py",
-      "source_location": "L464"
+      "norm_label": "update_public_profile()",
+      "source_file": "backend/app/api/auth.py",
+      "source_location": "L72"
     },
     {
       "id": "frontend_src_app_app",
@@ -2036,7 +2072,7 @@
       "file_type": "code",
       "norm_label": "navbar()",
       "source_file": "frontend/src/components/Navbar.jsx",
-      "source_location": "L15"
+      "source_location": "L6"
     },
     {
       "id": "frontend_src_components_playermodal_playermodal",
@@ -2553,42 +2589,6 @@
       "norm_label": "getmovietrivialist()",
       "source_file": "frontend/src/utils/movieTrivia.js",
       "source_location": "L140"
-    },
-    {
-      "id": "backend_tests_test_telethon_compat_testtelethoncompat_test_bytes_roundtrip",
-      "label": ".test_bytes_roundtrip()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 25,
-      "community_name": "TestTelethonCompat",
-      "file_type": "code",
-      "norm_label": ".test_bytes_roundtrip()",
-      "source_file": "backend/tests/test_telethon_compat.py",
-      "source_location": "L101"
-    },
-    {
-      "id": "backend_tests_test_telethon_compat_testtelethoncompat_test_deserialize_captured_live_bot_payload",
-      "label": ".test_deserialize_captured_live_bot_payload()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 25,
-      "community_name": "TestTelethonCompat",
-      "file_type": "code",
-      "norm_label": ".test_deserialize_captured_live_bot_payload()",
-      "source_file": "backend/tests/test_telethon_compat.py",
-      "source_location": "L21"
-    },
-    {
-      "id": "backend_tests_test_telethon_compat_testtelethoncompat_test_deserialize_with_linked_community_id",
-      "label": ".test_deserialize_with_linked_community_id()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 25,
-      "community_name": "TestTelethonCompat",
-      "file_type": "code",
-      "norm_label": ".test_deserialize_with_linked_community_id()",
-      "source_file": "backend/tests/test_telethon_compat.py",
-      "source_location": "L64"
     },
     {
       "id": "backend_app_services_publish_tunnel_main",
@@ -3131,54 +3131,6 @@
       "source_location": "L41"
     },
     {
-      "id": "backend_app_api_auth_get_auth_status",
-      "label": "get_auth_status()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 39,
-      "community_name": "history.py",
-      "file_type": "code",
-      "norm_label": "get_auth_status()",
-      "source_file": "backend/app/api/auth.py",
-      "source_location": "L19"
-    },
-    {
-      "id": "backend_app_api_auth_get_my_profile",
-      "label": "get_my_profile()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 39,
-      "community_name": "history.py",
-      "file_type": "code",
-      "norm_label": "get_my_profile()",
-      "source_file": "backend/app/api/auth.py",
-      "source_location": "L28"
-    },
-    {
-      "id": "backend_app_api_auth_get_public_profile",
-      "label": "get_public_profile()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 39,
-      "community_name": "history.py",
-      "file_type": "code",
-      "norm_label": "get_public_profile()",
-      "source_file": "backend/app/api/auth.py",
-      "source_location": "L37"
-    },
-    {
-      "id": "backend_app_api_auth_update_public_profile",
-      "label": "update_public_profile()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 39,
-      "community_name": "history.py",
-      "file_type": "code",
-      "norm_label": "update_public_profile()",
-      "source_file": "backend/app/api/auth.py",
-      "source_location": "L72"
-    },
-    {
       "id": "backend_app_api_history_add_to_watchlist",
       "label": "add_to_watchlist()",
       "_callable": true,
@@ -3279,8 +3231,8 @@
       "label": "._get_client()",
       "_callable": true,
       "_origin": "ast",
-      "community": 39,
-      "community_name": "history.py",
+      "community": 4,
+      "community_name": "services/auth.py",
       "file_type": "code",
       "norm_label": "._get_client()",
       "source_file": "backend/app/services/auth.py",
@@ -3291,8 +3243,8 @@
       "label": ".__init__()",
       "_callable": true,
       "_origin": "ast",
-      "community": 39,
-      "community_name": "history.py",
+      "community": 4,
+      "community_name": "services/auth.py",
       "file_type": "code",
       "norm_label": ".__init__()",
       "source_file": "backend/app/services/auth.py",
@@ -3303,8 +3255,8 @@
       "label": ".is_configured()",
       "_callable": true,
       "_origin": "ast",
-      "community": 39,
-      "community_name": "history.py",
+      "community": 4,
+      "community_name": "services/auth.py",
       "file_type": "code",
       "norm_label": ".is_configured()",
       "source_file": "backend/app/services/auth.py",
@@ -3315,8 +3267,8 @@
       "label": ".verify_token()",
       "_callable": true,
       "_origin": "ast",
-      "community": 39,
-      "community_name": "history.py",
+      "community": 4,
+      "community_name": "services/auth.py",
       "file_type": "code",
       "norm_label": ".verify_token()",
       "source_file": "backend/app/services/auth.py",
@@ -3327,8 +3279,8 @@
       "label": "get_current_user_optional()",
       "_callable": true,
       "_origin": "ast",
-      "community": 39,
-      "community_name": "history.py",
+      "community": 4,
+      "community_name": "services/auth.py",
       "file_type": "code",
       "norm_label": "get_current_user_optional()",
       "source_file": "backend/app/services/auth.py",
@@ -3339,48 +3291,12 @@
       "label": "get_current_user_required()",
       "_callable": true,
       "_origin": "ast",
-      "community": 39,
-      "community_name": "history.py",
+      "community": 4,
+      "community_name": "services/auth.py",
       "file_type": "code",
       "norm_label": "get_current_user_required()",
       "source_file": "backend/app/services/auth.py",
       "source_location": "L74"
-    },
-    {
-      "id": "backend_app_main_get_streamer_client",
-      "label": "get_streamer_client()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 4,
-      "community_name": "proxy_to_streamer",
-      "file_type": "code",
-      "norm_label": "get_streamer_client()",
-      "source_file": "backend/app/main.py",
-      "source_location": "L27"
-    },
-    {
-      "id": "backend_app_main_proxy_to_streamer",
-      "label": "proxy_to_streamer()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 4,
-      "community_name": "proxy_to_streamer",
-      "file_type": "code",
-      "norm_label": "proxy_to_streamer()",
-      "source_file": "backend/app/main.py",
-      "source_location": "L88"
-    },
-    {
-      "id": "backend_app_main_proxy_to_streamer_body_stream",
-      "label": "body_stream()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 4,
-      "community_name": "proxy_to_streamer",
-      "file_type": "code",
-      "norm_label": "body_stream()",
-      "source_file": "backend/app/main.py",
-      "source_location": "L120"
     },
     {
       "id": "backend_app_services_telegram_mediawaiter_init",
@@ -4079,6 +3995,90 @@
       "source_location": "L470"
     },
     {
+      "id": "backend_app_services_telethon_compat_usercompatb1b8cc83_bytes",
+      "label": "._bytes()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 9,
+      "community_name": "telethon_compat.py",
+      "file_type": "code",
+      "norm_label": "._bytes()",
+      "source_file": "backend/app/services/telethon_compat.py",
+      "source_location": "L360"
+    },
+    {
+      "id": "backend_app_services_telethon_compat_usercompatb1b8cc83_from_reader",
+      "label": ".from_reader()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 9,
+      "community_name": "telethon_compat.py",
+      "file_type": "code",
+      "norm_label": ".from_reader()",
+      "source_file": "backend/app/services/telethon_compat.py",
+      "source_location": "L158"
+    },
+    {
+      "id": "backend_app_services_telethon_compat_usercompatb1b8cc83_init",
+      "label": ".__init__()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 9,
+      "community_name": "telethon_compat.py",
+      "file_type": "code",
+      "norm_label": ".__init__()",
+      "source_file": "backend/app/services/telethon_compat.py",
+      "source_location": "L48"
+    },
+    {
+      "id": "backend_app_services_telethon_compat_usercompatb1b8cc83_to_dict",
+      "label": ".to_dict()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 9,
+      "community_name": "telethon_compat.py",
+      "file_type": "code",
+      "norm_label": ".to_dict()",
+      "source_file": "backend/app/services/telethon_compat.py",
+      "source_location": "L464"
+    },
+    {
+      "id": "backend_tests_test_telethon_compat_testtelethoncompat_test_bytes_roundtrip",
+      "label": ".test_bytes_roundtrip()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 9,
+      "community_name": "telethon_compat.py",
+      "file_type": "code",
+      "norm_label": ".test_bytes_roundtrip()",
+      "source_file": "backend/tests/test_telethon_compat.py",
+      "source_location": "L101"
+    },
+    {
+      "id": "backend_tests_test_telethon_compat_testtelethoncompat_test_deserialize_captured_live_bot_payload",
+      "label": ".test_deserialize_captured_live_bot_payload()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 9,
+      "community_name": "telethon_compat.py",
+      "file_type": "code",
+      "norm_label": ".test_deserialize_captured_live_bot_payload()",
+      "source_file": "backend/tests/test_telethon_compat.py",
+      "source_location": "L21"
+    },
+    {
+      "id": "backend_tests_test_telethon_compat_testtelethoncompat_test_deserialize_with_linked_community_id",
+      "label": ".test_deserialize_with_linked_community_id()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 9,
+      "community_name": "telethon_compat.py",
+      "file_type": "code",
+      "norm_label": ".test_deserialize_with_linked_community_id()",
+      "source_file": "backend/tests/test_telethon_compat.py",
+      "source_location": "L64"
+    },
+    {
       "id": "backend_tests_test_telethon_compat_testtelethoncompat_test_registration_idempotence",
       "label": ".test_registration_idempotence()",
       "_callable": true,
@@ -4388,6 +4388,28 @@
       "source_location": "L81"
     },
     {
+      "id": "api_route",
+      "label": "api_route",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "main.py",
+      "file_type": "code",
+      "norm_label": "api_route",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "asyncclient",
+      "label": "AsyncClient",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "main.py",
+      "file_type": "code",
+      "norm_label": "asyncclient",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
       "id": "backend_app_main",
       "label": "main.py",
       "_origin": "ast",
@@ -4410,6 +4432,17 @@
       "source_location": ""
     },
     {
+      "id": "backend_app_main_py_request",
+      "label": "Request",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "main.py",
+      "file_type": "code",
+      "norm_label": "request",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
       "id": "fastapi",
       "label": "FastAPI",
       "_origin": "ast",
@@ -4419,6 +4452,17 @@
       "norm_label": "fastapi",
       "source_file": "",
       "source_location": ""
+    },
+    {
+      "id": "backend_app_main_rationale_89",
+      "label": "Proxy video streaming and download range requests to local Go FileStreamBot\u2026",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "main.py",
+      "file_type": "rationale",
+      "norm_label": "proxy video streaming and download range requests to local go filestreambot...",
+      "source_file": "backend/app/main.py",
+      "source_location": "L89"
     },
     {
       "id": "backend_app_api_subtitles",
@@ -5547,26 +5591,103 @@
       "source_location": "L97"
     },
     {
-      "id": "backend_app_services_telethon_compat_py_any",
+      "id": "backend_app_api_auth",
+      "label": "api/auth.py",
+      "_origin": "ast",
+      "community": 18,
+      "community_name": "api/auth.py",
+      "file_type": "code",
+      "norm_label": "api/auth.py",
+      "source_file": "backend/app/api/auth.py",
+      "source_location": "L1"
+    },
+    {
+      "id": "backend_app_api_auth_py_any",
       "label": "Any",
       "_origin": "ast",
       "community": 18,
-      "community_name": "UserCompatB1B8CC83",
+      "community_name": "api/auth.py",
       "file_type": "code",
       "norm_label": "any",
       "source_file": "",
       "source_location": ""
     },
     {
-      "id": "backend_app_services_telethon_compat_rationale_22",
-      "label": "Compatibility implementation for Telegram constructor user#b1b8cc83 (Layer\u2026",
+      "id": "backend_app_api_auth_py_basemodel",
+      "label": "BaseModel",
       "_origin": "ast",
       "community": 18,
-      "community_name": "UserCompatB1B8CC83",
+      "community_name": "api/auth.py",
+      "file_type": "code",
+      "norm_label": "basemodel",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "backend_app_api_auth_py_get",
+      "label": "get",
+      "_origin": "ast",
+      "community": 18,
+      "community_name": "api/auth.py",
+      "file_type": "code",
+      "norm_label": "get",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "backend_app_api_auth_py_patch",
+      "label": "patch",
+      "_origin": "ast",
+      "community": 18,
+      "community_name": "api/auth.py",
+      "file_type": "code",
+      "norm_label": "patch",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "backend_app_api_auth_rationale_20",
+      "label": "Check if Supabase Auth is configured on the backend.",
+      "_origin": "ast",
+      "community": 18,
+      "community_name": "api/auth.py",
       "file_type": "rationale",
-      "norm_label": "compatibility implementation for telegram constructor user#b1b8cc83 (layer...",
-      "source_file": "backend/app/services/telethon_compat.py",
-      "source_location": "L22"
+      "norm_label": "check if supabase auth is configured on the backend.",
+      "source_file": "backend/app/api/auth.py",
+      "source_location": "L20"
+    },
+    {
+      "id": "backend_app_api_auth_rationale_29",
+      "label": "Retrieve profile information for the currently authenticated user.",
+      "_origin": "ast",
+      "community": 18,
+      "community_name": "api/auth.py",
+      "file_type": "rationale",
+      "norm_label": "retrieve profile information for the currently authenticated user.",
+      "source_file": "backend/app/api/auth.py",
+      "source_location": "L29"
+    },
+    {
+      "id": "backend_app_api_auth_rationale_38",
+      "label": "Retrieve database profile from public.profiles table.",
+      "_origin": "ast",
+      "community": 18,
+      "community_name": "api/auth.py",
+      "file_type": "rationale",
+      "norm_label": "retrieve database profile from public.profiles table.",
+      "source_file": "backend/app/api/auth.py",
+      "source_location": "L38"
+    },
+    {
+      "id": "backend_app_api_auth_rationale_76",
+      "label": "Update profile details in public.profiles table.",
+      "_origin": "ast",
+      "community": 18,
+      "community_name": "api/auth.py",
+      "file_type": "rationale",
+      "norm_label": "update profile details in public.profiles table.",
+      "source_file": "backend/app/api/auth.py",
+      "source_location": "L76"
     },
     {
       "id": "frontend_oxlintrc",
@@ -5765,17 +5886,6 @@
       "norm_label": "navbar.jsx",
       "source_file": "frontend/src/components/Navbar.jsx",
       "source_location": "L1"
-    },
-    {
-      "id": "frontend_src_components_navbar_avatar_presets",
-      "label": "AVATAR_PRESETS",
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "App.jsx",
-      "file_type": "code",
-      "norm_label": "avatar_presets",
-      "source_file": "frontend/src/components/Navbar.jsx",
-      "source_location": "L6"
     },
     {
       "id": "frontend_src_components_playermodal",
@@ -6064,6 +6174,17 @@
       "source_location": "L15"
     },
     {
+      "id": "ref_react_dom",
+      "label": "react-dom",
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "App.jsx",
+      "file_type": "concept",
+      "norm_label": "react-dom",
+      "source_file": "frontend/package.json",
+      "source_location": "L16"
+    },
+    {
       "id": "docs_backend_todo_phase_2_metadata_enrichment_tmdb_imdb_api_integration",
       "label": "\ud83d\udccb Phase 2: Metadata Enrichment (TMDb / IMDb API Integration)",
       "_origin": "ast",
@@ -6233,39 +6354,6 @@
       "norm_label": "cineforge backend application package.",
       "source_file": "backend/app/__init__.py",
       "source_location": "L1"
-    },
-    {
-      "id": "backend_tests_test_telethon_compat_rationale_102",
-      "label": "Verifies that serialization matches deserialization.",
-      "_origin": "ast",
-      "community": 25,
-      "community_name": "TestTelethonCompat",
-      "file_type": "rationale",
-      "norm_label": "verifies that serialization matches deserialization.",
-      "source_file": "backend/tests/test_telethon_compat.py",
-      "source_location": "L102"
-    },
-    {
-      "id": "backend_tests_test_telethon_compat_rationale_22",
-      "label": "Deserializes the exact byte structure captured from the live @Spoty_xbot error.",
-      "_origin": "ast",
-      "community": 25,
-      "community_name": "TestTelethonCompat",
-      "file_type": "rationale",
-      "norm_label": "deserializes the exact byte structure captured from the live @spoty_xbot error.",
-      "source_file": "backend/tests/test_telethon_compat.py",
-      "source_location": "L22"
-    },
-    {
-      "id": "backend_tests_test_telethon_compat_rationale_65",
-      "label": "Tests that when flags2 bit 21 is set, linked_community_id is deserialized\u2026",
-      "_origin": "ast",
-      "community": 25,
-      "community_name": "TestTelethonCompat",
-      "file_type": "rationale",
-      "norm_label": "tests that when flags2 bit 21 is set, linked_community_id is deserialized...",
-      "source_file": "backend/tests/test_telethon_compat.py",
-      "source_location": "L65"
     },
     {
       "id": "backend_app_services_publish_tunnel",
@@ -6917,61 +7005,6 @@
       "source_location": "L42"
     },
     {
-      "id": "backend_app_api_auth",
-      "label": "api/auth.py",
-      "_origin": "ast",
-      "community": 39,
-      "community_name": "history.py",
-      "file_type": "code",
-      "norm_label": "api/auth.py",
-      "source_file": "backend/app/api/auth.py",
-      "source_location": "L1"
-    },
-    {
-      "id": "backend_app_api_auth_py_any",
-      "label": "Any",
-      "_origin": "ast",
-      "community": 39,
-      "community_name": "history.py",
-      "file_type": "code",
-      "norm_label": "any",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "backend_app_api_auth_py_basemodel",
-      "label": "BaseModel",
-      "_origin": "ast",
-      "community": 39,
-      "community_name": "history.py",
-      "file_type": "code",
-      "norm_label": "basemodel",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "backend_app_api_auth_py_get",
-      "label": "get",
-      "_origin": "ast",
-      "community": 39,
-      "community_name": "history.py",
-      "file_type": "code",
-      "norm_label": "get",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "backend_app_api_auth_py_patch",
-      "label": "patch",
-      "_origin": "ast",
-      "community": 39,
-      "community_name": "history.py",
-      "file_type": "code",
-      "norm_label": "patch",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
       "id": "backend_app_api_history",
       "label": "history.py",
       "_origin": "ast",
@@ -7027,28 +7060,6 @@
       "source_location": ""
     },
     {
-      "id": "backend_app_services_auth",
-      "label": "services/auth.py",
-      "_origin": "ast",
-      "community": 39,
-      "community_name": "history.py",
-      "file_type": "code",
-      "norm_label": "services/auth.py",
-      "source_file": "backend/app/services/auth.py",
-      "source_location": "L1"
-    },
-    {
-      "id": "backend_app_services_auth_py_any",
-      "label": "Any",
-      "_origin": "ast",
-      "community": 39,
-      "community_name": "history.py",
-      "file_type": "code",
-      "norm_label": "any",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
       "id": "delete",
       "label": "delete",
       "_origin": "ast",
@@ -7060,66 +7071,44 @@
       "source_location": ""
     },
     {
+      "id": "backend_app_services_auth",
+      "label": "services/auth.py",
+      "_origin": "ast",
+      "community": 4,
+      "community_name": "services/auth.py",
+      "file_type": "code",
+      "norm_label": "services/auth.py",
+      "source_file": "backend/app/services/auth.py",
+      "source_location": "L1"
+    },
+    {
+      "id": "backend_app_services_auth_py_any",
+      "label": "Any",
+      "_origin": "ast",
+      "community": 4,
+      "community_name": "services/auth.py",
+      "file_type": "code",
+      "norm_label": "any",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
       "id": "httpauthorizationcredentials",
       "label": "HTTPAuthorizationCredentials",
       "_origin": "ast",
-      "community": 39,
-      "community_name": "history.py",
+      "community": 4,
+      "community_name": "services/auth.py",
       "file_type": "code",
       "norm_label": "httpauthorizationcredentials",
       "source_file": "",
       "source_location": ""
     },
     {
-      "id": "backend_app_api_auth_rationale_20",
-      "label": "Check if Supabase Auth is configured on the backend.",
-      "_origin": "ast",
-      "community": 39,
-      "community_name": "history.py",
-      "file_type": "rationale",
-      "norm_label": "check if supabase auth is configured on the backend.",
-      "source_file": "backend/app/api/auth.py",
-      "source_location": "L20"
-    },
-    {
-      "id": "backend_app_api_auth_rationale_29",
-      "label": "Retrieve profile information for the currently authenticated user.",
-      "_origin": "ast",
-      "community": 39,
-      "community_name": "history.py",
-      "file_type": "rationale",
-      "norm_label": "retrieve profile information for the currently authenticated user.",
-      "source_file": "backend/app/api/auth.py",
-      "source_location": "L29"
-    },
-    {
-      "id": "backend_app_api_auth_rationale_38",
-      "label": "Retrieve database profile from public.profiles table.",
-      "_origin": "ast",
-      "community": 39,
-      "community_name": "history.py",
-      "file_type": "rationale",
-      "norm_label": "retrieve database profile from public.profiles table.",
-      "source_file": "backend/app/api/auth.py",
-      "source_location": "L38"
-    },
-    {
-      "id": "backend_app_api_auth_rationale_76",
-      "label": "Update profile details in public.profiles table.",
-      "_origin": "ast",
-      "community": 39,
-      "community_name": "history.py",
-      "file_type": "rationale",
-      "norm_label": "update profile details in public.profiles table.",
-      "source_file": "backend/app/api/auth.py",
-      "source_location": "L76"
-    },
-    {
       "id": "backend_app_services_auth_rationale_13",
       "label": "Service for validating Supabase JWT tokens and retrieving user profiles.",
       "_origin": "ast",
-      "community": 39,
-      "community_name": "history.py",
+      "community": 4,
+      "community_name": "services/auth.py",
       "file_type": "rationale",
       "norm_label": "service for validating supabase jwt tokens and retrieving user profiles.",
       "source_file": "backend/app/services/auth.py",
@@ -7129,8 +7118,8 @@
       "id": "backend_app_services_auth_rationale_35",
       "label": "Verify Supabase JWT token and return authenticated user metadata.",
       "_origin": "ast",
-      "community": 39,
-      "community_name": "history.py",
+      "community": 4,
+      "community_name": "services/auth.py",
       "file_type": "rationale",
       "norm_label": "verify supabase jwt token and return authenticated user metadata.",
       "source_file": "backend/app/services/auth.py",
@@ -7140,8 +7129,8 @@
       "id": "backend_app_services_auth_rationale_67",
       "label": "FastAPI dependency for optionally authenticated endpoints.",
       "_origin": "ast",
-      "community": 39,
-      "community_name": "history.py",
+      "community": 4,
+      "community_name": "services/auth.py",
       "file_type": "rationale",
       "norm_label": "fastapi dependency for optionally authenticated endpoints.",
       "source_file": "backend/app/services/auth.py",
@@ -7151,56 +7140,12 @@
       "id": "backend_app_services_auth_rationale_77",
       "label": "FastAPI dependency for strictly protected endpoints.",
       "_origin": "ast",
-      "community": 39,
-      "community_name": "history.py",
+      "community": 4,
+      "community_name": "services/auth.py",
       "file_type": "rationale",
       "norm_label": "fastapi dependency for strictly protected endpoints.",
       "source_file": "backend/app/services/auth.py",
       "source_location": "L77"
-    },
-    {
-      "id": "api_route",
-      "label": "api_route",
-      "_origin": "ast",
-      "community": 4,
-      "community_name": "proxy_to_streamer",
-      "file_type": "code",
-      "norm_label": "api_route",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "asyncclient",
-      "label": "AsyncClient",
-      "_origin": "ast",
-      "community": 4,
-      "community_name": "proxy_to_streamer",
-      "file_type": "code",
-      "norm_label": "asyncclient",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "backend_app_main_py_request",
-      "label": "Request",
-      "_origin": "ast",
-      "community": 4,
-      "community_name": "proxy_to_streamer",
-      "file_type": "code",
-      "norm_label": "request",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "backend_app_main_rationale_89",
-      "label": "Proxy video streaming and download range requests to local Go FileStreamBot\u2026",
-      "_origin": "ast",
-      "community": 4,
-      "community_name": "proxy_to_streamer",
-      "file_type": "rationale",
-      "norm_label": "proxy video streaming and download range requests to local go filestreambot...",
-      "source_file": "backend/app/main.py",
-      "source_location": "L89"
     },
     {
       "id": "backend_app_services_telegram_py_any",
@@ -8303,17 +8248,6 @@
       "source_location": "L22"
     },
     {
-      "id": "ref_react_dom",
-      "label": "react-dom",
-      "_origin": "ast",
-      "community": 8,
-      "community_name": "package.json",
-      "file_type": "concept",
-      "norm_label": "react-dom",
-      "source_file": "frontend/package.json",
-      "source_location": "L16"
-    },
-    {
       "id": "ref_supabase_supabase_js",
       "label": "@supabase/supabase-js",
       "_origin": "ast",
@@ -8380,6 +8314,17 @@
       "source_location": "L1"
     },
     {
+      "id": "backend_app_services_telethon_compat_py_any",
+      "label": "Any",
+      "_origin": "ast",
+      "community": 9,
+      "community_name": "telethon_compat.py",
+      "file_type": "code",
+      "norm_label": "any",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
       "id": "backend_tests_test_telethon_compat",
       "label": "test_telethon_compat.py",
       "_origin": "ast",
@@ -8402,6 +8347,17 @@
       "source_location": "L1"
     },
     {
+      "id": "backend_app_services_telethon_compat_rationale_22",
+      "label": "Compatibility implementation for Telegram constructor user#b1b8cc83 (Layer\u2026",
+      "_origin": "ast",
+      "community": 9,
+      "community_name": "telethon_compat.py",
+      "file_type": "rationale",
+      "norm_label": "compatibility implementation for telegram constructor user#b1b8cc83 (layer...",
+      "source_file": "backend/app/services/telethon_compat.py",
+      "source_location": "L22"
+    },
+    {
       "id": "backend_app_services_telethon_compat_rationale_471",
       "label": "Idempotently registers constructor 0xb1b8cc83 into Telethon's type registry.",
       "_origin": "ast",
@@ -8411,6 +8367,39 @@
       "norm_label": "idempotently registers constructor 0xb1b8cc83 into telethon's type registry.",
       "source_file": "backend/app/services/telethon_compat.py",
       "source_location": "L471"
+    },
+    {
+      "id": "backend_tests_test_telethon_compat_rationale_102",
+      "label": "Verifies that serialization matches deserialization.",
+      "_origin": "ast",
+      "community": 9,
+      "community_name": "telethon_compat.py",
+      "file_type": "rationale",
+      "norm_label": "verifies that serialization matches deserialization.",
+      "source_file": "backend/tests/test_telethon_compat.py",
+      "source_location": "L102"
+    },
+    {
+      "id": "backend_tests_test_telethon_compat_rationale_22",
+      "label": "Deserializes the exact byte structure captured from the live @Spoty_xbot error.",
+      "_origin": "ast",
+      "community": 9,
+      "community_name": "telethon_compat.py",
+      "file_type": "rationale",
+      "norm_label": "deserializes the exact byte structure captured from the live @spoty_xbot error.",
+      "source_file": "backend/tests/test_telethon_compat.py",
+      "source_location": "L22"
+    },
+    {
+      "id": "backend_tests_test_telethon_compat_rationale_65",
+      "label": "Tests that when flags2 bit 21 is set, linked_community_id is deserialized\u2026",
+      "_origin": "ast",
+      "community": 9,
+      "community_name": "telethon_compat.py",
+      "file_type": "rationale",
+      "norm_label": "tests that when flags2 bit 21 is set, linked_community_id is deserialized...",
+      "source_file": "backend/tests/test_telethon_compat.py",
+      "source_location": "L65"
     },
     {
       "id": "contextlib",
@@ -8788,8 +8777,8 @@
       "id": "fastapi_security",
       "label": "fastapi_security",
       "_origin": "semantic",
-      "community": 39,
-      "community_name": "history.py",
+      "community": 4,
+      "community_name": "services/auth.py",
       "external": true,
       "file_type": "concept",
       "norm_label": "fastapi_security",
@@ -10895,7 +10884,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/Navbar.jsx",
-      "source_location": "L16",
+      "source_location": "L7",
       "weight": 1.0
     },
     {
@@ -10907,7 +10896,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/Navbar.jsx",
-      "source_location": "L17",
+      "source_location": "L8",
       "weight": 1.0
     },
     {
@@ -21383,17 +21372,6 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/src/components/Navbar.jsx",
-      "source_location": "L15",
-      "weight": 1.0
-    },
-    {
-      "source": "frontend_src_components_navbar",
-      "target": "frontend_src_components_navbar_avatar_presets",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "frontend/src/components/Navbar.jsx",
       "source_location": "L6",
       "weight": 1.0
     },
@@ -26894,5 +26872,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "96f69e15e065b0eae0152c3855da384e990cee34"
+  "built_at_commit": "f19a6371b55d000c1b5eccd71d7fa9bcf74d6740"
 }

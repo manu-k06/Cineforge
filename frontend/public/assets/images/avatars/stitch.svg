@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradient -->
+    <radialGradient id="stitchBg" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#0c2340" />
+      <stop offset="65%" stop-color="#061220" />
+      <stop offset="100%" stop-color="#020810" />
+    </radialGradient>
+
+    <!-- Stitch Blue Gradient -->
+    <linearGradient id="stitchBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4aa3ff" />
+      <stop offset="50%" stop-color="#1f75fe" />
+      <stop offset="100%" stop-color="#0b4bb2" />
+    </linearGradient>
+
+    <!-- Inner Ear Pink -->
+    <linearGradient id="earPink" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff7eb3" />
+      <stop offset="100%" stop-color="#d63384" />
+    </linearGradient>
+
+    <!-- Nose Dark Blue -->
+    <linearGradient id="noseBlue" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#103260" />
+      <stop offset="100%" stop-color="#081b36" />
+    </linearGradient>
+  </defs>
+
+  <!-- Outer Frame Circle -->
+  <circle cx="60" cy="60" r="58" fill="url(#stitchBg)" stroke="#1f75fe" stroke-width="2.5" stroke-opacity="0.5" />
+
+  <!-- Stitch Ears -->
+  <!-- Left Ear -->
+  <path d="M 38,48 C 22,25 6,24 4,38 C 2,52 18,72 34,62 Z" fill="url(#stitchBlue)" stroke="#092d6e" stroke-width="1.5" />
+  <path d="M 33,48 C 20,30 9,30 8,40 C 7,50 19,65 30,58 Z" fill="url(#earPink)" opacity="0.85" />
+  <!-- Ear Notch -->
+  <path d="M 12,34 Q 18,36 14,42 Z" fill="url(#stitchBg)" />
+
+  <!-- Right Ear -->
+  <path d="M 82,48 C 98,25 114,24 116,38 C 118,52 102,72 86,62 Z" fill="url(#stitchBlue)" stroke="#092d6e" stroke-width="1.5" />
+  <path d="M 87,48 C 100,30 111,30 112,40 C 113,50 101,65 90,58 Z" fill="url(#earPink)" opacity="0.85" />
+
+  <!-- Stitch Head -->
+  <ellipse cx="60" cy="66" rx="34" ry="29" fill="url(#stitchBlue)" stroke="#092d6e" stroke-width="1.8" />
+
+  <!-- Eye Surrounds (Light Blue Patches) -->
+  <ellipse cx="44" cy="63" rx="14" ry="12" transform="rotate(-10 44 63)" fill="#78baff" opacity="0.4" />
+  <ellipse cx="76" cy="63" rx="14" ry="12" transform="rotate(10 76 63)" fill="#78baff" opacity="0.4" />
+
+  <!-- Eyes -->
+  <ellipse cx="45" cy="63" rx="9" ry="10" transform="rotate(-6 45 63)" fill="#090d16" />
+  <ellipse cx="75" cy="63" rx="9" ry="10" transform="rotate(6 75 63)" fill="#090d16" />
+
+  <!-- Eye Highlights -->
+  <circle cx="43" cy="59" r="3" fill="#ffffff" />
+  <circle cx="73" cy="59" r="3" fill="#ffffff" />
+  <circle cx="48" cy="66" r="1.3" fill="#ffffff" opacity="0.7" />
+  <circle cx="78" cy="66" r="1.3" fill="#ffffff" opacity="0.7" />
+
+  <!-- Stitch Wide Nose -->
+  <path d="M 50,71 C 52,67 68,67 70,71 C 73,76 66,80 60,80 C 54,80 47,76 50,71 Z" fill="url(#noseBlue)" />
+  <ellipse cx="56" cy="74" rx="2" ry="1.2" fill="#040c1a" />
+  <ellipse cx="64" cy="74" rx="2" ry="1.2" fill="#040c1a" />
+
+  <!-- Big Happy Grin -->
+  <path d="M 44,82 Q 60,94 76,82" fill="none" stroke="#061836" stroke-width="2.5" stroke-linecap="round" />
+  <!-- Dimple lines -->
+  <path d="M 43,80 Q 42,83 45,84" fill="none" stroke="#061836" stroke-width="2" stroke-linecap="round" />
+  <path d="M 77,80 Q 78,83 75,84" fill="none" stroke="#061836" stroke-width="2" stroke-linecap="round" />
+
+  <!-- Head Tuft Hair -->
+  <path d="M 58,38 Q 60,30 63,33 Q 66,28 68,34 Q 63,38 58,38 Z" fill="url(#stitchBlue)" />
+</svg>

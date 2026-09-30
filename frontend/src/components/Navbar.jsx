@@ -1,49 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { Bookmark, History, LogOut, User, ChevronDown, Check } from 'lucide-react'
+import { Bookmark, LogOut, User, ChevronDown, UserPlus } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useWatchHistory } from '../context/WatchHistoryContext'
 
-export const AVATAR_PRESETS = [
-  { id: 'director', icon: '🎬', label: 'Director', gradient: 'linear-gradient(135deg, #e50914, #8b0000)' },
-  { id: 'astronaut', icon: '🚀', label: 'Cosmonaut', gradient: 'linear-gradient(135deg, #3b82f6, #1d4ed8)' },
-  { id: 'agent', icon: '🕶️', label: 'Agent', gradient: 'linear-gradient(135deg, #8b5cf6, #5b21b6)' },
-  { id: 'cinephile', icon: '🍿', label: 'Cinephile', gradient: 'linear-gradient(135deg, #f59e0b, #b45309)' },
-  { id: 'neon', icon: '⚡', label: 'Neon', gradient: 'linear-gradient(135deg, #ec4899, #9d174d)' },
-  { id: 'dramatic', icon: '🎭', label: 'Dramatic', gradient: 'linear-gradient(135deg, #10b981, #047857)' },
-]
-
 export default function Navbar({ onSearchClick, isBackendOnline, activeTab, setActiveTab }) {
-  const { user, profile, updateProfile, openAuthModal, signOut } = useAuth()
-  const { watchlist, watchHistory } = useWatchHistory()
+  const { user, profile, openAuthModal, signOut } = useAuth()
+  const { watchlist } = useWatchHistory()
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [isBrowseOpen, setIsBrowseOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
 
-  const [localAvatarId, setLocalAvatarId] = useState(() => {
-    try {
-      return localStorage.getItem('cineforge_user_avatar') || 'director'
-    } catch {
-      return 'director'
-    }
-  })
-
-  // Prefer Supabase cloud profile avatar, fallback to local
-  const activeAvatarId = profile?.avatar_id || localAvatarId
-
-  const handleSelectAvatar = (id) => {
-    setLocalAvatarId(id)
-    try {
-      localStorage.setItem('cineforge_user_avatar', id)
-    } catch {
-      // Ignore storage errors
-    }
-    if (updateProfile && user) {
-      updateProfile({ avatarId: id })
-    }
-  }
-
-  const currentAvatar = AVATAR_PRESETS.find((a) => a.id === activeAvatarId) || AVATAR_PRESETS[0]
-  
+  const cartoonAvatarSrc = '/assets/images/avatars/cartoon-avatar.svg'
   const dropdownRef = useRef(null)
   const browseRef = useRef(null)
 
@@ -193,9 +160,12 @@ export default function Navbar({ onSearchClick, isBackendOnline, activeTab, setA
             aria-label="User account menu"
             title={`${displayName} (${user.email})`}
           >
-            <div className="nav-profile-avatar-wrap" style={{ background: currentAvatar.gradient }}>
-              <span className="nav-profile-avatar-emoji">{currentAvatar.icon}</span>
-              <span className="nav-profile-beacon" title="Cloud Sync Active" />
+            <div className="nav-profile-avatar-wrap">
+              <img
+                src={cartoonAvatarSrc}
+                alt="Cartoon Avatar"
+                className="nav-profile-avatar-img"
+              />
             </div>
             <span className="nav-profile-name">{firstName}</span>
             <ChevronDown size={13} className={`nav-profile-chevron ${isDropdownOpen ? 'is-rotated' : ''}`} />
@@ -220,49 +190,20 @@ export default function Navbar({ onSearchClick, isBackendOnline, activeTab, setA
           <div className="user-profile-menu" ref={dropdownRef}>
             {/* Profile Hero Header */}
             <div className="user-profile-hero">
-              <div className="user-hero-avatar" style={{ background: currentAvatar.gradient }}>
-                <span className="user-hero-avatar-emoji">{currentAvatar.icon}</span>
-                <span className="user-hero-status-beacon" />
+              <div className="user-hero-avatar">
+                <img
+                  src={cartoonAvatarSrc}
+                  alt="Cartoon Avatar"
+                  className="user-hero-avatar-img"
+                />
               </div>
               <div className="user-hero-info">
                 <strong className="user-hero-name">{displayName}</strong>
                 <span className="user-hero-email" title={user.email}>{user.email}</span>
-                <div className="user-hero-badge">
-                  <span className="user-status-dot" />
-                  <span>Cloud Sync Active</span>
-                </div>
               </div>
             </div>
 
-            {/* Cinema Persona / Avatar Strip */}
-            <div className="user-avatar-selector-section">
-              <div className="user-avatar-section-title">
-                <span>Cinema Persona</span>
-                <small>Select avatar</small>
-              </div>
-              <div className="user-avatar-grid">
-                {AVATAR_PRESETS.map((avatar) => (
-                  <button
-                    key={avatar.id}
-                    type="button"
-                    className={`user-avatar-option ${activeAvatarId === avatar.id ? 'is-selected' : ''}`}
-                    style={{ background: avatar.gradient }}
-                    onClick={() => handleSelectAvatar(avatar.id)}
-                    title={avatar.label}
-                    aria-label={avatar.label}
-                  >
-                    <span className="avatar-option-emoji">{avatar.icon}</span>
-                    {activeAvatarId === avatar.id && (
-                      <span className="avatar-option-check">
-                        <Check size={9} strokeWidth={3} />
-                      </span>
-                    )}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Quick Library Shortcuts */}
+            {/* Quick Library Shortcuts (Watchlist) */}
             <div className="user-library-shortcuts">
               <button
                 type="button"
@@ -273,41 +214,29 @@ export default function Navbar({ onSearchClick, isBackendOnline, activeTab, setA
                 }}
               >
                 <div className="shortcut-icon-wrap watchlist">
-                  <Bookmark size={14} />
+                  <Bookmark size={15} />
                 </div>
                 <div className="shortcut-meta">
-                  <strong className="shortcut-number">{watchlist.length}</strong>
                   <span className="shortcut-name">Watchlist</span>
+                  <span className="shortcut-number">{watchlist.length} saved titles</span>
                 </div>
-              </button>
-
-              <button
-                type="button"
-                className="user-shortcut-card"
-                onClick={() => {
-                  setActiveTab('history')
-                  setIsDropdownOpen(false)
-                }}
-              >
-                <div className="shortcut-icon-wrap history">
-                  <History size={14} />
-                </div>
-                <div className="shortcut-meta">
-                  <strong className="shortcut-number">{watchHistory.length}</strong>
-                  <span className="shortcut-name">History</span>
-                </div>
+                <span className="shortcut-arrow">➔</span>
               </button>
             </div>
 
-            {/* System Status & Sign Out */}
+            {/* Account Actions: Add Another Account & Sign Out */}
             <div className="user-profile-footer">
-              <div className="user-system-row">
-                <span className="system-row-label">Engine Service</span>
-                <span className={`system-row-pill ${isBackendOnline ? 'online' : 'offline'}`}>
-                  <span className="system-dot" />
-                  {isBackendOnline ? 'Operational' : 'Connecting'}
-                </span>
-              </div>
+              <button
+                type="button"
+                className="user-action-button"
+                onClick={() => {
+                  setIsDropdownOpen(false)
+                  openAuthModal()
+                }}
+              >
+                <UserPlus size={14} />
+                <span>Add another account</span>
+              </button>
 
               <button
                 type="button"
@@ -317,7 +246,7 @@ export default function Navbar({ onSearchClick, isBackendOnline, activeTab, setA
                   setIsDropdownOpen(false)
                 }}
               >
-                <LogOut size={13} />
+                <LogOut size={14} />
                 <span>Sign Out</span>
               </button>
             </div>

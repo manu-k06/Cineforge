@@ -644,25 +644,17 @@ body {
   justify-content: center;
   position: relative;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1.5px solid rgba(229, 9, 20, 0.5);
+  background: #080102;
+  overflow: hidden;
   flex-shrink: 0;
 }
 
-.nav-profile-avatar-emoji {
-  font-size: 14px;
-  line-height: 1;
-}
-
-.nav-profile-beacon {
-  position: absolute;
-  bottom: -1px;
-  right: -1px;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #10b981;
-  border: 1.5px solid var(--ink);
-  box-shadow: 0 0 6px rgba(16, 185, 129, 0.7);
+.nav-profile-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .nav-profile-name {
@@ -690,7 +682,7 @@ body {
   position: absolute;
   top: calc(100% + 10px);
   right: 0;
-  width: 284px;
+  width: 270px;
   padding: 14px;
   background: rgba(12, 14, 19, 0.96);
   border: 1px solid rgba(255, 255, 255, 0.12);
@@ -719,7 +711,7 @@ body {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding-bottom: 12px;
+  padding-bottom: 14px;
   border-bottom: 1px solid var(--soft-edge);
 }
 
@@ -732,25 +724,17 @@ body {
   align-items: center;
   justify-content: center;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
-  border: 2px solid rgba(255, 255, 255, 0.18);
+  border: 2px solid rgba(229, 9, 20, 0.5);
+  background: #080102;
+  overflow: hidden;
   flex-shrink: 0;
 }
 
-.user-hero-avatar-emoji {
-  font-size: 20px;
-  line-height: 1;
-}
-
-.user-hero-status-beacon {
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: #10b981;
-  border: 2px solid var(--panel);
-  box-shadow: 0 0 8px rgba(16, 185, 129, 0.8);
+.user-hero-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .user-hero-info {
@@ -771,133 +755,26 @@ body {
 
 .user-hero-email {
   display: block;
-  font-size: 11px;
+  font-size: 11.5px;
   color: var(--mist);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  margin-top: 1px;
+  margin-top: 2px;
 }
 
-.user-hero-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  margin-top: 5px;
-  padding: 2px 7px;
-  background: rgba(16, 185, 129, 0.12);
-  border: 1px solid rgba(16, 185, 129, 0.28);
-  border-radius: 12px;
-  font-size: 10px;
-  font-weight: 600;
-  color: #34d399;
-}
-
-.user-status-dot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: #10b981;
-  animation: userDotPulse 2s infinite ease-in-out;
-}
-
-@keyframes userDotPulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.5; transform: scale(0.85); }
-}
-
-/* Cinema Persona / Avatar Selector Strip */
-.user-avatar-selector-section {
-  padding: 11px 0;
-  border-bottom: 1px solid var(--soft-edge);
-}
-
-.user-avatar-section-title {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
-}
-
-.user-avatar-section-title span {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.7px;
-  text-transform: uppercase;
-  color: var(--mist);
-}
-
-.user-avatar-section-title small {
-  font-size: 10px;
-  color: rgba(255, 255, 255, 0.38);
-}
-
-.user-avatar-grid {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 6px;
-}
-
-.user-avatar-option {
-  aspect-ratio: 1;
-  border-radius: 50%;
-  border: 2px solid transparent;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.16s var(--ease-out);
-  position: relative;
-  padding: 0;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
-}
-
-.user-avatar-option:hover {
-  transform: scale(1.15);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-  z-index: 2;
-}
-
-.user-avatar-option.is-selected {
-  border-color: #ffffff;
-  box-shadow: 0 0 12px rgba(255, 255, 255, 0.45), 0 2px 8px rgba(0, 0, 0, 0.5);
-  transform: scale(1.08);
-}
-
-.avatar-option-emoji {
-  font-size: 14px;
-  line-height: 1;
-}
-
-.avatar-option-check {
-  position: absolute;
-  bottom: -2px;
-  right: -2px;
-  width: 13px;
-  height: 13px;
-  border-radius: 50%;
-  background: #ffffff;
-  color: #07080b;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
-}
-
-/* Quick Library Shortcuts */
+/* Library Shortcut (Watchlist) */
 .user-library-shortcuts {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  padding: 11px 0;
+  padding: 12px 0;
   border-bottom: 1px solid var(--soft-edge);
 }
 
 .user-shortcut-card {
+  width: 100%;
   display: flex;
   align-items: center;
-  gap: 9px;
-  padding: 8px 10px;
+  gap: 10px;
+  padding: 9px 12px;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid var(--soft-edge);
   border-radius: 9px;
@@ -905,18 +782,19 @@ body {
   transition: all 0.16s var(--ease-out);
   text-align: left;
   font-family: inherit;
+  box-sizing: border-box;
 }
 
 .user-shortcut-card:hover {
   background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.18);
   transform: translateY(-1px);
 }
 
 .shortcut-icon-wrap {
-  width: 28px;
-  height: 28px;
-  border-radius: 7px;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -929,85 +807,77 @@ body {
   border: 1px solid rgba(232, 67, 53, 0.28);
 }
 
-.shortcut-icon-wrap.history {
-  background: rgba(59, 130, 246, 0.16);
-  color: #60a5fa;
-  border: 1px solid rgba(59, 130, 246, 0.28);
-}
-
 .shortcut-meta {
   display: flex;
   flex-direction: column;
   min-width: 0;
 }
 
-.shortcut-number {
-  font-size: 13px;
-  font-weight: 700;
+.shortcut-name {
+  font-size: 12px;
+  font-weight: 600;
   color: var(--paper);
-  line-height: 1.1;
+  line-height: 1.2;
 }
 
-.shortcut-name {
+.shortcut-number {
   font-size: 10.5px;
   color: var(--mist);
   margin-top: 1px;
 }
 
-/* User Profile Footer */
+.shortcut-arrow {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--mist);
+  transition: transform 0.16s ease, color 0.16s ease;
+}
+
+.user-shortcut-card:hover .shortcut-arrow {
+  color: var(--paper);
+  transform: translateX(2px);
+}
+
+/* User Profile Actions */
 .user-profile-footer {
-  padding-top: 10px;
+  padding-top: 12px;
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.user-system-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 2px;
-}
-
-.system-row-label {
-  font-size: 11px;
-  color: var(--mist);
-}
-
-.system-row-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 10.5px;
-  font-weight: 600;
-  padding: 1px 6px;
-  border-radius: 6px;
-  background: rgba(255, 255, 255, 0.04);
-}
-
-.system-row-pill.online {
-  color: #34d399;
-}
-
-.system-row-pill.offline {
-  color: #f59e0b;
-}
-
-.system-dot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: currentColor;
-}
-
-.user-signout-button {
+.user-action-button {
   width: 100%;
-  height: 34px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--soft-edge);
+  border-radius: 8px;
+  color: var(--paper);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.16s ease;
+}
+
+.user-action-button:hover {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(255, 255, 255, 0.18);
+  transform: translateY(-1px);
+}
+
+.user-signout-button {
+  width: 100%;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.02);
   border: 1px solid var(--soft-edge);
   border-radius: 8px;
   color: var(--mist);

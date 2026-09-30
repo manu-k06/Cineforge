@@ -1,17 +1,17 @@
 # Graph Report - Cineforge  (2026-09-30)
 
 ## Corpus Check
-- 75 files · ~55,886 words
+- 75 files · ~56,473 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 12 file(s) not represented in the graph (top: (none) 4, .bat 3, .example 2)
 
 ## Summary
-- 768 nodes · 1550 edges · 29 communities (25 shown, 4 thin omitted)
+- 767 nodes · 1549 edges · 28 communities (24 shown, 4 thin omitted)
 - Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 56 edges (avg confidence: 0.93)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `96f69e15`
+- Built from commit: `f19a6371`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -20,7 +20,7 @@
 - main.py
 - App.jsx
 - tmdb.py
-- proxy_to_streamer
+- services/auth.py
 - TelegramService
 - api/search.py
 - MediaCompatibilityService
@@ -34,14 +34,13 @@
 - api/__init__.py
 - Settings
 - CineforgeTrayApp
-- UserCompatB1B8CC83
+- api/auth.py
 - .oxlintrc.json
 - React + Vite
 - vercel.json
 - rules/graphify.md
 - workflows/graphify.md
 - app/__init__.py
-- TestTelethonCompat
 - logging
 - config.py
 - history.py
@@ -73,15 +72,15 @@
 ## Import Cycles
 - None detected.
 
-## Communities (29 total, 4 thin omitted)
+## Communities (28 total, 4 thin omitted)
 
 ### Community 0 - "SearchCandidate"
 Cohesion: 0.05
 Nodes (31): SearchCandidate, SearchPaginationInfo, CacheService, normalize_search_query(), Any, Persist newly discovered Telegram candidates into Supabase movies_cache., Check if CineAI already resolved this exact prompt/vague query., Normalize query for consistent database indexing (lowercase, stripped, single… (+23 more)
 
 ### Community 1 - "main.py"
-Cohesion: 0.24
-Nodes (9): health_check(), lifespan(), get, root_redirect(), contextlib, FastAPI, fastapi_middleware_cors, httpx (+1 more)
+Cohesion: 0.14
+Nodes (15): api_route, AsyncClient, get_streamer_client(), health_check(), lifespan(), proxy_to_streamer(), get, Request (+7 more)
 
 ### Community 2 - "App.jsx"
 Cohesion: 0.07
@@ -91,9 +90,9 @@ Nodes (74): 📋 Phase 2: Metadata Enrichment (TMDb / IMDb API Integration), App
 Cohesion: 0.05
 Nodes (42): discover_movies(), get_metadata_status(), get_movie_metadata(), get_popular_movies(), get_top_rated_movies(), get_trending_movies(), get, Check if TMDb API integration is configured and available. (+34 more)
 
-### Community 4 - "proxy_to_streamer"
-Cohesion: 0.29
-Nodes (6): api_route, AsyncClient, get_streamer_client(), proxy_to_streamer(), Request, Proxy video streaming and download range requests to local Go FileStreamBot…
+### Community 4 - "services/auth.py"
+Cohesion: 0.18
+Nodes (10): AuthService, get_current_user_optional(), get_current_user_required(), Any, Service for validating Supabase JWT tokens and retrieving user profiles., Verify Supabase JWT token and return authenticated user metadata., FastAPI dependency for optionally authenticated endpoints., FastAPI dependency for strictly protected endpoints. (+2 more)
 
 ### Community 5 - "TelegramService"
 Cohesion: 0.07
@@ -109,11 +108,11 @@ Nodes (17): MediaCompatibilityService, Any, Detects container tokens in title or
 
 ### Community 8 - "package.json"
 Cohesion: 0.07
-Nodes (27): dependencies, lucide-react, react, react-dom, @supabase/supabase-js, devDependencies, oxlint, @types/react (+19 more)
+Nodes (26): dependencies, lucide-react, react, react-dom, @supabase/supabase-js, devDependencies, oxlint, @types/react (+18 more)
 
 ### Community 9 - "telethon_compat.py"
-Cohesion: 0.25
-Nodes (8): Isolated compatibility module for unmapped Telegram MTProto constructors.…, Idempotently registers constructor 0xb1b8cc83 into Telethon's type registry., register_telethon_compat(), struct, telethon_extensions, telethon_tl_alltlobjects, telethon_tl_tlobject, telethon_tl_types
+Cohesion: 0.11
+Nodes (15): Any, Isolated compatibility module for unmapped Telegram MTProto constructors.…, Compatibility implementation for Telegram constructor user#b1b8cc83 (Layer…, Idempotently registers constructor 0xb1b8cc83 into Telethon's type registry., register_telethon_compat(), UserCompatB1B8CC83, Verifies that serialization matches deserialization., Deserializes the exact byte structure captured from the live @Spoty_xbot error. (+7 more)
 
 ### Community 10 - "typing"
 Cohesion: 0.05
@@ -147,9 +146,9 @@ Nodes (3): Settings, BaseSettings, field_validator
 Cohesion: 0.06
 Nodes (31): atexit, Utility to export existing cineforge_session.session into a…, Image, Menu, os, pathlib, pil, pystray (+23 more)
 
-### Community 18 - "UserCompatB1B8CC83"
-Cohesion: 0.29
-Nodes (3): Any, Compatibility implementation for Telegram constructor user#b1b8cc83 (Layer…, UserCompatB1B8CC83
+### Community 18 - "api/auth.py"
+Cohesion: 0.20
+Nodes (13): get_auth_status(), get_my_profile(), get_public_profile(), ProfileUpdatePayload, Any, BaseModel, get, patch (+5 more)
 
 ### Community 19 - ".oxlintrc.json"
 Cohesion: 0.33
@@ -158,10 +157,6 @@ Nodes (5): plugins, rules, react/only-export-components, react/rules-of-hooks, $
 ### Community 20 - "React + Vite"
 Cohesion: 0.50
 Nodes (3): Expanding the Oxlint configuration, React Compiler, React + Vite
-
-### Community 25 - "TestTelethonCompat"
-Cohesion: 0.29
-Nodes (4): Verifies that serialization matches deserialization., Deserializes the exact byte structure captured from the live @Spoty_xbot error., Tests that when flags2 bit 21 is set, linked_community_id is deserialized…, TestTelethonCompat
 
 ### Community 27 - "logging"
 Cohesion: 0.29
@@ -172,12 +167,12 @@ Cohesion: 0.08
 Nodes (34): ask_companion(), get_ai_status(), get_recommendations(), get, post, Returns the operational status and model configured for CineAI., Interprets vague descriptions, corrects typos, and outputs a canonical search…, Generate movie or show recommendations matching a theme, mood, or natural… (+26 more)
 
 ### Community 39 - "history.py"
-Cohesion: 0.08
-Nodes (39): get_auth_status(), get_my_profile(), get_public_profile(), ProfileUpdatePayload, Any, BaseModel, get, patch (+31 more)
+Cohesion: 0.28
+Nodes (16): add_to_watchlist(), BulkSyncPayload, delete_watch_history(), _get_supabase_client(), get_watch_history(), get_watchlist(), Any, BaseModel (+8 more)
 
 ## Knowledge Gaps
-- **66 isolated node(s):** `$schema`, `plugins`, `react/rules-of-hooks`, `react/only-export-components`, `name` (+61 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 318 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **65 isolated node(s):** `$schema`, `plugins`, `react/rules-of-hooks`, `react/only-export-components`, `name` (+60 more)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 317 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
 - **4 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
@@ -194,6 +189,6 @@ _Questions this graph is uniquely positioned to answer:_
 - **Are the 3 inferred relationships involving `TmdbService` (e.g. with `CastMember` and `MovieMetadata`) actually correct?**
   _`TmdbService` has 3 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `$schema`, `plugins`, `react/rules-of-hooks` to the rest of the system?**
-  _66 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _65 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `SearchCandidate` be split into smaller, more focused modules?**
   _Cohesion score 0.05376972530683811 - nodes in this community are weakly interconnected._

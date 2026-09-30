@@ -282,9 +282,9 @@
     "semantic_hash": ""
   },
   "frontend/src/components/Navbar.jsx": {
-    "mtime": 1790756965.0785637,
-    "seen": 1790757038.4571877,
-    "ast_hash": "b3fddca3949f7d1143d473aefaf52f1c",
+    "mtime": 1790760122.7720323,
+    "seen": 1790760155.8547347,
+    "ast_hash": "462ba625fb7033468bba4b1d1c1bc115",
     "semantic_hash": ""
   },
   "frontend/src/components/PlayerModal.jsx": {
@@ -483,6 +483,18 @@
     "mtime": 1790660909.1853354,
     "seen": 1790660980.4212022,
     "ast_hash": "fa0ca8a39e132c5d0babf97759e627f8",
+    "semantic_hash": ""
+  },
+  "frontend/public/assets/images/avatars/cartoon-avatar.svg": {
+    "mtime": 1790759922.9348688,
+    "seen": 1790760155.8570428,
+    "ast_hash": "c09427b9894026c3e37b225b9fcc4f5d",
+    "semantic_hash": ""
+  },
+  "frontend/public/assets/images/avatars/stitch.svg": {
+    "mtime": 1790759938.731425,
+    "seen": 1790760155.8570445,
+    "ast_hash": "ce2e4d557bde90a7325508613df20e32",
     "semantic_hash": ""
   }
 }
