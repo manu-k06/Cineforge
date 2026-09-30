@@ -1916,7 +1916,7 @@
       "file_type": "code",
       "norm_label": "authmodal()",
       "source_file": "frontend/src/components/AuthModal.jsx",
-      "source_location": "L5"
+      "source_location": "L6"
     },
     {
       "id": "frontend_src_components_continuewatchingrail_continuewatchingrail",
@@ -10631,7 +10631,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/AuthModal.jsx",
-      "source_location": "L6",
+      "source_location": "L7",
       "weight": 1.0
     },
     {
@@ -15543,6 +15543,18 @@
       "weight": 1.0
     },
     {
+      "source": "frontend_src_components_authmodal",
+      "target": "frontend_src_services_supabase_supabase",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "frontend/src/components/AuthModal.jsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
       "source": "frontend_src_components_deliverymodal",
       "target": "frontend_src_utils_movietrivia_getmovietrivialist",
       "relation": "imports",
@@ -18264,6 +18276,18 @@
       "context": "import",
       "source_file": "frontend/src/components/AuthModal.jsx",
       "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_src_components_authmodal",
+      "target": "frontend_src_services_supabase",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "frontend/src/components/AuthModal.jsx",
+      "source_location": "L4",
       "weight": 1.0
     },
     {
@@ -21238,7 +21262,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/src/components/AuthModal.jsx",
-      "source_location": "L5",
+      "source_location": "L6",
       "weight": 1.0
     },
     {
@@ -26870,5 +26894,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "3f7d04194680f5102f3f0c980f04b265b1434e01"
+  "built_at_commit": "96f69e15e065b0eae0152c3855da384e990cee34"
 }

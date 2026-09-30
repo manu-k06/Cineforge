@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
-import { X, Mail, Lock, User, AlertCircle, CheckCircle2, Loader2, Sparkles } from 'lucide-react'
+import { X, Mail, Lock, User, AlertCircle, CheckCircle2, Loader2, Sparkles, ExternalLink } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
+import { supabase } from '../services/supabase'
 
 export default function AuthModal({ isOpen, onClose }) {
   const { signIn, signUp } = useAuth()
@@ -16,12 +17,18 @@ export default function AuthModal({ isOpen, onClose }) {
   const [error, setError] = useState(null)
   const [successMsg, setSuccessMsg] = useState(null)
   const [loading, setLoading] = useState(false)
+  const [unconfirmedEmail, setUnconfirmedEmail] = useState(null)
+  const [resendLoading, setResendLoading] = useState(false)
+  const [resendSent, setResendSent] = useState(false)
 
   // Reset form when modal opens or closes
   useEffect(() => {
     if (isOpen) {
       setError(null)
       setSuccessMsg(null)
+    } else {
+      setUnconfirmedEmail(null)
+      setResendSent(false)
     }
   }, [isOpen, activeTab])
 
@@ -37,6 +44,23 @@ export default function AuthModal({ isOpen, onClose }) {
   }, [isOpen, onClose])
 
   if (!isOpen) return null
+
+  const handleResendEmail = async () => {
+    if (!unconfirmedEmail || !supabase) return
+    setResendLoading(true)
+    try {
+      await supabase.auth.resend({
+        type: 'signup',
+        email: unconfirmedEmail,
+      })
+      setResendSent(true)
+      setTimeout(() => setResendSent(false), 6000)
+    } catch (err) {
+      console.warn('[Cineforge Auth] Resend email error:', err)
+    } finally {
+      setResendLoading(false)
+    }
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -61,7 +85,7 @@ export default function AuthModal({ isOpen, onClose }) {
       try {
         const data = await signUp(email.trim(), password, fullName.trim())
         if (data?.user && !data?.session) {
-          setSuccessMsg('Account created! Please check your email inbox to confirm your account.')
+          setUnconfirmedEmail(email.trim())
         } else {
           setSuccessMsg('Welcome to Cineforge! You are now logged in.')
           setTimeout(() => {
@@ -140,18 +164,6 @@ export default function AuthModal({ isOpen, onClose }) {
               >
                 CINE<span style={{ color: '#E50000' }}>FORGE</span>
               </span>
-              <span
-                style={{
-                  fontSize: '11px',
-                  backgroundColor: 'rgba(229, 0, 0, 0.15)',
-                  color: '#ff4d4d',
-                  padding: '2px 6px',
-                  borderRadius: '4px',
-                  fontWeight: '600',
-                }}
-              >
-                AUTH
-              </span>
             </div>
             <p style={{ margin: '4px 0 0', fontSize: '13px', color: '#8e95a5' }}>
               {activeTab === 'signin' ? 'Sign in to access your watch history' : 'Create an account for personalized streaming'}
@@ -177,9 +189,136 @@ export default function AuthModal({ isOpen, onClose }) {
           </button>
         </div>
 
-        {/* Tabs: Sign In / Create Account */}
-        <div
-          style={{
+        {unconfirmedEmail ? (
+          <div style={{ padding: '36px 28px 32px', textAlign: 'center' }}>
+            <div
+              style={{
+                width: '64px',
+                height: '64px',
+                borderRadius: '50%',
+                backgroundColor: 'rgba(229, 0, 0, 0.15)',
+                border: '1px solid rgba(229, 0, 0, 0.35)',
+                boxShadow: '0 0 30px rgba(229, 0, 0, 0.25)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                margin: '0 auto 20px',
+                color: '#ff4d4d',
+              }}
+            >
+              <Mail size={32} />
+            </div>
+
+            <h3 style={{ margin: '0 0 8px', fontSize: '20px', fontWeight: '800', color: '#ffffff', letterSpacing: '-0.3px' }}>
+              Check your inbox
+            </h3>
+            <p style={{ margin: '0 0 16px', fontSize: '13.5px', color: '#a7abb5', lineHeight: '1.5' }}>
+              We've sent an activation link to:
+            </p>
+            <div
+              style={{
+                display: 'inline-block',
+                backgroundColor: 'rgba(255, 255, 255, 0.06)',
+                border: '1px solid rgba(255, 255, 255, 0.14)',
+                borderRadius: '8px',
+                padding: '8px 16px',
+                fontSize: '14px',
+                fontWeight: '600',
+                color: '#f5f5f2',
+                marginBottom: '20px',
+                wordBreak: 'break-all',
+              }}
+            >
+              {unconfirmedEmail}
+            </div>
+
+            <p style={{ margin: '0 0 24px', fontSize: '12.5px', color: '#8e95a5', lineHeight: '1.5' }}>
+              Click the <strong>Activate Account</strong> button in the email from Cineforge to start streaming.
+            </p>
+
+            {/* Actions */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <a
+                href={unconfirmedEmail.includes('@gmail.') ? 'https://mail.google.com' : `mailto:${unconfirmedEmail}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  width: '100%',
+                  padding: '12px',
+                  backgroundColor: '#E50000',
+                  color: '#ffffff',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  fontWeight: '700',
+                  textDecoration: 'none',
+                  boxShadow: '0 4px 14px rgba(229, 0, 0, 0.4)',
+                  transition: 'all 0.2s ease',
+                  boxSizing: 'border-box',
+                }}
+              >
+                <ExternalLink size={15} />
+                {unconfirmedEmail.includes('@gmail.') ? 'Open Gmail' : 'Open Email App'}
+              </a>
+
+              <button
+                type="button"
+                onClick={handleResendEmail}
+                disabled={resendLoading || resendSent}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: resendSent ? '#34d399' : '#a7abb5',
+                  fontSize: '12.5px',
+                  cursor: resendSent ? 'default' : 'pointer',
+                  padding: '6px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '6px',
+                }}
+              >
+                {resendLoading ? (
+                  <>
+                    <Loader2 size={13} className="spin" /> Resending...
+                  </>
+                ) : resendSent ? (
+                  <>
+                    <CheckCircle2 size={14} color="#34d399" /> Activation email resent!
+                  </>
+                ) : (
+                  <>Didn't receive it? <span style={{ color: '#ff6666', fontWeight: '600', textDecoration: 'underline' }}>Resend email</span></>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setUnconfirmedEmail(null)
+                  setActiveTab('signin')
+                }}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#6b7280',
+                  fontSize: '12px',
+                  cursor: 'pointer',
+                  marginTop: '4px',
+                  textDecoration: 'underline',
+                }}
+              >
+                Return to Sign In
+              </button>
+            </div>
+          </div>
+        ) : (
+          <>
+            {/* Tabs: Sign In / Create Account */}
+            <div
+              style={{
             display: 'flex',
             padding: '4px',
             margin: '20px 28px 0',
@@ -457,6 +596,8 @@ export default function AuthModal({ isOpen, onClose }) {
             )}
           </div>
         </form>
+          </>
+        )}
       </div>
     </div>
   )

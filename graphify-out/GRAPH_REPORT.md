@@ -1,17 +1,17 @@
 # Graph Report - Cineforge  (2026-09-30)
 
 ## Corpus Check
-- 75 files · ~55,498 words
+- 75 files · ~55,886 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 12 file(s) not represented in the graph (top: (none) 4, .bat 3, .example 2)
 
 ## Summary
-- 768 nodes · 1548 edges · 29 communities (25 shown, 4 thin omitted)
+- 768 nodes · 1550 edges · 29 communities (25 shown, 4 thin omitted)
 - Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 56 edges (avg confidence: 0.93)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `3f7d0419`
+- Built from commit: `96f69e15`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
