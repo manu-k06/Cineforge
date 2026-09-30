@@ -279,7 +279,7 @@ export default function HeroBanner({ onQuickPlay }) {
         </button>
       </div>
 
-      {/* Hero Movie Info Modal */}
+      {/* Hero Movie Info Modal - Expanded Showcase */}
       {selectedMovieForInfo && (
         <div
           className="hero-info-modal-backdrop"
@@ -300,6 +300,7 @@ export default function HeroBanner({ onQuickPlay }) {
               <X size={20} />
             </button>
 
+            {/* Panoramic Cinematic Backdrop Header */}
             <div
               className="hero-info-banner-header"
               style={{ backgroundImage: `url(${selectedMovieForInfo.backdrop})` }}
@@ -307,49 +308,86 @@ export default function HeroBanner({ onQuickPlay }) {
               <div className="hero-info-vignette" />
               <div className="hero-info-header-content">
                 <div className="hero-info-meta-tags">
-                  <span className="hero-info-rating">★ {selectedMovieForInfo.rating}</span>
+                  <span className="hero-info-rating">★ {selectedMovieForInfo.rating} TMDB</span>
                   <span className="hero-info-tag">{selectedMovieForInfo.year}</span>
                   <span className="hero-info-tag">{selectedMovieForInfo.mediaType}</span>
+                  <span className="hero-info-tag badge-quality">4K UHD / 1080P</span>
                 </div>
                 <h2 className="hero-info-title">{selectedMovieForInfo.title}</h2>
+                <div className="hero-info-header-actions">
+                  <button
+                    type="button"
+                    className="button button-primary hero-info-play-btn"
+                    onClick={() => {
+                      const query = selectedMovieForInfo.searchQuery
+                      setSelectedMovieForInfo(null)
+                      onQuickPlay(query)
+                    }}
+                  >
+                    ▶ Play Now
+                  </button>
+
+                  <button
+                    type="button"
+                    className={`button button-secondary hero-info-watchlist-btn ${
+                      isInWatchlist(selectedMovieForInfo.title) ? 'is-in-watchlist' : ''
+                    }`}
+                    onClick={() => {
+                      toggleWatchlist({
+                        title: selectedMovieForInfo.title,
+                        clean_title: selectedMovieForInfo.title,
+                        year: selectedMovieForInfo.year,
+                        rating: selectedMovieForInfo.rating,
+                        backdrop_url: selectedMovieForInfo.backdrop,
+                        overview: selectedMovieForInfo.synopsis,
+                      })
+                    }}
+                  >
+                    {isInWatchlist(selectedMovieForInfo.title) ? '✓ In Watchlist' : '+ Add to Watchlist'}
+                  </button>
+                </div>
               </div>
             </div>
 
-            <div className="hero-info-body">
-              <h4 className="hero-info-section-title">Overview</h4>
-              <p className="hero-info-synopsis">{selectedMovieForInfo.synopsis}</p>
+            {/* Rich Content Grid */}
+            <div className="hero-info-body-grid">
+              <div className="hero-info-main-col">
+                <h4 className="hero-info-section-title">Storyline</h4>
+                <p className="hero-info-synopsis">{selectedMovieForInfo.synopsis}</p>
 
-              <div className="hero-info-actions">
-                <button
-                  type="button"
-                  className="button button-primary hero-info-play-btn"
-                  onClick={() => {
-                    const query = selectedMovieForInfo.searchQuery
-                    setSelectedMovieForInfo(null)
-                    onQuickPlay(query)
-                  }}
-                >
-                  ▶ Play Now
-                </button>
+                <h4 className="hero-info-section-title">Streaming Highlights</h4>
+                <div className="hero-info-highlights-chips">
+                  <span className="hero-info-chip">🎬 Ultra HD Remux Available</span>
+                  <span className="hero-info-chip">🔊 Dolby Atmos / Multi-Audio</span>
+                  <span className="hero-info-chip">⚡ Instant Peer-to-Peer CDN Stream</span>
+                  <span className="hero-info-chip">📝 High-Accuracy Subtitles Included</span>
+                </div>
+              </div>
 
-                <button
-                  type="button"
-                  className={`button button-secondary hero-info-watchlist-btn ${
-                    isInWatchlist(selectedMovieForInfo.title) ? 'is-in-watchlist' : ''
-                  }`}
-                  onClick={() => {
-                    toggleWatchlist({
-                      title: selectedMovieForInfo.title,
-                      clean_title: selectedMovieForInfo.title,
-                      year: selectedMovieForInfo.year,
-                      rating: selectedMovieForInfo.rating,
-                      backdrop_url: selectedMovieForInfo.backdrop,
-                      overview: selectedMovieForInfo.synopsis,
-                    })
-                  }}
-                >
-                  {isInWatchlist(selectedMovieForInfo.title) ? '✓ In Watchlist' : '+ Add to Watchlist'}
-                </button>
+              <div className="hero-info-side-col">
+                <div className="hero-info-meta-card">
+                  <h4 className="hero-info-section-title">Movie Details</h4>
+                  <div className="hero-info-meta-row">
+                    <span className="meta-label">Title</span>
+                    <span className="meta-value">{selectedMovieForInfo.title}</span>
+                  </div>
+                  <div className="hero-info-meta-row">
+                    <span className="meta-label">Release Year</span>
+                    <span className="meta-value">{selectedMovieForInfo.year}</span>
+                  </div>
+                  <div className="hero-info-meta-row">
+                    <span className="meta-label">TMDB Rating</span>
+                    <span className="meta-value score">★ {selectedMovieForInfo.rating} / 10</span>
+                  </div>
+                  <div className="hero-info-meta-row">
+                    <span className="meta-label">Format</span>
+                    <span className="meta-value">{selectedMovieForInfo.mediaType}</span>
+                  </div>
+                  <div className="hero-info-meta-row">
+                    <span className="meta-label">Audio Tracks</span>
+                    <span className="meta-value">Multi-Audio / Original</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
