@@ -57,7 +57,7 @@ export default function ContinueWatchingRail({ items = [], onResume, onRemove })
             ? Math.min(100, Math.round((item.progress_seconds / item.duration_seconds) * 100))
             : item.progress_percent || 0
           const remainingText = formatRemainingTime(item.progress_seconds, item.duration_seconds)
-          const thumbUrl = item.backdrop_url || item.poster_url
+          const thumbUrl = item.poster_url || item.backdrop_url
 
           return (
             <div

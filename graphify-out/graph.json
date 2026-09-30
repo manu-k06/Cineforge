@@ -5118,6 +5118,18 @@
       "source_location": "L41"
     },
     {
+      "id": "docs_backend_todo_phase_2_metadata_enrichment_tmdb_imdb_api_integration",
+      "label": "\ud83d\udccb Phase 2: Metadata Enrichment (TMDb / IMDb API Integration)",
+      "_origin": "ast",
+      "community": 14,
+      "community_name": "Cineforge Master Architecture & Implementation Roadmap (TODO)",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "\ud83d\udccb phase 2: metadata enrichment (tmdb / imdb api integration)",
+      "source_file": "docs/BACKEND_TODO.md",
+      "source_location": "L66"
+    },
+    {
       "id": "docs_backend_todo_phase_3_supabase_persistence_zero_latency_stream_caching",
       "label": "\ud83d\udccb Phase 3: Supabase Persistence & Zero-Latency Stream Caching",
       "_origin": "ast",
@@ -6002,18 +6014,6 @@
       "norm_label": "@supabase/supabase-js",
       "source_file": "frontend/package.json",
       "source_location": "L13"
-    },
-    {
-      "id": "docs_backend_todo_phase_2_metadata_enrichment_tmdb_imdb_api_integration",
-      "label": "\ud83d\udccb Phase 2: Metadata Enrichment (TMDb / IMDb API Integration)",
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "App.jsx",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "\ud83d\udccb phase 2: metadata enrichment (tmdb / imdb api integration)",
-      "source_file": "docs/BACKEND_TODO.md",
-      "source_location": "L66"
     },
     {
       "id": "frontend_readme",
@@ -10670,7 +10670,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/MovieGrid.jsx",
-      "source_location": "L241",
+      "source_location": "L242",
       "weight": 1.0
     },
     {
@@ -10682,7 +10682,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/MovieGrid.jsx",
-      "source_location": "L242",
+      "source_location": "L243",
       "weight": 1.0
     },
     {
@@ -10694,7 +10694,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/MovieGrid.jsx",
-      "source_location": "L243",
+      "source_location": "L244",
       "weight": 1.0
     },
     {
@@ -10718,7 +10718,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/MovieGrid.jsx",
-      "source_location": "L241",
+      "source_location": "L242",
       "weight": 1.0
     },
     {
@@ -10730,7 +10730,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/MovieGrid.jsx",
-      "source_location": "L242",
+      "source_location": "L243",
       "weight": 1.0
     },
     {
@@ -10742,7 +10742,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/MovieGrid.jsx",
-      "source_location": "L243",
+      "source_location": "L244",
       "weight": 1.0
     },
     {
@@ -10891,6 +10891,18 @@
     },
     {
       "source": "frontend_src_components_watchpage_watchpage",
+      "target": "frontend_src_services_api_gettrendingmovies",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "frontend/src/components/WatchPage.jsx",
+      "source_location": "L230",
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_src_components_watchpage_watchpage",
       "target": "frontend_src_services_api_getsubtitletracks",
       "relation": "calls",
       "_origin": "ast",
@@ -10898,7 +10910,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/WatchPage.jsx",
-      "source_location": "L238",
+      "source_location": "L263",
       "weight": 1.0
     },
     {
@@ -10910,7 +10922,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/WatchPage.jsx",
-      "source_location": "L964",
+      "source_location": "L985",
       "weight": 1.0
     },
     {
@@ -15596,6 +15608,18 @@
     {
       "source": "frontend_src_components_watchpage",
       "target": "frontend_src_services_api_getsubtitletracks",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "frontend/src/components/WatchPage.jsx",
+      "source_location": "L40",
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_src_components_watchpage",
+      "target": "frontend_src_services_api_gettrendingmovies",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -26460,5 +26484,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "cbcd924bbf07574396a3b6ea73260eca99d89315"
+  "built_at_commit": "4b3061f6c8c749cd76611131e90bf7395cd1964f"
 }

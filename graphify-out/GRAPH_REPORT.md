@@ -1,17 +1,17 @@
-# Graph Report - Cineforge  (2026-09-29)
+# Graph Report - Cineforge  (2026-09-30)
 
 ## Corpus Check
-- 74 files · ~52,998 words
+- 74 files · ~53,084 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 12 file(s) not represented in the graph (top: (none) 4, .bat 3, .example 2)
 
 ## Summary
-- 760 nodes · 1521 edges · 34 communities (30 shown, 4 thin omitted)
+- 760 nodes · 1523 edges · 34 communities (30 shown, 4 thin omitted)
 - Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 56 edges (avg confidence: 0.93)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `cbcd924b`
+- Built from commit: `4b3061f6`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -58,8 +58,8 @@
 4. `TmdbService` - 18 edges
 5. `react` - 18 edges
 6. `CineforgeTrayApp` - 18 edges
-7. `AiQueryInterpretation` - 15 edges
-8. `getTrendingMovies()` - 15 edges
+7. `getTrendingMovies()` - 17 edges
+8. `AiQueryInterpretation` - 15 edges
 9. `CacheService` - 14 edges
 10. `MovieMetadata` - 13 edges
 
@@ -90,7 +90,7 @@ Nodes (5): fastapi_testclient, json, pydantic_settings, unittest, unittest_mock
 
 ### Community 2 - "App.jsx"
 Cohesion: 0.07
-Nodes (71): 📋 Phase 2: Metadata Enrichment (TMDb / IMDb API Integration), App(), AuthModal(), ContinueWatchingRail(), CINEMA_TRIVIA, DeliveryModal(), Footer(), DEFAULT_HERO_MOVIES (+63 more)
+Nodes (70): App(), AuthModal(), ContinueWatchingRail(), CINEMA_TRIVIA, DeliveryModal(), Footer(), DEFAULT_HERO_MOVIES, HeroBanner() (+62 more)
 
 ### Community 3 - "tmdb.py"
 Cohesion: 0.08
@@ -137,8 +137,8 @@ Cohesion: 0.17
 Nodes (6): Verify GET /api/auth/status returns status., GET /api/auth/me should return 401 when no token is supplied., GET /api/auth/me should return 401 when token verification fails., GET /api/auth/me should return user profile with valid Bearer token., Verify auth_service parses Supabase GoTrue user response correctly., TestAuthEndpointsAndService
 
 ### Community 14 - "Cineforge Master Architecture & Implementation Roadmap (TODO)"
-Cohesion: 0.20
-Nodes (9): 🏗️ Architecture & Data Flow Overview, Cineforge Master Architecture & Implementation Roadmap (TODO), 📋 Phase 1: CineAI Intelligence & Query Refinement Engine, 📋 Phase 3: Supabase Persistence & Zero-Latency Stream Caching, 📋 Phase 4: User Authentication (Login & Sign Up), 📋 Phase 5: User Watch History & Watchlist ("Continue Watching"), 📋 Phase 6: Subtitle Extraction & WebVTT Streaming, 📋 Phase 7: Bot Channel & Multi-Source Search Fallback (+1 more)
+Cohesion: 0.18
+Nodes (10): 🏗️ Architecture & Data Flow Overview, Cineforge Master Architecture & Implementation Roadmap (TODO), 📋 Phase 1: CineAI Intelligence & Query Refinement Engine, 📋 Phase 2: Metadata Enrichment (TMDb / IMDb API Integration), 📋 Phase 3: Supabase Persistence & Zero-Latency Stream Caching, 📋 Phase 4: User Authentication (Login & Sign Up), 📋 Phase 5: User Watch History & Watchlist ("Continue Watching"), 📋 Phase 6: Subtitle Extraction & WebVTT Streaming (+2 more)
 
 ### Community 15 - "api/__init__.py"
 Cohesion: 0.21

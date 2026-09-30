@@ -236,8 +236,9 @@ export default function MovieGrid({
         setIsLoadingRails(true)
 
         // Request live data across distinct categories
-        const [trendingRes, popularRes, topRatedRes, regionalRes] = await Promise.allSettled([
+        const [trendingRes, trendingWeekRes, popularRes, topRatedRes, regionalRes] = await Promise.allSettled([
           getTrendingMovies('day', 1),
+          getTrendingMovies('week', 1),
           getPopularMovies(1),
           getTopRatedMovies(1),
           getRegionalMovies('ml', 1),
@@ -245,18 +246,26 @@ export default function MovieGrid({
 
         if (!isMounted) return
 
-        // Strict OTT release filter: Confirmed released cinema only (excludes unreleased future hype titles like Toy Story 5, etc.)
+        const todayIso = new Date().toISOString().split('T')[0]
+        const currentYear = new Date().getFullYear()
+
+        // Strict OTT release filter: Confirmed released cinema only
         const isReleasedValid = (m) => {
           if (!m || !m.title || !m.poster_url) return false
           const yr = parseInt(m.year || '0', 10)
-          if (yr > 2024 || yr < 1920) return false
-          if (m.release_date && m.release_date > '2024-12-31') return false
+          if (yr > currentYear + 1 || yr < 1920) return false
+          if (m.release_date && m.release_date > todayIso) return false
           return true
         }
 
         const rawTrending =
           trendingRes.status === 'fulfilled' && trendingRes.value?.results?.length
             ? trendingRes.value.results.filter(isReleasedValid)
+            : []
+
+        const rawTrendingWeek =
+          trendingWeekRes.status === 'fulfilled' && trendingWeekRes.value?.results?.length
+            ? trendingWeekRes.value.results.filter(isReleasedValid)
             : []
 
         const rawPopular =
@@ -277,7 +286,7 @@ export default function MovieGrid({
         // STRICT DEDUPLICATION: Track seen movie titles across all rails so NO movie repeats
         const seenTitles = new Set()
 
-        const dedupe = (list, count = 15) => {
+        const dedupe = (list, count = 18) => {
           const res = []
           for (const m of list) {
             const key = m.title.toLowerCase().trim()
@@ -289,32 +298,33 @@ export default function MovieGrid({
           return res
         }
 
-        // 1. Rail 1: Trending Today (Top fresh released hits)
-        const trendingMovies = dedupe(rawTrending, 16)
+        // 1. Rail 1: TOP 10 Today (Top 10 daily trending)
+        const top10Movies = dedupe(rawTrending, 10)
 
-        // 2. Rail 2: Popular Cinema (Deduplicated against trending)
-        const popularMovies = dedupe(rawPopular, 16)
+        // 2. Rail 2: Trending today (Deduplicated weekly trending hits)
+        const trendingMovies = dedupe(rawTrendingWeek, 18)
 
-        // 3. Rail 3: Malayalam & Regional Spotlight (ONLY genuine regional movies)
-        let regionalMovies = dedupe(rawRegional, 16)
+        // 3. Rail 3: Popular Cinema (Deduplicated against trending)
+        const popularMovies = dedupe(rawPopular, 18)
+
+        // 4. Rail 4: Malayalam & Regional Spotlight (ONLY genuine regional movies)
+        let regionalMovies = dedupe(rawRegional, 18)
         if (regionalMovies.length < 5) {
-          // Backfill with verified Malayalam superhits (no Hollywood/cartoons)
           const validBackfill = FALLBACK_MALAYALAM_HITS.filter(
             (m) => !seenTitles.has(m.title.toLowerCase().trim())
           )
           validBackfill.forEach((m) => seenTitles.add(m.title.toLowerCase().trim()))
-          regionalMovies = [...regionalMovies, ...validBackfill].slice(0, 16)
+          regionalMovies = [...regionalMovies, ...validBackfill].slice(0, 18)
         }
 
-        // 4. Rail 4: Top Rated Masterpieces (All-time classics)
-        let topRatedMovies = dedupe(rawTopRated, 16)
+        // 5. Rail 5: Top Rated Masterpieces (All-time classics)
+        let topRatedMovies = dedupe(rawTopRated, 18)
         if (topRatedMovies.length < 5) {
-          // Backfill with verified cinema classics
           const validClassics = FALLBACK_TOP_RATED_CLASSICS.filter(
             (m) => !seenTitles.has(m.title.toLowerCase().trim())
           )
           validClassics.forEach((m) => seenTitles.add(m.title.toLowerCase().trim()))
-          topRatedMovies = [...topRatedMovies, ...validClassics].slice(0, 16)
+          topRatedMovies = [...topRatedMovies, ...validClassics].slice(0, 18)
         }
 
         // Assemble Cineby's 5 signature rails
@@ -323,13 +333,13 @@ export default function MovieGrid({
             id: 'top-10',
             title: 'TOP 10 Today',
             isTop10: true,
-            movies: trendingMovies.slice(0, 10),
+            movies: top10Movies,
           },
           {
             id: 'trending-today',
             title: 'Trending today',
             isTop10: false,
-            movies: trendingMovies.slice(10),
+            movies: trendingMovies,
           },
           {
             id: 'popular-theatres',

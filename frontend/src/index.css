@@ -38,6 +38,7 @@
   --badge-border: rgba(255, 255, 255, 0.12);
 
   /* Layout & Radii */
+  --page-gutter: clamp(20px, 3.8vw, 64px);
   --radius-sm: 6px;
   --radius-md: 9px;
   --radius-lg: 11px;
@@ -165,7 +166,7 @@ body {
 .browse-body-container {
   width: 100%;
   max-width: 100%;
-  padding: 0 4%;
+  padding: 0;
   box-sizing: border-box;
 }
 
@@ -291,7 +292,7 @@ body {
   display: flex;
   align-items: center;
   gap: 32px;
-  padding: 0 clamp(18px, 3vw, 48px);
+  padding: 0 var(--page-gutter);
   background: linear-gradient(180deg, rgba(0, 0, 0, 0.72), transparent);
   transition: background 0.2s var(--ease-out), backdrop-filter 0.2s var(--ease-out);
 }
@@ -672,7 +673,7 @@ body {
 .hero-inner {
   position: absolute;
   z-index: 2;
-  left: clamp(18px, 5.3vw, 86px);
+  left: var(--page-gutter);
   bottom: clamp(60px, 11vh, 105px);
   max-width: 580px;
 }
@@ -1116,7 +1117,7 @@ button:active,
    CINEBY CONTENT SECTIONS, MEDIA RAILS & POSTER CARDS (https://cineby.rocks/)
    ========================================================================== */
 .content-section {
-  padding: 0 clamp(18px, 3vw, 48px);
+  padding: 0 var(--page-gutter);
   margin: 0 0 46px;
   position: relative;
 }
@@ -1842,7 +1843,17 @@ button:active,
 .streamvibe-watch-container {
   width: 100%;
   animation: fadeIn 0.3s ease-out;
+  padding-top: 88px;
+  padding-left: var(--page-gutter);
+  padding-right: var(--page-gutter);
   padding-bottom: 80px;
+  box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+  .streamvibe-watch-container {
+    padding-top: 76px;
+  }
 }
 
 .watch-nav-header {
@@ -3606,31 +3617,40 @@ video::cue {
 }
 
 .continue-watching-card {
-  flex: 0 0 280px;
+  flex: 0 0 clamp(142px, 12vw, 186px);
+  width: clamp(142px, 12vw, 186px);
   scroll-snap-align: start;
   cursor: pointer;
-  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.18s var(--ease-out);
+  user-select: none;
 }
 
 @media (max-width: 768px) {
   .continue-watching-card {
-    flex: 0 0 230px;
+    flex: 0 0 138px;
+    width: 138px;
   }
 }
 
 .continue-watching-card:hover {
-  transform: translateY(-4px);
+  transform: translateY(-6px);
 }
 
 .continue-thumbnail-box {
   position: relative;
   width: 100%;
-  height: 156px;
-  border-radius: 12px;
+  aspect-ratio: 2 / 3;
+  border-radius: 11px;
   overflow: hidden;
-  background: #121319;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  background: #151820;
+  border: 1px solid var(--soft-edge);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.24);
+  transition: border-color 0.18s var(--ease-out), box-shadow 0.18s var(--ease-out);
+}
+
+.continue-watching-card:hover .continue-thumbnail-box {
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 19px 30px rgba(0, 0, 0, 0.5);
 }
 
 .continue-thumb-img {

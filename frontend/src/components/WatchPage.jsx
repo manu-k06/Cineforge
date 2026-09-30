@@ -37,7 +37,7 @@ import {
   RefreshCw,
 } from 'lucide-react'
 import { formatBytes, parseMovieMetadata } from '../utils/helpers'
-import { getMovieMetadata, getSubtitleTracks } from '../services/api'
+import { getMovieMetadata, getSubtitleTracks, getTrendingMovies } from '../services/api'
 import { useWatchHistory } from '../context/WatchHistoryContext'
 
 
@@ -222,6 +222,31 @@ export default function WatchPage({
       })
       .catch(() => {})
   }, [meta.cleanTitle, meta.year])
+
+  // Dynamic Recommendations State
+  const [recommendedMovies, setRecommendedMovies] = useState([])
+
+  useEffect(() => {
+    getTrendingMovies('week', 1)
+      .then((res) => {
+        const results = res?.results || []
+        const currentClean = (meta.cleanTitle || '').toLowerCase().trim()
+        const filtered = results
+          .filter((m) => m.title && m.title.toLowerCase().trim() !== currentClean && m.poster_url)
+          .slice(0, 5)
+          .map((m) => ({
+            title: m.title,
+            year: m.year || '2024',
+            rating: m.rating ? Number(m.rating).toFixed(1) : '8.2',
+            quality: '1080p FHD',
+            poster: m.poster_url,
+          }))
+        if (filtered.length > 0) {
+          setRecommendedMovies(filtered)
+        }
+      })
+      .catch(() => {})
+  }, [meta.cleanTitle])
 
   // Subtitle & WebVTT State
   const [subtitleTracks, setSubtitleTracks] = useState([])
@@ -646,15 +671,11 @@ export default function WatchPage({
           )}
         </video>
 
-        {/* Big Center Play/Pause Button on Idle/Pause */}
-        {(!isPlaying || controlsVisible) && !hasPlaybackError && (
+        {/* Big Center Play Button ONLY on Pause */}
+        {!isPlaying && !hasPlaybackError && (
           <div className="center-play-button-overlay" onClick={togglePlay}>
-            <button className="center-play-btn" title={isPlaying ? 'Pause' : 'Play'}>
-              {isPlaying ? (
-                <Pause size={32} fill="#FFFFFF" color="#FFFFFF" />
-              ) : (
-                <Play size={32} fill="#FFFFFF" color="#FFFFFF" className="translate-play" />
-              )}
+            <button className="center-play-btn" title="Play">
+              <Play size={32} fill="#FFFFFF" color="#FFFFFF" className="translate-play" />
             </button>
           </div>
         )}
@@ -1092,13 +1113,13 @@ export default function WatchPage({
             </div>
 
             <div className="watch-recommendations-grid">
-              {[
+              {(recommendedMovies.length > 0 ? recommendedMovies : [
                 { title: 'Dune: Part Two', year: '2024', rating: '8.6', quality: '4K UHD', poster: 'https://image.tmdb.org/t/p/w500/1pdfLvkbY9ohJlCjQH2CZjjYVvJ.jpg' },
                 { title: 'Interstellar', year: '2014', rating: '8.7', quality: '1080p FHD', poster: 'https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg' },
                 { title: 'Oppenheimer', year: '2023', rating: '8.9', quality: '4K UHD', poster: 'https://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg' },
                 { title: 'The Dark Knight', year: '2008', rating: '9.0', quality: '1080p FHD', poster: 'https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911r6m7haRef0WH.jpg' },
                 { title: 'Inception', year: '2010', rating: '8.8', quality: '1080p FHD', poster: 'https://image.tmdb.org/t/p/w500/ljsZTbVsrQSqZgWeep2B1QiDKuh.jpg' },
-              ].map((item, idx) => (
+              ]).map((item, idx) => (
                 <div
                   key={idx}
                   className="watch-rec-card"
