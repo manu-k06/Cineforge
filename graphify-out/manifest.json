@@ -18,9 +18,9 @@
     "semantic_hash": ""
   },
   "backend/app/api/auth.py": {
-    "mtime": 1789982031.1552942,
-    "seen": 1790098952.9995778,
-    "ast_hash": "203dc4c2b0294af5d66f766b47cc67e6",
+    "mtime": 1790756990.8851626,
+    "seen": 1790757038.4220448,
+    "ast_hash": "15b6b3e6847d4f7b98936fdce3d91a8d",
     "semantic_hash": ""
   },
   "backend/app/api/cache.py": {
@@ -282,9 +282,9 @@
     "semantic_hash": ""
   },
   "frontend/src/components/Navbar.jsx": {
-    "mtime": 1790756434.0173612,
-    "seen": 1790756468.5823185,
-    "ast_hash": "0349eae8cab9015299bb0e1bbfada11d",
+    "mtime": 1790756965.0785637,
+    "seen": 1790757038.4571877,
+    "ast_hash": "b3fddca3949f7d1143d473aefaf52f1c",
     "semantic_hash": ""
   },
   "frontend/src/components/PlayerModal.jsx": {
@@ -312,9 +312,9 @@
     "semantic_hash": ""
   },
   "frontend/src/context/AuthContext.jsx": {
-    "mtime": 1789983162.2047253,
-    "seen": 1790098952.9996278,
-    "ast_hash": "7f94aea7f180ad8da70ef676ab0c0e14",
+    "mtime": 1790756888.828802,
+    "seen": 1790757038.4601545,
+    "ast_hash": "4a9cf81bddce1a4d2a96ec296026a03b",
     "semantic_hash": ""
   },
   "frontend/src/main.jsx": {

@@ -13,13 +13,13 @@ export const AVATAR_PRESETS = [
 ]
 
 export default function Navbar({ onSearchClick, isBackendOnline, activeTab, setActiveTab }) {
-  const { user, openAuthModal, signOut } = useAuth()
+  const { user, profile, updateProfile, openAuthModal, signOut } = useAuth()
   const { watchlist, watchHistory } = useWatchHistory()
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [isBrowseOpen, setIsBrowseOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
 
-  const [selectedAvatarId, setSelectedAvatarId] = useState(() => {
+  const [localAvatarId, setLocalAvatarId] = useState(() => {
     try {
       return localStorage.getItem('cineforge_user_avatar') || 'director'
     } catch {
@@ -27,16 +27,22 @@ export default function Navbar({ onSearchClick, isBackendOnline, activeTab, setA
     }
   })
 
+  // Prefer Supabase cloud profile avatar, fallback to local
+  const activeAvatarId = profile?.avatar_id || localAvatarId
+
   const handleSelectAvatar = (id) => {
-    setSelectedAvatarId(id)
+    setLocalAvatarId(id)
     try {
       localStorage.setItem('cineforge_user_avatar', id)
     } catch {
       // Ignore storage errors
     }
+    if (updateProfile && user) {
+      updateProfile({ avatarId: id })
+    }
   }
 
-  const currentAvatar = AVATAR_PRESETS.find((a) => a.id === selectedAvatarId) || AVATAR_PRESETS[0]
+  const currentAvatar = AVATAR_PRESETS.find((a) => a.id === activeAvatarId) || AVATAR_PRESETS[0]
   
   const dropdownRef = useRef(null)
   const browseRef = useRef(null)
@@ -64,7 +70,7 @@ export default function Navbar({ onSearchClick, isBackendOnline, activeTab, setA
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Member'
+  const displayName = profile?.full_name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Member'
   const firstName = displayName.split(' ')[0]
 
   return (
@@ -239,14 +245,14 @@ export default function Navbar({ onSearchClick, isBackendOnline, activeTab, setA
                   <button
                     key={avatar.id}
                     type="button"
-                    className={`user-avatar-option ${selectedAvatarId === avatar.id ? 'is-selected' : ''}`}
+                    className={`user-avatar-option ${activeAvatarId === avatar.id ? 'is-selected' : ''}`}
                     style={{ background: avatar.gradient }}
                     onClick={() => handleSelectAvatar(avatar.id)}
                     title={avatar.label}
                     aria-label={avatar.label}
                   >
                     <span className="avatar-option-emoji">{avatar.icon}</span>
-                    {selectedAvatarId === avatar.id && (
+                    {activeAvatarId === avatar.id && (
                       <span className="avatar-option-check">
                         <Check size={9} strokeWidth={3} />
                       </span>
