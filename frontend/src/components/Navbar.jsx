@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { Bookmark, LogOut, User, ChevronDown, UserPlus } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useWatchHistory } from '../context/WatchHistoryContext'
@@ -6,6 +7,8 @@ import { getAvatarSrc, getAvatarInfo } from '../utils/avatars'
 import AvatarPickerModal from './AvatarPickerModal'
 
 export default function Navbar({ onSearchClick, isBackendOnline, activeTab, setActiveTab }) {
+  const navigate = useNavigate()
+  const location = useLocation()
   const { user, profile, openAuthModal, signOut, updateProfile } = useAuth()
   const { watchlist } = useWatchHistory()
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
@@ -46,10 +49,15 @@ export default function Navbar({ onSearchClick, isBackendOnline, activeTab, setA
   const displayName = profile?.full_name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Member'
   const firstName = displayName.split(' ')[0]
 
+  const handleNav = (path, tab) => {
+    if (setActiveTab) setActiveTab(tab)
+    navigate(path)
+  }
+
   return (
     <header className={`site-header ${isScrolled ? 'is-scrolled' : ''}`}>
       {/* Brand: Aperture Mark + Cineforge */}
-      <div className="brand" onClick={() => setActiveTab('home')} title="Cineforge Home">
+      <div className="brand" onClick={() => handleNav('/', 'home')} title="Cineforge Home">
         <img
           className="brand-image"
           src="/assets/images/aperture-mark.png"
@@ -65,7 +73,7 @@ export default function Navbar({ onSearchClick, isBackendOnline, activeTab, setA
       <nav className="primary-nav" aria-label="Primary navigation">
         <button
           className={activeTab === 'home' ? 'is-active' : ''}
-          onClick={() => setActiveTab('home')}
+          onClick={() => handleNav('/', 'home')}
         >
           Home
         </button>
@@ -94,7 +102,7 @@ export default function Navbar({ onSearchClick, isBackendOnline, activeTab, setA
                   type="button"
                   className="menu-discovery-card"
                   onClick={() => {
-                    setActiveTab('movies')
+                    handleNav('/movies', 'movies')
                     setIsBrowseOpen(false)
                   }}
                 >
@@ -105,7 +113,7 @@ export default function Navbar({ onSearchClick, isBackendOnline, activeTab, setA
                   type="button"
                   className="menu-discovery-card"
                   onClick={() => {
-                    setActiveTab('shows')
+                    handleNav('/series', 'shows')
                     setIsBrowseOpen(false)
                   }}
                 >
@@ -120,7 +128,7 @@ export default function Navbar({ onSearchClick, isBackendOnline, activeTab, setA
                   type="button"
                   className="personal-menu-card"
                   onClick={() => {
-                    setActiveTab('history')
+                    handleNav('/history', 'history')
                     setIsBrowseOpen(false)
                   }}
                 >
@@ -131,7 +139,7 @@ export default function Navbar({ onSearchClick, isBackendOnline, activeTab, setA
                   type="button"
                   className="personal-menu-card"
                   onClick={() => {
-                    setActiveTab('watchlist')
+                    handleNav('/watchlist', 'watchlist')
                     setIsBrowseOpen(false)
                   }}
                 >
@@ -179,7 +187,13 @@ export default function Navbar({ onSearchClick, isBackendOnline, activeTab, setA
           <button
             className="nav-guest-pill"
             type="button"
-            onClick={openAuthModal}
+            onClick={() => {
+              const currentPath = location.pathname + location.search
+              const redirectParam = !currentPath.startsWith('/login') && !currentPath.startsWith('/signup')
+                ? `?redirect=${encodeURIComponent(currentPath)}`
+                : ''
+              navigate(`/login${redirectParam}`)
+            }}
             title="Sign in to sync your library across devices"
           >
             <div className="nav-guest-icon-badge">
@@ -220,7 +234,7 @@ export default function Navbar({ onSearchClick, isBackendOnline, activeTab, setA
                 type="button"
                 className="user-shortcut-card"
                 onClick={() => {
-                  setActiveTab('watchlist')
+                  handleNav('/watchlist', 'watchlist')
                   setIsDropdownOpen(false)
                 }}
               >
@@ -243,7 +257,11 @@ export default function Navbar({ onSearchClick, isBackendOnline, activeTab, setA
                 onClick={async () => {
                   setIsDropdownOpen(false)
                   await signOut()
-                  openAuthModal('signin')
+                  const currentPath = location.pathname + location.search
+                  const redirectParam = !currentPath.startsWith('/login') && !currentPath.startsWith('/signup')
+                    ? `?redirect=${encodeURIComponent(currentPath)}`
+                    : ''
+                  navigate(`/login${redirectParam}`)
                 }}
               >
                 <UserPlus size={14} />

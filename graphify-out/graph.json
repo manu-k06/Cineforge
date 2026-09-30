@@ -108,30 +108,43 @@
       "source_location": "L11"
     },
     {
-      "id": "backend_app_models_cache_cachedcandidaterecord",
-      "label": "CachedCandidateRecord",
+      "id": "backend_app_models_search_searchcandidate",
+      "label": "SearchCandidate",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
       "community": 15,
-      "community_name": "pydantic",
+      "community_name": "SearchCandidate",
       "file_type": "code",
-      "norm_label": "cachedcandidaterecord",
-      "source_file": "backend/app/models/cache.py",
-      "source_location": "L5"
+      "norm_label": "searchcandidate",
+      "source_file": "backend/app/models/search.py",
+      "source_location": "L40"
     },
     {
-      "id": "backend_app_models_cache_cachestatsresponse",
-      "label": "CacheStatsResponse",
+      "id": "backend_app_models_search_searchpaginationinfo",
+      "label": "SearchPaginationInfo",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
       "community": 15,
-      "community_name": "pydantic",
+      "community_name": "SearchCandidate",
       "file_type": "code",
-      "norm_label": "cachestatsresponse",
-      "source_file": "backend/app/models/cache.py",
-      "source_location": "L24"
+      "norm_label": "searchpaginationinfo",
+      "source_file": "backend/app/models/search.py",
+      "source_location": "L60"
+    },
+    {
+      "id": "backend_app_services_search_aggregator_searchaggregatorservice",
+      "label": "SearchAggregatorService",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 15,
+      "community_name": "SearchCandidate",
+      "file_type": "code",
+      "norm_label": "searchaggregatorservice",
+      "source_file": "backend/app/services/search_aggregator.py",
+      "source_location": "L20"
     },
     {
       "id": "backend_app_config_settings",
@@ -166,11 +179,37 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 18,
-      "community_name": "api/auth.py",
+      "community_name": "update_public_profile",
       "file_type": "code",
       "norm_label": "profileupdatepayload",
       "source_file": "backend/app/api/auth.py",
       "source_location": "L12"
+    },
+    {
+      "id": "backend_app_models_delivery_flow_candidatedeliveryrequest",
+      "label": "CandidateDeliveryRequest",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "api/search.py",
+      "file_type": "code",
+      "norm_label": "candidatedeliveryrequest",
+      "source_file": "backend/app/models/delivery_flow.py",
+      "source_location": "L5"
+    },
+    {
+      "id": "backend_app_models_delivery_flow_candidatedeliveryresponse",
+      "label": "CandidateDeliveryResponse",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "api/search.py",
+      "file_type": "code",
+      "norm_label": "candidatedeliveryresponse",
+      "source_file": "backend/app/models/delivery_flow.py",
+      "source_location": "L13"
     },
     {
       "id": "backend_app_services_compatibility_mediacompatibilityresult",
@@ -184,6 +223,58 @@
       "norm_label": "mediacompatibilityresult",
       "source_file": "backend/app/services/compatibility.py",
       "source_location": "L8"
+    },
+    {
+      "id": "backend_app_models_search_buttoninfo",
+      "label": "ButtonInfo",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 29,
+      "community_name": "models/search.py",
+      "file_type": "code",
+      "norm_label": "buttoninfo",
+      "source_file": "backend/app/models/search.py",
+      "source_location": "L9"
+    },
+    {
+      "id": "backend_app_models_search_searchresponse",
+      "label": "SearchResponse",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 29,
+      "community_name": "models/search.py",
+      "file_type": "code",
+      "norm_label": "searchresponse",
+      "source_file": "backend/app/models/search.py",
+      "source_location": "L71"
+    },
+    {
+      "id": "backend_app_models_search_searchresultitem",
+      "label": "SearchResultItem",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 29,
+      "community_name": "models/search.py",
+      "file_type": "code",
+      "norm_label": "searchresultitem",
+      "source_file": "backend/app/models/search.py",
+      "source_location": "L19"
+    },
+    {
+      "id": "backend_app_models_search_telegramdebugsearchresponse",
+      "label": "TelegramDebugSearchResponse",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 29,
+      "community_name": "models/search.py",
+      "file_type": "code",
+      "norm_label": "telegramdebugsearchresponse",
+      "source_file": "backend/app/models/search.py",
+      "source_location": "L87"
     },
     {
       "id": "backend_app_models_metadata_castmember",
@@ -264,6 +355,19 @@
       "source_location": "L12"
     },
     {
+      "id": "backend_tests_test_streamer_bot_integration_teststreamerbotintegration",
+      "label": "TestStreamerBotIntegration",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 30,
+      "community_name": "TestStreamerBotIntegration",
+      "file_type": "code",
+      "norm_label": "teststreamerbotintegration",
+      "source_file": "backend/tests/test_streamer_bot_integration.py",
+      "source_location": "L9"
+    },
+    {
       "id": "backend_app_models_ai_aicompanionaskrequest",
       "label": "AiCompanionAskRequest",
       "_callable": true,
@@ -342,6 +446,32 @@
       "source_location": "L30"
     },
     {
+      "id": "backend_app_models_cache_cachedcandidaterecord",
+      "label": "CachedCandidateRecord",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 34,
+      "community_name": "main.py",
+      "file_type": "code",
+      "norm_label": "cachedcandidaterecord",
+      "source_file": "backend/app/models/cache.py",
+      "source_location": "L5"
+    },
+    {
+      "id": "backend_app_models_cache_cachestatsresponse",
+      "label": "CacheStatsResponse",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 34,
+      "community_name": "main.py",
+      "file_type": "code",
+      "norm_label": "cachestatsresponse",
+      "source_file": "backend/app/models/cache.py",
+      "source_location": "L24"
+    },
+    {
       "id": "backend_app_services_ai_service_aiservice",
       "label": "AiService",
       "_callable": true,
@@ -353,19 +483,6 @@
       "norm_label": "aiservice",
       "source_file": "backend/app/services/ai_service.py",
       "source_location": "L19"
-    },
-    {
-      "id": "backend_tests_test_streamer_bot_integration_teststreamerbotintegration",
-      "label": "TestStreamerBotIntegration",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 34,
-      "community_name": "main.py",
-      "file_type": "code",
-      "norm_label": "teststreamerbotintegration",
-      "source_file": "backend/tests/test_streamer_bot_integration.py",
-      "source_location": "L9"
     },
     {
       "id": "backend_app_api_history_bulksyncpayload",
@@ -413,7 +530,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 4,
-      "community_name": "config.py",
+      "community_name": "AuthService",
       "file_type": "code",
       "norm_label": "authservice",
       "source_file": "backend/app/services/auth.py",
@@ -452,37 +569,11 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 6,
-      "community_name": "api/search.py",
+      "community_name": "models/__init__.py",
       "file_type": "code",
       "norm_label": "deeplinkinfo",
       "source_file": "backend/app/models/delivery.py",
       "source_location": "L9"
-    },
-    {
-      "id": "backend_app_models_delivery_flow_candidatedeliveryrequest",
-      "label": "CandidateDeliveryRequest",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "code",
-      "norm_label": "candidatedeliveryrequest",
-      "source_file": "backend/app/models/delivery_flow.py",
-      "source_location": "L5"
-    },
-    {
-      "id": "backend_app_models_delivery_flow_candidatedeliveryresponse",
-      "label": "CandidateDeliveryResponse",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "code",
-      "norm_label": "candidatedeliveryresponse",
-      "source_file": "backend/app/models/delivery_flow.py",
-      "source_location": "L13"
     },
     {
       "id": "backend_app_models_delivery_mediametadata",
@@ -491,7 +582,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 6,
-      "community_name": "api/search.py",
+      "community_name": "models/__init__.py",
       "file_type": "code",
       "norm_label": "mediametadata",
       "source_file": "backend/app/models/delivery.py",
@@ -504,7 +595,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 6,
-      "community_name": "api/search.py",
+      "community_name": "models/__init__.py",
       "file_type": "code",
       "norm_label": "selectedresultrequest",
       "source_file": "backend/app/models/delivery.py",
@@ -517,7 +608,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 6,
-      "community_name": "api/search.py",
+      "community_name": "models/__init__.py",
       "file_type": "code",
       "norm_label": "selectedresultresponse",
       "source_file": "backend/app/models/delivery.py",
@@ -530,7 +621,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 6,
-      "community_name": "api/search.py",
+      "community_name": "models/__init__.py",
       "file_type": "code",
       "norm_label": "testdeliveryrequest",
       "source_file": "backend/app/models/delivery.py",
@@ -543,7 +634,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 6,
-      "community_name": "api/search.py",
+      "community_name": "models/__init__.py",
       "file_type": "code",
       "norm_label": "testdeliveryresponse",
       "source_file": "backend/app/models/delivery.py",
@@ -556,7 +647,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 6,
-      "community_name": "api/search.py",
+      "community_name": "models/__init__.py",
       "file_type": "code",
       "norm_label": "testmediadetectionrequest",
       "source_file": "backend/app/models/delivery.py",
@@ -569,102 +660,11 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 6,
-      "community_name": "api/search.py",
+      "community_name": "models/__init__.py",
       "file_type": "code",
       "norm_label": "testmediadetectionresponse",
       "source_file": "backend/app/models/delivery.py",
       "source_location": "L53"
-    },
-    {
-      "id": "backend_app_models_search_buttoninfo",
-      "label": "ButtonInfo",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "code",
-      "norm_label": "buttoninfo",
-      "source_file": "backend/app/models/search.py",
-      "source_location": "L9"
-    },
-    {
-      "id": "backend_app_models_search_searchcandidate",
-      "label": "SearchCandidate",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "code",
-      "norm_label": "searchcandidate",
-      "source_file": "backend/app/models/search.py",
-      "source_location": "L40"
-    },
-    {
-      "id": "backend_app_models_search_searchpaginationinfo",
-      "label": "SearchPaginationInfo",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "code",
-      "norm_label": "searchpaginationinfo",
-      "source_file": "backend/app/models/search.py",
-      "source_location": "L60"
-    },
-    {
-      "id": "backend_app_models_search_searchresponse",
-      "label": "SearchResponse",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "code",
-      "norm_label": "searchresponse",
-      "source_file": "backend/app/models/search.py",
-      "source_location": "L71"
-    },
-    {
-      "id": "backend_app_models_search_searchresultitem",
-      "label": "SearchResultItem",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "code",
-      "norm_label": "searchresultitem",
-      "source_file": "backend/app/models/search.py",
-      "source_location": "L19"
-    },
-    {
-      "id": "backend_app_models_search_telegramdebugsearchresponse",
-      "label": "TelegramDebugSearchResponse",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "code",
-      "norm_label": "telegramdebugsearchresponse",
-      "source_file": "backend/app/models/search.py",
-      "source_location": "L87"
-    },
-    {
-      "id": "backend_app_services_search_aggregator_searchaggregatorservice",
-      "label": "SearchAggregatorService",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "code",
-      "norm_label": "searchaggregatorservice",
-      "source_file": "backend/app/services/search_aggregator.py",
-      "source_location": "L20"
     },
     {
       "id": "backend_app_services_compatibility_mediacompatibilityservice",
@@ -923,12 +923,24 @@
       "source_location": "L30"
     },
     {
+      "id": "backend_app_main_lifespan",
+      "label": "lifespan()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "publish_tunnel.py",
+      "file_type": "code",
+      "norm_label": "lifespan()",
+      "source_file": "backend/app/main.py",
+      "source_location": "L39"
+    },
+    {
       "id": "backend_app_services_publish_tunnel_main",
       "label": "main()",
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "logging",
+      "community_name": "publish_tunnel.py",
       "file_type": "code",
       "norm_label": "main()",
       "source_file": "backend/app/services/publish_tunnel.py",
@@ -940,7 +952,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "logging",
+      "community_name": "publish_tunnel.py",
       "file_type": "code",
       "norm_label": "publish_tunnel_url()",
       "source_file": "backend/app/services/publish_tunnel.py",
@@ -1427,16 +1439,124 @@
       "source_location": "L15"
     },
     {
-      "id": "backend_app_api_cache_get_cache_status",
-      "label": "get_cache_status()",
+      "id": "backend_app_services_search_aggregator_searchaggregatorservice_deduplicate_candidates",
+      "label": ".deduplicate_candidates()",
       "_callable": true,
       "_origin": "ast",
       "community": 15,
-      "community_name": "pydantic",
+      "community_name": "SearchCandidate",
       "file_type": "code",
-      "norm_label": "get_cache_status()",
-      "source_file": "backend/app/api/cache.py",
-      "source_location": "L10"
+      "norm_label": ".deduplicate_candidates()",
+      "source_file": "backend/app/services/search_aggregator.py",
+      "source_location": "L280"
+    },
+    {
+      "id": "backend_app_services_search_aggregator_searchaggregatorservice_extract_pagination_info",
+      "label": ".extract_pagination_info()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 15,
+      "community_name": "SearchCandidate",
+      "file_type": "code",
+      "norm_label": ".extract_pagination_info()",
+      "source_file": "backend/app/services/search_aggregator.py",
+      "source_location": "L30"
+    },
+    {
+      "id": "backend_app_services_search_aggregator_searchaggregatorservice_group_candidates_by_title",
+      "label": ".group_candidates_by_title()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 15,
+      "community_name": "SearchCandidate",
+      "file_type": "code",
+      "norm_label": ".group_candidates_by_title()",
+      "source_file": "backend/app/services/search_aggregator.py",
+      "source_location": "L295"
+    },
+    {
+      "id": "backend_app_services_search_aggregator_searchaggregatorservice_init",
+      "label": ".__init__()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 15,
+      "community_name": "SearchCandidate",
+      "file_type": "code",
+      "norm_label": ".__init__()",
+      "source_file": "backend/app/services/search_aggregator.py",
+      "source_location": "L26"
+    },
+    {
+      "id": "backend_app_services_search_aggregator_searchaggregatorservice_normalize_candidate",
+      "label": ".normalize_candidate()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 15,
+      "community_name": "SearchCandidate",
+      "file_type": "code",
+      "norm_label": ".normalize_candidate()",
+      "source_file": "backend/app/services/search_aggregator.py",
+      "source_location": "L101"
+    },
+    {
+      "id": "backend_app_services_search_aggregator_searchaggregatorservice_parse_message_candidates",
+      "label": ".parse_message_candidates()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 15,
+      "community_name": "SearchCandidate",
+      "file_type": "code",
+      "norm_label": ".parse_message_candidates()",
+      "source_file": "backend/app/services/search_aggregator.py",
+      "source_location": "L250"
+    },
+    {
+      "id": "backend_app_services_search_aggregator_searchaggregatorservice_rank_candidates",
+      "label": ".rank_candidates()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 15,
+      "community_name": "SearchCandidate",
+      "file_type": "code",
+      "norm_label": ".rank_candidates()",
+      "source_file": "backend/app/services/search_aggregator.py",
+      "source_location": "L394"
+    },
+    {
+      "id": "backend_app_services_search_aggregator_searchaggregatorservice_rank_candidates_sort_key",
+      "label": "sort_key()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 15,
+      "community_name": "SearchCandidate",
+      "file_type": "code",
+      "norm_label": "sort_key()",
+      "source_file": "backend/app/services/search_aggregator.py",
+      "source_location": "L399"
+    },
+    {
+      "id": "backend_app_services_search_aggregator_searchaggregatorservice_rank_title_groups",
+      "label": ".rank_title_groups()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 15,
+      "community_name": "SearchCandidate",
+      "file_type": "code",
+      "norm_label": ".rank_title_groups()",
+      "source_file": "backend/app/services/search_aggregator.py",
+      "source_location": "L352"
+    },
+    {
+      "id": "backend_app_services_search_aggregator_searchaggregatorservice_rank_title_groups_score",
+      "label": "_score()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 15,
+      "community_name": "SearchCandidate",
+      "file_type": "code",
+      "norm_label": "_score()",
+      "source_file": "backend/app/services/search_aggregator.py",
+      "source_location": "L364"
     },
     {
       "id": "backend_app_config_settings_assemble_cors_origins",
@@ -1485,6 +1605,18 @@
       "norm_label": ".parse_streamer_bot_username()",
       "source_file": "backend/app/config.py",
       "source_location": "L121"
+    },
+    {
+      "id": "backend_export_session_main",
+      "label": "main()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 17,
+      "community_name": "CineforgeTrayApp",
+      "file_type": "code",
+      "norm_label": "main()",
+      "source_file": "backend/export_session.py",
+      "source_location": "L11"
     },
     {
       "id": "tray_app_cineforgetrayapp_build_menu",
@@ -1708,7 +1840,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 18,
-      "community_name": "api/auth.py",
+      "community_name": "update_public_profile",
       "file_type": "code",
       "norm_label": "get_auth_status()",
       "source_file": "backend/app/api/auth.py",
@@ -1720,7 +1852,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 18,
-      "community_name": "api/auth.py",
+      "community_name": "update_public_profile",
       "file_type": "code",
       "norm_label": "get_my_profile()",
       "source_file": "backend/app/api/auth.py",
@@ -1732,7 +1864,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 18,
-      "community_name": "api/auth.py",
+      "community_name": "update_public_profile",
       "file_type": "code",
       "norm_label": "get_public_profile()",
       "source_file": "backend/app/api/auth.py",
@@ -1744,23 +1876,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 18,
-      "community_name": "api/auth.py",
+      "community_name": "update_public_profile",
       "file_type": "code",
       "norm_label": "update_public_profile()",
       "source_file": "backend/app/api/auth.py",
       "source_location": "L72"
-    },
-    {
-      "id": "backend_app_main_lifespan",
-      "label": "lifespan()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 18,
-      "community_name": "api/auth.py",
-      "file_type": "code",
-      "norm_label": "lifespan()",
-      "source_file": "backend/app/main.py",
-      "source_location": "L39"
     },
     {
       "id": "frontend_src_app_app",
@@ -1772,7 +1892,7 @@
       "file_type": "code",
       "norm_label": "app()",
       "source_file": "frontend/src/App.jsx",
-      "source_location": "L20"
+      "source_location": "L21"
     },
     {
       "id": "frontend_src_components_authmodal_authmodal",
@@ -1784,7 +1904,7 @@
       "file_type": "code",
       "norm_label": "authmodal()",
       "source_file": "frontend/src/components/AuthModal.jsx",
-      "source_location": "L6"
+      "source_location": "L7"
     },
     {
       "id": "frontend_src_components_avatarpickermodal_avatarpickermodal",
@@ -1809,18 +1929,6 @@
       "norm_label": "continuewatchingrail()",
       "source_file": "frontend/src/components/ContinueWatchingRail.jsx",
       "source_location": "L4"
-    },
-    {
-      "id": "frontend_src_components_deliverymodal_deliverymodal",
-      "label": "DeliveryModal()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "App.jsx",
-      "file_type": "code",
-      "norm_label": "deliverymodal()",
-      "source_file": "frontend/src/components/DeliveryModal.jsx",
-      "source_location": "L5"
     },
     {
       "id": "frontend_src_components_footer_footer",
@@ -1916,7 +2024,7 @@
       "file_type": "code",
       "norm_label": "navbar()",
       "source_file": "frontend/src/components/Navbar.jsx",
-      "source_location": "L8"
+      "source_location": "L9"
     },
     {
       "id": "frontend_src_components_playermodal_playermodal",
@@ -2435,12 +2543,180 @@
       "source_location": "L6"
     },
     {
-      "id": "frontend_src_utils_movietrivia_getmovietrivia",
-      "label": "getMovieTrivia()",
+      "id": "frontend_src_utils_helpers_slugtoquery",
+      "label": "slugToQuery()",
       "_callable": true,
       "_origin": "ast",
       "community": 2,
       "community_name": "App.jsx",
+      "file_type": "code",
+      "norm_label": "slugtoquery()",
+      "source_file": "frontend/src/utils/helpers.js",
+      "source_location": "L152"
+    },
+    {
+      "id": "frontend_src_utils_helpers_titletoslug",
+      "label": "titleToSlug()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "App.jsx",
+      "file_type": "code",
+      "norm_label": "titletoslug()",
+      "source_file": "frontend/src/utils/helpers.js",
+      "source_location": "L140"
+    },
+    {
+      "id": "backend_app_api_search_deliver_candidate_file",
+      "label": "deliver_candidate_file()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "api/search.py",
+      "file_type": "code",
+      "norm_label": "deliver_candidate_file()",
+      "source_file": "backend/app/api/search.py",
+      "source_location": "L475"
+    },
+    {
+      "id": "backend_app_api_search_select_search_result",
+      "label": "select_search_result()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "api/search.py",
+      "file_type": "code",
+      "norm_label": "select_search_result()",
+      "source_file": "backend/app/api/search.py",
+      "source_location": "L536"
+    },
+    {
+      "id": "backend_app_services_telegram_interactive_login",
+      "label": "interactive_login()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "api/search.py",
+      "file_type": "code",
+      "norm_label": "interactive_login()",
+      "source_file": "backend/app/services/telegram.py",
+      "source_location": "L1405"
+    },
+    {
+      "id": "backend_app_api_search_consolidate_title_groups",
+      "label": "_consolidate_title_groups()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 26,
+      "community_name": "search_movies",
+      "file_type": "code",
+      "norm_label": "_consolidate_title_groups()",
+      "source_file": "backend/app/api/search.py",
+      "source_location": "L44"
+    },
+    {
+      "id": "backend_app_api_search_enrich_groups_with_metadata",
+      "label": "_enrich_groups_with_metadata()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 26,
+      "community_name": "search_movies",
+      "file_type": "code",
+      "norm_label": "_enrich_groups_with_metadata()",
+      "source_file": "backend/app/api/search.py",
+      "source_location": "L30"
+    },
+    {
+      "id": "backend_app_api_search_find_title_versions",
+      "label": "find_title_versions()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 26,
+      "community_name": "search_movies",
+      "file_type": "code",
+      "norm_label": "find_title_versions()",
+      "source_file": "backend/app/api/search.py",
+      "source_location": "L425"
+    },
+    {
+      "id": "backend_app_api_search_get_search_suggestions",
+      "label": "get_search_suggestions()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 26,
+      "community_name": "search_movies",
+      "file_type": "code",
+      "norm_label": "get_search_suggestions()",
+      "source_file": "backend/app/api/search.py",
+      "source_location": "L80"
+    },
+    {
+      "id": "backend_app_api_search_get_search_ui",
+      "label": "get_search_ui()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 26,
+      "community_name": "search_movies",
+      "file_type": "code",
+      "norm_label": "get_search_ui()",
+      "source_file": "backend/app/api/search.py",
+      "source_location": "L559"
+    },
+    {
+      "id": "backend_app_api_search_search_movies",
+      "label": "search_movies()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 26,
+      "community_name": "search_movies",
+      "file_type": "code",
+      "norm_label": "search_movies()",
+      "source_file": "backend/app/api/search.py",
+      "source_location": "L92"
+    },
+    {
+      "id": "backend_app_services_auth_get_current_user_optional",
+      "label": "get_current_user_optional()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 27,
+      "community_name": "typing",
+      "file_type": "code",
+      "norm_label": "get_current_user_optional()",
+      "source_file": "backend/app/services/auth.py",
+      "source_location": "L64"
+    },
+    {
+      "id": "backend_app_services_auth_get_current_user_required",
+      "label": "get_current_user_required()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 27,
+      "community_name": "typing",
+      "file_type": "code",
+      "norm_label": "get_current_user_required()",
+      "source_file": "backend/app/services/auth.py",
+      "source_location": "L74"
+    },
+    {
+      "id": "frontend_src_components_deliverymodal_deliverymodal",
+      "label": "DeliveryModal()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 28,
+      "community_name": "DeliveryModal.jsx",
+      "file_type": "code",
+      "norm_label": "deliverymodal()",
+      "source_file": "frontend/src/components/DeliveryModal.jsx",
+      "source_location": "L5"
+    },
+    {
+      "id": "frontend_src_utils_movietrivia_getmovietrivia",
+      "label": "getMovieTrivia()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 28,
+      "community_name": "DeliveryModal.jsx",
       "file_type": "code",
       "norm_label": "getmovietrivia()",
       "source_file": "frontend/src/utils/movieTrivia.js",
@@ -2451,24 +2727,12 @@
       "label": "getMovieTriviaList()",
       "_callable": true,
       "_origin": "ast",
-      "community": 2,
-      "community_name": "App.jsx",
+      "community": 28,
+      "community_name": "DeliveryModal.jsx",
       "file_type": "code",
       "norm_label": "getmovietrivialist()",
       "source_file": "frontend/src/utils/movieTrivia.js",
       "source_location": "L140"
-    },
-    {
-      "id": "backend_export_session_main",
-      "label": "main()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 25,
-      "community_name": "tray_app.py",
-      "file_type": "code",
-      "norm_label": "main()",
-      "source_file": "backend/export_session.py",
-      "source_location": "L11"
     },
     {
       "id": "backend_app_api_metadata_discover_movies",
@@ -2831,6 +3095,66 @@
       "source_location": "L40"
     },
     {
+      "id": "backend_tests_test_streamer_bot_integration_teststreamerbotintegration_setup",
+      "label": ".setUp()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 30,
+      "community_name": "TestStreamerBotIntegration",
+      "file_type": "code",
+      "norm_label": ".setup()",
+      "source_file": "backend/tests/test_streamer_bot_integration.py",
+      "source_location": "L10"
+    },
+    {
+      "id": "backend_tests_test_streamer_bot_integration_teststreamerbotintegration_test_extract_streamer_links_from_screenshot_format",
+      "label": ".test_extract_streamer_links_from_screenshot_format()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 30,
+      "community_name": "TestStreamerBotIntegration",
+      "file_type": "code",
+      "norm_label": ".test_extract_streamer_links_from_screenshot_format()",
+      "source_file": "backend/tests/test_streamer_bot_integration.py",
+      "source_location": "L13"
+    },
+    {
+      "id": "backend_tests_test_streamer_bot_integration_teststreamerbotintegration_test_mock_deliver_candidate_response",
+      "label": ".test_mock_deliver_candidate_response()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 30,
+      "community_name": "TestStreamerBotIntegration",
+      "file_type": "code",
+      "norm_label": ".test_mock_deliver_candidate_response()",
+      "source_file": "backend/tests/test_streamer_bot_integration.py",
+      "source_location": "L41"
+    },
+    {
+      "id": "backend_app_api_telegram_get_telegram_status",
+      "label": "get_telegram_status()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 31,
+      "community_name": "test_telegram_search",
+      "file_type": "code",
+      "norm_label": "get_telegram_status()",
+      "source_file": "backend/app/api/telegram.py",
+      "source_location": "L18"
+    },
+    {
+      "id": "backend_app_api_telegram_test_telegram_search",
+      "label": "test_telegram_search()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 31,
+      "community_name": "test_telegram_search",
+      "file_type": "code",
+      "norm_label": "test_telegram_search()",
+      "source_file": "backend/app/api/telegram.py",
+      "source_location": "L28"
+    },
+    {
       "id": "backend_app_api_ai_ask_companion",
       "label": "ask_companion()",
       "_callable": true,
@@ -2877,6 +3201,18 @@
       "norm_label": "refine_query()",
       "source_file": "backend/app/api/ai.py",
       "source_location": "L28"
+    },
+    {
+      "id": "backend_app_api_cache_get_cache_status",
+      "label": "get_cache_status()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 34,
+      "community_name": "main.py",
+      "file_type": "code",
+      "norm_label": "get_cache_status()",
+      "source_file": "backend/app/api/cache.py",
+      "source_location": "L10"
     },
     {
       "id": "backend_app_main_get_streamer_client",
@@ -3011,42 +3347,6 @@
       "source_location": "L31"
     },
     {
-      "id": "backend_tests_test_streamer_bot_integration_teststreamerbotintegration_setup",
-      "label": ".setUp()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 34,
-      "community_name": "main.py",
-      "file_type": "code",
-      "norm_label": ".setup()",
-      "source_file": "backend/tests/test_streamer_bot_integration.py",
-      "source_location": "L10"
-    },
-    {
-      "id": "backend_tests_test_streamer_bot_integration_teststreamerbotintegration_test_extract_streamer_links_from_screenshot_format",
-      "label": ".test_extract_streamer_links_from_screenshot_format()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 34,
-      "community_name": "main.py",
-      "file_type": "code",
-      "norm_label": ".test_extract_streamer_links_from_screenshot_format()",
-      "source_file": "backend/tests/test_streamer_bot_integration.py",
-      "source_location": "L13"
-    },
-    {
-      "id": "backend_tests_test_streamer_bot_integration_teststreamerbotintegration_test_mock_deliver_candidate_response",
-      "label": ".test_mock_deliver_candidate_response()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 34,
-      "community_name": "main.py",
-      "file_type": "code",
-      "norm_label": ".test_mock_deliver_candidate_response()",
-      "source_file": "backend/tests/test_streamer_bot_integration.py",
-      "source_location": "L41"
-    },
-    {
       "id": "backend_app_api_history_add_to_watchlist",
       "label": "add_to_watchlist()",
       "_callable": true,
@@ -3148,7 +3448,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 4,
-      "community_name": "config.py",
+      "community_name": "AuthService",
       "file_type": "code",
       "norm_label": "._get_client()",
       "source_file": "backend/app/services/auth.py",
@@ -3160,7 +3460,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 4,
-      "community_name": "config.py",
+      "community_name": "AuthService",
       "file_type": "code",
       "norm_label": ".__init__()",
       "source_file": "backend/app/services/auth.py",
@@ -3172,7 +3472,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 4,
-      "community_name": "config.py",
+      "community_name": "AuthService",
       "file_type": "code",
       "norm_label": ".is_configured()",
       "source_file": "backend/app/services/auth.py",
@@ -3184,35 +3484,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 4,
-      "community_name": "config.py",
+      "community_name": "AuthService",
       "file_type": "code",
       "norm_label": ".verify_token()",
       "source_file": "backend/app/services/auth.py",
       "source_location": "L34"
-    },
-    {
-      "id": "backend_app_services_auth_get_current_user_optional",
-      "label": "get_current_user_optional()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 4,
-      "community_name": "config.py",
-      "file_type": "code",
-      "norm_label": "get_current_user_optional()",
-      "source_file": "backend/app/services/auth.py",
-      "source_location": "L64"
-    },
-    {
-      "id": "backend_app_services_auth_get_current_user_required",
-      "label": "get_current_user_required()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 4,
-      "community_name": "config.py",
-      "file_type": "code",
-      "norm_label": "get_current_user_required()",
-      "source_file": "backend/app/services/auth.py",
-      "source_location": "L74"
     },
     {
       "id": "backend_app_services_telegram_mediawaiter_init",
@@ -3527,120 +3803,12 @@
       "source_location": "L237"
     },
     {
-      "id": "backend_app_api_search_consolidate_title_groups",
-      "label": "_consolidate_title_groups()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "code",
-      "norm_label": "_consolidate_title_groups()",
-      "source_file": "backend/app/api/search.py",
-      "source_location": "L44"
-    },
-    {
-      "id": "backend_app_api_search_deliver_candidate_file",
-      "label": "deliver_candidate_file()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "code",
-      "norm_label": "deliver_candidate_file()",
-      "source_file": "backend/app/api/search.py",
-      "source_location": "L475"
-    },
-    {
-      "id": "backend_app_api_search_enrich_groups_with_metadata",
-      "label": "_enrich_groups_with_metadata()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "code",
-      "norm_label": "_enrich_groups_with_metadata()",
-      "source_file": "backend/app/api/search.py",
-      "source_location": "L30"
-    },
-    {
-      "id": "backend_app_api_search_find_title_versions",
-      "label": "find_title_versions()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "code",
-      "norm_label": "find_title_versions()",
-      "source_file": "backend/app/api/search.py",
-      "source_location": "L425"
-    },
-    {
-      "id": "backend_app_api_search_get_search_suggestions",
-      "label": "get_search_suggestions()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "code",
-      "norm_label": "get_search_suggestions()",
-      "source_file": "backend/app/api/search.py",
-      "source_location": "L80"
-    },
-    {
-      "id": "backend_app_api_search_get_search_ui",
-      "label": "get_search_ui()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "code",
-      "norm_label": "get_search_ui()",
-      "source_file": "backend/app/api/search.py",
-      "source_location": "L559"
-    },
-    {
-      "id": "backend_app_api_search_search_movies",
-      "label": "search_movies()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "code",
-      "norm_label": "search_movies()",
-      "source_file": "backend/app/api/search.py",
-      "source_location": "L92"
-    },
-    {
-      "id": "backend_app_api_search_select_search_result",
-      "label": "select_search_result()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "code",
-      "norm_label": "select_search_result()",
-      "source_file": "backend/app/api/search.py",
-      "source_location": "L536"
-    },
-    {
-      "id": "backend_app_api_telegram_get_telegram_status",
-      "label": "get_telegram_status()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "code",
-      "norm_label": "get_telegram_status()",
-      "source_file": "backend/app/api/telegram.py",
-      "source_location": "L18"
-    },
-    {
       "id": "backend_app_api_telegram_test_delivery_flow",
       "label": "test_delivery_flow()",
       "_callable": true,
       "_origin": "ast",
       "community": 6,
-      "community_name": "api/search.py",
+      "community_name": "models/__init__.py",
       "file_type": "code",
       "norm_label": "test_delivery_flow()",
       "source_file": "backend/app/api/telegram.py",
@@ -3652,23 +3820,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 6,
-      "community_name": "api/search.py",
+      "community_name": "models/__init__.py",
       "file_type": "code",
       "norm_label": "test_media_detection()",
       "source_file": "backend/app/api/telegram.py",
       "source_location": "L69"
-    },
-    {
-      "id": "backend_app_api_telegram_test_telegram_search",
-      "label": "test_telegram_search()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "code",
-      "norm_label": "test_telegram_search()",
-      "source_file": "backend/app/api/telegram.py",
-      "source_location": "L28"
     },
     {
       "id": "backend_app_models_delivery_parse_telegram_deep_link",
@@ -3676,143 +3832,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 6,
-      "community_name": "api/search.py",
+      "community_name": "models/__init__.py",
       "file_type": "code",
       "norm_label": "parse_telegram_deep_link()",
       "source_file": "backend/app/models/delivery.py",
       "source_location": "L77"
-    },
-    {
-      "id": "backend_app_services_search_aggregator_searchaggregatorservice_deduplicate_candidates",
-      "label": ".deduplicate_candidates()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "code",
-      "norm_label": ".deduplicate_candidates()",
-      "source_file": "backend/app/services/search_aggregator.py",
-      "source_location": "L280"
-    },
-    {
-      "id": "backend_app_services_search_aggregator_searchaggregatorservice_extract_pagination_info",
-      "label": ".extract_pagination_info()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "code",
-      "norm_label": ".extract_pagination_info()",
-      "source_file": "backend/app/services/search_aggregator.py",
-      "source_location": "L30"
-    },
-    {
-      "id": "backend_app_services_search_aggregator_searchaggregatorservice_group_candidates_by_title",
-      "label": ".group_candidates_by_title()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "code",
-      "norm_label": ".group_candidates_by_title()",
-      "source_file": "backend/app/services/search_aggregator.py",
-      "source_location": "L295"
-    },
-    {
-      "id": "backend_app_services_search_aggregator_searchaggregatorservice_init",
-      "label": ".__init__()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "code",
-      "norm_label": ".__init__()",
-      "source_file": "backend/app/services/search_aggregator.py",
-      "source_location": "L26"
-    },
-    {
-      "id": "backend_app_services_search_aggregator_searchaggregatorservice_normalize_candidate",
-      "label": ".normalize_candidate()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "code",
-      "norm_label": ".normalize_candidate()",
-      "source_file": "backend/app/services/search_aggregator.py",
-      "source_location": "L101"
-    },
-    {
-      "id": "backend_app_services_search_aggregator_searchaggregatorservice_parse_message_candidates",
-      "label": ".parse_message_candidates()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "code",
-      "norm_label": ".parse_message_candidates()",
-      "source_file": "backend/app/services/search_aggregator.py",
-      "source_location": "L250"
-    },
-    {
-      "id": "backend_app_services_search_aggregator_searchaggregatorservice_rank_candidates",
-      "label": ".rank_candidates()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "code",
-      "norm_label": ".rank_candidates()",
-      "source_file": "backend/app/services/search_aggregator.py",
-      "source_location": "L394"
-    },
-    {
-      "id": "backend_app_services_search_aggregator_searchaggregatorservice_rank_candidates_sort_key",
-      "label": "sort_key()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "code",
-      "norm_label": "sort_key()",
-      "source_file": "backend/app/services/search_aggregator.py",
-      "source_location": "L399"
-    },
-    {
-      "id": "backend_app_services_search_aggregator_searchaggregatorservice_rank_title_groups",
-      "label": ".rank_title_groups()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "code",
-      "norm_label": ".rank_title_groups()",
-      "source_file": "backend/app/services/search_aggregator.py",
-      "source_location": "L352"
-    },
-    {
-      "id": "backend_app_services_search_aggregator_searchaggregatorservice_rank_title_groups_score",
-      "label": "_score()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "code",
-      "norm_label": "_score()",
-      "source_file": "backend/app/services/search_aggregator.py",
-      "source_location": "L364"
-    },
-    {
-      "id": "backend_app_services_telegram_interactive_login",
-      "label": "interactive_login()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "code",
-      "norm_label": "interactive_login()",
-      "source_file": "backend/app/services/telegram.py",
-      "source_location": "L1405"
     },
     {
       "id": "backend_app_services_telegram_telegramservice_select_result",
@@ -3820,7 +3844,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 6,
-      "community_name": "api/search.py",
+      "community_name": "models/__init__.py",
       "file_type": "code",
       "norm_label": ".select_result()",
       "source_file": "backend/app/services/telegram.py",
@@ -4307,7 +4331,7 @@
       "label": "publish_tunnel.py",
       "_origin": "ast",
       "community": 1,
-      "community_name": "logging",
+      "community_name": "publish_tunnel.py",
       "file_type": "code",
       "norm_label": "publish_tunnel.py",
       "source_file": "backend/app/services/publish_tunnel.py",
@@ -4318,7 +4342,7 @@
       "label": "Utility to publish live tunnel URL and server status into Supabase. Enables the\u2026",
       "_origin": "ast",
       "community": 1,
-      "community_name": "logging",
+      "community_name": "publish_tunnel.py",
       "file_type": "rationale",
       "norm_label": "utility to publish live tunnel url and server status into supabase. enables the...",
       "source_file": "backend/app/services/publish_tunnel.py",
@@ -4329,7 +4353,7 @@
       "label": "Upsert the active backend URL and online status to Supabase server_status table.",
       "_origin": "ast",
       "community": 1,
-      "community_name": "logging",
+      "community_name": "publish_tunnel.py",
       "file_type": "rationale",
       "norm_label": "upsert the active backend url and online status to supabase server_status table.",
       "source_file": "backend/app/services/publish_tunnel.py",
@@ -5071,6 +5095,18 @@
       "source_location": "L41"
     },
     {
+      "id": "docs_backend_todo_phase_2_metadata_enrichment_tmdb_imdb_api_integration",
+      "label": "\ud83d\udccb Phase 2: Metadata Enrichment (TMDb / IMDb API Integration)",
+      "_origin": "ast",
+      "community": 14,
+      "community_name": "Cineforge Master Architecture & Implementation Roadmap (TODO)",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "\ud83d\udccb phase 2: metadata enrichment (tmdb / imdb api integration)",
+      "source_file": "docs/BACKEND_TODO.md",
+      "source_location": "L66"
+    },
+    {
       "id": "docs_backend_todo_phase_3_supabase_persistence_zero_latency_stream_caching",
       "label": "\ud83d\udccb Phase 3: Supabase Persistence & Zero-Latency Stream Caching",
       "_origin": "ast",
@@ -5143,92 +5179,103 @@
       "source_location": "L174"
     },
     {
-      "id": "backend_app_api_cache",
-      "label": "api/cache.py",
+      "id": "backend_app_services_search_aggregator_py_any",
+      "label": "Any",
       "_origin": "ast",
       "community": 15,
-      "community_name": "pydantic",
+      "community_name": "SearchCandidate",
       "file_type": "code",
-      "norm_label": "api/cache.py",
-      "source_file": "backend/app/api/cache.py",
-      "source_location": "L1"
-    },
-    {
-      "id": "backend_app_api_cache_py_get",
-      "label": "get",
-      "_origin": "ast",
-      "community": 15,
-      "community_name": "pydantic",
-      "file_type": "code",
-      "norm_label": "get",
+      "norm_label": "any",
       "source_file": "",
       "source_location": ""
     },
     {
-      "id": "backend_app_api_init",
-      "label": "api/__init__.py",
+      "id": "backend_app_services_search_aggregator_rationale_108",
+      "label": "Convert a candidate button into a rich SearchCandidate model.",
       "_origin": "ast",
       "community": 15,
-      "community_name": "pydantic",
-      "file_type": "code",
-      "norm_label": "api/__init__.py",
-      "source_file": "backend/app/api/__init__.py",
-      "source_location": "L1"
-    },
-    {
-      "id": "backend_app_models_cache",
-      "label": "models/cache.py",
-      "_origin": "ast",
-      "community": 15,
-      "community_name": "pydantic",
-      "file_type": "code",
-      "norm_label": "models/cache.py",
-      "source_file": "backend/app/models/cache.py",
-      "source_location": "L1"
-    },
-    {
-      "id": "backend_app_models_cache_py_basemodel",
-      "label": "BaseModel",
-      "_origin": "ast",
-      "community": 15,
-      "community_name": "pydantic",
-      "file_type": "code",
-      "norm_label": "basemodel",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "backend_app_api_cache_rationale_11",
-      "label": "Returns whether Supabase caching is active, along with total cached movies and\u2026",
-      "_origin": "ast",
-      "community": 15,
-      "community_name": "pydantic",
+      "community_name": "SearchCandidate",
       "file_type": "rationale",
-      "norm_label": "returns whether supabase caching is active, along with total cached movies and...",
-      "source_file": "backend/app/api/cache.py",
-      "source_location": "L11"
+      "norm_label": "convert a candidate button into a rich searchcandidate model.",
+      "source_file": "backend/app/services/search_aggregator.py",
+      "source_location": "L108"
     },
     {
-      "id": "backend_app_models_cache_rationale_25",
-      "label": "Operational statistics for Cineforge Supabase cache.",
+      "id": "backend_app_services_search_aggregator_rationale_21",
+      "label": "Aggregates paginated Telegram search candidate files, normalizes metadata, and\u2026",
       "_origin": "ast",
       "community": 15,
-      "community_name": "pydantic",
+      "community_name": "SearchCandidate",
       "file_type": "rationale",
-      "norm_label": "operational statistics for cineforge supabase cache.",
-      "source_file": "backend/app/models/cache.py",
-      "source_location": "L25"
+      "norm_label": "aggregates paginated telegram search candidate files, normalizes metadata, and...",
+      "source_file": "backend/app/services/search_aggregator.py",
+      "source_location": "L21"
     },
     {
-      "id": "backend_app_models_cache_rationale_6",
-      "label": "Database representation of a cached movie candidate in Supabase.",
+      "id": "backend_app_services_search_aggregator_rationale_256",
+      "label": "Extract all candidate files and pagination metadata from a bot message.",
       "_origin": "ast",
       "community": 15,
-      "community_name": "pydantic",
+      "community_name": "SearchCandidate",
       "file_type": "rationale",
-      "norm_label": "database representation of a cached movie candidate in supabase.",
-      "source_file": "backend/app/models/cache.py",
-      "source_location": "L6"
+      "norm_label": "extract all candidate files and pagination metadata from a bot message.",
+      "source_file": "backend/app/services/search_aggregator.py",
+      "source_location": "L256"
+    },
+    {
+      "id": "backend_app_services_search_aggregator_rationale_284",
+      "label": "Deduplicate candidates preserving first-seen high-quality entries.",
+      "_origin": "ast",
+      "community": 15,
+      "community_name": "SearchCandidate",
+      "file_type": "rationale",
+      "norm_label": "deduplicate candidates preserving first-seen high-quality entries.",
+      "source_file": "backend/app/services/search_aggregator.py",
+      "source_location": "L284"
+    },
+    {
+      "id": "backend_app_services_search_aggregator_rationale_300",
+      "label": "Cluster candidate versions under canonical title keys and sort by query\u2026",
+      "_origin": "ast",
+      "community": 15,
+      "community_name": "SearchCandidate",
+      "file_type": "rationale",
+      "norm_label": "cluster candidate versions under canonical title keys and sort by query...",
+      "source_file": "backend/app/services/search_aggregator.py",
+      "source_location": "L300"
+    },
+    {
+      "id": "backend_app_services_search_aggregator_rationale_35",
+      "label": "Extract pagination indicators (e.g. 'Page: 1/220', 'Total Results: 2200',\u2026",
+      "_origin": "ast",
+      "community": 15,
+      "community_name": "SearchCandidate",
+      "file_type": "rationale",
+      "norm_label": "extract pagination indicators (e.g. 'page: 1/220', 'total results: 2200',...",
+      "source_file": "backend/app/services/search_aggregator.py",
+      "source_location": "L35"
+    },
+    {
+      "id": "backend_app_services_search_aggregator_rationale_357",
+      "label": "Sort title groups by relevance to query (exact match first, then prefix, etc.).",
+      "_origin": "ast",
+      "community": 15,
+      "community_name": "SearchCandidate",
+      "file_type": "rationale",
+      "norm_label": "sort title groups by relevance to query (exact match first, then prefix, etc.).",
+      "source_file": "backend/app/services/search_aggregator.py",
+      "source_location": "L357"
+    },
+    {
+      "id": "backend_app_services_search_aggregator_rationale_398",
+      "label": "Rank candidates prioritizing browser compatibility, original/English audio,\u2026",
+      "_origin": "ast",
+      "community": 15,
+      "community_name": "SearchCandidate",
+      "file_type": "rationale",
+      "norm_label": "rank candidates prioritizing browser compatibility, original/english audio,...",
+      "source_file": "backend/app/services/search_aggregator.py",
+      "source_location": "L398"
     },
     {
       "id": "basesettings",
@@ -5253,6 +5300,17 @@
       "source_location": ""
     },
     {
+      "id": "backend_export_session",
+      "label": "export_session.py",
+      "_origin": "ast",
+      "community": 17,
+      "community_name": "CineforgeTrayApp",
+      "file_type": "code",
+      "norm_label": "export_session.py",
+      "source_file": "backend/export_session.py",
+      "source_location": "L1"
+    },
+    {
       "id": "image",
       "label": "Image",
       "_origin": "ast",
@@ -5273,6 +5331,39 @@
       "norm_label": "menu",
       "source_file": "",
       "source_location": ""
+    },
+    {
+      "id": "tray_app",
+      "label": "tray_app.py",
+      "_origin": "ast",
+      "community": 17,
+      "community_name": "CineforgeTrayApp",
+      "file_type": "code",
+      "norm_label": "tray_app.py",
+      "source_file": "tray_app.py",
+      "source_location": "L1"
+    },
+    {
+      "id": "backend_export_session_rationale_1",
+      "label": "Utility to export existing cineforge_session.session into a\u2026",
+      "_origin": "ast",
+      "community": 17,
+      "community_name": "CineforgeTrayApp",
+      "file_type": "rationale",
+      "norm_label": "utility to export existing cineforge_session.session into a...",
+      "source_file": "backend/export_session.py",
+      "source_location": "L1"
+    },
+    {
+      "id": "tray_app_rationale_1",
+      "label": "Cineforge Windows System Tray Application Runs Cineforge Backend, TG-\u2026",
+      "_origin": "ast",
+      "community": 17,
+      "community_name": "CineforgeTrayApp",
+      "file_type": "rationale",
+      "norm_label": "cineforge windows system tray application runs cineforge backend, tg-...",
+      "source_file": "tray_app.py",
+      "source_location": "L1"
     },
     {
       "id": "tray_app_rationale_114",
@@ -5418,22 +5509,11 @@
       "source_location": "L97"
     },
     {
-      "id": "backend_app_api_auth",
-      "label": "api/auth.py",
-      "_origin": "ast",
-      "community": 18,
-      "community_name": "api/auth.py",
-      "file_type": "code",
-      "norm_label": "api/auth.py",
-      "source_file": "backend/app/api/auth.py",
-      "source_location": "L1"
-    },
-    {
       "id": "backend_app_api_auth_py_any",
       "label": "Any",
       "_origin": "ast",
       "community": 18,
-      "community_name": "api/auth.py",
+      "community_name": "update_public_profile",
       "file_type": "code",
       "norm_label": "any",
       "source_file": "",
@@ -5444,7 +5524,7 @@
       "label": "BaseModel",
       "_origin": "ast",
       "community": 18,
-      "community_name": "api/auth.py",
+      "community_name": "update_public_profile",
       "file_type": "code",
       "norm_label": "basemodel",
       "source_file": "",
@@ -5455,7 +5535,7 @@
       "label": "get",
       "_origin": "ast",
       "community": 18,
-      "community_name": "api/auth.py",
+      "community_name": "update_public_profile",
       "file_type": "code",
       "norm_label": "get",
       "source_file": "",
@@ -5466,20 +5546,9 @@
       "label": "patch",
       "_origin": "ast",
       "community": 18,
-      "community_name": "api/auth.py",
+      "community_name": "update_public_profile",
       "file_type": "code",
       "norm_label": "patch",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "fastapi",
-      "label": "FastAPI",
-      "_origin": "ast",
-      "community": 18,
-      "community_name": "api/auth.py",
-      "file_type": "code",
-      "norm_label": "fastapi",
       "source_file": "",
       "source_location": ""
     },
@@ -5488,7 +5557,7 @@
       "label": "Check if Supabase Auth is configured on the backend.",
       "_origin": "ast",
       "community": 18,
-      "community_name": "api/auth.py",
+      "community_name": "update_public_profile",
       "file_type": "rationale",
       "norm_label": "check if supabase auth is configured on the backend.",
       "source_file": "backend/app/api/auth.py",
@@ -5499,7 +5568,7 @@
       "label": "Retrieve profile information for the currently authenticated user.",
       "_origin": "ast",
       "community": 18,
-      "community_name": "api/auth.py",
+      "community_name": "update_public_profile",
       "file_type": "rationale",
       "norm_label": "retrieve profile information for the currently authenticated user.",
       "source_file": "backend/app/api/auth.py",
@@ -5510,7 +5579,7 @@
       "label": "Retrieve database profile from public.profiles table.",
       "_origin": "ast",
       "community": 18,
-      "community_name": "api/auth.py",
+      "community_name": "update_public_profile",
       "file_type": "rationale",
       "norm_label": "retrieve database profile from public.profiles table.",
       "source_file": "backend/app/api/auth.py",
@@ -5521,7 +5590,7 @@
       "label": "Update profile details in public.profiles table.",
       "_origin": "ast",
       "community": 18,
-      "community_name": "api/auth.py",
+      "community_name": "update_public_profile",
       "file_type": "rationale",
       "norm_label": "update profile details in public.profiles table.",
       "source_file": "backend/app/api/auth.py",
@@ -5635,17 +5704,6 @@
       "file_type": "code",
       "norm_label": "continuewatchingrail.jsx",
       "source_file": "frontend/src/components/ContinueWatchingRail.jsx",
-      "source_location": "L1"
-    },
-    {
-      "id": "frontend_src_components_deliverymodal",
-      "label": "DeliveryModal.jsx",
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "App.jsx",
-      "file_type": "code",
-      "norm_label": "deliverymodal.jsx",
-      "source_file": "frontend/src/components/DeliveryModal.jsx",
       "source_location": "L1"
     },
     {
@@ -5979,50 +6037,6 @@
       "source_location": "L1"
     },
     {
-      "id": "frontend_src_utils_movietrivia",
-      "label": "movieTrivia.js",
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "App.jsx",
-      "file_type": "code",
-      "norm_label": "movietrivia.js",
-      "source_file": "frontend/src/utils/movieTrivia.js",
-      "source_location": "L1"
-    },
-    {
-      "id": "frontend_src_utils_movietrivia_cinema_calibration_steps",
-      "label": "CINEMA_CALIBRATION_STEPS",
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "App.jsx",
-      "file_type": "code",
-      "norm_label": "cinema_calibration_steps",
-      "source_file": "frontend/src/utils/movieTrivia.js",
-      "source_location": "L117"
-    },
-    {
-      "id": "frontend_src_utils_movietrivia_curated_trivia",
-      "label": "CURATED_TRIVIA",
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "App.jsx",
-      "file_type": "code",
-      "norm_label": "curated_trivia",
-      "source_file": "frontend/src/utils/movieTrivia.js",
-      "source_location": "L6"
-    },
-    {
-      "id": "frontend_src_utils_movietrivia_generic_trivia_templates",
-      "label": "GENERIC_TRIVIA_TEMPLATES",
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "App.jsx",
-      "file_type": "code",
-      "norm_label": "generic_trivia_templates",
-      "source_file": "frontend/src/utils/movieTrivia.js",
-      "source_location": "L126"
-    },
-    {
       "id": "ref_lucide_react",
       "label": "lucide-react",
       "_origin": "ast",
@@ -6056,16 +6070,15 @@
       "source_location": "L16"
     },
     {
-      "id": "docs_backend_todo_phase_2_metadata_enrichment_tmdb_imdb_api_integration",
-      "label": "\ud83d\udccb Phase 2: Metadata Enrichment (TMDb / IMDb API Integration)",
+      "id": "ref_react_router_dom",
+      "label": "react-router-dom",
       "_origin": "ast",
       "community": 2,
       "community_name": "App.jsx",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "\ud83d\udccb phase 2: metadata enrichment (tmdb / imdb api integration)",
-      "source_file": "docs/BACKEND_TODO.md",
-      "source_location": "L66"
+      "file_type": "concept",
+      "norm_label": "react-router-dom",
+      "source_file": "frontend/package.json",
+      "source_location": "L17"
     },
     {
       "id": "frontend_readme",
@@ -6227,47 +6240,234 @@
       "source_location": "L1"
     },
     {
-      "id": "backend_export_session",
-      "label": "export_session.py",
+      "id": "backend_app_api_search",
+      "label": "api/search.py",
       "_origin": "ast",
       "community": 25,
-      "community_name": "tray_app.py",
+      "community_name": "api/search.py",
       "file_type": "code",
-      "norm_label": "export_session.py",
-      "source_file": "backend/export_session.py",
+      "norm_label": "api/search.py",
+      "source_file": "backend/app/api/search.py",
       "source_location": "L1"
     },
     {
-      "id": "tray_app",
-      "label": "tray_app.py",
+      "id": "backend_app_api_search_py_post",
+      "label": "post",
       "_origin": "ast",
       "community": 25,
-      "community_name": "tray_app.py",
+      "community_name": "api/search.py",
       "file_type": "code",
-      "norm_label": "tray_app.py",
-      "source_file": "tray_app.py",
+      "norm_label": "post",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "backend_app_api_search_py_request",
+      "label": "Request",
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "api/search.py",
+      "file_type": "code",
+      "norm_label": "request",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "backend_app_models_delivery_flow",
+      "label": "delivery_flow.py",
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "api/search.py",
+      "file_type": "code",
+      "norm_label": "delivery_flow.py",
+      "source_file": "backend/app/models/delivery_flow.py",
       "source_location": "L1"
     },
     {
-      "id": "backend_export_session_rationale_1",
-      "label": "Utility to export existing cineforge_session.session into a\u2026",
+      "id": "backend_app_models_delivery_flow_py_basemodel",
+      "label": "BaseModel",
       "_origin": "ast",
       "community": 25,
-      "community_name": "tray_app.py",
-      "file_type": "rationale",
-      "norm_label": "utility to export existing cineforge_session.session into a...",
-      "source_file": "backend/export_session.py",
+      "community_name": "api/search.py",
+      "file_type": "code",
+      "norm_label": "basemodel",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "backend_app_services_telegram",
+      "label": "services/telegram.py",
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "api/search.py",
+      "file_type": "code",
+      "norm_label": "services/telegram.py",
+      "source_file": "backend/app/services/telegram.py",
       "source_location": "L1"
     },
     {
-      "id": "tray_app_rationale_1",
-      "label": "Cineforge Windows System Tray Application Runs Cineforge Backend, TG-\u2026",
+      "id": "backend_login",
+      "label": "login.py",
       "_origin": "ast",
       "community": 25,
-      "community_name": "tray_app.py",
+      "community_name": "api/search.py",
+      "file_type": "code",
+      "norm_label": "login.py",
+      "source_file": "backend/login.py",
+      "source_location": "L1"
+    },
+    {
+      "id": "backend_app_api_search_rationale_479",
+      "label": "Trigger bot delivery for a candidate button, forward document to 'me', verify\u2026",
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "api/search.py",
       "file_type": "rationale",
-      "norm_label": "cineforge windows system tray application runs cineforge backend, tg-...",
-      "source_file": "tray_app.py",
+      "norm_label": "trigger bot delivery for a candidate button, forward document to 'me', verify...",
+      "source_file": "backend/app/api/search.py",
+      "source_location": "L479"
+    },
+    {
+      "id": "backend_app_api_search_rationale_539",
+      "label": "Validate and resolve a selected search result reference for upcoming delivery.",
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "api/search.py",
+      "file_type": "rationale",
+      "norm_label": "validate and resolve a selected search result reference for upcoming delivery.",
+      "source_file": "backend/app/api/search.py",
+      "source_location": "L539"
+    },
+    {
+      "id": "backend_app_services_telegram_rationale_1406",
+      "label": "CLI utility for one-time interactive Telegram login.",
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "api/search.py",
+      "file_type": "rationale",
+      "norm_label": "cli utility for one-time interactive telegram login.",
+      "source_file": "backend/app/services/telegram.py",
+      "source_location": "L1406"
+    },
+    {
+      "id": "backend_app_api_search_py_any",
+      "label": "Any",
+      "_origin": "ast",
+      "community": 26,
+      "community_name": "search_movies",
+      "file_type": "code",
+      "norm_label": "any",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "backend_app_api_search_py_get",
+      "label": "get",
+      "_origin": "ast",
+      "community": 26,
+      "community_name": "search_movies",
+      "file_type": "code",
+      "norm_label": "get",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "backend_app_api_search_rationale_102",
+      "label": "Send a search query to the Telegram bot, aggregate candidates across pages,\u2026",
+      "_origin": "ast",
+      "community": 26,
+      "community_name": "search_movies",
+      "file_type": "rationale",
+      "norm_label": "send a search query to the telegram bot, aggregate candidates across pages,...",
+      "source_file": "backend/app/api/search.py",
+      "source_location": "L102"
+    },
+    {
+      "id": "backend_app_api_search_rationale_31",
+      "label": "Concurrently resolve TMDb posters, backdrops, and ratings for movie title\u2026",
+      "_origin": "ast",
+      "community": 26,
+      "community_name": "search_movies",
+      "file_type": "rationale",
+      "norm_label": "concurrently resolve tmdb posters, backdrops, and ratings for movie title...",
+      "source_file": "backend/app/api/search.py",
+      "source_location": "L31"
+    },
+    {
+      "id": "backend_app_api_search_rationale_429",
+      "label": "Targeted search refinement: discovers all versions (1080p, 720p, MP4, MKV) of a\u2026",
+      "_origin": "ast",
+      "community": 26,
+      "community_name": "search_movies",
+      "file_type": "rationale",
+      "norm_label": "targeted search refinement: discovers all versions (1080p, 720p, mp4, mkv) of a...",
+      "source_file": "backend/app/api/search.py",
+      "source_location": "L429"
+    },
+    {
+      "id": "backend_app_api_search_rationale_48",
+      "label": "Merge title groups that share the exact same TMDb movie ID, guaranteeing only 1\u2026",
+      "_origin": "ast",
+      "community": 26,
+      "community_name": "search_movies",
+      "file_type": "rationale",
+      "norm_label": "merge title groups that share the exact same tmdb movie id, guaranteeing only 1...",
+      "source_file": "backend/app/api/search.py",
+      "source_location": "L48"
+    },
+    {
+      "id": "backend_app_api_search_rationale_560",
+      "label": "Renders the CineForge Search, Multi-Format Discovery & Real Delivery UI.",
+      "_origin": "ast",
+      "community": 26,
+      "community_name": "search_movies",
+      "file_type": "rationale",
+      "norm_label": "renders the cineforge search, multi-format discovery & real delivery ui.",
+      "source_file": "backend/app/api/search.py",
+      "source_location": "L560"
+    },
+    {
+      "id": "backend_app_api_search_rationale_84",
+      "label": "Return instant autocomplete suggestions from TMDb with title, release year,\u2026",
+      "_origin": "ast",
+      "community": 26,
+      "community_name": "search_movies",
+      "file_type": "rationale",
+      "norm_label": "return instant autocomplete suggestions from tmdb with title, release year,...",
+      "source_file": "backend/app/api/search.py",
+      "source_location": "L84"
+    },
+    {
+      "id": "backend_app_api_auth",
+      "label": "api/auth.py",
+      "_origin": "ast",
+      "community": 27,
+      "community_name": "typing",
+      "file_type": "code",
+      "norm_label": "api/auth.py",
+      "source_file": "backend/app/api/auth.py",
+      "source_location": "L1"
+    },
+    {
+      "id": "backend_app_config",
+      "label": "config.py",
+      "_origin": "ast",
+      "community": 27,
+      "community_name": "typing",
+      "file_type": "code",
+      "norm_label": "config.py",
+      "source_file": "backend/app/config.py",
+      "source_location": "L1"
+    },
+    {
+      "id": "backend_app_services_auth",
+      "label": "services/auth.py",
+      "_origin": "ast",
+      "community": 27,
+      "community_name": "typing",
+      "file_type": "code",
+      "norm_label": "services/auth.py",
+      "source_file": "backend/app/services/auth.py",
       "source_location": "L1"
     },
     {
@@ -6315,6 +6515,50 @@
       "source_location": "L1"
     },
     {
+      "id": "fastapi",
+      "label": "FastAPI",
+      "_origin": "ast",
+      "community": 27,
+      "community_name": "typing",
+      "file_type": "code",
+      "norm_label": "fastapi",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "httpauthorizationcredentials",
+      "label": "HTTPAuthorizationCredentials",
+      "_origin": "ast",
+      "community": 27,
+      "community_name": "typing",
+      "file_type": "code",
+      "norm_label": "httpauthorizationcredentials",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "backend_app_services_auth_rationale_67",
+      "label": "FastAPI dependency for optionally authenticated endpoints.",
+      "_origin": "ast",
+      "community": 27,
+      "community_name": "typing",
+      "file_type": "rationale",
+      "norm_label": "fastapi dependency for optionally authenticated endpoints.",
+      "source_file": "backend/app/services/auth.py",
+      "source_location": "L67"
+    },
+    {
+      "id": "backend_app_services_auth_rationale_77",
+      "label": "FastAPI dependency for strictly protected endpoints.",
+      "_origin": "ast",
+      "community": 27,
+      "community_name": "typing",
+      "file_type": "rationale",
+      "norm_label": "fastapi dependency for strictly protected endpoints.",
+      "source_file": "backend/app/services/auth.py",
+      "source_location": "L77"
+    },
+    {
       "id": "backend_app_services_init_rationale_1",
       "label": "Services package for Cineforge backend.",
       "_origin": "ast",
@@ -6323,6 +6567,94 @@
       "file_type": "rationale",
       "norm_label": "services package for cineforge backend.",
       "source_file": "backend/app/services/__init__.py",
+      "source_location": "L1"
+    },
+    {
+      "id": "frontend_src_components_deliverymodal",
+      "label": "DeliveryModal.jsx",
+      "_origin": "ast",
+      "community": 28,
+      "community_name": "DeliveryModal.jsx",
+      "file_type": "code",
+      "norm_label": "deliverymodal.jsx",
+      "source_file": "frontend/src/components/DeliveryModal.jsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "frontend_src_utils_movietrivia",
+      "label": "movieTrivia.js",
+      "_origin": "ast",
+      "community": 28,
+      "community_name": "DeliveryModal.jsx",
+      "file_type": "code",
+      "norm_label": "movietrivia.js",
+      "source_file": "frontend/src/utils/movieTrivia.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "frontend_src_utils_movietrivia_cinema_calibration_steps",
+      "label": "CINEMA_CALIBRATION_STEPS",
+      "_origin": "ast",
+      "community": 28,
+      "community_name": "DeliveryModal.jsx",
+      "file_type": "code",
+      "norm_label": "cinema_calibration_steps",
+      "source_file": "frontend/src/utils/movieTrivia.js",
+      "source_location": "L117"
+    },
+    {
+      "id": "frontend_src_utils_movietrivia_curated_trivia",
+      "label": "CURATED_TRIVIA",
+      "_origin": "ast",
+      "community": 28,
+      "community_name": "DeliveryModal.jsx",
+      "file_type": "code",
+      "norm_label": "curated_trivia",
+      "source_file": "frontend/src/utils/movieTrivia.js",
+      "source_location": "L6"
+    },
+    {
+      "id": "frontend_src_utils_movietrivia_generic_trivia_templates",
+      "label": "GENERIC_TRIVIA_TEMPLATES",
+      "_origin": "ast",
+      "community": 28,
+      "community_name": "DeliveryModal.jsx",
+      "file_type": "code",
+      "norm_label": "generic_trivia_templates",
+      "source_file": "frontend/src/utils/movieTrivia.js",
+      "source_location": "L126"
+    },
+    {
+      "id": "backend_app_models_search",
+      "label": "models/search.py",
+      "_origin": "ast",
+      "community": 29,
+      "community_name": "models/search.py",
+      "file_type": "code",
+      "norm_label": "models/search.py",
+      "source_file": "backend/app/models/search.py",
+      "source_location": "L1"
+    },
+    {
+      "id": "backend_app_models_search_py_basemodel",
+      "label": "BaseModel",
+      "_origin": "ast",
+      "community": 29,
+      "community_name": "models/search.py",
+      "file_type": "code",
+      "norm_label": "basemodel",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "backend_tests_test_phase14_compatibility",
+      "label": "test_phase14_compatibility.py",
+      "_origin": "ast",
+      "community": 29,
+      "community_name": "models/search.py",
+      "file_type": "code",
+      "norm_label": "test_phase14_compatibility.py",
+      "source_file": "backend/tests/test_phase14_compatibility.py",
       "source_location": "L1"
     },
     {
@@ -6689,6 +7021,61 @@
       "source_location": "L51"
     },
     {
+      "id": "backend_tests_test_streamer_bot_integration_rationale_14",
+      "label": "Verify _extract_streamer_links correctly extracts stream, watch, and download\u2026",
+      "_origin": "ast",
+      "community": 30,
+      "community_name": "TestStreamerBotIntegration",
+      "file_type": "rationale",
+      "norm_label": "verify _extract_streamer_links correctly extracts stream, watch, and download...",
+      "source_file": "backend/tests/test_streamer_bot_integration.py",
+      "source_location": "L14"
+    },
+    {
+      "id": "backend_tests_test_streamer_bot_integration_rationale_42",
+      "label": "Verify POST /api/search/deliver returns valid stream and player URLs.",
+      "_origin": "ast",
+      "community": 30,
+      "community_name": "TestStreamerBotIntegration",
+      "file_type": "rationale",
+      "norm_label": "verify post /api/search/deliver returns valid stream and player urls.",
+      "source_file": "backend/tests/test_streamer_bot_integration.py",
+      "source_location": "L42"
+    },
+    {
+      "id": "backend_app_api_telegram_py_get",
+      "label": "get",
+      "_origin": "ast",
+      "community": 31,
+      "community_name": "test_telegram_search",
+      "file_type": "code",
+      "norm_label": "get",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "backend_app_api_telegram_rationale_19",
+      "label": "Check if the Telethon user client is connected and authenticated without\u2026",
+      "_origin": "ast",
+      "community": 31,
+      "community_name": "test_telegram_search",
+      "file_type": "rationale",
+      "norm_label": "check if the telethon user client is connected and authenticated without...",
+      "source_file": "backend/app/api/telegram.py",
+      "source_location": "L19"
+    },
+    {
+      "id": "backend_app_api_telegram_rationale_31",
+      "label": "Development-only endpoint: Sends query to bot in private chat and returns\u2026",
+      "_origin": "ast",
+      "community": 31,
+      "community_name": "test_telegram_search",
+      "file_type": "rationale",
+      "norm_label": "development-only endpoint: sends query to bot in private chat and returns...",
+      "source_file": "backend/app/api/telegram.py",
+      "source_location": "L31"
+    },
+    {
       "id": "api_route",
       "label": "api_route",
       "_origin": "ast",
@@ -6744,6 +7131,39 @@
       "source_location": ""
     },
     {
+      "id": "backend_app_api_cache",
+      "label": "api/cache.py",
+      "_origin": "ast",
+      "community": 34,
+      "community_name": "main.py",
+      "file_type": "code",
+      "norm_label": "api/cache.py",
+      "source_file": "backend/app/api/cache.py",
+      "source_location": "L1"
+    },
+    {
+      "id": "backend_app_api_cache_py_get",
+      "label": "get",
+      "_origin": "ast",
+      "community": 34,
+      "community_name": "main.py",
+      "file_type": "code",
+      "norm_label": "get",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "backend_app_api_init",
+      "label": "api/__init__.py",
+      "_origin": "ast",
+      "community": 34,
+      "community_name": "main.py",
+      "file_type": "code",
+      "norm_label": "api/__init__.py",
+      "source_file": "backend/app/api/__init__.py",
+      "source_location": "L1"
+    },
+    {
       "id": "backend_app_main",
       "label": "main.py",
       "_origin": "ast",
@@ -6789,6 +7209,28 @@
     },
     {
       "id": "backend_app_models_ai_py_basemodel",
+      "label": "BaseModel",
+      "_origin": "ast",
+      "community": 34,
+      "community_name": "main.py",
+      "file_type": "code",
+      "norm_label": "basemodel",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "backend_app_models_cache",
+      "label": "models/cache.py",
+      "_origin": "ast",
+      "community": 34,
+      "community_name": "main.py",
+      "file_type": "code",
+      "norm_label": "models/cache.py",
+      "source_file": "backend/app/models/cache.py",
+      "source_location": "L1"
+    },
+    {
+      "id": "backend_app_models_cache_py_basemodel",
       "label": "BaseModel",
       "_origin": "ast",
       "community": 34,
@@ -6898,6 +7340,17 @@
       "source_location": "L48"
     },
     {
+      "id": "backend_app_api_cache_rationale_11",
+      "label": "Returns whether Supabase caching is active, along with total cached movies and\u2026",
+      "_origin": "ast",
+      "community": 34,
+      "community_name": "main.py",
+      "file_type": "rationale",
+      "norm_label": "returns whether supabase caching is active, along with total cached movies and...",
+      "source_file": "backend/app/api/cache.py",
+      "source_location": "L11"
+    },
+    {
       "id": "backend_app_main_rationale_89",
       "label": "Proxy video streaming and download range requests to local Go FileStreamBot\u2026",
       "_origin": "ast",
@@ -6928,6 +7381,28 @@
       "file_type": "rationale",
       "norm_label": "structured interpretation of a user's movie search query.",
       "source_file": "backend/app/models/ai.py",
+      "source_location": "L6"
+    },
+    {
+      "id": "backend_app_models_cache_rationale_25",
+      "label": "Operational statistics for Cineforge Supabase cache.",
+      "_origin": "ast",
+      "community": 34,
+      "community_name": "main.py",
+      "file_type": "rationale",
+      "norm_label": "operational statistics for cineforge supabase cache.",
+      "source_file": "backend/app/models/cache.py",
+      "source_location": "L25"
+    },
+    {
+      "id": "backend_app_models_cache_rationale_6",
+      "label": "Database representation of a cached movie candidate in Supabase.",
+      "_origin": "ast",
+      "community": 34,
+      "community_name": "main.py",
+      "file_type": "rationale",
+      "norm_label": "database representation of a cached movie candidate in supabase.",
+      "source_file": "backend/app/models/cache.py",
       "source_location": "L6"
     },
     {
@@ -6984,28 +7459,6 @@
       "norm_label": "interpret, correct typos, and resolve natural language/vague descriptions into...",
       "source_file": "backend/app/services/ai_service.py",
       "source_location": "L67"
-    },
-    {
-      "id": "backend_tests_test_streamer_bot_integration_rationale_14",
-      "label": "Verify _extract_streamer_links correctly extracts stream, watch, and download\u2026",
-      "_origin": "ast",
-      "community": 34,
-      "community_name": "main.py",
-      "file_type": "rationale",
-      "norm_label": "verify _extract_streamer_links correctly extracts stream, watch, and download...",
-      "source_file": "backend/tests/test_streamer_bot_integration.py",
-      "source_location": "L14"
-    },
-    {
-      "id": "backend_tests_test_streamer_bot_integration_rationale_42",
-      "label": "Verify POST /api/search/deliver returns valid stream and player URLs.",
-      "_origin": "ast",
-      "community": 34,
-      "community_name": "main.py",
-      "file_type": "rationale",
-      "norm_label": "verify post /api/search/deliver returns valid stream and player urls.",
-      "source_file": "backend/tests/test_streamer_bot_integration.py",
-      "source_location": "L42"
     },
     {
       "id": "backend_app_api_history",
@@ -7074,46 +7527,13 @@
       "source_location": ""
     },
     {
-      "id": "backend_app_config",
-      "label": "config.py",
-      "_origin": "ast",
-      "community": 4,
-      "community_name": "config.py",
-      "file_type": "code",
-      "norm_label": "config.py",
-      "source_file": "backend/app/config.py",
-      "source_location": "L1"
-    },
-    {
-      "id": "backend_app_services_auth",
-      "label": "services/auth.py",
-      "_origin": "ast",
-      "community": 4,
-      "community_name": "config.py",
-      "file_type": "code",
-      "norm_label": "services/auth.py",
-      "source_file": "backend/app/services/auth.py",
-      "source_location": "L1"
-    },
-    {
       "id": "backend_app_services_auth_py_any",
       "label": "Any",
       "_origin": "ast",
       "community": 4,
-      "community_name": "config.py",
+      "community_name": "AuthService",
       "file_type": "code",
       "norm_label": "any",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "httpauthorizationcredentials",
-      "label": "HTTPAuthorizationCredentials",
-      "_origin": "ast",
-      "community": 4,
-      "community_name": "config.py",
-      "file_type": "code",
-      "norm_label": "httpauthorizationcredentials",
       "source_file": "",
       "source_location": ""
     },
@@ -7122,7 +7542,7 @@
       "label": "Service for validating Supabase JWT tokens and retrieving user profiles.",
       "_origin": "ast",
       "community": 4,
-      "community_name": "config.py",
+      "community_name": "AuthService",
       "file_type": "rationale",
       "norm_label": "service for validating supabase jwt tokens and retrieving user profiles.",
       "source_file": "backend/app/services/auth.py",
@@ -7133,33 +7553,11 @@
       "label": "Verify Supabase JWT token and return authenticated user metadata.",
       "_origin": "ast",
       "community": 4,
-      "community_name": "config.py",
+      "community_name": "AuthService",
       "file_type": "rationale",
       "norm_label": "verify supabase jwt token and return authenticated user metadata.",
       "source_file": "backend/app/services/auth.py",
       "source_location": "L35"
-    },
-    {
-      "id": "backend_app_services_auth_rationale_67",
-      "label": "FastAPI dependency for optionally authenticated endpoints.",
-      "_origin": "ast",
-      "community": 4,
-      "community_name": "config.py",
-      "file_type": "rationale",
-      "norm_label": "fastapi dependency for optionally authenticated endpoints.",
-      "source_file": "backend/app/services/auth.py",
-      "source_location": "L67"
-    },
-    {
-      "id": "backend_app_services_auth_rationale_77",
-      "label": "FastAPI dependency for strictly protected endpoints.",
-      "_origin": "ast",
-      "community": 4,
-      "community_name": "config.py",
-      "file_type": "rationale",
-      "norm_label": "fastapi dependency for strictly protected endpoints.",
-      "source_file": "backend/app/services/auth.py",
-      "source_location": "L77"
     },
     {
       "id": "backend_app_services_telegram_py_any",
@@ -7426,88 +7824,22 @@
       "source_location": "L975"
     },
     {
-      "id": "backend_app_api_search",
-      "label": "api/search.py",
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "code",
-      "norm_label": "api/search.py",
-      "source_file": "backend/app/api/search.py",
-      "source_location": "L1"
-    },
-    {
-      "id": "backend_app_api_search_py_any",
-      "label": "Any",
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "code",
-      "norm_label": "any",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "backend_app_api_search_py_get",
-      "label": "get",
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "code",
-      "norm_label": "get",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "backend_app_api_search_py_post",
-      "label": "post",
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "code",
-      "norm_label": "post",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "backend_app_api_search_py_request",
-      "label": "Request",
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "code",
-      "norm_label": "request",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
       "id": "backend_app_api_telegram",
       "label": "api/telegram.py",
       "_origin": "ast",
       "community": 6,
-      "community_name": "api/search.py",
+      "community_name": "models/__init__.py",
       "file_type": "code",
       "norm_label": "api/telegram.py",
       "source_file": "backend/app/api/telegram.py",
       "source_location": "L1"
     },
     {
-      "id": "backend_app_api_telegram_py_get",
-      "label": "get",
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "code",
-      "norm_label": "get",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
       "id": "backend_app_api_telegram_py_post",
       "label": "post",
       "_origin": "ast",
       "community": 6,
-      "community_name": "api/search.py",
+      "community_name": "models/__init__.py",
       "file_type": "code",
       "norm_label": "post",
       "source_file": "",
@@ -7518,40 +7850,18 @@
       "label": "delivery.py",
       "_origin": "ast",
       "community": 6,
-      "community_name": "api/search.py",
+      "community_name": "models/__init__.py",
       "file_type": "code",
       "norm_label": "delivery.py",
       "source_file": "backend/app/models/delivery.py",
       "source_location": "L1"
     },
     {
-      "id": "backend_app_models_delivery_flow",
-      "label": "delivery_flow.py",
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "code",
-      "norm_label": "delivery_flow.py",
-      "source_file": "backend/app/models/delivery_flow.py",
-      "source_location": "L1"
-    },
-    {
-      "id": "backend_app_models_delivery_flow_py_basemodel",
-      "label": "BaseModel",
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "code",
-      "norm_label": "basemodel",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
       "id": "backend_app_models_delivery_py_basemodel",
       "label": "BaseModel",
       "_origin": "ast",
       "community": 6,
-      "community_name": "api/search.py",
+      "community_name": "models/__init__.py",
       "file_type": "code",
       "norm_label": "basemodel",
       "source_file": "",
@@ -7562,194 +7872,18 @@
       "label": "models/__init__.py",
       "_origin": "ast",
       "community": 6,
-      "community_name": "api/search.py",
+      "community_name": "models/__init__.py",
       "file_type": "code",
       "norm_label": "models/__init__.py",
       "source_file": "backend/app/models/__init__.py",
       "source_location": "L1"
     },
     {
-      "id": "backend_app_models_search",
-      "label": "models/search.py",
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "code",
-      "norm_label": "models/search.py",
-      "source_file": "backend/app/models/search.py",
-      "source_location": "L1"
-    },
-    {
-      "id": "backend_app_models_search_py_basemodel",
-      "label": "BaseModel",
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "code",
-      "norm_label": "basemodel",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "backend_app_services_search_aggregator_py_any",
-      "label": "Any",
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "code",
-      "norm_label": "any",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "backend_app_services_telegram",
-      "label": "services/telegram.py",
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "code",
-      "norm_label": "services/telegram.py",
-      "source_file": "backend/app/services/telegram.py",
-      "source_location": "L1"
-    },
-    {
-      "id": "backend_login",
-      "label": "login.py",
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "code",
-      "norm_label": "login.py",
-      "source_file": "backend/login.py",
-      "source_location": "L1"
-    },
-    {
-      "id": "backend_tests_test_phase14_compatibility",
-      "label": "test_phase14_compatibility.py",
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "code",
-      "norm_label": "test_phase14_compatibility.py",
-      "source_file": "backend/tests/test_phase14_compatibility.py",
-      "source_location": "L1"
-    },
-    {
-      "id": "backend_app_api_search_rationale_102",
-      "label": "Send a search query to the Telegram bot, aggregate candidates across pages,\u2026",
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "rationale",
-      "norm_label": "send a search query to the telegram bot, aggregate candidates across pages,...",
-      "source_file": "backend/app/api/search.py",
-      "source_location": "L102"
-    },
-    {
-      "id": "backend_app_api_search_rationale_31",
-      "label": "Concurrently resolve TMDb posters, backdrops, and ratings for movie title\u2026",
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "rationale",
-      "norm_label": "concurrently resolve tmdb posters, backdrops, and ratings for movie title...",
-      "source_file": "backend/app/api/search.py",
-      "source_location": "L31"
-    },
-    {
-      "id": "backend_app_api_search_rationale_429",
-      "label": "Targeted search refinement: discovers all versions (1080p, 720p, MP4, MKV) of a\u2026",
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "rationale",
-      "norm_label": "targeted search refinement: discovers all versions (1080p, 720p, mp4, mkv) of a...",
-      "source_file": "backend/app/api/search.py",
-      "source_location": "L429"
-    },
-    {
-      "id": "backend_app_api_search_rationale_479",
-      "label": "Trigger bot delivery for a candidate button, forward document to 'me', verify\u2026",
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "rationale",
-      "norm_label": "trigger bot delivery for a candidate button, forward document to 'me', verify...",
-      "source_file": "backend/app/api/search.py",
-      "source_location": "L479"
-    },
-    {
-      "id": "backend_app_api_search_rationale_48",
-      "label": "Merge title groups that share the exact same TMDb movie ID, guaranteeing only 1\u2026",
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "rationale",
-      "norm_label": "merge title groups that share the exact same tmdb movie id, guaranteeing only 1...",
-      "source_file": "backend/app/api/search.py",
-      "source_location": "L48"
-    },
-    {
-      "id": "backend_app_api_search_rationale_539",
-      "label": "Validate and resolve a selected search result reference for upcoming delivery.",
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "rationale",
-      "norm_label": "validate and resolve a selected search result reference for upcoming delivery.",
-      "source_file": "backend/app/api/search.py",
-      "source_location": "L539"
-    },
-    {
-      "id": "backend_app_api_search_rationale_560",
-      "label": "Renders the CineForge Search, Multi-Format Discovery & Real Delivery UI.",
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "rationale",
-      "norm_label": "renders the cineforge search, multi-format discovery & real delivery ui.",
-      "source_file": "backend/app/api/search.py",
-      "source_location": "L560"
-    },
-    {
-      "id": "backend_app_api_search_rationale_84",
-      "label": "Return instant autocomplete suggestions from TMDb with title, release year,\u2026",
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "rationale",
-      "norm_label": "return instant autocomplete suggestions from tmdb with title, release year,...",
-      "source_file": "backend/app/api/search.py",
-      "source_location": "L84"
-    },
-    {
-      "id": "backend_app_api_telegram_rationale_19",
-      "label": "Check if the Telethon user client is connected and authenticated without\u2026",
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "rationale",
-      "norm_label": "check if the telethon user client is connected and authenticated without...",
-      "source_file": "backend/app/api/telegram.py",
-      "source_location": "L19"
-    },
-    {
-      "id": "backend_app_api_telegram_rationale_31",
-      "label": "Development-only endpoint: Sends query to bot in private chat and returns\u2026",
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "rationale",
-      "norm_label": "development-only endpoint: sends query to bot in private chat and returns...",
-      "source_file": "backend/app/api/telegram.py",
-      "source_location": "L31"
-    },
-    {
       "id": "backend_app_api_telegram_rationale_72",
       "label": "Development-only endpoint: Registers an isolated waiter and waits for the next\u2026",
       "_origin": "ast",
       "community": 6,
-      "community_name": "api/search.py",
+      "community_name": "models/__init__.py",
       "file_type": "rationale",
       "norm_label": "development-only endpoint: registers an isolated waiter and waits for the next...",
       "source_file": "backend/app/api/telegram.py",
@@ -7760,7 +7894,7 @@
       "label": "Development-only endpoint: Initiates Telegram deep link interaction with target\u2026",
       "_origin": "ast",
       "community": 6,
-      "community_name": "api/search.py",
+      "community_name": "models/__init__.py",
       "file_type": "rationale",
       "norm_label": "development-only endpoint: initiates telegram deep link interaction with target...",
       "source_file": "backend/app/api/telegram.py",
@@ -7771,7 +7905,7 @@
       "label": "Parse Telegram deep links like https://t.me/bot?start=payload or\u2026",
       "_origin": "ast",
       "community": 6,
-      "community_name": "api/search.py",
+      "community_name": "models/__init__.py",
       "file_type": "rationale",
       "norm_label": "parse telegram deep links like https://t.me/bot?start=payload or...",
       "source_file": "backend/app/models/delivery.py",
@@ -7782,117 +7916,18 @@
       "label": "Models and Schemas package for Cineforge.",
       "_origin": "ast",
       "community": 6,
-      "community_name": "api/search.py",
+      "community_name": "models/__init__.py",
       "file_type": "rationale",
       "norm_label": "models and schemas package for cineforge.",
       "source_file": "backend/app/models/__init__.py",
       "source_location": "L1"
     },
     {
-      "id": "backend_app_services_search_aggregator_rationale_108",
-      "label": "Convert a candidate button into a rich SearchCandidate model.",
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "rationale",
-      "norm_label": "convert a candidate button into a rich searchcandidate model.",
-      "source_file": "backend/app/services/search_aggregator.py",
-      "source_location": "L108"
-    },
-    {
-      "id": "backend_app_services_search_aggregator_rationale_21",
-      "label": "Aggregates paginated Telegram search candidate files, normalizes metadata, and\u2026",
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "rationale",
-      "norm_label": "aggregates paginated telegram search candidate files, normalizes metadata, and...",
-      "source_file": "backend/app/services/search_aggregator.py",
-      "source_location": "L21"
-    },
-    {
-      "id": "backend_app_services_search_aggregator_rationale_256",
-      "label": "Extract all candidate files and pagination metadata from a bot message.",
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "rationale",
-      "norm_label": "extract all candidate files and pagination metadata from a bot message.",
-      "source_file": "backend/app/services/search_aggregator.py",
-      "source_location": "L256"
-    },
-    {
-      "id": "backend_app_services_search_aggregator_rationale_284",
-      "label": "Deduplicate candidates preserving first-seen high-quality entries.",
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "rationale",
-      "norm_label": "deduplicate candidates preserving first-seen high-quality entries.",
-      "source_file": "backend/app/services/search_aggregator.py",
-      "source_location": "L284"
-    },
-    {
-      "id": "backend_app_services_search_aggregator_rationale_300",
-      "label": "Cluster candidate versions under canonical title keys and sort by query\u2026",
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "rationale",
-      "norm_label": "cluster candidate versions under canonical title keys and sort by query...",
-      "source_file": "backend/app/services/search_aggregator.py",
-      "source_location": "L300"
-    },
-    {
-      "id": "backend_app_services_search_aggregator_rationale_35",
-      "label": "Extract pagination indicators (e.g. 'Page: 1/220', 'Total Results: 2200',\u2026",
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "rationale",
-      "norm_label": "extract pagination indicators (e.g. 'page: 1/220', 'total results: 2200',...",
-      "source_file": "backend/app/services/search_aggregator.py",
-      "source_location": "L35"
-    },
-    {
-      "id": "backend_app_services_search_aggregator_rationale_357",
-      "label": "Sort title groups by relevance to query (exact match first, then prefix, etc.).",
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "rationale",
-      "norm_label": "sort title groups by relevance to query (exact match first, then prefix, etc.).",
-      "source_file": "backend/app/services/search_aggregator.py",
-      "source_location": "L357"
-    },
-    {
-      "id": "backend_app_services_search_aggregator_rationale_398",
-      "label": "Rank candidates prioritizing browser compatibility, original/English audio,\u2026",
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "rationale",
-      "norm_label": "rank candidates prioritizing browser compatibility, original/english audio,...",
-      "source_file": "backend/app/services/search_aggregator.py",
-      "source_location": "L398"
-    },
-    {
-      "id": "backend_app_services_telegram_rationale_1406",
-      "label": "CLI utility for one-time interactive Telegram login.",
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "rationale",
-      "norm_label": "cli utility for one-time interactive telegram login.",
-      "source_file": "backend/app/services/telegram.py",
-      "source_location": "L1406"
-    },
-    {
       "id": "backend_app_services_telegram_rationale_288",
       "label": "Validate and resolve a selected search result reference for delivery.",
       "_origin": "ast",
       "community": 6,
-      "community_name": "api/search.py",
+      "community_name": "models/__init__.py",
       "file_type": "rationale",
       "norm_label": "validate and resolve a selected search result reference for delivery.",
       "source_file": "backend/app/services/telegram.py",
@@ -8119,6 +8154,17 @@
       "source_location": "L16"
     },
     {
+      "id": "frontend_package_dependencies_react_router_dom",
+      "label": "react-router-dom",
+      "_origin": "ast",
+      "community": 8,
+      "community_name": "package.json",
+      "file_type": "code",
+      "norm_label": "react-router-dom",
+      "source_file": "frontend/package.json",
+      "source_location": "L17"
+    },
+    {
       "id": "frontend_package_dependencies_supabase_supabase_js",
       "label": "@supabase/supabase-js",
       "_origin": "ast",
@@ -8138,7 +8184,7 @@
       "file_type": "code",
       "norm_label": "devdependencies",
       "source_file": "frontend/package.json",
-      "source_location": "L18"
+      "source_location": "L19"
     },
     {
       "id": "frontend_package_devdependencies_oxlint",
@@ -8149,7 +8195,7 @@
       "file_type": "code",
       "norm_label": "oxlint",
       "source_file": "frontend/package.json",
-      "source_location": "L22"
+      "source_location": "L23"
     },
     {
       "id": "frontend_package_devdependencies_types_react",
@@ -8160,7 +8206,7 @@
       "file_type": "code",
       "norm_label": "@types/react",
       "source_file": "frontend/package.json",
-      "source_location": "L19"
+      "source_location": "L20"
     },
     {
       "id": "frontend_package_devdependencies_types_react_dom",
@@ -8171,7 +8217,7 @@
       "file_type": "code",
       "norm_label": "@types/react-dom",
       "source_file": "frontend/package.json",
-      "source_location": "L20"
+      "source_location": "L21"
     },
     {
       "id": "frontend_package_devdependencies_vite",
@@ -8182,7 +8228,7 @@
       "file_type": "code",
       "norm_label": "vite",
       "source_file": "frontend/package.json",
-      "source_location": "L23"
+      "source_location": "L24"
     },
     {
       "id": "frontend_package_devdependencies_vitejs_plugin_react",
@@ -8193,7 +8239,7 @@
       "file_type": "code",
       "norm_label": "@vitejs/plugin-react",
       "source_file": "frontend/package.json",
-      "source_location": "L21"
+      "source_location": "L22"
     },
     {
       "id": "frontend_package_name",
@@ -8314,7 +8360,7 @@
       "file_type": "concept",
       "norm_label": "oxlint",
       "source_file": "frontend/package.json",
-      "source_location": "L22"
+      "source_location": "L23"
     },
     {
       "id": "ref_supabase_supabase_js",
@@ -8336,7 +8382,7 @@
       "file_type": "concept",
       "norm_label": "@types/react",
       "source_file": "frontend/package.json",
-      "source_location": "L19"
+      "source_location": "L20"
     },
     {
       "id": "ref_types_react_dom",
@@ -8347,7 +8393,7 @@
       "file_type": "concept",
       "norm_label": "@types/react-dom",
       "source_file": "frontend/package.json",
-      "source_location": "L20"
+      "source_location": "L21"
     },
     {
       "id": "ref_vite",
@@ -8358,7 +8404,7 @@
       "file_type": "concept",
       "norm_label": "vite",
       "source_file": "frontend/package.json",
-      "source_location": "L23"
+      "source_location": "L24"
     },
     {
       "id": "ref_vitejs_plugin_react",
@@ -8369,7 +8415,7 @@
       "file_type": "concept",
       "norm_label": "@vitejs/plugin-react",
       "source_file": "frontend/package.json",
-      "source_location": "L21"
+      "source_location": "L22"
     },
     {
       "id": "backend_app_services_telethon_compat",
@@ -8475,7 +8521,7 @@
       "label": "argparse",
       "_origin": "semantic",
       "community": 1,
-      "community_name": "logging",
+      "community_name": "publish_tunnel.py",
       "external": true,
       "file_type": "concept",
       "norm_label": "argparse",
@@ -8487,22 +8533,10 @@
       "label": "datetime",
       "_origin": "semantic",
       "community": 1,
-      "community_name": "logging",
+      "community_name": "publish_tunnel.py",
       "external": true,
       "file_type": "concept",
       "norm_label": "datetime",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "logging",
-      "label": "logging",
-      "_origin": "semantic",
-      "community": 1,
-      "community_name": "logging",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "logging",
       "source_file": "",
       "type": "external"
     },
@@ -8555,14 +8589,146 @@
       "type": "external"
     },
     {
-      "id": "pydantic",
-      "label": "pydantic",
+      "id": "atexit",
+      "label": "atexit",
       "_origin": "semantic",
-      "community": 15,
-      "community_name": "pydantic",
+      "community": 17,
+      "community_name": "CineforgeTrayApp",
       "external": true,
       "file_type": "concept",
-      "norm_label": "pydantic",
+      "norm_label": "atexit",
+      "source_file": "",
+      "type": "external"
+    },
+    {
+      "id": "os",
+      "label": "os",
+      "_origin": "semantic",
+      "community": 17,
+      "community_name": "CineforgeTrayApp",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "os",
+      "source_file": "",
+      "type": "external"
+    },
+    {
+      "id": "pathlib",
+      "label": "pathlib",
+      "_origin": "semantic",
+      "community": 17,
+      "community_name": "CineforgeTrayApp",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "pathlib",
+      "source_file": "",
+      "type": "external"
+    },
+    {
+      "id": "pil",
+      "label": "pil",
+      "_origin": "semantic",
+      "community": 17,
+      "community_name": "CineforgeTrayApp",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "pil",
+      "source_file": "",
+      "type": "external"
+    },
+    {
+      "id": "pystray",
+      "label": "pystray",
+      "_origin": "semantic",
+      "community": 17,
+      "community_name": "CineforgeTrayApp",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "pystray",
+      "source_file": "",
+      "type": "external"
+    },
+    {
+      "id": "subprocess",
+      "label": "subprocess",
+      "_origin": "semantic",
+      "community": 17,
+      "community_name": "CineforgeTrayApp",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "subprocess",
+      "source_file": "",
+      "type": "external"
+    },
+    {
+      "id": "sys",
+      "label": "sys",
+      "_origin": "semantic",
+      "community": 17,
+      "community_name": "CineforgeTrayApp",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "sys",
+      "source_file": "",
+      "type": "external"
+    },
+    {
+      "id": "telethon_sessions",
+      "label": "telethon_sessions",
+      "_origin": "semantic",
+      "community": 17,
+      "community_name": "CineforgeTrayApp",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "telethon_sessions",
+      "source_file": "",
+      "type": "external"
+    },
+    {
+      "id": "telethon_sync",
+      "label": "telethon_sync",
+      "_origin": "semantic",
+      "community": 17,
+      "community_name": "CineforgeTrayApp",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "telethon_sync",
+      "source_file": "",
+      "type": "external"
+    },
+    {
+      "id": "threading",
+      "label": "threading",
+      "_origin": "semantic",
+      "community": 17,
+      "community_name": "CineforgeTrayApp",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "threading",
+      "source_file": "",
+      "type": "external"
+    },
+    {
+      "id": "time",
+      "label": "time",
+      "_origin": "semantic",
+      "community": 17,
+      "community_name": "CineforgeTrayApp",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "time",
+      "source_file": "",
+      "type": "external"
+    },
+    {
+      "id": "webbrowser",
+      "label": "webbrowser",
+      "_origin": "semantic",
+      "community": 17,
+      "community_name": "CineforgeTrayApp",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "webbrowser",
       "source_file": "",
       "type": "external"
     },
@@ -8579,146 +8745,50 @@
       "type": "external"
     },
     {
-      "id": "atexit",
-      "label": "atexit",
-      "_origin": "semantic",
-      "community": 25,
-      "community_name": "tray_app.py",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "atexit",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "os",
-      "label": "os",
-      "_origin": "semantic",
-      "community": 25,
-      "community_name": "tray_app.py",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "os",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "pathlib",
-      "label": "pathlib",
-      "_origin": "semantic",
-      "community": 25,
-      "community_name": "tray_app.py",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "pathlib",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "pil",
-      "label": "pil",
-      "_origin": "semantic",
-      "community": 25,
-      "community_name": "tray_app.py",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "pil",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "pystray",
-      "label": "pystray",
-      "_origin": "semantic",
-      "community": 25,
-      "community_name": "tray_app.py",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "pystray",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "subprocess",
-      "label": "subprocess",
-      "_origin": "semantic",
-      "community": 25,
-      "community_name": "tray_app.py",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "subprocess",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "sys",
-      "label": "sys",
-      "_origin": "semantic",
-      "community": 25,
-      "community_name": "tray_app.py",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "sys",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "telethon_sessions",
-      "label": "telethon_sessions",
-      "_origin": "semantic",
-      "community": 25,
-      "community_name": "tray_app.py",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "telethon_sessions",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "telethon_sync",
-      "label": "telethon_sync",
-      "_origin": "semantic",
-      "community": 25,
-      "community_name": "tray_app.py",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "telethon_sync",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "threading",
-      "label": "threading",
-      "_origin": "semantic",
-      "community": 25,
-      "community_name": "tray_app.py",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "threading",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "webbrowser",
-      "label": "webbrowser",
-      "_origin": "semantic",
-      "community": 25,
-      "community_name": "tray_app.py",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "webbrowser",
-      "source_file": "",
-      "type": "external"
-    },
-    {
       "id": "asyncio",
       "label": "asyncio",
       "_origin": "semantic",
-      "community": 27,
-      "community_name": "typing",
+      "community": 25,
+      "community_name": "api/search.py",
       "external": true,
       "file_type": "concept",
       "norm_label": "asyncio",
+      "source_file": "",
+      "type": "external"
+    },
+    {
+      "id": "fastapi_responses",
+      "label": "fastapi_responses",
+      "_origin": "semantic",
+      "community": 25,
+      "community_name": "api/search.py",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "fastapi_responses",
+      "source_file": "",
+      "type": "external"
+    },
+    {
+      "id": "telethon",
+      "label": "telethon",
+      "_origin": "semantic",
+      "community": 25,
+      "community_name": "api/search.py",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "telethon",
+      "source_file": "",
+      "type": "external"
+    },
+    {
+      "id": "uuid",
+      "label": "uuid",
+      "_origin": "semantic",
+      "community": 25,
+      "community_name": "api/search.py",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "uuid",
       "source_file": "",
       "type": "external"
     },
@@ -8735,6 +8805,18 @@
       "type": "external"
     },
     {
+      "id": "fastapi_security",
+      "label": "fastapi_security",
+      "_origin": "semantic",
+      "community": 27,
+      "community_name": "typing",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "fastapi_security",
+      "source_file": "",
+      "type": "external"
+    },
+    {
       "id": "hashlib",
       "label": "hashlib",
       "_origin": "semantic",
@@ -8747,6 +8829,42 @@
       "type": "external"
     },
     {
+      "id": "logging",
+      "label": "logging",
+      "_origin": "semantic",
+      "community": 27,
+      "community_name": "typing",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "logging",
+      "source_file": "",
+      "type": "external"
+    },
+    {
+      "id": "pydantic",
+      "label": "pydantic",
+      "_origin": "semantic",
+      "community": 27,
+      "community_name": "typing",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "pydantic",
+      "source_file": "",
+      "type": "external"
+    },
+    {
+      "id": "pydantic_settings",
+      "label": "pydantic_settings",
+      "_origin": "semantic",
+      "community": 27,
+      "community_name": "typing",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "pydantic_settings",
+      "source_file": "",
+      "type": "external"
+    },
+    {
       "id": "re",
       "label": "re",
       "_origin": "semantic",
@@ -8755,18 +8873,6 @@
       "external": true,
       "file_type": "concept",
       "norm_label": "re",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "time",
-      "label": "time",
-      "_origin": "semantic",
-      "community": 27,
-      "community_name": "typing",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "time",
       "source_file": "",
       "type": "external"
     },
@@ -8875,66 +8981,6 @@
       "external": true,
       "file_type": "concept",
       "norm_label": "unittest_mock",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "fastapi_security",
-      "label": "fastapi_security",
-      "_origin": "semantic",
-      "community": 4,
-      "community_name": "config.py",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "fastapi_security",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "pydantic_settings",
-      "label": "pydantic_settings",
-      "_origin": "semantic",
-      "community": 4,
-      "community_name": "config.py",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "pydantic_settings",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "fastapi_responses",
-      "label": "fastapi_responses",
-      "_origin": "semantic",
-      "community": 6,
-      "community_name": "api/search.py",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "fastapi_responses",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "telethon",
-      "label": "telethon",
-      "_origin": "semantic",
-      "community": 6,
-      "community_name": "api/search.py",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "telethon",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "uuid",
-      "label": "uuid",
-      "_origin": "semantic",
-      "community": 6,
-      "community_name": "api/search.py",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "uuid",
       "source_file": "",
       "type": "external"
     },
@@ -10574,7 +10620,7 @@
     },
     {
       "source": "frontend_src_app_app",
-      "target": "frontend_src_utils_helpers_parsemoviemetadata",
+      "target": "frontend_src_services_api_delivercandidate",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -10586,7 +10632,7 @@
     },
     {
       "source": "frontend_src_app_app",
-      "target": "frontend_src_services_api_searchmovies",
+      "target": "frontend_src_utils_helpers_titletoslug",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -10598,66 +10644,6 @@
     },
     {
       "source": "frontend_src_app_app",
-      "target": "frontend_src_services_api_resolveapibase",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "frontend/src/App.jsx",
-      "source_location": "L205",
-      "weight": 1.0
-    },
-    {
-      "source": "frontend_src_app_app",
-      "target": "frontend_src_context_authcontext_useauth",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "frontend/src/App.jsx",
-      "source_location": "L21",
-      "weight": 1.0
-    },
-    {
-      "source": "frontend_src_app_app",
-      "target": "frontend_src_context_watchhistorycontext_usewatchhistory",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "frontend/src/App.jsx",
-      "source_location": "L22",
-      "weight": 1.0
-    },
-    {
-      "source": "frontend_src_app_app",
-      "target": "frontend_src_services_api_delivercandidate",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "frontend/src/App.jsx",
-      "source_location": "L278",
-      "weight": 1.0
-    },
-    {
-      "source": "frontend_src_app_app",
-      "target": "frontend_src_services_api_getbackendhealth",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "frontend/src/App.jsx",
-      "source_location": "L56",
-      "weight": 1.0
-    },
-    {
-      "source": "frontend_src_app_app",
       "target": "frontend_src_services_api_getpopularmovies",
       "relation": "calls",
       "_origin": "ast",
@@ -10665,7 +10651,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/App.jsx",
-      "source_location": "L73",
+      "source_location": "L187",
       "weight": 1.0
     },
     {
@@ -10677,7 +10663,91 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/App.jsx",
-      "source_location": "L74",
+      "source_location": "L188",
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_src_app_app",
+      "target": "frontend_src_utils_helpers_parsemoviemetadata",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "frontend/src/App.jsx",
+      "source_location": "L232",
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_src_app_app",
+      "target": "frontend_src_context_authcontext_useauth",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "frontend/src/App.jsx",
+      "source_location": "L26",
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_src_app_app",
+      "target": "frontend_src_context_watchhistorycontext_usewatchhistory",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "frontend/src/App.jsx",
+      "source_location": "L27",
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_src_app_app",
+      "target": "frontend_src_services_api_resolveapibase",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "frontend/src/App.jsx",
+      "source_location": "L321",
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_src_app_app",
+      "target": "frontend_src_services_api_getbackendhealth",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "frontend/src/App.jsx",
+      "source_location": "L66",
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_src_app_app",
+      "target": "frontend_src_utils_helpers_slugtoquery",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "frontend/src/App.jsx",
+      "source_location": "L80",
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_src_app_app",
+      "target": "frontend_src_services_api_searchmovies",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "frontend/src/App.jsx",
+      "source_location": "L86",
       "weight": 1.0
     },
     {
@@ -10689,7 +10759,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/AuthModal.jsx",
-      "source_location": "L13",
+      "source_location": "L17",
       "weight": 1.0
     },
     {
@@ -10922,6 +10992,18 @@
     },
     {
       "source": "frontend_src_components_navbar_navbar",
+      "target": "frontend_src_context_authcontext_useauth",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "frontend/src/components/Navbar.jsx",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_src_components_navbar_navbar",
       "target": "frontend_src_context_watchhistorycontext_usewatchhistory",
       "relation": "calls",
       "_origin": "ast",
@@ -10929,7 +11011,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/Navbar.jsx",
-      "source_location": "L10",
+      "source_location": "L13",
       "weight": 1.0
     },
     {
@@ -10941,7 +11023,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/Navbar.jsx",
-      "source_location": "L43",
+      "source_location": "L46",
       "weight": 1.0
     },
     {
@@ -10953,19 +11035,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/Navbar.jsx",
-      "source_location": "L44",
-      "weight": 1.0
-    },
-    {
-      "source": "frontend_src_components_navbar_navbar",
-      "target": "frontend_src_context_authcontext_useauth",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "frontend/src/components/Navbar.jsx",
-      "source_location": "L9",
+      "source_location": "L47",
       "weight": 1.0
     },
     {
@@ -15290,19 +15360,19 @@
     },
     {
       "source": "frontend_package",
-      "target": "ref_types_react",
+      "target": "ref_react_router_dom",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "frontend/package.json",
-      "source_location": "L19",
+      "source_location": "L17",
       "weight": 1.0
     },
     {
       "source": "frontend_package",
-      "target": "ref_types_react_dom",
+      "target": "ref_types_react",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -15314,7 +15384,7 @@
     },
     {
       "source": "frontend_package",
-      "target": "ref_vitejs_plugin_react",
+      "target": "ref_types_react_dom",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -15326,7 +15396,7 @@
     },
     {
       "source": "frontend_package",
-      "target": "ref_oxlint",
+      "target": "ref_vitejs_plugin_react",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -15338,7 +15408,7 @@
     },
     {
       "source": "frontend_package",
-      "target": "ref_vite",
+      "target": "ref_oxlint",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -15349,8 +15419,20 @@
       "weight": 1.0
     },
     {
+      "source": "frontend_package",
+      "target": "ref_vite",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "frontend/package.json",
+      "source_location": "L24",
+      "weight": 1.0
+    },
+    {
       "source": "frontend_src_app",
-      "target": "frontend_src_components_authmodal_authmodal",
+      "target": "frontend_src_components_watchpage_watchpage",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -15362,7 +15444,7 @@
     },
     {
       "source": "frontend_src_app",
-      "target": "frontend_src_components_continuewatchingrail_continuewatchingrail",
+      "target": "frontend_src_components_authmodal_authmodal",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -15374,7 +15456,7 @@
     },
     {
       "source": "frontend_src_app",
-      "target": "frontend_src_components_moviecard_moviecard",
+      "target": "frontend_src_components_continuewatchingrail_continuewatchingrail",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -15386,7 +15468,7 @@
     },
     {
       "source": "frontend_src_app",
-      "target": "frontend_src_components_footer_footer",
+      "target": "frontend_src_components_moviecard_moviecard",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -15398,19 +15480,19 @@
     },
     {
       "source": "frontend_src_app",
-      "target": "frontend_src_context_authcontext_useauth",
+      "target": "frontend_src_components_footer_footer",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "frontend/src/App.jsx",
-      "source_location": "L15",
+      "source_location": "L14",
       "weight": 1.0
     },
     {
       "source": "frontend_src_app",
-      "target": "frontend_src_context_watchhistorycontext_usewatchhistory",
+      "target": "frontend_src_context_authcontext_useauth",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -15422,67 +15504,19 @@
     },
     {
       "source": "frontend_src_app",
+      "target": "frontend_src_context_watchhistorycontext_usewatchhistory",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "frontend/src/App.jsx",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_src_app",
       "target": "frontend_src_services_api_delivercandidate",
-      "relation": "imports",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "frontend/src/App.jsx",
-      "source_location": "L17",
-      "weight": 1.0
-    },
-    {
-      "source": "frontend_src_app",
-      "target": "frontend_src_services_api_getbackendhealth",
-      "relation": "imports",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "frontend/src/App.jsx",
-      "source_location": "L17",
-      "weight": 1.0
-    },
-    {
-      "source": "frontend_src_app",
-      "target": "frontend_src_services_api_gettrendingmovies",
-      "relation": "imports",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "frontend/src/App.jsx",
-      "source_location": "L17",
-      "weight": 1.0
-    },
-    {
-      "source": "frontend_src_app",
-      "target": "frontend_src_services_api_resolveapibase",
-      "relation": "imports",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "frontend/src/App.jsx",
-      "source_location": "L17",
-      "weight": 1.0
-    },
-    {
-      "source": "frontend_src_app",
-      "target": "frontend_src_services_api_searchmovies",
-      "relation": "imports",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "frontend/src/App.jsx",
-      "source_location": "L17",
-      "weight": 1.0
-    },
-    {
-      "source": "frontend_src_app",
-      "target": "frontend_src_utils_helpers_parsemoviemetadata",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -15494,19 +15528,103 @@
     },
     {
       "source": "frontend_src_app",
-      "target": "frontend_src_components_navbar_navbar",
+      "target": "frontend_src_services_api_getbackendhealth",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "frontend/src/App.jsx",
-      "source_location": "L2",
+      "source_location": "L18",
       "weight": 1.0
     },
     {
       "source": "frontend_src_app",
-      "target": "frontend_src_components_herobanner_herobanner",
+      "target": "frontend_src_services_api_getpopularmovies",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "frontend/src/App.jsx",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_src_app",
+      "target": "frontend_src_services_api_gettrendingmovies",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "frontend/src/App.jsx",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_src_app",
+      "target": "frontend_src_services_api_resolveapibase",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "frontend/src/App.jsx",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_src_app",
+      "target": "frontend_src_services_api_searchmovies",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "frontend/src/App.jsx",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_src_app",
+      "target": "frontend_src_utils_helpers_parsemoviemetadata",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "frontend/src/App.jsx",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_src_app",
+      "target": "frontend_src_utils_helpers_slugtoquery",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "frontend/src/App.jsx",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_src_app",
+      "target": "frontend_src_utils_helpers_titletoslug",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "frontend/src/App.jsx",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_src_app",
+      "target": "frontend_src_components_navbar_navbar",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -15518,7 +15636,7 @@
     },
     {
       "source": "frontend_src_app",
-      "target": "frontend_src_components_searchbar_searchbar",
+      "target": "frontend_src_components_herobanner_herobanner",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -15530,7 +15648,7 @@
     },
     {
       "source": "frontend_src_app",
-      "target": "frontend_src_components_searchmodal_searchmodal",
+      "target": "frontend_src_components_searchbar_searchbar",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -15542,7 +15660,7 @@
     },
     {
       "source": "frontend_src_app",
-      "target": "frontend_src_components_moviegrid_moviegrid",
+      "target": "frontend_src_components_searchmodal_searchmodal",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -15554,7 +15672,7 @@
     },
     {
       "source": "frontend_src_app",
-      "target": "frontend_src_components_versionpickermodal_versionpickermodal",
+      "target": "frontend_src_components_moviegrid_moviegrid",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -15566,7 +15684,7 @@
     },
     {
       "source": "frontend_src_app",
-      "target": "frontend_src_components_deliverymodal_deliverymodal",
+      "target": "frontend_src_components_versionpickermodal_versionpickermodal",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -15578,7 +15696,7 @@
     },
     {
       "source": "frontend_src_app",
-      "target": "frontend_src_components_watchpage_watchpage",
+      "target": "frontend_src_components_deliverymodal_deliverymodal",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -15597,7 +15715,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "frontend/src/components/AuthModal.jsx",
-      "source_location": "L3",
+      "source_location": "L4",
       "weight": 1.0
     },
     {
@@ -15609,7 +15727,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "frontend/src/components/AuthModal.jsx",
-      "source_location": "L4",
+      "source_location": "L5",
       "weight": 1.0
     },
     {
@@ -15813,7 +15931,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "frontend/src/components/Navbar.jsx",
-      "source_location": "L3",
+      "source_location": "L4",
       "weight": 1.0
     },
     {
@@ -15825,7 +15943,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "frontend/src/components/Navbar.jsx",
-      "source_location": "L4",
+      "source_location": "L5",
       "weight": 1.0
     },
     {
@@ -15837,7 +15955,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "frontend/src/components/Navbar.jsx",
-      "source_location": "L5",
+      "source_location": "L6",
       "weight": 1.0
     },
     {
@@ -15849,7 +15967,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "frontend/src/components/Navbar.jsx",
-      "source_location": "L5",
+      "source_location": "L6",
       "weight": 1.0
     },
     {
@@ -15861,7 +15979,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "frontend/src/components/Navbar.jsx",
-      "source_location": "L6",
+      "source_location": "L7",
       "weight": 1.0
     },
     {
@@ -16113,7 +16231,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "frontend/src/main.jsx",
-      "source_location": "L4",
+      "source_location": "L5",
       "weight": 1.0
     },
     {
@@ -16125,7 +16243,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "frontend/src/main.jsx",
-      "source_location": "L5",
+      "source_location": "L6",
       "weight": 1.0
     },
     {
@@ -16137,7 +16255,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "frontend/src/main.jsx",
-      "source_location": "L6",
+      "source_location": "L7",
       "weight": 1.0
     },
     {
@@ -18134,7 +18252,7 @@
     },
     {
       "source": "frontend_src_app",
-      "target": "frontend_src_components_authmodal",
+      "target": "frontend_src_components_watchpage",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -18146,7 +18264,7 @@
     },
     {
       "source": "frontend_src_app",
-      "target": "frontend_src_components_continuewatchingrail",
+      "target": "frontend_src_components_authmodal",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -18158,7 +18276,7 @@
     },
     {
       "source": "frontend_src_app",
-      "target": "frontend_src_components_moviecard",
+      "target": "frontend_src_components_continuewatchingrail",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -18170,7 +18288,7 @@
     },
     {
       "source": "frontend_src_app",
-      "target": "frontend_src_components_footer",
+      "target": "frontend_src_components_moviecard",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -18182,7 +18300,7 @@
     },
     {
       "source": "frontend_src_app",
-      "target": "ref_lucide_react",
+      "target": "frontend_src_components_footer",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -18194,7 +18312,7 @@
     },
     {
       "source": "frontend_src_app",
-      "target": "frontend_src_context_authcontext",
+      "target": "ref_lucide_react",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -18206,7 +18324,7 @@
     },
     {
       "source": "frontend_src_app",
-      "target": "frontend_src_context_watchhistorycontext",
+      "target": "frontend_src_context_authcontext",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -18218,7 +18336,7 @@
     },
     {
       "source": "frontend_src_app",
-      "target": "frontend_src_services_api",
+      "target": "frontend_src_context_watchhistorycontext",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -18230,7 +18348,7 @@
     },
     {
       "source": "frontend_src_app",
-      "target": "frontend_src_utils_helpers",
+      "target": "frontend_src_services_api",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -18242,7 +18360,19 @@
     },
     {
       "source": "frontend_src_app",
-      "target": "frontend_src_components_navbar",
+      "target": "frontend_src_utils_helpers",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "frontend/src/App.jsx",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_src_app",
+      "target": "ref_react_router_dom",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -18254,7 +18384,7 @@
     },
     {
       "source": "frontend_src_app",
-      "target": "frontend_src_components_herobanner",
+      "target": "frontend_src_components_navbar",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -18266,7 +18396,7 @@
     },
     {
       "source": "frontend_src_app",
-      "target": "frontend_src_components_searchbar",
+      "target": "frontend_src_components_herobanner",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -18278,7 +18408,7 @@
     },
     {
       "source": "frontend_src_app",
-      "target": "frontend_src_components_searchmodal",
+      "target": "frontend_src_components_searchbar",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -18290,7 +18420,7 @@
     },
     {
       "source": "frontend_src_app",
-      "target": "frontend_src_components_moviegrid",
+      "target": "frontend_src_components_searchmodal",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -18302,7 +18432,7 @@
     },
     {
       "source": "frontend_src_app",
-      "target": "frontend_src_components_versionpickermodal",
+      "target": "frontend_src_components_moviegrid",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -18314,7 +18444,7 @@
     },
     {
       "source": "frontend_src_app",
-      "target": "frontend_src_components_deliverymodal",
+      "target": "frontend_src_components_versionpickermodal",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -18326,7 +18456,7 @@
     },
     {
       "source": "frontend_src_app",
-      "target": "frontend_src_components_watchpage",
+      "target": "frontend_src_components_deliverymodal",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -18350,7 +18480,7 @@
     },
     {
       "source": "frontend_src_components_authmodal",
-      "target": "ref_lucide_react",
+      "target": "ref_react_router_dom",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -18362,7 +18492,7 @@
     },
     {
       "source": "frontend_src_components_authmodal",
-      "target": "frontend_src_context_authcontext",
+      "target": "ref_lucide_react",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -18374,7 +18504,7 @@
     },
     {
       "source": "frontend_src_components_authmodal",
-      "target": "frontend_src_services_supabase",
+      "target": "frontend_src_context_authcontext",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -18382,6 +18512,18 @@
       "context": "import",
       "source_file": "frontend/src/components/AuthModal.jsx",
       "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_src_components_authmodal",
+      "target": "frontend_src_services_supabase",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "frontend/src/components/AuthModal.jsx",
+      "source_location": "L5",
       "weight": 1.0
     },
     {
@@ -18698,7 +18840,7 @@
     },
     {
       "source": "frontend_src_components_navbar",
-      "target": "ref_lucide_react",
+      "target": "ref_react_router_dom",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -18710,7 +18852,7 @@
     },
     {
       "source": "frontend_src_components_navbar",
-      "target": "frontend_src_context_authcontext",
+      "target": "ref_lucide_react",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -18722,7 +18864,7 @@
     },
     {
       "source": "frontend_src_components_navbar",
-      "target": "frontend_src_context_watchhistorycontext",
+      "target": "frontend_src_context_authcontext",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -18734,7 +18876,7 @@
     },
     {
       "source": "frontend_src_components_navbar",
-      "target": "frontend_src_utils_avatars",
+      "target": "frontend_src_context_watchhistorycontext",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -18746,7 +18888,7 @@
     },
     {
       "source": "frontend_src_components_navbar",
-      "target": "frontend_src_components_avatarpickermodal",
+      "target": "frontend_src_utils_avatars",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -18754,6 +18896,18 @@
       "context": "import",
       "source_file": "frontend/src/components/Navbar.jsx",
       "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_src_components_navbar",
+      "target": "frontend_src_components_avatarpickermodal",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "frontend/src/components/Navbar.jsx",
+      "source_location": "L7",
       "weight": 1.0
     },
     {
@@ -19046,7 +19200,7 @@
     },
     {
       "source": "frontend_src_main",
-      "target": "frontend_src_index",
+      "target": "ref_react_router_dom",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -19058,7 +19212,7 @@
     },
     {
       "source": "frontend_src_main",
-      "target": "frontend_src_app",
+      "target": "frontend_src_index",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -19070,7 +19224,7 @@
     },
     {
       "source": "frontend_src_main",
-      "target": "frontend_src_context_authcontext",
+      "target": "frontend_src_app",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -19082,7 +19236,7 @@
     },
     {
       "source": "frontend_src_main",
-      "target": "frontend_src_context_watchhistorycontext",
+      "target": "frontend_src_context_authcontext",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -19090,6 +19244,18 @@
       "context": "import",
       "source_file": "frontend/src/main.jsx",
       "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_src_main",
+      "target": "frontend_src_context_watchhistorycontext",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "frontend/src/main.jsx",
+      "source_location": "L7",
       "weight": 1.0
     },
     {
@@ -21163,7 +21329,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/package.json",
-      "source_location": "L18",
+      "source_location": "L19",
       "weight": 1.0
     },
     {
@@ -21266,19 +21432,19 @@
       "weight": 1.0
     },
     {
-      "source": "frontend_package_devdependencies",
-      "target": "frontend_package_devdependencies_types_react",
+      "source": "frontend_package_dependencies",
+      "target": "frontend_package_dependencies_react_router_dom",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/package.json",
-      "source_location": "L19",
+      "source_location": "L17",
       "weight": 1.0
     },
     {
       "source": "frontend_package_devdependencies",
-      "target": "frontend_package_devdependencies_types_react_dom",
+      "target": "frontend_package_devdependencies_types_react",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -21289,7 +21455,7 @@
     },
     {
       "source": "frontend_package_devdependencies",
-      "target": "frontend_package_devdependencies_vitejs_plugin_react",
+      "target": "frontend_package_devdependencies_types_react_dom",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -21300,7 +21466,7 @@
     },
     {
       "source": "frontend_package_devdependencies",
-      "target": "frontend_package_devdependencies_oxlint",
+      "target": "frontend_package_devdependencies_vitejs_plugin_react",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -21311,13 +21477,24 @@
     },
     {
       "source": "frontend_package_devdependencies",
-      "target": "frontend_package_devdependencies_vite",
+      "target": "frontend_package_devdependencies_oxlint",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/package.json",
       "source_location": "L23",
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_package_devdependencies",
+      "target": "frontend_package_devdependencies_vite",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/package.json",
+      "source_location": "L24",
       "weight": 1.0
     },
     {
@@ -21405,7 +21582,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/src/App.jsx",
-      "source_location": "L20",
+      "source_location": "L21",
       "weight": 1.0
     },
     {
@@ -21416,7 +21593,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/src/components/AuthModal.jsx",
-      "source_location": "L6",
+      "source_location": "L7",
       "weight": 1.0
     },
     {
@@ -21537,7 +21714,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/src/components/Navbar.jsx",
-      "source_location": "L8",
+      "source_location": "L9",
       "weight": 1.0
     },
     {
@@ -22110,6 +22287,28 @@
       "confidence_score": 1.0,
       "source_file": "frontend/src/utils/helpers.js",
       "source_location": "L123",
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_src_utils_helpers",
+      "target": "frontend_src_utils_helpers_titletoslug",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/utils/helpers.js",
+      "source_location": "L140",
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_src_utils_helpers",
+      "target": "frontend_src_utils_helpers_slugtoquery",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/utils/helpers.js",
+      "source_location": "L152",
       "weight": 1.0
     },
     {
@@ -27081,5 +27280,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "336608b97f05581d55b7e8e8a25b48a5aeed133e"
+  "built_at_commit": "b8a73a6998334503c2bba99e297d2244d4244515"
 }

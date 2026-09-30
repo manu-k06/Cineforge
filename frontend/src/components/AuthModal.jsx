@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from 'react'
+import { useNavigate, useSearchParams, useLocation } from 'react-router-dom'
 import { X, Mail, Lock, User, AlertCircle, CheckCircle2, Loader2, ExternalLink, KeyRound, ArrowLeft } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../services/supabase'
 
 export default function AuthModal({ isOpen, onClose }) {
+  const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const location = useLocation()
   const {
     signIn,
     signUp,
@@ -31,6 +35,34 @@ export default function AuthModal({ isOpen, onClose }) {
   const [resendLoading, setResendLoading] = useState(false)
   const [resendSent, setResendSent] = useState(false)
 
+  const handleModalClose = () => {
+    if (onClose) onClose()
+    if (location.pathname === '/login' || location.pathname === '/signup') {
+      const redirectUrl = searchParams.get('redirect')
+      if (redirectUrl) {
+        navigate(redirectUrl)
+      } else if (window.history.length > 1) {
+        navigate(-1)
+      } else {
+        navigate('/')
+      }
+    }
+  }
+
+  const handleSuccessRedirect = () => {
+    if (onClose) onClose()
+    const redirectUrl = searchParams.get('redirect')
+    if (redirectUrl) {
+      navigate(redirectUrl)
+    } else if (location.pathname === '/login' || location.pathname === '/signup') {
+      if (window.history.length > 1) {
+        navigate(-1)
+      } else {
+        navigate('/')
+      }
+    }
+  }
+
   // Sync tab with AuthContext trigger
   useEffect(() => {
     if (isOpen) {
@@ -46,23 +78,29 @@ export default function AuthModal({ isOpen, onClose }) {
     }
   }, [isOpen, authModalTab])
 
-  // Clear errors when switching tabs
+  // Clear errors when switching tabs and sync URL if applicable
   const handleSwitchTab = (tab) => {
     setError(null)
     setSuccessMsg(null)
     setActiveTab(tab)
+    const redirectParam = searchParams.get('redirect') ? `?redirect=${encodeURIComponent(searchParams.get('redirect'))}` : ''
+    if (tab === 'signin' && location.pathname === '/signup') {
+      navigate(`/login${redirectParam}`, { replace: true })
+    } else if (tab === 'signup' && location.pathname === '/login') {
+      navigate(`/signup${redirectParam}`, { replace: true })
+    }
   }
 
   // Close on Escape key
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape' && isOpen) {
-        onClose()
+        handleModalClose()
       }
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [isOpen, onClose])
+  }, [isOpen, onClose, location.pathname])
 
   if (!isOpen) return null
 
@@ -111,7 +149,7 @@ export default function AuthModal({ isOpen, onClose }) {
         } else {
           setSuccessMsg('Welcome to Cineforge! You are now logged in.')
           setTimeout(() => {
-            onClose()
+            handleSuccessRedirect()
           }, 1200)
         }
       } catch (err) {
@@ -127,7 +165,7 @@ export default function AuthModal({ isOpen, onClose }) {
         await signIn(email.trim(), password)
         setSuccessMsg('Successfully signed in!')
         setTimeout(() => {
-          onClose()
+          handleSuccessRedirect()
         }, 800)
       } catch (err) {
         setError(err.message || 'Invalid email or password.')
@@ -211,7 +249,7 @@ export default function AuthModal({ isOpen, onClose }) {
         backdropFilter: 'blur(8px)',
         padding: '16px',
       }}
-      onClick={onClose}
+      onClick={handleModalClose}
     >
       <div
         style={{
@@ -254,7 +292,7 @@ export default function AuthModal({ isOpen, onClose }) {
             </p>
           </div>
           <button
-            onClick={onClose}
+            onClick={handleModalClose}
             style={{
               background: 'transparent',
               border: 'none',

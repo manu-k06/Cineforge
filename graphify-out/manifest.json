@@ -240,21 +240,21 @@
     "semantic_hash": ""
   },
   "frontend/package.json": {
-    "mtime": 1789981575.6942627,
-    "seen": 1790098952.9996154,
-    "ast_hash": "7da491cb2b9af96e556f8669b74913cb",
+    "mtime": 1790776455.79062,
+    "seen": 1790779176.1859345,
+    "ast_hash": "f4b9d3f836fa9c796399313c1e5ad66f",
     "semantic_hash": ""
   },
   "frontend/src/App.jsx": {
-    "mtime": 1790747175.6383345,
-    "seen": 1790747210.043553,
-    "ast_hash": "48fc912ceceb85ddb005c291180e55f5",
+    "mtime": 1790778877.330991,
+    "seen": 1790779176.1859384,
+    "ast_hash": "7ed02c3178883864a35343c7e9457da9",
     "semantic_hash": ""
   },
   "frontend/src/components/AuthModal.jsx": {
-    "mtime": 1790760814.9234836,
-    "seen": 1790760961.7366116,
-    "ast_hash": "4464a0ebaa44a7256520d8ce7830539c",
+    "mtime": 1790777139.6703637,
+    "seen": 1790779176.1859403,
+    "ast_hash": "6b5f577727cdf1ff84a006c92d40c222",
     "semantic_hash": ""
   },
   "frontend/src/components/DeliveryModal.jsx": {
@@ -282,9 +282,9 @@
     "semantic_hash": ""
   },
   "frontend/src/components/Navbar.jsx": {
-    "mtime": 1790762251.5015445,
-    "seen": 1790762288.3381944,
-    "ast_hash": "1130a86f5341ac6a0155a1e1e7b51a91",
+    "mtime": 1790777064.852645,
+    "seen": 1790779176.1866531,
+    "ast_hash": "79fd4ccc177f2747b6965e41caddd0ae",
     "semantic_hash": ""
   },
   "frontend/src/components/PlayerModal.jsx": {
@@ -318,9 +318,9 @@
     "semantic_hash": ""
   },
   "frontend/src/main.jsx": {
-    "mtime": 1790156611.6867619,
-    "seen": 1790156898.2364376,
-    "ast_hash": "c76d08418dac4ddb02b529443c7c2800",
+    "mtime": 1790777023.5119824,
+    "seen": 1790779176.18743,
+    "ast_hash": "857ae6740fb46bdb7db1183a7fbac213",
     "semantic_hash": ""
   },
   "frontend/src/services/api.js": {
@@ -336,9 +336,9 @@
     "semantic_hash": ""
   },
   "frontend/src/utils/helpers.js": {
-    "mtime": 1790665344.9938753,
-    "seen": 1790665506.4590988,
-    "ast_hash": "bbfaeb67ab0060ddf99dd58d4aa938d1",
+    "mtime": 1790777012.4776123,
+    "seen": 1790779176.1877518,
+    "ast_hash": "139b27288c0b7df8d68fdf4a4fd00cb3",
     "semantic_hash": ""
   },
   "frontend/vercel.json": {

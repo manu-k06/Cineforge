@@ -135,3 +135,22 @@ export function getOptimizedImageUrl(rawPath, size = 'w500') {
   // Proxy through Cloudflare-backed wsrv.nl edge CDN
   return `https://wsrv.nl/?url=${encodeURIComponent(fullUrl)}&output=webp`
 }
+
+// Convert a movie title into a clean URL-friendly slug: "Avengers: Endgame (2019)" -> "avengers-endgame"
+export function titleToSlug(title) {
+  if (!title) return ''
+  return title
+    .toLowerCase()
+    .replace(/\[.*?\]|\(.*?\)/g, '') // remove parenthesized details
+    .replace(/[^a-z0-9\s-]/gi, '')   // remove non-alphanumeric except spaces and dashes
+    .trim()
+    .replace(/[\s_-]+/g, '-')       // collapse multiple spaces/underscores into single dash
+    .replace(/^-+|-+$/g, '')        // trim leading/trailing dashes
+}
+
+// Convert a URL slug back to a clean search query: "avengers-endgame" -> "avengers endgame"
+export function slugToQuery(slug) {
+  if (!slug) return ''
+  return decodeURIComponent(slug).replace(/-/g, ' ').trim()
+}
+

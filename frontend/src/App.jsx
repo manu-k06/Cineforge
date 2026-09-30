@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom'
 import Navbar from './components/Navbar'
 import HeroBanner from './components/HeroBanner'
 import SearchBar from './components/SearchBar'
@@ -11,20 +12,30 @@ import AuthModal from './components/AuthModal'
 import ContinueWatchingRail from './components/ContinueWatchingRail'
 import MovieCard from './components/MovieCard'
 import Footer from './components/Footer'
-import { Bookmark, History } from 'lucide-react'
+import { Bookmark, History, ArrowLeft, Loader2, AlertCircle } from 'lucide-react'
 import { useAuth } from './context/AuthContext'
 import { useWatchHistory } from './context/WatchHistoryContext'
-import { searchMovies, deliverCandidate, getBackendHealth, getTrendingMovies, resolveApiBase } from './services/api'
-import { parseMovieMetadata } from './utils/helpers'
+import { searchMovies, deliverCandidate, getBackendHealth, getTrendingMovies, getPopularMovies, resolveApiBase } from './services/api'
+import { parseMovieMetadata, titleToSlug, slugToQuery } from './utils/helpers'
 
 export default function App() {
-  const { isAuthModalOpen, closeAuthModal } = useAuth()
+  const navigate = useNavigate()
+  const location = useLocation()
+  const [searchParams] = useSearchParams()
+
+  const { isAuthModalOpen, closeAuthModal, openAuthModal } = useAuth()
   const { continueWatchingList, removeFromHistory, watchlist, watchHistory } = useWatchHistory()
   const [currentView, setCurrentView] = useState('browse') // 'browse' | 'watch'
   const [activeTab, setActiveTab] = useState('home')
   const [isBackendOnline, setIsBackendOnline] = useState(true)
   const [initialProgressSeconds, setInitialProgressSeconds] = useState(0)
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false)
+
+  // Direct Stream Routing state (/stream/:slug)
+  const [isResolvingStream, setIsResolvingStream] = useState(false)
+  const [resolvingError, setResolvingError] = useState(null)
+  const [resolvingQuery, setResolvingQuery] = useState('')
+  const resolvingSlugRef = useRef(null)
 
   // Search state
   const [searchQuery, setSearchQuery] = useState('')
@@ -38,7 +49,6 @@ export default function App() {
   const [searchError, setSearchError] = useState(null)
   const [aiInterpretation, setAiInterpretation] = useState(null)
   const [isCached, setIsCached] = useState(false)
-
 
   // Delivery & Cinema Watch state
   const [selectedGroup, setSelectedGroup] = useState(null)
@@ -60,6 +70,110 @@ export default function App() {
     const interval = setInterval(check, 15000)
     return () => clearInterval(interval)
   }, [])
+
+  // Resolve and deliver candidate directly when user opens /stream/:slug
+  const resolveAndStreamSlug = async (slug) => {
+    if (!slug) return
+    if (resolvingSlugRef.current === slug && isResolvingStream) return
+    resolvingSlugRef.current = slug
+
+    const query = slugToQuery(slug)
+    setResolvingQuery(query)
+    setIsResolvingStream(true)
+    setResolvingError(null)
+
+    try {
+      const data = await searchMovies(query, 1, true)
+      const candidates = data.candidates || []
+      if (!candidates || candidates.length === 0) {
+        throw new Error(`No available streams found for "${query}".`)
+      }
+
+      // Find best title group or candidate
+      let chosenGroup = null
+      let chosenCandidate = null
+
+      if (data.title_groups && Object.keys(data.title_groups).length > 0) {
+        const entries = Object.entries(data.title_groups)
+        const matched = entries.find(([t]) => {
+          const cleanT = t.toLowerCase()
+          const cleanQ = query.toLowerCase()
+          return cleanT.includes(cleanQ) || cleanQ.includes(cleanT)
+        })
+        const targetEntry = matched || entries[0]
+        chosenGroup = {
+          title: targetEntry[0],
+          candidates: targetEntry[1],
+        }
+        chosenCandidate = targetEntry[1][0]
+      } else {
+        const groups = fallbackGroupCandidates(candidates)
+        chosenGroup = groups[0] || { title: query, candidates }
+        chosenCandidate = chosenGroup.candidates[0] || candidates[0]
+      }
+
+      setActiveMovieGroup(chosenGroup)
+      setActiveCandidate(chosenCandidate)
+
+      // Start delivery
+      const result = await deliverCandidate(chosenCandidate)
+      if (!result.candidate_title) {
+        result.candidate_title = chosenCandidate.title
+      }
+      setActiveDelivery(result)
+      setCurrentView('watch')
+    } catch (err) {
+      console.error('Failed to resolve stream for slug:', err)
+      setResolvingError(err.message || `Could not connect to stream for "${query}".`)
+    } finally {
+      setIsResolvingStream(false)
+      resolvingSlugRef.current = null
+    }
+  }
+
+  // Synchronize browser URL route changes with active views & tabs
+  useEffect(() => {
+    const path = location.pathname.toLowerCase()
+
+    if (path.startsWith('/stream/')) {
+      const slug = path.replace('/stream/', '').replace(/\/$/, '')
+      if (!slug) {
+        navigate('/', { replace: true })
+        return
+      }
+
+      setCurrentView('watch')
+
+      // Check if current active delivery matches this slug
+      const currentActiveTitle = activeMovieGroup?.title || activeCandidate?.title || activeDelivery?.candidate_title || ''
+      const currentSlug = titleToSlug(currentActiveTitle)
+
+      if (!activeDelivery || currentSlug !== slug) {
+        resolveAndStreamSlug(slug)
+      }
+    } else if (path === '/login') {
+      openAuthModal('signin')
+    } else if (path === '/signup') {
+      openAuthModal('signup')
+    } else {
+      // Browse view routes
+      setCurrentView('browse')
+      setIsResolvingStream(false)
+      setResolvingError(null)
+
+      if (path === '/movies') {
+        setActiveTab('movies')
+      } else if (path === '/series' || path === '/shows') {
+        setActiveTab('shows')
+      } else if (path === '/watchlist') {
+        setActiveTab('watchlist')
+      } else if (path === '/history') {
+        setActiveTab('history')
+      } else if (path === '/' || path === '') {
+        setActiveTab('home')
+      }
+    }
+  }, [location.pathname])
 
   // Handle activeTab changes (Home, Movies, Shows, Trending)
   useEffect(() => {
@@ -109,7 +223,6 @@ export default function App() {
         .finally(() => setIsSearching(false))
     }
   }, [activeTab])
-
 
   // Fallback helper to group candidates by title if not grouped by backend
   const fallbackGroupCandidates = (candidates) => {
@@ -199,6 +312,9 @@ export default function App() {
     const resumeSeconds = item.progress_seconds || 0
     setInitialProgressSeconds(resumeSeconds)
 
+    const rawTitle = item.clean_title || item.title
+    const slug = titleToSlug(rawTitle)
+
     if (item.stream_url) {
       let resolvedStreamUrl = item.stream_url
       try {
@@ -240,9 +356,16 @@ export default function App() {
         metadata: item,
       })
       setCurrentView('watch')
+      if (slug) {
+        navigate(`/stream/${slug}`)
+      }
       window.scrollTo({ top: 0, behavior: 'smooth' })
     } else {
-      handleSearch(item.clean_title || item.title, 1)
+      if (slug) {
+        navigate(`/stream/${slug}`)
+      } else {
+        handleSearch(rawTitle, 1)
+      }
     }
   }
 
@@ -274,6 +397,9 @@ export default function App() {
       setActiveMovieGroup(group)
     }
 
+    const rawTitle = group?.title || candidate?.title || 'movie'
+    const slug = titleToSlug(rawTitle)
+
     try {
       const result = await deliverCandidate(candidate)
       if (!result.candidate_title) {
@@ -283,6 +409,9 @@ export default function App() {
       setActiveCandidate(candidate)
       setActiveDelivery(result)
       setCurrentView('watch') // Transition into dedicated cinema watch page!
+      if (slug && !location.pathname.includes(`/stream/${slug}`)) {
+        navigate(`/stream/${slug}`)
+      }
       window.scrollTo({ top: 0, behavior: 'smooth' })
     } catch (err) {
       console.error('Delivery pipeline failed:', err)
@@ -292,7 +421,26 @@ export default function App() {
 
   // Hero Quick Play
   const handleHeroQuickPlay = (query) => {
-    handleSearch(query, 1)
+    const slug = titleToSlug(query)
+    if (slug) {
+      navigate(`/stream/${slug}`)
+    } else {
+      handleSearch(query, 1)
+    }
+  }
+
+  // Back from Cinema Watch page
+  const handleBackFromWatch = () => {
+    setCurrentView('browse')
+    setActiveDelivery(null)
+    setInitialProgressSeconds(0)
+    setIsResolvingStream(false)
+    setResolvingError(null)
+    if (window.history.length > 1) {
+      navigate(-1)
+    } else {
+      navigate('/')
+    }
   }
 
   // Global '/' keyboard shortcut to open search modal
@@ -328,20 +476,78 @@ export default function App() {
       />
 
       <main className="main-content">
-        {/* Dedicated OTT Cinema Watch Page */}
-        {currentView === 'watch' && activeDelivery ? (
-          <WatchPage
-            delivery={activeDelivery}
-            candidate={activeCandidate}
-            group={activeMovieGroup}
-            initialProgressSeconds={initialProgressSeconds}
-            onBack={() => {
-              setCurrentView('browse')
-              setInitialProgressSeconds(0)
-            }}
-            onSwitchVersion={(ver) => startDelivery(ver, activeMovieGroup)}
-            onReconnectStream={handleReconnectStream}
-          />
+        {/* Dedicated OTT Cinema Watch Page or Direct Stream Loading */}
+        {currentView === 'watch' ? (
+          activeDelivery && !isResolvingStream ? (
+            <WatchPage
+              delivery={activeDelivery}
+              candidate={activeCandidate}
+              group={activeMovieGroup}
+              initialProgressSeconds={initialProgressSeconds}
+              onBack={handleBackFromWatch}
+              onSwitchVersion={(ver) => startDelivery(ver, activeMovieGroup)}
+              onReconnectStream={handleReconnectStream}
+            />
+          ) : isResolvingStream ? (
+            <div className="stream-resolving-container">
+              <div className="watch-nav-header" style={{ position: 'relative', zIndex: 1 }}>
+                <button className="btn btn-secondary btn-back-ott" onClick={handleBackFromWatch}>
+                  <ArrowLeft size={18} />
+                  <span>Back to Browse</span>
+                </button>
+              </div>
+              <div className="stream-resolving-card">
+                <div className="stream-resolving-spinner">
+                  <Loader2 size={44} className="spin text-red" />
+                </div>
+                <h2>Streaming {resolvingQuery ? `"${resolvingQuery}"` : 'Movie'}</h2>
+                <p className="stream-resolving-subtitle">
+                  Connecting to high-speed Telegram streaming nodes...
+                </p>
+                <div className="stream-resolving-steps">
+                  <span className="step-item is-active">1. Searching Release</span>
+                  <span className="step-sep">➔</span>
+                  <span className="step-item is-active">2. Negotiating MTProto Session</span>
+                  <span className="step-sep">➔</span>
+                  <span className="step-item">3. Launching Cinema Player</span>
+                </div>
+              </div>
+            </div>
+          ) : resolvingError ? (
+            <div className="stream-resolving-container">
+              <div className="watch-nav-header" style={{ position: 'relative', zIndex: 1 }}>
+                <button className="btn btn-secondary btn-back-ott" onClick={handleBackFromWatch}>
+                  <ArrowLeft size={18} />
+                  <span>Back to Browse</span>
+                </button>
+              </div>
+              <div className="stream-resolving-card is-error">
+                <div className="stream-resolving-icon">
+                  <AlertCircle size={44} className="text-red" />
+                </div>
+                <h2>Stream Unavailable</h2>
+                <p className="stream-resolving-subtitle">{resolvingError}</p>
+                <div className="stream-resolving-actions">
+                  <button
+                    type="button"
+                    className="button button-primary"
+                    onClick={handleBackFromWatch}
+                  >
+                    Explore Movies
+                  </button>
+                  <button
+                    type="button"
+                    className="button button-secondary"
+                    onClick={() => {
+                      setIsSearchModalOpen(true)
+                    }}
+                  >
+                    Search Alternative Title
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : null
         ) : (
           /* Browse & Discovery View */
           <div className={`browse-view-container ${searchQuery || activeTab !== 'home' ? 'with-search' : ''}`}>
@@ -406,7 +612,7 @@ export default function App() {
                         type="button"
                         className="button button-primary"
                         style={{ marginTop: '16px' }}
-                        onClick={() => setActiveTab('home')}
+                        onClick={() => navigate('/')}
                       >
                         Explore Catalogue
                       </button>
@@ -429,7 +635,15 @@ export default function App() {
                             ],
                           }}
                           metadata={item}
-                          onSelect={() => handleSearch(item.clean_title || item.title, 1)}
+                          onSelect={() => {
+                            const rawTitle = item.clean_title || item.title
+                            const slug = titleToSlug(rawTitle)
+                            if (slug) {
+                              navigate(`/stream/${slug}`)
+                            } else {
+                              handleSearch(rawTitle, 1)
+                            }
+                          }}
                         />
                       ))}
                     </div>
@@ -458,7 +672,7 @@ export default function App() {
                         type="button"
                         className="button button-primary"
                         style={{ marginTop: '16px' }}
-                        onClick={() => setActiveTab('home')}
+                        onClick={() => navigate('/')}
                       >
                         Start Watching
                       </button>
@@ -511,7 +725,11 @@ export default function App() {
         {currentView === 'browse' && (
           <Footer
             onTabChange={(tab) => {
-              setActiveTab(tab)
+              if (tab === 'home') navigate('/')
+              else if (tab === 'movies') navigate('/movies')
+              else if (tab === 'shows') navigate('/series')
+              else if (tab === 'watchlist') navigate('/watchlist')
+              else if (tab === 'history') navigate('/history')
               setSearchQuery('')
               setRawCandidates([])
               setGroupedCandidates([])

@@ -5721,3 +5721,112 @@ video::cue {
   justify-content: flex-end;
   gap: 10px;
 }
+
+/* Direct Route Stream Resolving State (/stream/:slug) */
+.stream-resolving-container {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding-top: 96px;
+  padding-left: var(--page-gutter);
+  padding-right: var(--page-gutter);
+  padding-bottom: 80px;
+  min-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.stream-resolving-card {
+  margin: auto;
+  max-width: 640px;
+  width: 100%;
+  padding: 48px 36px;
+  background: linear-gradient(180deg, rgba(20, 23, 31, 0.95) 0%, rgba(12, 14, 20, 0.98) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-xl);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(229, 0, 0, 0.12);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.stream-resolving-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #E50000, #ff4d4d, #E50000);
+}
+
+.stream-resolving-card.is-error::before {
+  background: linear-gradient(90deg, #ef4444, #dc2626, #b91c1c);
+}
+
+.stream-resolving-spinner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.stream-resolving-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.stream-resolving-card h2 {
+  font-size: 24px;
+  font-weight: 800;
+  color: #FFFFFF;
+  margin: 0 0 10px;
+  letter-spacing: -0.3px;
+  text-transform: capitalize;
+}
+
+.stream-resolving-subtitle {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin: 0 0 28px;
+}
+
+.stream-resolving-steps {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 14px 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-md);
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.stream-resolving-steps .step-item {
+  color: var(--text-muted);
+}
+
+.stream-resolving-steps .step-item.is-active {
+  color: #ff5252;
+}
+
+.stream-resolving-steps .step-sep {
+  color: rgba(255, 255, 255, 0.2);
+}
+
+.stream-resolving-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
