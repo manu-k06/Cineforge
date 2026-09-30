@@ -149,7 +149,7 @@ body {
   width: 100%;
   max-width: 100%;
   margin: 0;
-  padding: 0 0 100px 0;
+  padding: 0;
 }
 
 .browse-view-container {
@@ -1406,13 +1406,13 @@ button:active,
    CINEFORGE MODERN OTT FOOTER (Option 1)
    ========================================================================== */
 .site-footer {
-  margin-top: 80px;
-  padding: 64px var(--page-gutter) 36px;
+  margin-top: 36px;
+  padding: 32px var(--page-gutter) 16px;
   border-top: 1px solid var(--soft-edge);
   background: linear-gradient(180deg, #0a0c12 0%, #050608 100%);
   display: flex;
   flex-direction: column;
-  gap: 36px;
+  gap: 20px;
   color: var(--mist);
   font-size: 14px;
 }
@@ -1420,7 +1420,7 @@ button:active,
 .footer-top-grid {
   display: grid;
   grid-template-columns: 2fr 1fr 1fr;
-  gap: 48px;
+  gap: 36px;
   align-items: start;
 }
 
@@ -1548,12 +1548,12 @@ button:active,
 
 /* Legal Disclaimer Box */
 .footer-disclaimer-card {
-  padding: 18px 24px;
-  border-radius: 12px;
+  padding: 12px 18px;
+  border-radius: 10px;
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid var(--soft-edge);
-  font-size: 12px;
-  line-height: 1.6;
+  font-size: 11.5px;
+  line-height: 1.5;
   color: #787d89;
   text-align: left;
 }
@@ -1563,10 +1563,10 @@ button:active,
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 16px;
-  padding-top: 24px;
+  gap: 12px;
+  padding-top: 14px;
   border-top: 1px solid rgba(255, 255, 255, 0.05);
-  font-size: 12.5px;
+  font-size: 12px;
   color: #646875;
 }
 
