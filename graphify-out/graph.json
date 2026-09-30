@@ -1030,6 +1030,30 @@
       "source_location": "L30"
     },
     {
+      "id": "backend_app_main_health_check",
+      "label": "health_check()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "main.py",
+      "file_type": "code",
+      "norm_label": "health_check()",
+      "source_file": "backend/app/main.py",
+      "source_location": "L135"
+    },
+    {
+      "id": "backend_app_main_root_redirect",
+      "label": "root_redirect()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "main.py",
+      "file_type": "code",
+      "norm_label": "root_redirect()",
+      "source_file": "backend/app/main.py",
+      "source_location": "L140"
+    },
+    {
       "id": "backend_app_api_subtitles_get_demo_vtt",
       "label": "get_demo_vtt()",
       "_callable": true,
@@ -1870,18 +1894,6 @@
       "source_location": "L4"
     },
     {
-      "id": "frontend_src_components_deliverymodal_deliverymodal",
-      "label": "DeliveryModal()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "App.jsx",
-      "file_type": "code",
-      "norm_label": "deliverymodal()",
-      "source_file": "frontend/src/components/DeliveryModal.jsx",
-      "source_location": "L14"
-    },
-    {
       "id": "frontend_src_components_footer_footer",
       "label": "Footer()",
       "_callable": true,
@@ -2470,40 +2482,16 @@
       "source_location": "L6"
     },
     {
-      "id": "backend_app_main_health_check",
-      "label": "health_check()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 27,
-      "community_name": "main.py",
-      "file_type": "code",
-      "norm_label": "health_check()",
-      "source_file": "backend/app/main.py",
-      "source_location": "L135"
-    },
-    {
       "id": "backend_app_main_lifespan",
       "label": "lifespan()",
       "_callable": true,
       "_origin": "ast",
       "community": 27,
-      "community_name": "main.py",
+      "community_name": "typing",
       "file_type": "code",
       "norm_label": "lifespan()",
       "source_file": "backend/app/main.py",
       "source_location": "L39"
-    },
-    {
-      "id": "backend_app_main_root_redirect",
-      "label": "root_redirect()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 27,
-      "community_name": "main.py",
-      "file_type": "code",
-      "norm_label": "root_redirect()",
-      "source_file": "backend/app/main.py",
-      "source_location": "L140"
     },
     {
       "id": "backend_app_services_publish_tunnel_main",
@@ -2511,7 +2499,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 27,
-      "community_name": "main.py",
+      "community_name": "typing",
       "file_type": "code",
       "norm_label": "main()",
       "source_file": "backend/app/services/publish_tunnel.py",
@@ -2523,7 +2511,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 27,
-      "community_name": "main.py",
+      "community_name": "typing",
       "file_type": "code",
       "norm_label": "publish_tunnel_url()",
       "source_file": "backend/app/services/publish_tunnel.py",
@@ -2986,16 +2974,40 @@
       "source_location": "L229"
     },
     {
+      "id": "frontend_src_components_deliverymodal_deliverymodal",
+      "label": "DeliveryModal()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 33,
+      "community_name": "DeliveryModal.jsx",
+      "file_type": "code",
+      "norm_label": "deliverymodal()",
+      "source_file": "frontend/src/components/DeliveryModal.jsx",
+      "source_location": "L5"
+    },
+    {
       "id": "frontend_src_utils_movietrivia_getmovietrivia",
       "label": "getMovieTrivia()",
       "_callable": true,
       "_origin": "ast",
       "community": 33,
-      "community_name": "movieTrivia.js",
+      "community_name": "DeliveryModal.jsx",
       "file_type": "code",
       "norm_label": "getmovietrivia()",
       "source_file": "frontend/src/utils/movieTrivia.js",
-      "source_location": "L106"
+      "source_location": "L134"
+    },
+    {
+      "id": "frontend_src_utils_movietrivia_getmovietrivialist",
+      "label": "getMovieTriviaList()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 33,
+      "community_name": "DeliveryModal.jsx",
+      "file_type": "code",
+      "norm_label": "getmovietrivialist()",
+      "source_file": "frontend/src/utils/movieTrivia.js",
+      "source_location": "L140"
     },
     {
       "id": "backend_app_api_ai_ask_companion",
@@ -3123,7 +3135,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 39,
-      "community_name": "get_my_profile",
+      "community_name": "api/auth.py",
       "file_type": "code",
       "norm_label": "get_auth_status()",
       "source_file": "backend/app/api/auth.py",
@@ -3135,11 +3147,35 @@
       "_callable": true,
       "_origin": "ast",
       "community": 39,
-      "community_name": "get_my_profile",
+      "community_name": "api/auth.py",
       "file_type": "code",
       "norm_label": "get_my_profile()",
       "source_file": "backend/app/api/auth.py",
       "source_location": "L19"
+    },
+    {
+      "id": "backend_app_services_auth_get_current_user_optional",
+      "label": "get_current_user_optional()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 39,
+      "community_name": "api/auth.py",
+      "file_type": "code",
+      "norm_label": "get_current_user_optional()",
+      "source_file": "backend/app/services/auth.py",
+      "source_location": "L64"
+    },
+    {
+      "id": "backend_app_services_auth_get_current_user_required",
+      "label": "get_current_user_required()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 39,
+      "community_name": "api/auth.py",
+      "file_type": "code",
+      "norm_label": "get_current_user_required()",
+      "source_file": "backend/app/services/auth.py",
+      "source_location": "L74"
     },
     {
       "id": "backend_app_services_ai_service_aiservice_ask_companion",
@@ -3692,30 +3728,6 @@
       "norm_label": "parse_telegram_deep_link()",
       "source_file": "backend/app/models/delivery.py",
       "source_location": "L77"
-    },
-    {
-      "id": "backend_app_services_auth_get_current_user_optional",
-      "label": "get_current_user_optional()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "code",
-      "norm_label": "get_current_user_optional()",
-      "source_file": "backend/app/services/auth.py",
-      "source_location": "L64"
-    },
-    {
-      "id": "backend_app_services_auth_get_current_user_required",
-      "label": "get_current_user_required()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "code",
-      "norm_label": "get_current_user_required()",
-      "source_file": "backend/app/services/auth.py",
-      "source_location": "L74"
     },
     {
       "id": "backend_app_services_telegram_interactive_login",
@@ -4317,22 +4329,33 @@
       "source_location": "L81"
     },
     {
-      "id": "backend_app_config",
-      "label": "config.py",
+      "id": "backend_app_main",
+      "label": "main.py",
       "_origin": "ast",
       "community": 1,
-      "community_name": "config.py",
+      "community_name": "main.py",
       "file_type": "code",
-      "norm_label": "config.py",
-      "source_file": "backend/app/config.py",
+      "norm_label": "main.py",
+      "source_file": "backend/app/main.py",
       "source_location": "L1"
+    },
+    {
+      "id": "backend_app_main_py_get",
+      "label": "get",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "main.py",
+      "file_type": "code",
+      "norm_label": "get",
+      "source_file": "",
+      "source_location": ""
     },
     {
       "id": "backend_tests_test_ai_service",
       "label": "test_ai_service.py",
       "_origin": "ast",
       "community": 1,
-      "community_name": "config.py",
+      "community_name": "main.py",
       "file_type": "code",
       "norm_label": "test_ai_service.py",
       "source_file": "backend/tests/test_ai_service.py",
@@ -4343,7 +4366,7 @@
       "label": "test_auth.py",
       "_origin": "ast",
       "community": 1,
-      "community_name": "config.py",
+      "community_name": "main.py",
       "file_type": "code",
       "norm_label": "test_auth.py",
       "source_file": "backend/tests/test_auth.py",
@@ -4354,7 +4377,7 @@
       "label": "test_cache_service.py",
       "_origin": "ast",
       "community": 1,
-      "community_name": "config.py",
+      "community_name": "main.py",
       "file_type": "code",
       "norm_label": "test_cache_service.py",
       "source_file": "backend/tests/test_cache_service.py",
@@ -4365,7 +4388,7 @@
       "label": "test_streamer_bot_integration.py",
       "_origin": "ast",
       "community": 1,
-      "community_name": "config.py",
+      "community_name": "main.py",
       "file_type": "code",
       "norm_label": "test_streamer_bot_integration.py",
       "source_file": "backend/tests/test_streamer_bot_integration.py",
@@ -4376,7 +4399,7 @@
       "label": "test_tmdb.py",
       "_origin": "ast",
       "community": 1,
-      "community_name": "config.py",
+      "community_name": "main.py",
       "file_type": "code",
       "norm_label": "test_tmdb.py",
       "source_file": "backend/tests/test_tmdb.py",
@@ -5642,28 +5665,6 @@
       "source_location": "L1"
     },
     {
-      "id": "frontend_src_components_deliverymodal",
-      "label": "DeliveryModal.jsx",
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "App.jsx",
-      "file_type": "code",
-      "norm_label": "deliverymodal.jsx",
-      "source_file": "frontend/src/components/DeliveryModal.jsx",
-      "source_location": "L1"
-    },
-    {
-      "id": "frontend_src_components_deliverymodal_cinema_trivia",
-      "label": "CINEMA_TRIVIA",
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "App.jsx",
-      "file_type": "code",
-      "norm_label": "cinema_trivia",
-      "source_file": "frontend/src/components/DeliveryModal.jsx",
-      "source_location": "L4"
-    },
-    {
       "id": "frontend_src_components_footer",
       "label": "Footer.jsx",
       "_origin": "ast",
@@ -5994,17 +5995,6 @@
       "source_location": "L15"
     },
     {
-      "id": "ref_react_dom",
-      "label": "react-dom",
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "App.jsx",
-      "file_type": "concept",
-      "norm_label": "react-dom",
-      "source_file": "frontend/package.json",
-      "source_location": "L16"
-    },
-    {
       "id": "ref_supabase_supabase_js",
       "label": "@supabase/supabase-js",
       "_origin": "ast",
@@ -6175,33 +6165,44 @@
       "source_location": "L1"
     },
     {
-      "id": "backend_app_main",
-      "label": "main.py",
+      "id": "backend_app_config",
+      "label": "config.py",
       "_origin": "ast",
       "community": 27,
-      "community_name": "main.py",
+      "community_name": "typing",
       "file_type": "code",
-      "norm_label": "main.py",
-      "source_file": "backend/app/main.py",
+      "norm_label": "config.py",
+      "source_file": "backend/app/config.py",
       "source_location": "L1"
     },
     {
-      "id": "backend_app_main_py_get",
-      "label": "get",
+      "id": "backend_app_services_auth",
+      "label": "services/auth.py",
       "_origin": "ast",
       "community": 27,
-      "community_name": "main.py",
+      "community_name": "typing",
       "file_type": "code",
-      "norm_label": "get",
-      "source_file": "",
-      "source_location": ""
+      "norm_label": "services/auth.py",
+      "source_file": "backend/app/services/auth.py",
+      "source_location": "L1"
+    },
+    {
+      "id": "backend_app_services_cache_service",
+      "label": "cache_service.py",
+      "_origin": "ast",
+      "community": 27,
+      "community_name": "typing",
+      "file_type": "code",
+      "norm_label": "cache_service.py",
+      "source_file": "backend/app/services/cache_service.py",
+      "source_location": "L1"
     },
     {
       "id": "backend_app_services_publish_tunnel",
       "label": "publish_tunnel.py",
       "_origin": "ast",
       "community": 27,
-      "community_name": "main.py",
+      "community_name": "typing",
       "file_type": "code",
       "norm_label": "publish_tunnel.py",
       "source_file": "backend/app/services/publish_tunnel.py",
@@ -6212,7 +6213,7 @@
       "label": "FastAPI",
       "_origin": "ast",
       "community": 27,
-      "community_name": "main.py",
+      "community_name": "typing",
       "file_type": "code",
       "norm_label": "fastapi",
       "source_file": "",
@@ -6223,7 +6224,7 @@
       "label": "Utility to publish live tunnel URL and server status into Supabase. Enables the\u2026",
       "_origin": "ast",
       "community": 27,
-      "community_name": "main.py",
+      "community_name": "typing",
       "file_type": "rationale",
       "norm_label": "utility to publish live tunnel url and server status into supabase. enables the...",
       "source_file": "backend/app/services/publish_tunnel.py",
@@ -6234,7 +6235,7 @@
       "label": "Upsert the active backend URL and online status to Supabase server_status table.",
       "_origin": "ast",
       "community": 27,
-      "community_name": "main.py",
+      "community_name": "typing",
       "file_type": "rationale",
       "norm_label": "upsert the active backend url and online status to supabase server_status table.",
       "source_file": "backend/app/services/publish_tunnel.py",
@@ -6659,11 +6660,22 @@
       "source_location": ""
     },
     {
+      "id": "frontend_src_components_deliverymodal",
+      "label": "DeliveryModal.jsx",
+      "_origin": "ast",
+      "community": 33,
+      "community_name": "DeliveryModal.jsx",
+      "file_type": "code",
+      "norm_label": "deliverymodal.jsx",
+      "source_file": "frontend/src/components/DeliveryModal.jsx",
+      "source_location": "L1"
+    },
+    {
       "id": "frontend_src_utils_movietrivia",
       "label": "movieTrivia.js",
       "_origin": "ast",
       "community": 33,
-      "community_name": "movieTrivia.js",
+      "community_name": "DeliveryModal.jsx",
       "file_type": "code",
       "norm_label": "movietrivia.js",
       "source_file": "frontend/src/utils/movieTrivia.js",
@@ -6674,18 +6686,18 @@
       "label": "CINEMA_CALIBRATION_STEPS",
       "_origin": "ast",
       "community": 33,
-      "community_name": "movieTrivia.js",
+      "community_name": "DeliveryModal.jsx",
       "file_type": "code",
       "norm_label": "cinema_calibration_steps",
       "source_file": "frontend/src/utils/movieTrivia.js",
-      "source_location": "L89"
+      "source_location": "L117"
     },
     {
       "id": "frontend_src_utils_movietrivia_curated_trivia",
       "label": "CURATED_TRIVIA",
       "_origin": "ast",
       "community": 33,
-      "community_name": "movieTrivia.js",
+      "community_name": "DeliveryModal.jsx",
       "file_type": "code",
       "norm_label": "curated_trivia",
       "source_file": "frontend/src/utils/movieTrivia.js",
@@ -6696,11 +6708,11 @@
       "label": "GENERIC_TRIVIA_TEMPLATES",
       "_origin": "ast",
       "community": 33,
-      "community_name": "movieTrivia.js",
+      "community_name": "DeliveryModal.jsx",
       "file_type": "code",
       "norm_label": "generic_trivia_templates",
       "source_file": "frontend/src/utils/movieTrivia.js",
-      "source_location": "L98"
+      "source_location": "L126"
     },
     {
       "id": "backend_app_api_ai",
@@ -6890,11 +6902,22 @@
       "source_location": "L89"
     },
     {
+      "id": "backend_app_api_auth",
+      "label": "api/auth.py",
+      "_origin": "ast",
+      "community": 39,
+      "community_name": "api/auth.py",
+      "file_type": "code",
+      "norm_label": "api/auth.py",
+      "source_file": "backend/app/api/auth.py",
+      "source_location": "L1"
+    },
+    {
       "id": "backend_app_api_auth_py_any",
       "label": "Any",
       "_origin": "ast",
       "community": 39,
-      "community_name": "get_my_profile",
+      "community_name": "api/auth.py",
       "file_type": "code",
       "norm_label": "any",
       "source_file": "",
@@ -6905,9 +6928,20 @@
       "label": "get",
       "_origin": "ast",
       "community": 39,
-      "community_name": "get_my_profile",
+      "community_name": "api/auth.py",
       "file_type": "code",
       "norm_label": "get",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "httpauthorizationcredentials",
+      "label": "HTTPAuthorizationCredentials",
+      "_origin": "ast",
+      "community": 39,
+      "community_name": "api/auth.py",
+      "file_type": "code",
+      "norm_label": "httpauthorizationcredentials",
       "source_file": "",
       "source_location": ""
     },
@@ -6916,7 +6950,7 @@
       "label": "Check if Supabase Auth is configured on the backend.",
       "_origin": "ast",
       "community": 39,
-      "community_name": "get_my_profile",
+      "community_name": "api/auth.py",
       "file_type": "rationale",
       "norm_label": "check if supabase auth is configured on the backend.",
       "source_file": "backend/app/api/auth.py",
@@ -6927,11 +6961,33 @@
       "label": "Retrieve profile information for the currently authenticated user.",
       "_origin": "ast",
       "community": 39,
-      "community_name": "get_my_profile",
+      "community_name": "api/auth.py",
       "file_type": "rationale",
       "norm_label": "retrieve profile information for the currently authenticated user.",
       "source_file": "backend/app/api/auth.py",
       "source_location": "L20"
+    },
+    {
+      "id": "backend_app_services_auth_rationale_67",
+      "label": "FastAPI dependency for optionally authenticated endpoints.",
+      "_origin": "ast",
+      "community": 39,
+      "community_name": "api/auth.py",
+      "file_type": "rationale",
+      "norm_label": "fastapi dependency for optionally authenticated endpoints.",
+      "source_file": "backend/app/services/auth.py",
+      "source_location": "L67"
+    },
+    {
+      "id": "backend_app_services_auth_rationale_77",
+      "label": "FastAPI dependency for strictly protected endpoints.",
+      "_origin": "ast",
+      "community": 39,
+      "community_name": "api/auth.py",
+      "file_type": "rationale",
+      "norm_label": "fastapi dependency for strictly protected endpoints.",
+      "source_file": "backend/app/services/auth.py",
+      "source_location": "L77"
     },
     {
       "id": "backend_app_services_ai_service_rationale_170",
@@ -7275,17 +7331,6 @@
       "source_location": "L975"
     },
     {
-      "id": "backend_app_api_auth",
-      "label": "api/auth.py",
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "code",
-      "norm_label": "api/auth.py",
-      "source_file": "backend/app/api/auth.py",
-      "source_location": "L1"
-    },
-    {
       "id": "backend_app_api_search",
       "label": "api/search.py",
       "_origin": "ast",
@@ -7451,28 +7496,6 @@
       "source_location": ""
     },
     {
-      "id": "backend_app_services_auth",
-      "label": "services/auth.py",
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "code",
-      "norm_label": "services/auth.py",
-      "source_file": "backend/app/services/auth.py",
-      "source_location": "L1"
-    },
-    {
-      "id": "backend_app_services_cache_service",
-      "label": "cache_service.py",
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "code",
-      "norm_label": "cache_service.py",
-      "source_file": "backend/app/services/cache_service.py",
-      "source_location": "L1"
-    },
-    {
       "id": "backend_app_services_compatibility",
       "label": "compatibility.py",
       "_origin": "ast",
@@ -7537,17 +7560,6 @@
       "norm_label": "test_phase14_compatibility.py",
       "source_file": "backend/tests/test_phase14_compatibility.py",
       "source_location": "L1"
-    },
-    {
-      "id": "httpauthorizationcredentials",
-      "label": "HTTPAuthorizationCredentials",
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "code",
-      "norm_label": "httpauthorizationcredentials",
-      "source_file": "",
-      "source_location": ""
     },
     {
       "id": "backend_app_api_search_rationale_102",
@@ -7702,28 +7714,6 @@
       "norm_label": "models and schemas package for cineforge.",
       "source_file": "backend/app/models/__init__.py",
       "source_location": "L1"
-    },
-    {
-      "id": "backend_app_services_auth_rationale_67",
-      "label": "FastAPI dependency for optionally authenticated endpoints.",
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "rationale",
-      "norm_label": "fastapi dependency for optionally authenticated endpoints.",
-      "source_file": "backend/app/services/auth.py",
-      "source_location": "L67"
-    },
-    {
-      "id": "backend_app_services_auth_rationale_77",
-      "label": "FastAPI dependency for strictly protected endpoints.",
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "api/search.py",
-      "file_type": "rationale",
-      "norm_label": "fastapi dependency for strictly protected endpoints.",
-      "source_file": "backend/app/services/auth.py",
-      "source_location": "L77"
     },
     {
       "id": "backend_app_services_init_rationale_1",
@@ -8177,6 +8167,17 @@
       "source_location": "L22"
     },
     {
+      "id": "ref_react_dom",
+      "label": "react-dom",
+      "_origin": "ast",
+      "community": 8,
+      "community_name": "package.json",
+      "file_type": "concept",
+      "norm_label": "react-dom",
+      "source_file": "frontend/package.json",
+      "source_location": "L16"
+    },
+    {
       "id": "ref_types_react",
       "label": "@types/react",
       "_origin": "ast",
@@ -8320,11 +8321,35 @@
       "source_location": "L65"
     },
     {
+      "id": "contextlib",
+      "label": "contextlib",
+      "_origin": "semantic",
+      "community": 1,
+      "community_name": "main.py",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "contextlib",
+      "source_file": "",
+      "type": "external"
+    },
+    {
+      "id": "fastapi_middleware_cors",
+      "label": "fastapi_middleware_cors",
+      "_origin": "semantic",
+      "community": 1,
+      "community_name": "main.py",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "fastapi_middleware_cors",
+      "source_file": "",
+      "type": "external"
+    },
+    {
       "id": "fastapi_testclient",
       "label": "fastapi_testclient",
       "_origin": "semantic",
       "community": 1,
-      "community_name": "config.py",
+      "community_name": "main.py",
       "external": true,
       "file_type": "concept",
       "norm_label": "fastapi_testclient",
@@ -8332,26 +8357,26 @@
       "type": "external"
     },
     {
-      "id": "json",
-      "label": "json",
+      "id": "httpx",
+      "label": "httpx",
       "_origin": "semantic",
       "community": 1,
-      "community_name": "config.py",
+      "community_name": "main.py",
       "external": true,
       "file_type": "concept",
-      "norm_label": "json",
+      "norm_label": "httpx",
       "source_file": "",
       "type": "external"
     },
     {
-      "id": "pydantic_settings",
-      "label": "pydantic_settings",
+      "id": "starlette_responses",
+      "label": "starlette_responses",
       "_origin": "semantic",
       "community": 1,
-      "community_name": "config.py",
+      "community_name": "main.py",
       "external": true,
       "file_type": "concept",
-      "norm_label": "pydantic_settings",
+      "norm_label": "starlette_responses",
       "source_file": "",
       "type": "external"
     },
@@ -8360,7 +8385,7 @@
       "label": "unittest",
       "_origin": "semantic",
       "community": 1,
-      "community_name": "config.py",
+      "community_name": "main.py",
       "external": true,
       "file_type": "concept",
       "norm_label": "unittest",
@@ -8372,7 +8397,7 @@
       "label": "unittest_mock",
       "_origin": "semantic",
       "community": 1,
-      "community_name": "config.py",
+      "community_name": "main.py",
       "external": true,
       "file_type": "concept",
       "norm_label": "unittest_mock",
@@ -8588,22 +8613,10 @@
       "label": "argparse",
       "_origin": "semantic",
       "community": 27,
-      "community_name": "main.py",
+      "community_name": "typing",
       "external": true,
       "file_type": "concept",
       "norm_label": "argparse",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "contextlib",
-      "label": "contextlib",
-      "_origin": "semantic",
-      "community": 27,
-      "community_name": "main.py",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "contextlib",
       "source_file": "",
       "type": "external"
     },
@@ -8612,7 +8625,7 @@
       "label": "datetime",
       "_origin": "semantic",
       "community": 27,
-      "community_name": "main.py",
+      "community_name": "typing",
       "external": true,
       "file_type": "concept",
       "norm_label": "datetime",
@@ -8620,38 +8633,62 @@
       "type": "external"
     },
     {
-      "id": "fastapi_middleware_cors",
-      "label": "fastapi_middleware_cors",
+      "id": "fastapi_security",
+      "label": "fastapi_security",
       "_origin": "semantic",
       "community": 27,
-      "community_name": "main.py",
+      "community_name": "typing",
       "external": true,
       "file_type": "concept",
-      "norm_label": "fastapi_middleware_cors",
+      "norm_label": "fastapi_security",
       "source_file": "",
       "type": "external"
     },
     {
-      "id": "httpx",
-      "label": "httpx",
+      "id": "json",
+      "label": "json",
       "_origin": "semantic",
       "community": 27,
-      "community_name": "main.py",
+      "community_name": "typing",
       "external": true,
       "file_type": "concept",
-      "norm_label": "httpx",
+      "norm_label": "json",
       "source_file": "",
       "type": "external"
     },
     {
-      "id": "starlette_responses",
-      "label": "starlette_responses",
+      "id": "logging",
+      "label": "logging",
       "_origin": "semantic",
       "community": 27,
-      "community_name": "main.py",
+      "community_name": "typing",
       "external": true,
       "file_type": "concept",
-      "norm_label": "starlette_responses",
+      "norm_label": "logging",
+      "source_file": "",
+      "type": "external"
+    },
+    {
+      "id": "pydantic_settings",
+      "label": "pydantic_settings",
+      "_origin": "semantic",
+      "community": 27,
+      "community_name": "typing",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "pydantic_settings",
+      "source_file": "",
+      "type": "external"
+    },
+    {
+      "id": "typing",
+      "label": "typing",
+      "_origin": "semantic",
+      "community": 27,
+      "community_name": "typing",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "typing",
       "source_file": "",
       "type": "external"
     },
@@ -8692,18 +8729,6 @@
       "type": "external"
     },
     {
-      "id": "fastapi_security",
-      "label": "fastapi_security",
-      "_origin": "semantic",
-      "community": 6,
-      "community_name": "api/search.py",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "fastapi_security",
-      "source_file": "",
-      "type": "external"
-    },
-    {
       "id": "hashlib",
       "label": "hashlib",
       "_origin": "semantic",
@@ -8712,18 +8737,6 @@
       "external": true,
       "file_type": "concept",
       "norm_label": "hashlib",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "logging",
-      "label": "logging",
-      "_origin": "semantic",
-      "community": 6,
-      "community_name": "api/search.py",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "logging",
       "source_file": "",
       "type": "external"
     },
@@ -8760,18 +8773,6 @@
       "external": true,
       "file_type": "concept",
       "norm_label": "time",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "typing",
-      "label": "typing",
-      "_origin": "semantic",
-      "community": 6,
-      "community_name": "api/search.py",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "typing",
       "source_file": "",
       "type": "external"
     },
@@ -10542,6 +10543,18 @@
       "weight": 1.0
     },
     {
+      "source": "frontend_src_components_deliverymodal_deliverymodal",
+      "target": "frontend_src_utils_movietrivia_getmovietrivialist",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "frontend/src/components/DeliveryModal.jsx",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
       "source": "frontend_src_components_herobanner_herobanner",
       "target": "frontend_src_services_api_getpopularmovies",
       "relation": "calls",
@@ -11391,6 +11404,18 @@
       "context": "call",
       "source_file": "frontend/src/services/api.js",
       "source_location": "L729",
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_src_utils_movietrivia_getmovietrivia",
+      "target": "frontend_src_utils_movietrivia_getmovietrivialist",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "frontend/src/utils/movieTrivia.js",
+      "source_location": "L135",
       "weight": 1.0
     },
     {
@@ -15330,6 +15355,18 @@
       "weight": 1.0
     },
     {
+      "source": "frontend_src_components_deliverymodal",
+      "target": "frontend_src_utils_movietrivia_getmovietrivialist",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "frontend/src/components/DeliveryModal.jsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
       "source": "frontend_src_components_herobanner",
       "target": "frontend_src_services_api_getpopularmovies",
       "relation": "imports",
@@ -18063,6 +18100,18 @@
       "context": "import",
       "source_file": "frontend/src/components/DeliveryModal.jsx",
       "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_src_components_deliverymodal",
+      "target": "frontend_src_utils_movietrivia",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "frontend/src/components/DeliveryModal.jsx",
+      "source_location": "L3",
       "weight": 1.0
     },
     {
@@ -20930,18 +20979,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/src/components/DeliveryModal.jsx",
-      "source_location": "L14",
-      "weight": 1.0
-    },
-    {
-      "source": "frontend_src_components_deliverymodal",
-      "target": "frontend_src_components_deliverymodal_cinema_trivia",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "frontend/src/components/DeliveryModal.jsx",
-      "source_location": "L4",
+      "source_location": "L5",
       "weight": 1.0
     },
     {
@@ -21595,13 +21633,46 @@
     },
     {
       "source": "frontend_src_utils_movietrivia",
+      "target": "frontend_src_utils_movietrivia_cinema_calibration_steps",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/utils/movieTrivia.js",
+      "source_location": "L117",
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_src_utils_movietrivia",
+      "target": "frontend_src_utils_movietrivia_generic_trivia_templates",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/utils/movieTrivia.js",
+      "source_location": "L126",
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_src_utils_movietrivia",
       "target": "frontend_src_utils_movietrivia_getmovietrivia",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/src/utils/movieTrivia.js",
-      "source_location": "L106",
+      "source_location": "L134",
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_src_utils_movietrivia",
+      "target": "frontend_src_utils_movietrivia_getmovietrivialist",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/utils/movieTrivia.js",
+      "source_location": "L140",
       "weight": 1.0
     },
     {
@@ -21613,28 +21684,6 @@
       "confidence_score": 1.0,
       "source_file": "frontend/src/utils/movieTrivia.js",
       "source_location": "L6",
-      "weight": 1.0
-    },
-    {
-      "source": "frontend_src_utils_movietrivia",
-      "target": "frontend_src_utils_movietrivia_cinema_calibration_steps",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "frontend/src/utils/movieTrivia.js",
-      "source_location": "L89",
-      "weight": 1.0
-    },
-    {
-      "source": "frontend_src_utils_movietrivia",
-      "target": "frontend_src_utils_movietrivia_generic_trivia_templates",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "frontend/src/utils/movieTrivia.js",
-      "source_location": "L98",
       "weight": 1.0
     },
     {
@@ -26496,5 +26545,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "bcbde775673465ea65ae1975213ac5fcc268bd16"
+  "built_at_commit": "8f9523b6c217d9839cb095315305f4b70dc0517b"
 }

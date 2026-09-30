@@ -83,6 +83,34 @@ const CURATED_TRIVIA = {
     "Ryan Reynolds spent over a decade pitching an authentic R-rated Deadpool to studios before leaked test footage generated overwhelming fan demand that forced production to greenlight.",
     "Hugh Jackman came out of Wolverine retirement after realizing his dream was an authentic buddy-comedy dynamic matching the classic 1980s film 'Midnight Run'.",
   ],
+  wild_robot: [
+    "Director Chris Sanders cited Hayao Miyazaki's classic anime and Disney's 'Bambi' as key visual inspirations, aiming for a hand-painted impressionist aesthetic rather than photoreal CGI.",
+    "Lupita Nyong'o crafted Roz's voice by blending a classic customer-service AI cadence with human warmth that gradually deepens as the robot learns maternal instincts.",
+    "Kris Bowers composed the emotional orchestral score with zero synthesizers, relying solely on acoustic and organic instruments to represent the wilderness.",
+  ],
+  kalki: [
+    "Director Nag Ashwin designed the futuristic vehicle 'Bujji' from scratch. Anand Mahindra and his engineering team actually built a drivable, 6-ton custom vehicle with bespoke robotics.",
+    "Amitabh Bachchan underwent complex 3D digital de-aging to depict Ashwatthama across thousands of years of epic mythology and dystopian futurism.",
+  ],
+  leo: [
+    "Lokesh Kanagaraj filmed the brutal cafe action sequence in Kashmir under sub-zero temperatures using robotic motion-control cameras programmed for continuous unbroken takes.",
+    "Vijay performed the high-speed car chase sequence without stunt doubles, training for weeks on frozen roads.",
+  ],
+  jailer: [
+    "Nelson Dilipkumar filmed Rajinikanth's iconic cigar-lighting and slow-motion reveals with specialized high-speed Phantom cameras shooting at 1,000 frames per second.",
+    "The explosive climax track composed by Anirudh Ravichander was recorded in Budapest with live brass horns to give it an operatic scale.",
+  ],
+  avatar: [
+    "James Cameron waited over a decade to film Avatar: The Way of Water because underwater performance-capture technology had literally not been invented yet.",
+    "Kate Winslet trained extensively with free-divers to hold her breath underwater for 7 minutes and 14 seconds, breaking Tom Cruise's record on Mission: Impossible.",
+  ],
+  top_gun: [
+    "Tom Cruise personally designed a rigorous five-month flight training curriculum for all cast members so they could fly real F/A-18 Super Hornets without getting nauseous.",
+    "Over 800 hours of aerial footage were captured for Top Gun: Maverick—more raw footage than the entire Lord of the Rings trilogy combined.",
+  ],
+  john_wick: [
+    "Keanu Reeves trained for months in Brazilian Jiu-Jitsu, judo, and 3-gun tactical shooting, performing over 90% of his own gun-fu choreography throughout the franchise.",
+  ],
 }
 
 // Atmospheric cinema loader statuses
@@ -96,34 +124,46 @@ export const CINEMA_CALIBRATION_STEPS = [
 
 // Generic fallback trivia for any film based on cinematic craftsmanship
 const GENERIC_TRIVIA_TEMPLATES = [
-  "Did you know? Modern cinema sound design utilizes over 64 distinct audio tracks to create a realistic three-dimensional acoustic atmosphere.",
-  "Did you know? Directors often shoot scenes at 24 frames per second because it closely replicates the natural motion blur perceived by the human eye.",
-  "Did you know? Color grading plays a massive subconscious role in cinema—cool blues heighten tension, while warm ambers evoke memory and nostalgia.",
-  "Did you know? High-bitrate HEVC and H.264 streams preserve fine cinematic film grain, ensuring character expressions look razor-sharp on OLED screens.",
-  "Did you know? The musical score of a film is typically recorded in a dedicated acoustic scoring stage with an 80-piece live orchestra.",
+  "Modern cinema sound design utilizes over 64 distinct audio tracks to create a realistic three-dimensional acoustic atmosphere.",
+  "Directors often shoot scenes at 24 frames per second because it closely replicates the natural motion blur perceived by the human eye.",
+  "Color grading plays a massive subconscious role in cinema—cool blues heighten tension, while warm ambers evoke memory and nostalgia.",
+  "High-bitrate HEVC and H.264 streams preserve fine cinematic film grain, ensuring character expressions look razor-sharp on OLED screens.",
+  "The musical score of a film is typically recorded in a dedicated acoustic scoring stage with an 80-piece live orchestra.",
 ]
 
 export function getMovieTrivia(title = '', overview = '') {
+  const list = getMovieTriviaList(title, overview)
+  const idx = Math.floor(Math.random() * list.length)
+  return list[idx]
+}
+
+export function getMovieTriviaList(title = '', overview = '') {
   const clean = (title || '').toLowerCase()
+  const matchedFacts = []
 
   // Match against curated trivia
   for (const [key, facts] of Object.entries(CURATED_TRIVIA)) {
     const searchKey = key.replace(/_/g, ' ')
     if (clean.includes(searchKey) || clean.includes(key)) {
-      const idx = Math.floor(Math.random() * facts.length)
-      return facts[idx]
+      matchedFacts.push(...facts)
     }
   }
 
-  // If overview has interesting keywords
-  if (overview && overview.length > 50) {
-    const sentences = overview.split('. ')
-    if (sentences.length > 1) {
-      return `Story Hook: "${sentences[0]}." An epic cinematic journey awaits.`
+  // If specific movie facts exist, return them
+  if (matchedFacts.length > 0) {
+    return matchedFacts
+  }
+
+  // If overview has interesting content, include a story hook
+  const fallbackList = []
+  if (overview && overview.length > 40) {
+    const firstSentence = overview.split(/[.!?]\s/)[0]
+    if (firstSentence) {
+      fallbackList.push(`Story Insight: "${firstSentence.trim()}." An epic cinematic journey awaits.`)
     }
   }
 
-  // Random generic cinema fact
-  const fallbackIdx = Math.floor(Math.random() * GENERIC_TRIVIA_TEMPLATES.length)
-  return GENERIC_TRIVIA_TEMPLATES[fallbackIdx]
+  // Add universal cinema craftsmanship facts
+  fallbackList.push(...GENERIC_TRIVIA_TEMPLATES)
+  return fallbackList
 }

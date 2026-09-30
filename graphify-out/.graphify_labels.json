@@ -1,6 +1,6 @@
 {
   "0": "SearchCandidate",
-  "1": "config.py",
+  "1": "main.py",
   "2": "App.jsx",
   "3": "tmdb.py",
   "4": "AiService",
@@ -24,13 +24,13 @@
   "22": "rules/graphify.md",
   "23": "workflows/graphify.md",
   "24": "app/__init__.py",
-  "27": "main.py",
+  "27": "typing",
   "28": "TestTmdbMetadataService",
   "30": "history.py",
-  "33": "movieTrivia.js",
+  "33": "DeliveryModal.jsx",
   "34": "AiQueryInterpretation",
   "36": "AuthService",
   "38": "proxy_to_streamer",
-  "39": "get_my_profile",
+  "39": "api/auth.py",
   "41": "get_ai_status"
 }

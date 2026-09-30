@@ -1,19 +1,17 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import { Loader2, AlertTriangle, Sparkles, Lightbulb, Play, Film, CheckCircle2 } from 'lucide-react'
+import { getMovieTriviaList } from '../utils/movieTrivia'
 
-const CINEMA_TRIVIA = [
-  "Did you know? 'Oppenheimer' was shot using 65mm IMAX black-and-white film invented specifically for the movie.",
-  "Did you know? 'Interstellar' physicist Kip Thorne's equations led to genuine astrophysics discoveries about gravitational lensing.",
-  "Did you know? In 'The Dark Knight', Heath Ledger designed the Joker's messy makeup himself using drugstore cosmetics.",
-  "Did you know? 'Manjummel Boys' became the first Malayalam movie in history to cross ₹240 crore worldwide.",
-  "Did you know? In 'Dune: Part Two', Denis Villeneuve and sound designers recorded real desert tremors to simulate sandworms.",
-  "Did you know? In 'Inception', the hallway fight scene was shot inside a real 100-foot rotating centrifuge set.",
-  "Did you know? 'Aavesham' director Jithu Madhavan based Ranga's iconic eccentric personality on real college urban legends.",
-]
-
-export default function DeliveryModal({ candidate, error, onClose, onRetry }) {
+export default function DeliveryModal({ candidate, movieGroup, error, onClose, onRetry }) {
   const [elapsedTime, setElapsedTime] = useState(0)
   const [triviaIndex, setTriviaIndex] = useState(0)
+
+  const movieTitle = candidate?.title || candidate?.display_text || movieGroup?.title || ''
+  const movieOverview = movieGroup?.metadata?.overview || ''
+
+  const triviaList = useMemo(() => {
+    return getMovieTriviaList(movieTitle, movieOverview)
+  }, [movieTitle, movieOverview])
 
   // Timer
   useEffect(() => {
@@ -23,15 +21,16 @@ export default function DeliveryModal({ candidate, error, onClose, onRetry }) {
     return () => clearInterval(timer)
   }, [])
 
-  // Rotate trivia every 3 seconds
+  // Rotate trivia every 3.2 seconds
   useEffect(() => {
+    if (!triviaList || triviaList.length <= 1) return
     const triviaTimer = setInterval(() => {
-      setTriviaIndex((prev) => (prev + 1) % CINEMA_TRIVIA.length)
+      setTriviaIndex((prev) => (prev + 1) % triviaList.length)
     }, 3200)
     return () => clearInterval(triviaTimer)
-  }, [])
+  }, [triviaList])
 
-  const currentFact = CINEMA_TRIVIA[triviaIndex]
+  const currentFact = triviaList && triviaList.length > 0 ? triviaList[triviaIndex % triviaList.length] : ''
 
   return (
     <div className="delivery-modal-backdrop" onClick={onClose} role="dialog" aria-modal="true">

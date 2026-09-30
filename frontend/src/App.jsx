@@ -535,6 +535,7 @@ export default function App() {
       {candidateInDelivery && (
         <DeliveryModal
           candidate={candidateInDelivery}
+          movieGroup={activeMovieGroup}
           error={deliveryError}
           onClose={() => {
             setCandidateInDelivery(null)
