@@ -3428,9 +3428,25 @@ video::cue {
 /* ==========================================================================
    3-TIER QUALITY STREAM SELECTOR MODAL
    ========================================================================== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.2s ease-out;
+}
+
 .version-modal-redesign {
   max-width: 940px;
   width: 95%;
+  max-height: 90vh;
+  overflow-y: auto;
   background: rgba(18, 19, 24, 0.96);
   backdrop-filter: blur(28px);
   -webkit-backdrop-filter: blur(28px);
@@ -3438,6 +3454,12 @@ video::cue {
   border-radius: 20px;
   padding: 32px;
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.85);
+  animation: modalScaleIn 0.22s var(--ease-out);
+}
+
+.related-discovery-section {
+  width: 100%;
+  margin-top: 36px;
 }
 
 .quality-tiers-grid {

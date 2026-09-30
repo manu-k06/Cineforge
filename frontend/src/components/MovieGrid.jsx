@@ -406,49 +406,51 @@ export default function MovieGrid({
   // Active search with results
   if (searchQuery && items && items.length > 0) {
     return (
-      <div className="search-results-container">
-        {/* Search stream count & pagination */}
-        <div className="section-header" style={{ marginBottom: '16px' }}>
-          <div>
-            <p className="section-subtitle" style={{ margin: 0 }}>
-              Found {items.length} verified streams across {groupedItems.length} title releases
-            </p>
+      <>
+        <div className="search-results-container">
+          {/* Search stream count & pagination */}
+          <div className="section-header" style={{ marginBottom: '16px' }}>
+            <div>
+              <p className="section-subtitle" style={{ margin: 0 }}>
+                Found {items.length} verified streams across {groupedItems.length} title releases
+              </p>
+            </div>
+
+            {/* Pagination controls if multiple pages */}
+            {totalPages > 1 && (
+              <div className="pagination-controls">
+                <button
+                  className="btn btn-secondary btn-sm"
+                  disabled={page <= 1}
+                  onClick={() => onPageChange(page - 1)}
+                >
+                  <ChevronLeft size={16} /> Prev
+                </button>
+                <span className="page-indicator">
+                  Page {page} of {totalPages}
+                </span>
+                <button
+                  className="btn btn-secondary btn-sm"
+                  disabled={!hasNextPage}
+                  onClick={() => onPageChange(page + 1)}
+                >
+                  Next <ChevronRight size={16} />
+                </button>
+              </div>
+            )}
           </div>
 
-          {/* Pagination controls if multiple pages */}
-          {totalPages > 1 && (
-            <div className="pagination-controls">
-              <button
-                className="btn btn-secondary btn-sm"
-                disabled={page <= 1}
-                onClick={() => onPageChange(page - 1)}
-              >
-                <ChevronLeft size={16} /> Prev
-              </button>
-              <span className="page-indicator">
-                Page {page} of {totalPages}
-              </span>
-              <button
-                className="btn btn-secondary btn-sm"
-                disabled={!hasNextPage}
-                onClick={() => onPageChange(page + 1)}
-              >
-                Next <ChevronRight size={16} />
-              </button>
-            </div>
-          )}
-        </div>
-
-        {/* Clean Unified Cineby-Style Movie Grid */}
-        <div className="browse-grid">
-          {groupedItems.map((group, idx) => (
-            <MovieCard
-              key={group.title || idx}
-              group={group}
-              metadata={metadataEnrichment?.[group.title]}
-              onSelect={onSelectMovie}
-            />
-          ))}
+          {/* Clean Unified Cineby-Style Movie Grid */}
+          <div className="browse-grid">
+            {groupedItems.map((group, idx) => (
+              <MovieCard
+                key={group.title || idx}
+                group={group}
+                metadata={metadataEnrichment?.[group.title]}
+                onSelect={onSelectMovie}
+              />
+            ))}
+          </div>
         </div>
 
         {/* Dynamic Recommended Rails when few matches */}
@@ -461,7 +463,7 @@ export default function MovieGrid({
             />
           </div>
         )}
-      </div>
+      </>
     )
   }
 
