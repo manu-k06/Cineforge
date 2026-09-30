@@ -5830,3 +5830,154 @@ video::cue {
   flex-wrap: wrap;
   margin-top: 10px;
 }
+
+/* ==========================================================================
+   MOBILE PORTABILITY & TOUCH RESPONSIVENESS OVERRIDES
+   ========================================================================== */
+@media (max-width: 640px) {
+  /* Site Header & Brand */
+  .site-header {
+    height: 58px;
+    gap: 10px;
+    padding: 0 12px;
+  }
+
+  .brand {
+    font-size: 17px;
+    gap: 7px;
+  }
+
+  .brand-image {
+    width: 24px;
+    height: 24px;
+  }
+
+  .primary-nav {
+    gap: 12px;
+    font-size: 13px;
+  }
+
+  .primary-nav > button,
+  .primary-nav > a,
+  .nav-menu-trigger {
+    padding: 18px 0;
+  }
+
+  .header-actions {
+    gap: 8px;
+  }
+
+  /* Compact Guest Pill on mobile */
+  .nav-guest-pill {
+    height: 34px;
+    padding: 0 8px;
+    gap: 6px;
+  }
+
+  .nav-guest-tag {
+    display: none; /* Hide 'Sync' tag on phone screens to prevent header wrap */
+  }
+
+  .nav-profile-pill {
+    height: 34px;
+    padding: 0 8px 0 4px;
+    gap: 6px;
+  }
+
+  .nav-profile-name {
+    max-width: 65px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 12px;
+  }
+
+  /* OTT Cinema Player on Mobile */
+  .streamvibe-watch-container {
+    padding-top: 64px;
+    padding-left: 12px;
+    padding-right: 12px;
+    padding-bottom: 40px;
+  }
+
+  .watch-nav-header {
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .watch-breadcrumbs-ott {
+    display: none; /* Omit long breadcrumbs on narrow phone screens */
+  }
+
+  .btn-back-ott {
+    padding: 8px 14px;
+    font-size: 13px;
+  }
+
+  .streamvibe-controls-bar {
+    padding: 16px 14px 10px 14px;
+    gap: 8px;
+  }
+
+  .volume-slider {
+    display: none; /* Mobile devices use hardware volume rockers */
+  }
+
+  .time-display {
+    font-size: 11px;
+    margin-left: 4px;
+  }
+
+  .controls-row {
+    gap: 8px;
+  }
+
+  .controls-left {
+    gap: 8px;
+  }
+
+  .controls-right {
+    gap: 8px;
+  }
+
+  /* Search Modal Mobile Adaptation */
+  .search-modal-card {
+    padding: 20px 16px;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .search-modal-input-row {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .search-filter-btn {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  /* Catalog Grid on Small Mobile: 2 clean columns */
+  .browse-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px 10px;
+  }
+
+  .poster-card .card-copy strong {
+    font-size: 12.5px;
+  }
+
+  .poster-card .card-copy small {
+    font-size: 10.5px;
+  }
+
+  /* Resolving screen on mobile */
+  .stream-resolving-card {
+    padding: 32px 18px;
+  }
+
+  .stream-resolving-card h2 {
+    font-size: 20px;
+  }
+}

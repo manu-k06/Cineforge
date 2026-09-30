@@ -255,11 +255,12 @@ export default function AuthModal({ isOpen, onClose }) {
         style={{
           width: '100%',
           maxWidth: '440px',
+          maxHeight: '92vh',
+          overflowY: 'auto',
           backgroundColor: '#11131a',
           border: '1px solid rgba(255, 255, 255, 0.12)',
           borderRadius: '16px',
           boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.75), 0 0 30px rgba(229, 0, 0, 0.15)',
-          overflow: 'hidden',
           animation: 'fadeIn 0.2s ease-out',
         }}
         onClick={(e) => e.stopPropagation()}
