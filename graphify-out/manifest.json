@@ -306,9 +306,9 @@
     "semantic_hash": ""
   },
   "frontend/src/components/WatchPage.jsx": {
-    "mtime": 1790748402.1988459,
-    "seen": 1790748469.1312025,
-    "ast_hash": "5cbee6857c591ff165763aa7d75ddca3",
+    "mtime": 1790752563.7948525,
+    "seen": 1790752617.94812,
+    "ast_hash": "6e403f896e4cb7560a96d531c9ab1925",
     "semantic_hash": ""
   },
   "frontend/src/context/AuthContext.jsx": {

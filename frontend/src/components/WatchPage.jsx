@@ -131,7 +131,6 @@ export default function WatchPage({
   const [isMuted, setIsMuted] = useState(false)
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [controlsVisible, setControlsVisible] = useState(true)
-  const [copied, setCopied] = useState(false)
   const [hasPlaybackError, setHasPlaybackError] = useState(false)
   const [playbackErrorType, setPlaybackErrorType] = useState('codec') // 'network' | 'codec'
   const [isReconnecting, setIsReconnecting] = useState(false)
@@ -615,15 +614,6 @@ export default function WatchPage({
     return `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`
   }
 
-  const handleCopyLink = () => {
-    const url = delivery.stream_url || delivery.watch_url
-    if (url) {
-      navigator.clipboard.writeText(url)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
-    }
-  }
-
   const versions = group?.candidates || []
   const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0
 
@@ -664,6 +654,36 @@ export default function WatchPage({
           <span className="crumb-active">{meta.cleanTitle}</span>
           {meta.year && <span className="crumb-year">({meta.year})</span>}
         </div>
+
+        <button
+          className={`btn ${isInWatchlist(meta.cleanTitle || candidate?.title || delivery?.candidate_title) ? 'btn-watchlist-active' : 'btn-secondary'} btn-watchlist-top`}
+          onClick={() => {
+            toggleWatchlist({
+              title: meta.cleanTitle || candidate?.title || delivery?.candidate_title,
+              clean_title: meta.cleanTitle,
+              year: meta.year || tmdbData?.year,
+              rating: tmdbData?.rating || extras.imdbRating,
+              poster_url: tmdbData?.poster_url || null,
+              backdrop_url: tmdbData?.backdrop_url || null,
+              overview: synopsis,
+              genres: genres,
+            })
+          }}
+          style={{ marginLeft: 'auto', gap: '8px', padding: '9px 16px', fontSize: '13px', borderRadius: 'var(--radius-md)' }}
+          title={isInWatchlist(meta.cleanTitle || candidate?.title || delivery?.candidate_title) ? 'Saved in My List' : 'Add to My List'}
+        >
+          {isInWatchlist(meta.cleanTitle || candidate?.title || delivery?.candidate_title) ? (
+            <>
+              <BookmarkCheck size={16} className="text-primary" />
+              <span>In My List</span>
+            </>
+          ) : (
+            <>
+              <Plus size={16} />
+              <span>Add to My List</span>
+            </>
+          )}
+        </button>
       </div>
 
       {/* STREAMVIBE CUSTOM THEATER PLAYER */}
@@ -1046,80 +1066,6 @@ export default function WatchPage({
             )}
           </div>
         )}
-      </div>
-
-      {/* Stream Actions Toolbar */}
-      <div className="stream-action-bar">
-        <div className="action-bar-left">
-          {/* Watchlist Bookmark Toggle */}
-          <button
-            className={`btn ${isInWatchlist(meta.cleanTitle || candidate?.title || delivery?.candidate_title) ? 'btn-watchlist-active' : 'btn-secondary'}`}
-            onClick={() => {
-              toggleWatchlist({
-                title: meta.cleanTitle || candidate?.title || delivery?.candidate_title,
-                clean_title: meta.cleanTitle,
-                year: meta.year || tmdbData?.year,
-                rating: tmdbData?.rating || extras.imdbRating,
-                poster_url: tmdbData?.poster_url || null,
-                backdrop_url: tmdbData?.backdrop_url || null,
-                overview: synopsis,
-                genres: genres,
-              })
-            }}
-            title={isInWatchlist(meta.cleanTitle || candidate?.title || delivery?.candidate_title) ? 'Saved in My List' : 'Add to My List'}
-          >
-            {isInWatchlist(meta.cleanTitle || candidate?.title || delivery?.candidate_title) ? (
-              <>
-                <BookmarkCheck size={16} className="text-primary" />
-                <span>In My List</span>
-              </>
-            ) : (
-              <>
-                <Plus size={16} />
-                <span>Add to My List</span>
-              </>
-            )}
-          </button>
-
-          <a
-            href={effectiveWatchUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn btn-primary"
-          >
-            <ExternalLink size={16} /> Open in Web Player
-          </a>
-
-          {delivery.download_url && (
-            <a
-              href={delivery.download_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn btn-secondary"
-            >
-              <Download size={16} /> Download
-            </a>
-          )}
-
-          <button className="btn btn-secondary" onClick={handleCopyLink}>
-            {copied ? (
-              <>
-                <Check size={16} className="text-success" />
-                <span>Copied!</span>
-              </>
-            ) : (
-              <>
-                <Copy size={16} />
-                <span>Copy Stream Link</span>
-              </>
-            )}
-          </button>
-        </div>
-
-        <div className="action-bar-right">
-          <span className="badge badge-quality">{delivery.mime_type || 'Video'}</span>
-          <span className="stream-badge-bot">Powered by @stre89d_bot</span>
-        </div>
       </div>
 
       {/* STREAMVIBE 2-COLUMN MOVIE DETAILS SECTION */}
