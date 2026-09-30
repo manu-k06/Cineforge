@@ -1915,7 +1915,7 @@
       "file_type": "code",
       "norm_label": "herobanner()",
       "source_file": "frontend/src/components/HeroBanner.jsx",
-      "source_location": "L58"
+      "source_location": "L60"
     },
     {
       "id": "frontend_src_components_herobanner_herobanner_fetchheromovies",
@@ -1927,7 +1927,7 @@
       "file_type": "code",
       "norm_label": "fetchheromovies()",
       "source_file": "frontend/src/components/HeroBanner.jsx",
-      "source_location": "L76"
+      "source_location": "L91"
     },
     {
       "id": "frontend_src_components_moviecard_moviecard",
@@ -5695,7 +5695,7 @@
       "file_type": "code",
       "norm_label": "default_hero_movies",
       "source_file": "frontend/src/components/HeroBanner.jsx",
-      "source_location": "L5"
+      "source_location": "L7"
     },
     {
       "id": "frontend_src_components_moviecard",
@@ -10556,6 +10556,18 @@
     },
     {
       "source": "frontend_src_components_herobanner_herobanner",
+      "target": "frontend_src_context_watchhistorycontext_usewatchhistory",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "frontend/src/components/HeroBanner.jsx",
+      "source_location": "L61",
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_src_components_herobanner_herobanner",
       "target": "frontend_src_services_api_getpopularmovies",
       "relation": "calls",
       "_origin": "ast",
@@ -10563,7 +10575,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/HeroBanner.jsx",
-      "source_location": "L80",
+      "source_location": "L95",
       "weight": 1.0
     },
     {
@@ -10575,7 +10587,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/HeroBanner.jsx",
-      "source_location": "L81",
+      "source_location": "L96",
       "weight": 1.0
     },
     {
@@ -10587,7 +10599,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/HeroBanner.jsx",
-      "source_location": "L80",
+      "source_location": "L95",
       "weight": 1.0
     },
     {
@@ -10599,7 +10611,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/HeroBanner.jsx",
-      "source_location": "L81",
+      "source_location": "L96",
       "weight": 1.0
     },
     {
@@ -11727,7 +11739,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/HeroBanner.jsx",
-      "source_location": "L76",
+      "source_location": "L91",
       "weight": 1.0
     },
     {
@@ -15375,7 +15387,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "frontend/src/components/HeroBanner.jsx",
-      "source_location": "L2",
+      "source_location": "L3",
       "weight": 1.0
     },
     {
@@ -15387,7 +15399,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "frontend/src/components/HeroBanner.jsx",
-      "source_location": "L2",
+      "source_location": "L3",
       "weight": 1.0
     },
     {
@@ -15399,7 +15411,19 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "frontend/src/components/HeroBanner.jsx",
-      "source_location": "L3",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_src_components_herobanner",
+      "target": "frontend_src_context_watchhistorycontext_usewatchhistory",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "frontend/src/components/HeroBanner.jsx",
+      "source_location": "L5",
       "weight": 1.0
     },
     {
@@ -18152,7 +18176,7 @@
     },
     {
       "source": "frontend_src_components_herobanner",
-      "target": "frontend_src_services_api",
+      "target": "ref_lucide_react",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -18164,7 +18188,7 @@
     },
     {
       "source": "frontend_src_components_herobanner",
-      "target": "frontend_src_utils_helpers",
+      "target": "frontend_src_services_api",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -18172,6 +18196,30 @@
       "context": "import",
       "source_file": "frontend/src/components/HeroBanner.jsx",
       "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_src_components_herobanner",
+      "target": "frontend_src_utils_helpers",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "frontend/src/components/HeroBanner.jsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_src_components_herobanner",
+      "target": "frontend_src_context_watchhistorycontext",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "frontend/src/components/HeroBanner.jsx",
+      "source_location": "L5",
       "weight": 1.0
     },
     {
@@ -20995,24 +21043,24 @@
     },
     {
       "source": "frontend_src_components_herobanner",
-      "target": "frontend_src_components_herobanner_default_hero_movies",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "frontend/src/components/HeroBanner.jsx",
-      "source_location": "L5",
-      "weight": 1.0
-    },
-    {
-      "source": "frontend_src_components_herobanner",
       "target": "frontend_src_components_herobanner_herobanner",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/src/components/HeroBanner.jsx",
-      "source_location": "L58",
+      "source_location": "L60",
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_src_components_herobanner",
+      "target": "frontend_src_components_herobanner_default_hero_movies",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/components/HeroBanner.jsx",
+      "source_location": "L7",
       "weight": 1.0
     },
     {
@@ -26545,5 +26593,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "594bbc8768fee3cff3fa753f85b278b14224015b"
+  "built_at_commit": "d9dbbf421626f64208574c38f62af537b67ef2aa"
 }

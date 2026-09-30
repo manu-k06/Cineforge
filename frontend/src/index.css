@@ -795,25 +795,23 @@ button:active,
   background: rgba(255, 255, 255, 0.07);
 }
 
-/* Cineby Hero Controls */
+/* Cineby Hero Controls - Vertically centered on screen edges */
 .hero-slider-controls {
   position: absolute;
-  z-index: 3;
-  left: clamp(18px, 5.3vw, 86px);
-  right: clamp(18px, 5.3vw, 86px);
-  bottom: 26px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  inset: 0;
+  z-index: 10;
   pointer-events: none;
 }
 
 .hero-slider-controls > button {
-  width: 42px;
-  height: 42px;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 50%;
-  background: rgba(9, 10, 14, 0.68);
+  background: rgba(9, 10, 14, 0.72);
   color: #fff;
   font-size: 26px;
   display: flex;
@@ -824,27 +822,38 @@ button:active,
   opacity: 0;
   cursor: pointer;
   backdrop-filter: blur(8px);
-  transition: opacity 0.18s var(--ease-out), background 0.18s var(--ease-out), border-color 0.18s var(--ease-out);
+  transition: opacity 0.18s var(--ease-out), background 0.18s var(--ease-out), border-color 0.18s var(--ease-out), transform 0.18s var(--ease-out);
+}
+
+.hero-slider-controls > button:first-of-type {
+  left: clamp(16px, 2.5vw, 40px);
+}
+
+.hero-slider-controls > button:last-of-type {
+  right: clamp(16px, 2.5vw, 40px);
 }
 
 .hero-slider-shell:hover .hero-slider-controls > button,
 .hero-slider-shell:focus-within .hero-slider-controls > button {
-  opacity: 1;
+  opacity: 0.9;
 }
 
 .hero-slider-controls > button:hover {
+  opacity: 1;
   background: var(--ember);
   border-color: var(--ember);
+  transform: translateY(-50%) scale(1.08);
 }
 
 .hero-slider-dots {
   position: absolute;
   left: 50%;
-  bottom: 1px;
+  bottom: 22px;
   display: flex;
   gap: 8px;
   transform: translateX(-50%);
   pointer-events: auto;
+  z-index: 10;
 }
 
 .hero-slider-dots button {
@@ -861,6 +870,164 @@ button:active,
 .hero-slider-dots button.is-active {
   width: 28px;
   background: #ffffff;
+}
+
+/* ==========================================================================
+   HERO MOVIE INFO MODAL (Ott Details Showcase)
+   ========================================================================== */
+.hero-info-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: rgba(0, 0, 0, 0.78);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: heroInfoFadeIn 0.2s ease-out;
+}
+
+@keyframes heroInfoFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.hero-info-modal-card {
+  width: 100%;
+  max-width: 620px;
+  background: #11141b;
+  border: 1px solid var(--soft-edge);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.95);
+  position: relative;
+  animation: heroInfoSlideUp 0.22s var(--ease-out);
+}
+
+@keyframes heroInfoSlideUp {
+  from { opacity: 0; transform: translateY(16px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.hero-info-close-btn {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 10;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--paper);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.hero-info-close-btn:hover {
+  background: var(--ember);
+  border-color: var(--ember);
+  transform: scale(1.08);
+}
+
+.hero-info-banner-header {
+  height: 230px;
+  position: relative;
+  background-size: cover;
+  background-position: center 25%;
+  display: flex;
+  align-items: flex-end;
+  padding: 24px;
+}
+
+.hero-info-vignette {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(0deg, #11141b 0%, rgba(17, 20, 27, 0.6) 50%, rgba(0, 0, 0, 0.45) 100%);
+}
+
+.hero-info-header-content {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+}
+
+.hero-info-meta-tags {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.hero-info-rating {
+  font-size: 13px;
+  font-weight: 700;
+  color: #ffc83b;
+  background: rgba(255, 200, 59, 0.14);
+  padding: 3px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 200, 59, 0.28);
+}
+
+.hero-info-tag {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--mist);
+  background: rgba(255, 255, 255, 0.08);
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.hero-info-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(22px, 3.2vw, 32px);
+  line-height: 1.1;
+  color: #ffffff;
+  letter-spacing: -0.5px;
+}
+
+.hero-info-body {
+  padding: 24px;
+}
+
+.hero-info-section-title {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ember);
+  margin: 0 0 8px;
+}
+
+.hero-info-synopsis {
+  font-size: 14px;
+  line-height: 1.65;
+  color: #d0d4dc;
+  margin: 0 0 24px;
+}
+
+.hero-info-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.hero-info-play-btn {
+  padding: 0 24px;
+}
+
+.hero-info-watchlist-btn.is-in-watchlist {
+  background: rgba(46, 204, 113, 0.16);
+  border-color: rgba(46, 204, 113, 0.4);
+  color: #2ecc71;
 }
 
 @media (max-width: 768px) {

@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react'
+import { X } from 'lucide-react'
 import { getPopularMovies, getTrendingMovies } from '../services/api'
 import { getOptimizedImageUrl } from '../utils/helpers'
+import { useWatchHistory } from '../context/WatchHistoryContext'
 
 const DEFAULT_HERO_MOVIES = [
   {
@@ -56,10 +58,23 @@ const DEFAULT_HERO_MOVIES = [
 ]
 
 export default function HeroBanner({ onQuickPlay }) {
+  const { isInWatchlist, toggleWatchlist } = useWatchHistory()
   const [movies, setMovies] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [currentIndex, setCurrentIndex] = useState(0)
+  const [selectedMovieForInfo, setSelectedMovieForInfo] = useState(null)
   const timerRef = useRef(null)
+
+  // Close info modal on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && selectedMovieForInfo) {
+        setSelectedMovieForInfo(null)
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [selectedMovieForInfo])
 
   // Fetch verified released trending movies
   useEffect(() => {
@@ -233,7 +248,7 @@ export default function HeroBanner({ onQuickPlay }) {
                 <button
                   type="button"
                   className="button button-secondary"
-                  onClick={() => onQuickPlay(movie.searchQuery)}
+                  onClick={() => setSelectedMovieForInfo(movie)}
                 >
                   <span aria-hidden="true">ⓘ</span> See more
                 </button>
@@ -263,6 +278,83 @@ export default function HeroBanner({ onQuickPlay }) {
           ›
         </button>
       </div>
+
+      {/* Hero Movie Info Modal */}
+      {selectedMovieForInfo && (
+        <div
+          className="hero-info-modal-backdrop"
+          onClick={() => setSelectedMovieForInfo(null)}
+          role="dialog"
+          aria-modal="true"
+        >
+          <div
+            className="hero-info-modal-card"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              className="hero-info-close-btn"
+              onClick={() => setSelectedMovieForInfo(null)}
+              title="Close (Esc)"
+            >
+              <X size={20} />
+            </button>
+
+            <div
+              className="hero-info-banner-header"
+              style={{ backgroundImage: `url(${selectedMovieForInfo.backdrop})` }}
+            >
+              <div className="hero-info-vignette" />
+              <div className="hero-info-header-content">
+                <div className="hero-info-meta-tags">
+                  <span className="hero-info-rating">★ {selectedMovieForInfo.rating}</span>
+                  <span className="hero-info-tag">{selectedMovieForInfo.year}</span>
+                  <span className="hero-info-tag">{selectedMovieForInfo.mediaType}</span>
+                </div>
+                <h2 className="hero-info-title">{selectedMovieForInfo.title}</h2>
+              </div>
+            </div>
+
+            <div className="hero-info-body">
+              <h4 className="hero-info-section-title">Overview</h4>
+              <p className="hero-info-synopsis">{selectedMovieForInfo.synopsis}</p>
+
+              <div className="hero-info-actions">
+                <button
+                  type="button"
+                  className="button button-primary hero-info-play-btn"
+                  onClick={() => {
+                    const query = selectedMovieForInfo.searchQuery
+                    setSelectedMovieForInfo(null)
+                    onQuickPlay(query)
+                  }}
+                >
+                  ▶ Play Now
+                </button>
+
+                <button
+                  type="button"
+                  className={`button button-secondary hero-info-watchlist-btn ${
+                    isInWatchlist(selectedMovieForInfo.title) ? 'is-in-watchlist' : ''
+                  }`}
+                  onClick={() => {
+                    toggleWatchlist({
+                      title: selectedMovieForInfo.title,
+                      clean_title: selectedMovieForInfo.title,
+                      year: selectedMovieForInfo.year,
+                      rating: selectedMovieForInfo.rating,
+                      backdrop_url: selectedMovieForInfo.backdrop,
+                      overview: selectedMovieForInfo.synopsis,
+                    })
+                  }}
+                >
+                  {isInWatchlist(selectedMovieForInfo.title) ? '✓ In Watchlist' : '+ Add to Watchlist'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   )
 }
