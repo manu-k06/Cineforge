@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Shield, ExternalLink, X, Send } from 'lucide-react'
+import { Shield, ExternalLink, X } from 'lucide-react'
 
 export default function Footer({ onTabChange, isBackendOnline = true }) {
   const [isDmcaOpen, setIsDmcaOpen] = useState(false)
@@ -65,16 +65,6 @@ export default function Footer({ onTabChange, isBackendOnline = true }) {
           {/* Column 3: Community & Legal */}
           <div className="footer-nav-col">
             <h4 className="footer-col-title">Community &amp; Legal</h4>
-            <a
-              className="footer-link telegram"
-              href="https://t.me/cineforge"
-              target="_blank"
-              rel="noopener noreferrer"
-              data-analytics-nav="telegram"
-            >
-              <Send size={14} />
-              <span>Telegram Community</span>
-            </a>
             <button
               type="button"
               className="footer-link"
