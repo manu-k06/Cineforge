@@ -2245,9 +2245,28 @@ button:active,
   user-select: none;
 }
 
+.streamvibe-player-box:fullscreen {
+  border-radius: 0;
+  width: 100vw;
+  height: 100vh;
+  max-height: 100vh;
+  border: none;
+}
+
+.streamvibe-player-box:-webkit-full-screen {
+  border-radius: 0;
+  width: 100vw;
+  height: 100vh;
+  max-height: 100vh;
+  border: none;
+}
+
 .streamvibe-player-box.fullscreen-mode {
   border-radius: 0;
+  width: 100vw;
+  height: 100vh;
   max-height: 100vh;
+  border: none;
 }
 
 .player-ambient-glow {

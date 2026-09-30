@@ -546,14 +546,61 @@ export default function WatchPage({
     }
   }
 
+  // Synchronize fullscreen state with native document fullscreen events (Escape key, browser controls)
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      const isCurrentlyFs = Boolean(
+        document.fullscreenElement ||
+        document.webkitFullscreenElement ||
+        document.mozFullScreenElement ||
+        document.msFullscreenElement
+      )
+      setIsFullscreen(isCurrentlyFs)
+    }
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange)
+    document.addEventListener('webkitfullscreenchange', handleFullscreenChange)
+    document.addEventListener('mozfullscreenchange', handleFullscreenChange)
+    document.addEventListener('MSFullscreenChange', handleFullscreenChange)
+
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange)
+      document.removeEventListener('webkitfullscreenchange', handleFullscreenChange)
+      document.removeEventListener('mozfullscreenchange', handleFullscreenChange)
+      document.removeEventListener('MSFullscreenChange', handleFullscreenChange)
+    }
+  }, [])
+
   const toggleFullscreen = () => {
     if (!playerContainerRef.current) return
-    if (!document.fullscreenElement) {
-      playerContainerRef.current.requestFullscreen().catch(() => {})
-      setIsFullscreen(true)
+    const isFs = Boolean(
+      document.fullscreenElement ||
+      document.webkitFullscreenElement ||
+      document.mozFullScreenElement ||
+      document.msFullscreenElement
+    )
+
+    if (!isFs) {
+      const el = playerContainerRef.current
+      if (el.requestFullscreen) {
+        el.requestFullscreen().catch(() => {})
+      } else if (el.webkitRequestFullscreen) {
+        el.webkitRequestFullscreen()
+      } else if (el.mozRequestFullScreen) {
+        el.mozRequestFullScreen()
+      } else if (el.msRequestFullscreen) {
+        el.msRequestFullscreen()
+      }
     } else {
-      document.exitFullscreen().catch(() => {})
-      setIsFullscreen(false)
+      if (document.exitFullscreen) {
+        document.exitFullscreen().catch(() => {})
+      } else if (document.webkitExitFullscreen) {
+        document.webkitExitFullscreen()
+      } else if (document.mozCancelFullScreen) {
+        document.mozCancelFullScreen()
+      } else if (document.msExitFullscreen) {
+        document.msExitFullscreen()
+      }
     }
   }
 
@@ -665,6 +712,7 @@ export default function WatchPage({
             }
           }}
           onClick={togglePlay}
+          onDoubleClick={toggleFullscreen}
         >
           {activeSubtitleTrack && subtitleBlobUrl && (
             <track

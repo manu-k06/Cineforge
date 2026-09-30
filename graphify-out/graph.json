@@ -10856,6 +10856,18 @@
     },
     {
       "source": "frontend_src_components_watchpage_watchpage",
+      "target": "frontend_src_utils_helpers_formatbytes",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "frontend/src/components/WatchPage.jsx",
+      "source_location": "L1041",
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_src_components_watchpage_watchpage",
       "target": "frontend_src_context_watchhistorycontext_usewatchhistory",
       "relation": "calls",
       "_origin": "ast",
@@ -10924,18 +10936,6 @@
       "context": "call",
       "source_file": "frontend/src/components/WatchPage.jsx",
       "source_location": "L271",
-      "weight": 1.0
-    },
-    {
-      "source": "frontend_src_components_watchpage_watchpage",
-      "target": "frontend_src_utils_helpers_formatbytes",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "frontend/src/components/WatchPage.jsx",
-      "source_location": "L993",
       "weight": 1.0
     },
     {
@@ -26545,5 +26545,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "7dd504776b17361b072b703cf5cf463e139a7998"
+  "built_at_commit": "594bbc8768fee3cff3fa753f85b278b14224015b"
 }
