@@ -1,36 +1,57 @@
 import React, { useState, useEffect } from 'react'
-import { X, Mail, Lock, User, AlertCircle, CheckCircle2, Loader2, Sparkles, ExternalLink } from 'lucide-react'
+import { X, Mail, Lock, User, AlertCircle, CheckCircle2, Loader2, ExternalLink, KeyRound, ArrowLeft } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../services/supabase'
 
 export default function AuthModal({ isOpen, onClose }) {
-  const { signIn, signUp } = useAuth()
-  const [activeTab, setActiveTab] = useState('signin') // 'signin' | 'signup'
+  const {
+    signIn,
+    signUp,
+    resetPasswordForEmail,
+    updateUserPassword,
+    authModalTab,
+  } = useAuth()
+
+  const [activeTab, setActiveTab] = useState('signin') // 'signin' | 'signup' | 'forgot' | 'update_password'
 
   // Form fields
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmNewPassword, setConfirmNewPassword] = useState('')
 
   // UI state
   const [error, setError] = useState(null)
   const [successMsg, setSuccessMsg] = useState(null)
   const [loading, setLoading] = useState(false)
   const [unconfirmedEmail, setUnconfirmedEmail] = useState(null)
+  const [resetEmailSentTo, setResetEmailSentTo] = useState(null)
   const [resendLoading, setResendLoading] = useState(false)
   const [resendSent, setResendSent] = useState(false)
 
-  // Reset form when modal opens or closes
+  // Sync tab with AuthContext trigger
   useEffect(() => {
     if (isOpen) {
+      if (authModalTab) {
+        setActiveTab(authModalTab)
+      }
       setError(null)
       setSuccessMsg(null)
     } else {
       setUnconfirmedEmail(null)
+      setResetEmailSentTo(null)
       setResendSent(false)
     }
-  }, [isOpen, activeTab])
+  }, [isOpen, authModalTab])
+
+  // Clear errors when switching tabs
+  const handleSwitchTab = (tab) => {
+    setError(null)
+    setSuccessMsg(null)
+    setActiveTab(tab)
+  }
 
   // Close on Escape key
   useEffect(() => {
@@ -45,7 +66,7 @@ export default function AuthModal({ isOpen, onClose }) {
 
   if (!isOpen) return null
 
-  const handleResendEmail = async () => {
+  const handleResendSignupEmail = async () => {
     if (!unconfirmedEmail || !supabase) return
     setResendLoading(true)
     try {
@@ -67,6 +88,7 @@ export default function AuthModal({ isOpen, onClose }) {
     setError(null)
     setSuccessMsg(null)
 
+    // Flow 1: Sign Up
     if (activeTab === 'signup') {
       if (!fullName.trim()) {
         setError('Please enter your full name.')
@@ -97,8 +119,9 @@ export default function AuthModal({ isOpen, onClose }) {
       } finally {
         setLoading(false)
       }
-    } else {
-      // Sign In
+    } 
+    // Flow 2: Sign In
+    else if (activeTab === 'signin') {
       setLoading(true)
       try {
         await signIn(email.trim(), password)
@@ -111,6 +134,67 @@ export default function AuthModal({ isOpen, onClose }) {
       } finally {
         setLoading(false)
       }
+    } 
+    // Flow 3: Forgot Password (Request Reset Link)
+    else if (activeTab === 'forgot') {
+      if (!email.trim()) {
+        setError('Please enter your email address.')
+        return
+      }
+
+      setLoading(true)
+      try {
+        await resetPasswordForEmail(email.trim())
+        setResetEmailSentTo(email.trim())
+      } catch (err) {
+        setError(err.message || 'Failed to send reset link. Please check your email address.')
+      } finally {
+        setLoading(false)
+      }
+    } 
+    // Flow 4: Update Password (from reset link callback)
+    else if (activeTab === 'update_password') {
+      if (!newPassword) {
+        setError('Please enter a new password.')
+        return
+      }
+      if (newPassword !== confirmNewPassword) {
+        setError('Passwords do not match.')
+        return
+      }
+      if (newPassword.length < 6) {
+        setError('Password must be at least 6 characters long.')
+        return
+      }
+
+      setLoading(true)
+      try {
+        await updateUserPassword(newPassword)
+        setSuccessMsg('Password updated successfully! Redirecting...')
+        setTimeout(() => {
+          setActiveTab('signin')
+          setNewPassword('')
+          setConfirmNewPassword('')
+          setSuccessMsg('You can now sign in with your new password.')
+        }, 1500)
+      } catch (err) {
+        setError(err.message || 'Failed to update password. Link may have expired.')
+      } finally {
+        setLoading(false)
+      }
+    }
+  }
+
+  const getSubtitle = () => {
+    switch (activeTab) {
+      case 'signup':
+        return 'Create an account for personalized streaming'
+      case 'forgot':
+        return 'Enter your email to receive a password reset link'
+      case 'update_password':
+        return 'Choose a new password for your account'
+      default:
+        return 'Sign in to access your watch history'
     }
   }
 
@@ -166,7 +250,7 @@ export default function AuthModal({ isOpen, onClose }) {
               </span>
             </div>
             <p style={{ margin: '4px 0 0', fontSize: '13px', color: '#8e95a5' }}>
-              {activeTab === 'signin' ? 'Sign in to access your watch history' : 'Create an account for personalized streaming'}
+              {getSubtitle()}
             </p>
           </div>
           <button
@@ -189,6 +273,7 @@ export default function AuthModal({ isOpen, onClose }) {
           </button>
         </div>
 
+        {/* 1. Account Confirmation Inbox Screen */}
         {unconfirmedEmail ? (
           <div style={{ padding: '36px 28px 32px', textAlign: 'center' }}>
             <div
@@ -236,7 +321,6 @@ export default function AuthModal({ isOpen, onClose }) {
               Click the <strong>Activate Account</strong> button in the email from Cineforge to start streaming.
             </p>
 
-            {/* Actions */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <a
                 href={unconfirmedEmail.includes('@gmail.') ? 'https://mail.google.com' : `mailto:${unconfirmedEmail}`}
@@ -266,7 +350,7 @@ export default function AuthModal({ isOpen, onClose }) {
 
               <button
                 type="button"
-                onClick={handleResendEmail}
+                onClick={handleResendSignupEmail}
                 disabled={resendLoading || resendSent}
                 style={{
                   background: 'transparent',
@@ -298,7 +382,102 @@ export default function AuthModal({ isOpen, onClose }) {
                 type="button"
                 onClick={() => {
                   setUnconfirmedEmail(null)
-                  setActiveTab('signin')
+                  handleSwitchTab('signin')
+                }}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#6b7280',
+                  fontSize: '12px',
+                  cursor: 'pointer',
+                  marginTop: '4px',
+                  textDecoration: 'underline',
+                }}
+              >
+                Return to Sign In
+              </button>
+            </div>
+          </div>
+        ) : resetEmailSentTo ? (
+          /* 2. Forgot Password Email Sent Confirmation Screen */
+          <div style={{ padding: '36px 28px 32px', textAlign: 'center' }}>
+            <div
+              style={{
+                width: '64px',
+                height: '64px',
+                borderRadius: '50%',
+                backgroundColor: 'rgba(229, 0, 0, 0.15)',
+                border: '1px solid rgba(229, 0, 0, 0.35)',
+                boxShadow: '0 0 30px rgba(229, 0, 0, 0.25)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                margin: '0 auto 20px',
+                color: '#ff4d4d',
+              }}
+            >
+              <KeyRound size={30} />
+            </div>
+
+            <h3 style={{ margin: '0 0 8px', fontSize: '20px', fontWeight: '800', color: '#ffffff', letterSpacing: '-0.3px' }}>
+              Password Reset Link Sent
+            </h3>
+            <p style={{ margin: '0 0 16px', fontSize: '13.5px', color: '#a7abb5', lineHeight: '1.5' }}>
+              We've sent a secure password reset link to:
+            </p>
+            <div
+              style={{
+                display: 'inline-block',
+                backgroundColor: 'rgba(255, 255, 255, 0.06)',
+                border: '1px solid rgba(255, 255, 255, 0.14)',
+                borderRadius: '8px',
+                padding: '8px 16px',
+                fontSize: '14px',
+                fontWeight: '600',
+                color: '#f5f5f2',
+                marginBottom: '20px',
+                wordBreak: 'break-all',
+              }}
+            >
+              {resetEmailSentTo}
+            </div>
+
+            <p style={{ margin: '0 0 24px', fontSize: '12.5px', color: '#8e95a5', lineHeight: '1.5' }}>
+              Click the link in the Cineforge email to set a new password. The link will expire shortly for security.
+            </p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <a
+                href={resetEmailSentTo.includes('@gmail.') ? 'https://mail.google.com' : `mailto:${resetEmailSentTo}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  width: '100%',
+                  padding: '12px',
+                  backgroundColor: '#E50000',
+                  color: '#ffffff',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  fontWeight: '700',
+                  textDecoration: 'none',
+                  boxShadow: '0 4px 14px rgba(229, 0, 0, 0.4)',
+                  transition: 'all 0.2s ease',
+                  boxSizing: 'border-box',
+                }}
+              >
+                <ExternalLink size={15} />
+                {resetEmailSentTo.includes('@gmail.') ? 'Open Gmail' : 'Open Email App'}
+              </a>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setResetEmailSentTo(null)
+                  handleSwitchTab('signin')
                 }}
                 style={{
                   background: 'none',
@@ -316,286 +495,428 @@ export default function AuthModal({ isOpen, onClose }) {
           </div>
         ) : (
           <>
-            {/* Tabs: Sign In / Create Account */}
-            <div
-              style={{
-            display: 'flex',
-            padding: '4px',
-            margin: '20px 28px 0',
-            backgroundColor: 'rgba(255, 255, 255, 0.04)',
-            borderRadius: '10px',
-            border: '1px solid rgba(255, 255, 255, 0.06)',
-          }}
-        >
-          <button
-            type="button"
-            onClick={() => setActiveTab('signin')}
-            style={{
-              flex: 1,
-              padding: '10px',
-              border: 'none',
-              borderRadius: '8px',
-              fontSize: '13px',
-              fontWeight: '600',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              backgroundColor: activeTab === 'signin' ? '#E50000' : 'transparent',
-              color: activeTab === 'signin' ? '#ffffff' : '#8e95a5',
-            }}
-          >
-            Sign In
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab('signup')}
-            style={{
-              flex: 1,
-              padding: '10px',
-              border: 'none',
-              borderRadius: '8px',
-              fontSize: '13px',
-              fontWeight: '600',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              backgroundColor: activeTab === 'signup' ? '#E50000' : 'transparent',
-              color: activeTab === 'signup' ? '#ffffff' : '#8e95a5',
-            }}
-          >
-            Create Account
-          </button>
-        </div>
-
-        {/* Form Body */}
-        <form onSubmit={handleSubmit} style={{ padding: '24px 28px' }}>
-          {error && (
-            <div
-              style={{
-                marginBottom: '16px',
-                padding: '12px 14px',
-                backgroundColor: 'rgba(229, 0, 0, 0.12)',
-                border: '1px solid rgba(229, 0, 0, 0.3)',
-                borderRadius: '8px',
-                display: 'flex',
-                alignItems: 'flex-start',
-                gap: '10px',
-                color: '#ff6666',
-                fontSize: '13px',
-                lineHeight: '1.4',
-              }}
-            >
-              <AlertCircle size={16} style={{ flexShrink: 0, marginTop: '2px' }} />
-              <div>{error}</div>
-            </div>
-          )}
-
-          {successMsg && (
-            <div
-              style={{
-                marginBottom: '16px',
-                padding: '12px 14px',
-                backgroundColor: 'rgba(16, 185, 129, 0.12)',
-                border: '1px solid rgba(16, 185, 129, 0.3)',
-                borderRadius: '8px',
-                display: 'flex',
-                alignItems: 'flex-start',
-                gap: '10px',
-                color: '#34d399',
-                fontSize: '13px',
-                lineHeight: '1.4',
-              }}
-            >
-              <CheckCircle2 size={16} style={{ flexShrink: 0, marginTop: '2px' }} />
-              <div>{successMsg}</div>
-            </div>
-          )}
-
-          {/* Full Name (Sign Up only) */}
-          {activeTab === 'signup' && (
-            <div style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'block', fontSize: '12px', fontWeight: '500', color: '#c5c9d3', marginBottom: '6px' }}>
-                Full Name
-              </label>
-              <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-                <User size={16} style={{ position: 'absolute', left: '12px', color: '#6b7280' }} />
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Alex Miller"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '10px 12px 10px 38px',
-                    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                    border: '1px solid rgba(255, 255, 255, 0.12)',
-                    borderRadius: '8px',
-                    color: '#ffffff',
-                    fontSize: '14px',
-                    outline: 'none',
-                    transition: 'border-color 0.2s',
-                  }}
-                />
-              </div>
-            </div>
-          )}
-
-          {/* Email */}
-          <div style={{ marginBottom: '16px' }}>
-            <label style={{ display: 'block', fontSize: '12px', fontWeight: '500', color: '#c5c9d3', marginBottom: '6px' }}>
-              Email Address
-            </label>
-            <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-              <Mail size={16} style={{ position: 'absolute', left: '12px', color: '#6b7280' }} />
-              <input
-                type="email"
-                required
-                placeholder="name@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+            {/* Tab switchers (only visible for signin and signup) */}
+            {(activeTab === 'signin' || activeTab === 'signup') && (
+              <div
                 style={{
-                  width: '100%',
-                  padding: '10px 12px 10px 38px',
-                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                  border: '1px solid rgba(255, 255, 255, 0.12)',
-                  borderRadius: '8px',
-                  color: '#ffffff',
-                  fontSize: '14px',
-                  outline: 'none',
+                  display: 'flex',
+                  padding: '4px',
+                  margin: '20px 28px 0',
+                  backgroundColor: 'rgba(255, 255, 255, 0.04)',
+                  borderRadius: '10px',
+                  border: '1px solid rgba(255, 255, 255, 0.06)',
                 }}
-              />
-            </div>
-          </div>
-
-          {/* Password */}
-          <div style={{ marginBottom: activeTab === 'signup' ? '16px' : '24px' }}>
-            <label style={{ display: 'block', fontSize: '12px', fontWeight: '500', color: '#c5c9d3', marginBottom: '6px' }}>
-              Password
-            </label>
-            <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-              <Lock size={16} style={{ position: 'absolute', left: '12px', color: '#6b7280' }} />
-              <input
-                type="password"
-                required
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px 12px 10px 38px',
-                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                  border: '1px solid rgba(255, 255, 255, 0.12)',
-                  borderRadius: '8px',
-                  color: '#ffffff',
-                  fontSize: '14px',
-                  outline: 'none',
-                }}
-              />
-            </div>
-          </div>
-
-          {/* Confirm Password (Sign Up only) */}
-          {activeTab === 'signup' && (
-            <div style={{ marginBottom: '24px' }}>
-              <label style={{ display: 'block', fontSize: '12px', fontWeight: '500', color: '#c5c9d3', marginBottom: '6px' }}>
-                Confirm Password
-              </label>
-              <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-                <Lock size={16} style={{ position: 'absolute', left: '12px', color: '#6b7280' }} />
-                <input
-                  type="password"
-                  required
-                  placeholder="••••••••"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '10px 12px 10px 38px',
-                    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                    border: '1px solid rgba(255, 255, 255, 0.12)',
-                    borderRadius: '8px',
-                    color: '#ffffff',
-                    fontSize: '14px',
-                    outline: 'none',
-                  }}
-                />
-              </div>
-            </div>
-          )}
-
-          {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={loading}
-            style={{
-              width: '100%',
-              padding: '12px',
-              backgroundColor: '#E50000',
-              color: '#ffffff',
-              border: 'none',
-              borderRadius: '8px',
-              fontSize: '14px',
-              fontWeight: '600',
-              cursor: loading ? 'not-allowed' : 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '8px',
-              boxShadow: '0 4px 12px rgba(229, 0, 0, 0.35)',
-              transition: 'background-color 0.2s, opacity 0.2s',
-              opacity: loading ? 0.75 : 1,
-            }}
-          >
-            {loading ? (
-              <>
-                <Loader2 size={18} className="animate-spin" />
-                <span>{activeTab === 'signin' ? 'Signing In...' : 'Creating Account...'}</span>
-              </>
-            ) : (
-              <span>{activeTab === 'signin' ? 'Sign In' : 'Create Free Account'}</span>
-            )}
-          </button>
-
-          {/* Bottom Switcher */}
-          <div style={{ marginTop: '18px', textAlign: 'center', fontSize: '13px', color: '#8e95a5' }}>
-            {activeTab === 'signin' ? (
-              <span>
-                Don't have an account?{' '}
+              >
                 <button
                   type="button"
-                  onClick={() => setActiveTab('signup')}
+                  onClick={() => handleSwitchTab('signin')}
                   style={{
-                    background: 'transparent',
+                    flex: 1,
+                    padding: '10px',
                     border: 'none',
-                    color: '#E50000',
+                    borderRadius: '8px',
+                    fontSize: '13px',
                     fontWeight: '600',
                     cursor: 'pointer',
-                    textDecoration: 'underline',
+                    transition: 'all 0.2s ease',
+                    backgroundColor: activeTab === 'signin' ? '#E50000' : 'transparent',
+                    color: activeTab === 'signin' ? '#ffffff' : '#8e95a5',
                   }}
                 >
-                  Create one now
+                  Sign In
                 </button>
-              </span>
-            ) : (
-              <span>
-                Already have an account?{' '}
                 <button
                   type="button"
-                  onClick={() => setActiveTab('signin')}
+                  onClick={() => handleSwitchTab('signup')}
                   style={{
-                    background: 'transparent',
+                    flex: 1,
+                    padding: '10px',
                     border: 'none',
-                    color: '#E50000',
+                    borderRadius: '8px',
+                    fontSize: '13px',
                     fontWeight: '600',
                     cursor: 'pointer',
-                    textDecoration: 'underline',
+                    transition: 'all 0.2s ease',
+                    backgroundColor: activeTab === 'signup' ? '#E50000' : 'transparent',
+                    color: activeTab === 'signup' ? '#ffffff' : '#8e95a5',
                   }}
                 >
-                  Sign in here
+                  Create Account
                 </button>
-              </span>
+              </div>
             )}
-          </div>
-        </form>
+
+            {/* Back button for Forgot Password & Update Password views */}
+            {(activeTab === 'forgot' || activeTab === 'update_password') && (
+              <div style={{ padding: '16px 28px 0' }}>
+                <button
+                  type="button"
+                  onClick={() => handleSwitchTab('signin')}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    background: 'none',
+                    border: 'none',
+                    color: '#8e95a5',
+                    fontSize: '12.5px',
+                    cursor: 'pointer',
+                    padding: '4px 0',
+                    transition: 'color 0.2s',
+                  }}
+                >
+                  <ArrowLeft size={14} />
+                  <span>Back to Sign In</span>
+                </button>
+              </div>
+            )}
+
+            {/* Form Body */}
+            <form onSubmit={handleSubmit} style={{ padding: '24px 28px' }}>
+              {error && (
+                <div
+                  style={{
+                    marginBottom: '16px',
+                    padding: '12px 14px',
+                    backgroundColor: 'rgba(229, 0, 0, 0.12)',
+                    border: '1px solid rgba(229, 0, 0, 0.3)',
+                    borderRadius: '8px',
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    gap: '10px',
+                    color: '#ff6666',
+                    fontSize: '13px',
+                    lineHeight: '1.4',
+                  }}
+                >
+                  <AlertCircle size={16} style={{ flexShrink: 0, marginTop: '2px' }} />
+                  <div>{error}</div>
+                </div>
+              )}
+
+              {successMsg && (
+                <div
+                  style={{
+                    marginBottom: '16px',
+                    padding: '12px 14px',
+                    backgroundColor: 'rgba(16, 185, 129, 0.12)',
+                    border: '1px solid rgba(16, 185, 129, 0.3)',
+                    borderRadius: '8px',
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    gap: '10px',
+                    color: '#34d399',
+                    fontSize: '13px',
+                    lineHeight: '1.4',
+                  }}
+                >
+                  <CheckCircle2 size={16} style={{ flexShrink: 0, marginTop: '2px' }} />
+                  <div>{successMsg}</div>
+                </div>
+              )}
+
+              {/* 1. Full Name (Sign Up only) */}
+              {activeTab === 'signup' && (
+                <div style={{ marginBottom: '16px' }}>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '500', color: '#c5c9d3', marginBottom: '6px' }}>
+                    Full Name
+                  </label>
+                  <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                    <User size={16} style={{ position: 'absolute', left: '12px', color: '#6b7280' }} />
+                    <input
+                      type="text"
+                      required
+                      placeholder="Enter your full name"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      style={{
+                        width: '100%',
+                        padding: '10px 12px 10px 38px',
+                        backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                        border: '1px solid rgba(255, 255, 255, 0.12)',
+                        borderRadius: '8px',
+                        color: '#ffffff',
+                        fontSize: '14px',
+                        outline: 'none',
+                        transition: 'border-color 0.2s',
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* 2. Email Address (Sign In, Sign Up, and Forgot Password) */}
+              {(activeTab === 'signin' || activeTab === 'signup' || activeTab === 'forgot') && (
+                <div style={{ marginBottom: '16px' }}>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '500', color: '#c5c9d3', marginBottom: '6px' }}>
+                    Email Address
+                  </label>
+                  <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                    <Mail size={16} style={{ position: 'absolute', left: '12px', color: '#6b7280' }} />
+                    <input
+                      type="email"
+                      required
+                      placeholder="Enter your email address"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      style={{
+                        width: '100%',
+                        padding: '10px 12px 10px 38px',
+                        backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                        border: '1px solid rgba(255, 255, 255, 0.12)',
+                        borderRadius: '8px',
+                        color: '#ffffff',
+                        fontSize: '14px',
+                        outline: 'none',
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* 3. Password (Sign In and Sign Up) */}
+              {(activeTab === 'signin' || activeTab === 'signup') && (
+                <div style={{ marginBottom: activeTab === 'signup' ? '16px' : '24px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                    <label style={{ fontSize: '12px', fontWeight: '500', color: '#c5c9d3' }}>
+                      Password
+                    </label>
+                    {activeTab === 'signin' && (
+                      <button
+                        type="button"
+                        onClick={() => handleSwitchTab('forgot')}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          color: '#ff6666',
+                          fontSize: '11.5px',
+                          fontWeight: '500',
+                          cursor: 'pointer',
+                          padding: 0,
+                          textDecoration: 'underline',
+                        }}
+                      >
+                        Forgot password?
+                      </button>
+                    )}
+                  </div>
+                  <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                    <Lock size={16} style={{ position: 'absolute', left: '12px', color: '#6b7280' }} />
+                    <input
+                      type="password"
+                      required
+                      placeholder="••••••••"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      style={{
+                        width: '100%',
+                        padding: '10px 12px 10px 38px',
+                        backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                        border: '1px solid rgba(255, 255, 255, 0.12)',
+                        borderRadius: '8px',
+                        color: '#ffffff',
+                        fontSize: '14px',
+                        outline: 'none',
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* 4. Confirm Password (Sign Up only) */}
+              {activeTab === 'signup' && (
+                <div style={{ marginBottom: '24px' }}>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '500', color: '#c5c9d3', marginBottom: '6px' }}>
+                    Confirm Password
+                  </label>
+                  <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                    <Lock size={16} style={{ position: 'absolute', left: '12px', color: '#6b7280' }} />
+                    <input
+                      type="password"
+                      required
+                      placeholder="••••••••"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      style={{
+                        width: '100%',
+                        padding: '10px 12px 10px 38px',
+                        backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                        border: '1px solid rgba(255, 255, 255, 0.12)',
+                        borderRadius: '8px',
+                        color: '#ffffff',
+                        fontSize: '14px',
+                        outline: 'none',
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* 5. Update Password Fields (from recovery link) */}
+              {activeTab === 'update_password' && (
+                <>
+                  <div style={{ marginBottom: '16px' }}>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '500', color: '#c5c9d3', marginBottom: '6px' }}>
+                      New Password
+                    </label>
+                    <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                      <Lock size={16} style={{ position: 'absolute', left: '12px', color: '#6b7280' }} />
+                      <input
+                        type="password"
+                        required
+                        placeholder="••••••••"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '10px 12px 10px 38px',
+                          backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                          border: '1px solid rgba(255, 255, 255, 0.12)',
+                          borderRadius: '8px',
+                          color: '#ffffff',
+                          fontSize: '14px',
+                          outline: 'none',
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  <div style={{ marginBottom: '24px' }}>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '500', color: '#c5c9d3', marginBottom: '6px' }}>
+                      Confirm New Password
+                    </label>
+                    <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                      <Lock size={16} style={{ position: 'absolute', left: '12px', color: '#6b7280' }} />
+                      <input
+                        type="password"
+                        required
+                        placeholder="••••••••"
+                        value={confirmNewPassword}
+                        onChange={(e) => setConfirmNewPassword(e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '10px 12px 10px 38px',
+                          backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                          border: '1px solid rgba(255, 255, 255, 0.12)',
+                          borderRadius: '8px',
+                          color: '#ffffff',
+                          fontSize: '14px',
+                          outline: 'none',
+                        }}
+                      />
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {/* Submit Button */}
+              <button
+                type="submit"
+                disabled={loading}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  backgroundColor: '#E50000',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  boxShadow: '0 4px 12px rgba(229, 0, 0, 0.35)',
+                  transition: 'background-color 0.2s, opacity 0.2s',
+                  opacity: loading ? 0.75 : 1,
+                }}
+              >
+                {loading ? (
+                  <>
+                    <Loader2 size={18} className="animate-spin" />
+                    <span>
+                      {activeTab === 'signin'
+                        ? 'Signing In...'
+                        : activeTab === 'signup'
+                        ? 'Creating Account...'
+                        : activeTab === 'forgot'
+                        ? 'Sending Reset Link...'
+                        : 'Updating Password...'}
+                    </span>
+                  </>
+                ) : (
+                  <span>
+                    {activeTab === 'signin'
+                      ? 'Sign In'
+                      : activeTab === 'signup'
+                      ? 'Create Free Account'
+                      : activeTab === 'forgot'
+                      ? 'Send Reset Link'
+                      : 'Set New Password'}
+                  </span>
+                )}
+              </button>
+
+              {/* Bottom Switcher */}
+              <div style={{ marginTop: '18px', textAlign: 'center', fontSize: '13px', color: '#8e95a5' }}>
+                {activeTab === 'signin' ? (
+                  <span>
+                    Don't have an account?{' '}
+                    <button
+                      type="button"
+                      onClick={() => handleSwitchTab('signup')}
+                      style={{
+                        background: 'transparent',
+                        border: 'none',
+                        color: '#E50000',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        textDecoration: 'underline',
+                      }}
+                    >
+                      Create one now
+                    </button>
+                  </span>
+                ) : activeTab === 'signup' ? (
+                  <span>
+                    Already have an account?{' '}
+                    <button
+                      type="button"
+                      onClick={() => handleSwitchTab('signin')}
+                      style={{
+                        background: 'transparent',
+                        border: 'none',
+                        color: '#E50000',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        textDecoration: 'underline',
+                      }}
+                    >
+                      Sign in here
+                    </button>
+                  </span>
+                ) : (
+                  <span>
+                    Remembered your password?{' '}
+                    <button
+                      type="button"
+                      onClick={() => handleSwitchTab('signin')}
+                      style={{
+                        background: 'transparent',
+                        border: 'none',
+                        color: '#E50000',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        textDecoration: 'underline',
+                      }}
+                    >
+                      Sign in
+                    </button>
+                  </span>
+                )}
+              </div>
+            </form>
           </>
         )}
       </div>

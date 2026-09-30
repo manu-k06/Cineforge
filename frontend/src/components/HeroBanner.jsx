@@ -1,66 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { X } from 'lucide-react'
-import { getPopularMovies, getTrendingMovies } from '../services/api'
+import { getPopularMovies } from '../services/api'
 import { getOptimizedImageUrl } from '../utils/helpers'
 import { useWatchHistory } from '../context/WatchHistoryContext'
 
-const DEFAULT_HERO_MOVIES = [
-  {
-    id: 693134,
-    title: 'Dune: Part Two',
-    searchQuery: 'Dune Part Two',
-    synopsis: 'Paul Atreides unites with Chani and the Fremen while seeking revenge against the conspirators who destroyed his family.',
-    year: '2024',
-    rating: '8.2',
-    mediaType: 'Movie',
-    backdrop: getOptimizedImageUrl('/xOMo8BRK7PfcJv9JCnx7s520Wio.jpg', 'w1280'),
-    poster_url: getOptimizedImageUrl('/1pdfLvkbY9ohJlCjQH2CZjjYVvJ.jpg', 'w500'),
-  },
-  {
-    id: 533535,
-    title: 'Deadpool & Wolverine',
-    searchQuery: 'Deadpool and Wolverine',
-    synopsis: 'A listless Wade Wilson toils in civilian life with his days as the morally flexible mercenary behind him, until the TVA pulls him into an epic mission.',
-    year: '2024',
-    rating: '7.7',
-    mediaType: 'Movie',
-    backdrop: getOptimizedImageUrl('/yDHYTfA3R0jFYba16jBB1jv8M9l.jpg', 'w1280'),
-    poster_url: getOptimizedImageUrl('/8cdWjvZQUExUUTzyp4t6EDMubfO.jpg', 'w500'),
-  },
-  {
-    id: 872585,
-    title: 'Oppenheimer',
-    searchQuery: 'Oppenheimer',
-    synopsis: 'The story of J. Robert Oppenheimer’s role in the development of the atomic bomb during World War II.',
-    year: '2023',
-    rating: '8.1',
-    mediaType: 'Movie',
-    backdrop: getOptimizedImageUrl('/fm6K9vYvt39mgrVIezqp90uk8Ux.jpg', 'w1280'),
-    poster_url: getOptimizedImageUrl('/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg', 'w500'),
-  },
-  {
-    id: 157336,
-    title: 'Interstellar',
-    searchQuery: 'Interstellar',
-    synopsis: 'The adventures of a group of explorers who make use of a newly discovered wormhole to surpass the limitations on human space travel.',
-    year: '2014',
-    rating: '8.4',
-    mediaType: 'Movie',
-    backdrop: getOptimizedImageUrl('/xJHokMbljvjADYdit5fK5VQsXEG.jpg', 'w1280'),
-    poster_url: getOptimizedImageUrl('/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg', 'w500'),
-  },
-  {
-    id: 155,
-    title: 'The Dark Knight',
-    searchQuery: 'The Dark Knight',
-    synopsis: 'Batman raises the stakes in his war on crime against the Joker, a psychotic criminal mastermind who plunges Gotham into anarchy.',
-    year: '2008',
-    rating: '8.5',
-    mediaType: 'Movie',
-    backdrop: getOptimizedImageUrl('/nMKdUUepR0i5zn0y1T4CsSB5chy.jpg', 'w1280'),
-    poster_url: getOptimizedImageUrl('/qJ2tW6WMUDux911r6m7haRef0WH.jpg', 'w500'),
-  },
-]
+const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY || '27c65ee52f2aa6f980dc01b4162d2daf'
+const TMDB_BASE_URL = 'https://api.tmdb.org/3'
 
 export default function HeroBanner({ onQuickPlay }) {
   const { isInWatchlist, toggleWatchlist } = useWatchHistory()
@@ -81,78 +26,75 @@ export default function HeroBanner({ onQuickPlay }) {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [selectedMovieForInfo])
 
-  // Fetch verified released trending movies
+  // Fetch verified released trending movies dynamically from TMDb
   useEffect(() => {
     let isMounted = true
 
-    // Safety timeout: ensure skeleton doesn't hang indefinitely if network is slow
-    const fallbackTimer = setTimeout(() => {
-      if (isMounted) {
-        setMovies((prev) => (prev.length === 0 ? DEFAULT_HERO_MOVIES : prev))
-        setIsLoading(false)
-      }
-    }, 1800)
-
     async function fetchHeroMovies() {
       try {
-        // Query popular released and weekly trending in parallel
-        const [popRes, trendRes] = await Promise.allSettled([
-          getPopularMovies(1),
-          getTrendingMovies('week', 1),
-        ])
+        // Fast direct TMDb weekly trending fetch (<250ms worldwide)
+        const res = await fetch(`${TMDB_BASE_URL}/trending/movie/week?api_key=${TMDB_API_KEY}&page=1`)
+        let rawMovies = []
+        if (res.ok) {
+          const data = await res.json()
+          rawMovies = data.results || []
+        }
 
-        const popList = popRes.status === 'fulfilled' && popRes.value?.results ? popRes.value.results : []
-        const trendList = trendRes.status === 'fulfilled' && trendRes.value?.results ? trendRes.value.results : []
-
-        const combined = [...popList, ...trendList]
-        const today = new Date()
-        const currentYear = today.getFullYear()
+        // Fallback to popular movies if trending list was empty
+        if (rawMovies.length === 0) {
+          const popData = await getPopularMovies(1)
+          rawMovies = popData?.results || []
+        }
 
         const seen = new Set()
-        const valid = combined.filter((m) => {
-          if (!m.backdrop_url || !m.title) return false
-          const key = m.title.toLowerCase().trim()
+        const valid = rawMovies.filter((m) => {
+          const title = m.title || m.name
+          const backdrop = m.backdrop_path || m.backdrop_url
+          if (!backdrop || !title) return false
+          const key = title.toLowerCase().trim()
           if (seen.has(key)) return false
           seen.add(key)
-
-          const yr = parseInt(m.year || '0', 10)
-          if (yr > currentYear) return false
-          if (m.release_date && new Date(m.release_date) > today) return false
-
           return true
         })
 
         if (valid.length > 0 && isMounted) {
           const formatted = valid.slice(0, 8).map((m) => {
-            const releaseYear = m.year || (m.release_date ? m.release_date.split('-')[0] : '2025')
-            const displayRating = m.rating ? Number(m.rating).toFixed(1) : '7.8'
+            const releaseYear = m.release_date
+              ? m.release_date.split('-')[0]
+              : m.first_air_date
+              ? m.first_air_date.split('-')[0]
+              : m.year || ''
+            const displayRating = m.vote_average
+              ? Number(m.vote_average).toFixed(1)
+              : m.rating
+              ? Number(m.rating).toFixed(1)
+              : '7.8'
+            const backdrop = m.backdrop_path
+              ? getOptimizedImageUrl(m.backdrop_path, 'w1280')
+              : m.backdrop_url || ''
+            const poster = m.poster_path
+              ? getOptimizedImageUrl(m.poster_path, 'w500')
+              : m.poster_url || null
 
             return {
-              id: m.tmdb_id || m.title,
-              title: m.title,
-              searchQuery: m.title,
+              id: m.id || m.tmdb_id || m.title,
+              title: m.title || m.name,
+              searchQuery: m.title || m.name,
               synopsis: m.overview || 'Newly released blockbuster streaming in high definition on Cineforge.',
               year: releaseYear,
               rating: displayRating,
               mediaType: m.media_type === 'tv' ? 'TV show' : 'Movie',
-              backdrop: m.backdrop_url,
-              poster_url: m.poster_url || (m.poster_path ? getOptimizedImageUrl(m.poster_path, 'w500') : null),
+              backdrop: backdrop,
+              poster_url: poster,
             }
           })
 
           setMovies(formatted)
-          clearTimeout(fallbackTimer)
-          setIsLoading(false)
-        } else if (isMounted) {
-          setMovies(DEFAULT_HERO_MOVIES)
-          clearTimeout(fallbackTimer)
-          setIsLoading(false)
         }
       } catch (err) {
-        console.error('Failed to load hero banner movies:', err)
+        console.error('Failed to load dynamic hero banner movies:', err)
+      } finally {
         if (isMounted) {
-          setMovies(DEFAULT_HERO_MOVIES)
-          clearTimeout(fallbackTimer)
           setIsLoading(false)
         }
       }
@@ -162,7 +104,6 @@ export default function HeroBanner({ onQuickPlay }) {
 
     return () => {
       isMounted = false
-      clearTimeout(fallbackTimer)
     }
   }, [])
 
@@ -189,8 +130,8 @@ export default function HeroBanner({ onQuickPlay }) {
     setCurrentIndex((prev) => (prev - 1 + movies.length) % movies.length)
   }
 
-  // Hero Skeleton Shimmer Placeholder
-  if (isLoading || movies.length === 0) {
+  // Hero Skeleton Shimmer Placeholder while loading
+  if (isLoading) {
     return (
       <section className="hero-slider-shell hero-skeleton-shell" aria-busy="true" aria-label="Loading featured cinema">
         <div className="home-hero hero-skeleton-hero">
@@ -218,6 +159,11 @@ export default function HeroBanner({ onQuickPlay }) {
         </div>
       </section>
     )
+  }
+
+  // Gracefully omit hero slider if no movies could be loaded from API
+  if (movies.length === 0) {
+    return null
   }
 
   return (

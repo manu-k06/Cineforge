@@ -252,9 +252,9 @@
     "semantic_hash": ""
   },
   "frontend/src/components/AuthModal.jsx": {
-    "mtime": 1790757828.0259323,
-    "seen": 1790757882.6307526,
-    "ast_hash": "b35fb94376ee70f3c8dba375db3b884c",
+    "mtime": 1790760814.9234836,
+    "seen": 1790760961.7366116,
+    "ast_hash": "4464a0ebaa44a7256520d8ce7830539c",
     "semantic_hash": ""
   },
   "frontend/src/components/DeliveryModal.jsx": {
@@ -264,9 +264,9 @@
     "semantic_hash": ""
   },
   "frontend/src/components/HeroBanner.jsx": {
-    "mtime": 1790751254.2307293,
-    "seen": 1790751281.872419,
-    "ast_hash": "7f99993e2ff81c1a38aa8ee5a3168793",
+    "mtime": 1790760923.4273033,
+    "seen": 1790760961.7374806,
+    "ast_hash": "0fe753ec03f268a9136079fa16db38f7",
     "semantic_hash": ""
   },
   "frontend/src/components/MovieCard.jsx": {
@@ -282,9 +282,9 @@
     "semantic_hash": ""
   },
   "frontend/src/components/Navbar.jsx": {
-    "mtime": 1790760122.7720323,
-    "seen": 1790760155.8547347,
-    "ast_hash": "462ba625fb7033468bba4b1d1c1bc115",
+    "mtime": 1790760774.1948,
+    "seen": 1790760961.7379565,
+    "ast_hash": "6dd20e34cedf7c5c040e616eb64fcf01",
     "semantic_hash": ""
   },
   "frontend/src/components/PlayerModal.jsx": {
@@ -312,9 +312,9 @@
     "semantic_hash": ""
   },
   "frontend/src/context/AuthContext.jsx": {
-    "mtime": 1790756888.828802,
-    "seen": 1790757038.4601545,
-    "ast_hash": "4a9cf81bddce1a4d2a96ec296026a03b",
+    "mtime": 1790760763.7202814,
+    "seen": 1790760961.738896,
+    "ast_hash": "b2c4cbbf75ea86bb0df9d810bcf94256",
     "semantic_hash": ""
   },
   "frontend/src/main.jsx": {
@@ -324,9 +324,9 @@
     "semantic_hash": ""
   },
   "frontend/src/services/api.js": {
-    "mtime": 1790659810.9182563,
-    "seen": 1790660030.461022,
-    "ast_hash": "19045b3141eac9a9d2b39a50dab095f4",
+    "mtime": 1790760895.7407033,
+    "seen": 1790760961.7394195,
+    "ast_hash": "ee1827eed6169d39cf679a435bf6b714",
     "semantic_hash": ""
   },
   "frontend/src/services/supabase.js": {

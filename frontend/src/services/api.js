@@ -428,14 +428,13 @@ export async function getTrendingMovies(timeWindow = 'week', page = 1) {
     }
   }
 
-  // Direct TMDb Trending strictly for OTT/Digital released films
-  const ottCutoff = '2024-12-31'
-  const tmdbUrl = `${TMDB_BASE_URL}/discover/movie?api_key=${TMDB_API_KEY}&sort_by=popularity.desc&with_release_type=4|5|6&primary_release_date.lte=${ottCutoff}&vote_count.gte=100&page=${page}`
+  // Direct TMDb Trending
+  const tmdbUrl = `${TMDB_BASE_URL}/trending/movie/${timeWindow}?api_key=${TMDB_API_KEY}&page=${page}`
   const res = await fetch(tmdbUrl)
   if (!res.ok) throw new Error('Failed to fetch trending movies from TMDb')
   const data = await res.json()
   const validMovies = (data.results || []).filter(
-    (item) => item.poster_path && item.release_date && item.release_date <= ottCutoff && (item.vote_count || 0) >= 80
+    (item) => item.poster_path && (item.title || item.name)
   )
   return {
     results: validMovies.map(mapTmdbMovie).filter(Boolean),
@@ -466,15 +465,14 @@ export async function getPopularMovies(page = 1) {
     }
   }
 
-  // Direct TMDb Popular with strict OTT/Digital released-only filter
+  // Direct TMDb Popular
   try {
-    const ottCutoff = '2024-12-31'
-    const tmdbUrl = `${TMDB_BASE_URL}/discover/movie?api_key=${TMDB_API_KEY}&sort_by=popularity.desc&with_release_type=4|5|6&primary_release_date.lte=${ottCutoff}&vote_count.gte=150&page=${page}`
+    const tmdbUrl = `${TMDB_BASE_URL}/movie/popular?api_key=${TMDB_API_KEY}&page=${page}`
     const res = await fetch(tmdbUrl)
     if (res.ok) {
       const data = await res.json()
       const validMovies = (data.results || []).filter(
-        (item) => item.poster_path && item.release_date && item.release_date <= ottCutoff && (item.vote_count || 0) >= 100
+        (item) => item.poster_path && (item.title || item.name)
       )
       return {
         results: validMovies.map(mapTmdbMovie).filter(Boolean),
@@ -512,7 +510,7 @@ export async function getTopRatedMovies(page = 1) {
 
   // Direct TMDb Top Rated with strict released-only filter
   try {
-    const ottCutoff = '2024-12-31'
+    const ottCutoff = new Date().toISOString().split('T')[0]
     const tmdbUrl = `${TMDB_BASE_URL}/discover/movie?api_key=${TMDB_API_KEY}&sort_by=vote_average.desc&vote_count.gte=1000&primary_release_date.lte=${ottCutoff}&page=${page}`
     const res = await fetch(tmdbUrl)
     if (res.ok) {
@@ -558,7 +556,7 @@ export async function getRegionalMovies(language = 'ml', page = 1) {
 
   // Direct TMDb Discover for Regional Language (e.g. 'ml' for Malayalam)
   try {
-    const ottCutoff = '2024-12-31'
+    const ottCutoff = new Date().toISOString().split('T')[0]
     const tmdbUrl = `${TMDB_BASE_URL}/discover/movie?api_key=${TMDB_API_KEY}&with_original_language=${language}&sort_by=popularity.desc&primary_release_date.lte=${ottCutoff}&vote_count.gte=10&page=${page}`
     const res = await fetch(tmdbUrl)
     if (res.ok) {

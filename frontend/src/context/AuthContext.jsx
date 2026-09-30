@@ -7,12 +7,15 @@ const AuthContext = createContext({
   session: null,
   loading: true,
   isAuthModalOpen: false,
+  authModalTab: 'signin',
   openAuthModal: () => {},
   closeAuthModal: () => {},
   signIn: async () => {},
   signUp: async () => {},
   signOut: async () => {},
   updateProfile: async () => {},
+  resetPasswordForEmail: async () => {},
+  updateUserPassword: async () => {},
 })
 
 export function AuthProvider({ children }) {
@@ -21,8 +24,12 @@ export function AuthProvider({ children }) {
   const [session, setSession] = useState(null)
   const [loading, setLoading] = useState(true)
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
+  const [authModalTab, setAuthModalTab] = useState('signin')
 
-  const openAuthModal = () => setIsAuthModalOpen(true)
+  const openAuthModal = (tab = 'signin') => {
+    setAuthModalTab(tab)
+    setIsAuthModalOpen(true)
+  }
   const closeAuthModal = () => setIsAuthModalOpen(false)
 
   const fetchProfile = async (userId) => {
@@ -66,8 +73,8 @@ export function AuthProvider({ children }) {
       setLoading(false)
     })
 
-    // 2. Listen for auth state changes (sign in, sign out, token refresh)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    // 2. Listen for auth state changes (sign in, sign out, token refresh, password recovery)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session)
       const currentUser = session?.user ?? null
       setUser(currentUser)
@@ -76,13 +83,50 @@ export function AuthProvider({ children }) {
       } else {
         setProfile(null)
       }
+
+      if (event === 'PASSWORD_RECOVERY') {
+        setAuthModalTab('update_password')
+        setIsAuthModalOpen(true)
+      }
+
       setLoading(false)
     })
+
+    // Check if URL hash indicates password recovery
+    if (typeof window !== 'undefined' && window.location.hash) {
+      if (window.location.hash.includes('type=recovery') || window.location.hash.includes('reset-password')) {
+        setAuthModalTab('update_password')
+        setIsAuthModalOpen(true)
+      }
+    }
 
     return () => {
       subscription.unsubscribe()
     }
   }, [])
+
+  const resetPasswordForEmail = async (email) => {
+    if (!isSupabaseConfigured || !supabase) {
+      throw new Error('Supabase is not configured.')
+    }
+    const redirectUrl = typeof window !== 'undefined' ? `${window.location.origin}/#reset-password` : undefined
+    const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: redirectUrl,
+    })
+    if (error) throw error
+    return data
+  }
+
+  const updateUserPassword = async (newPassword) => {
+    if (!isSupabaseConfigured || !supabase) {
+      throw new Error('Supabase is not configured.')
+    }
+    const { data, error } = await supabase.auth.updateUser({
+      password: newPassword,
+    })
+    if (error) throw error
+    return data
+  }
 
   const signIn = async (email, password) => {
     if (!isSupabaseConfigured || !supabase) {
@@ -183,12 +227,16 @@ export function AuthProvider({ children }) {
     session,
     loading,
     isAuthModalOpen,
+    authModalTab,
+    setAuthModalTab,
     openAuthModal,
     closeAuthModal,
     signIn,
     signUp,
     signOut,
     updateProfile,
+    resetPasswordForEmail,
+    updateUserPassword,
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

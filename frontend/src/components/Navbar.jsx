@@ -229,9 +229,10 @@ export default function Navbar({ onSearchClick, isBackendOnline, activeTab, setA
               <button
                 type="button"
                 className="user-action-button"
-                onClick={() => {
+                onClick={async () => {
                   setIsDropdownOpen(false)
-                  openAuthModal()
+                  await signOut()
+                  openAuthModal('signin')
                 }}
               >
                 <UserPlus size={14} />
