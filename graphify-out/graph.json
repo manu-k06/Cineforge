@@ -1927,7 +1927,7 @@
       "file_type": "code",
       "norm_label": "fetchheromovies()",
       "source_file": "frontend/src/components/HeroBanner.jsx",
-      "source_location": "L68"
+      "source_location": "L76"
     },
     {
       "id": "frontend_src_components_moviecard_moviecard",
@@ -10563,7 +10563,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/HeroBanner.jsx",
-      "source_location": "L72",
+      "source_location": "L80",
       "weight": 1.0
     },
     {
@@ -10575,7 +10575,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/HeroBanner.jsx",
-      "source_location": "L73",
+      "source_location": "L81",
       "weight": 1.0
     },
     {
@@ -10587,7 +10587,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/HeroBanner.jsx",
-      "source_location": "L72",
+      "source_location": "L80",
       "weight": 1.0
     },
     {
@@ -10599,7 +10599,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/HeroBanner.jsx",
-      "source_location": "L73",
+      "source_location": "L81",
       "weight": 1.0
     },
     {
@@ -11727,7 +11727,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/HeroBanner.jsx",
-      "source_location": "L68",
+      "source_location": "L76",
       "weight": 1.0
     },
     {
@@ -26545,5 +26545,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "8f9523b6c217d9839cb095315305f4b70dc0517b"
+  "built_at_commit": "7dd504776b17361b072b703cf5cf463e139a7998"
 }

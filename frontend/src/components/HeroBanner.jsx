@@ -56,14 +56,22 @@ const DEFAULT_HERO_MOVIES = [
 ]
 
 export default function HeroBanner({ onQuickPlay }) {
-  const [movies, setMovies] = useState(DEFAULT_HERO_MOVIES)
-  const [isLoading, setIsLoading] = useState(false)
+  const [movies, setMovies] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
   const [currentIndex, setCurrentIndex] = useState(0)
   const timerRef = useRef(null)
 
   // Fetch verified released trending movies
   useEffect(() => {
     let isMounted = true
+
+    // Safety timeout: ensure skeleton doesn't hang indefinitely if network is slow
+    const fallbackTimer = setTimeout(() => {
+      if (isMounted) {
+        setMovies((prev) => (prev.length === 0 ? DEFAULT_HERO_MOVIES : prev))
+        setIsLoading(false)
+      }
+    }, 1800)
 
     async function fetchHeroMovies() {
       try {
@@ -95,7 +103,7 @@ export default function HeroBanner({ onQuickPlay }) {
         })
 
         if (valid.length > 0 && isMounted) {
-          const formatted = valid.slice(0, 6).map((m) => {
+          const formatted = valid.slice(0, 8).map((m) => {
             const releaseYear = m.year || (m.release_date ? m.release_date.split('-')[0] : '2025')
             const displayRating = m.rating ? Number(m.rating).toFixed(1) : '7.8'
 
@@ -112,9 +120,20 @@ export default function HeroBanner({ onQuickPlay }) {
           })
 
           setMovies(formatted)
+          clearTimeout(fallbackTimer)
+          setIsLoading(false)
+        } else if (isMounted) {
+          setMovies(DEFAULT_HERO_MOVIES)
+          clearTimeout(fallbackTimer)
+          setIsLoading(false)
         }
       } catch (err) {
         console.error('Failed to load hero banner movies:', err)
+        if (isMounted) {
+          setMovies(DEFAULT_HERO_MOVIES)
+          clearTimeout(fallbackTimer)
+          setIsLoading(false)
+        }
       }
     }
 
@@ -122,6 +141,7 @@ export default function HeroBanner({ onQuickPlay }) {
 
     return () => {
       isMounted = false
+      clearTimeout(fallbackTimer)
     }
   }, [])
 
@@ -148,15 +168,31 @@ export default function HeroBanner({ onQuickPlay }) {
     setCurrentIndex((prev) => (prev - 1 + movies.length) % movies.length)
   }
 
-  if (movies.length === 0) {
+  // Hero Skeleton Shimmer Placeholder
+  if (isLoading || movies.length === 0) {
     return (
-      <section className="hero-slider-shell" style={{ height: '70vh', minHeight: '520px' }}>
-        <div className="home-hero" style={{ background: '#07080b' }}>
+      <section className="hero-slider-shell hero-skeleton-shell" aria-busy="true" aria-label="Loading featured cinema">
+        <div className="home-hero hero-skeleton-hero">
+          <div className="hero-vignette" />
           <div className="hero-inner">
-            <p className="eyebrow">Discovering...</p>
-            <div style={{ height: '44px', width: '320px', background: 'rgba(255,255,255,0.08)', borderRadius: '6px', margin: '14px 0' }} />
-            <div style={{ height: '18px', width: '160px', background: 'rgba(255,255,255,0.05)', borderRadius: '4px', marginBottom: '14px' }} />
-            <div style={{ height: '40px', width: '420px', background: 'rgba(255,255,255,0.04)', borderRadius: '4px' }} />
+            <div className="hero-skeleton-eyebrow" />
+            <div className="hero-skeleton-title-box" />
+            <div className="hero-skeleton-meta" />
+            <div className="hero-skeleton-synopsis">
+              <div className="hero-skeleton-line-1" />
+              <div className="hero-skeleton-line-2" />
+            </div>
+            <div className="hero-actions">
+              <div className="hero-skeleton-btn-primary" />
+              <div className="hero-skeleton-btn-secondary" />
+            </div>
+          </div>
+        </div>
+        <div className="hero-slider-controls hero-skeleton-controls">
+          <div className="hero-slider-dots">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <span key={i} className={`hero-skeleton-dot ${i === 1 ? 'is-active' : ''}`} />
+            ))}
           </div>
         </div>
       </section>
