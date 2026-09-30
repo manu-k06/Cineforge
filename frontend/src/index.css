@@ -643,13 +643,17 @@ body {
 
 .home-hero {
   flex: 0 0 100%;
-  height: min(730px, 86vh);
-  min-height: 560px;
+  height: clamp(620px, 88vh, 780px);
+  min-height: 600px;
   position: relative;
   background-size: cover;
   background-position: center top;
   isolation: isolate;
   user-select: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: calc(72px + 28px) var(--page-gutter) clamp(44px, 8vh, 84px);
 }
 
 .home-hero:before {
@@ -671,11 +675,10 @@ body {
 }
 
 .hero-inner {
-  position: absolute;
+  position: relative;
   z-index: 2;
-  left: var(--page-gutter);
-  bottom: clamp(60px, 11vh, 105px);
-  max-width: 580px;
+  max-width: min(780px, 64vw);
+  width: 100%;
 }
 
 .eyebrow {
@@ -685,17 +688,19 @@ body {
   letter-spacing: 0.08em;
   color: var(--ember);
   margin-bottom: 12px;
+  display: inline-block;
 }
 
 .home-hero h1 {
   margin: 0;
   font-family: var(--font-display);
-  letter-spacing: -2px;
-  line-height: 0.95;
-  font-size: clamp(38px, 5.4vw, 76px);
+  letter-spacing: -1.5px;
+  line-height: 1.02;
+  font-size: clamp(34px, 4.4vw, 62px);
   text-transform: uppercase;
   color: var(--paper);
   text-wrap: balance;
+  max-width: 100%;
 }
 
 .meta-line {
@@ -860,13 +865,16 @@ button:active,
 
 @media (max-width: 768px) {
   .home-hero {
-    height: 600px;
-    min-height: 0;
+    height: auto;
+    min-height: 560px;
+    padding: calc(62px + 20px) 20px 60px;
   }
   .hero-inner {
-    left: 20px;
-    right: 20px;
-    bottom: 58px;
+    max-width: 100%;
+  }
+  .home-hero h1 {
+    font-size: clamp(28px, 7vw, 42px);
+    letter-spacing: -1px;
   }
   .hero-slider-controls > button {
     display: none;
