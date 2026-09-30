@@ -246,9 +246,9 @@
     "semantic_hash": ""
   },
   "frontend/src/App.jsx": {
-    "mtime": 1790739428.1302617,
-    "seen": 1790739522.627022,
-    "ast_hash": "be6c46600f7cee2cd4fc6982cab5a1df",
+    "mtime": 1790740588.2824488,
+    "seen": 1790740628.03539,
+    "ast_hash": "fd471dfb3d82e8d1cae0e37a7167a1a6",
     "semantic_hash": ""
   },
   "frontend/src/components/AuthModal.jsx": {
@@ -450,9 +450,9 @@
     "semantic_hash": ""
   },
   "frontend/src/components/Footer.jsx": {
-    "mtime": 1790182401.7364066,
-    "seen": 1790182504.804951,
-    "ast_hash": "cca53d97075f196736ccbff32c969bbf",
+    "mtime": 1790740526.2570238,
+    "seen": 1790740628.0356958,
+    "ast_hash": "4c796158ca76e828c9dffdc0c55386eb",
     "semantic_hash": ""
   },
   "frontend/public/assets/images/aperture-mark.png": {

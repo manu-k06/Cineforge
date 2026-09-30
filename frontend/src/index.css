@@ -1402,55 +1402,250 @@ button:active,
   flex: auto;
 }
 
-/* Cineby Site Footer */
+/* ==========================================================================
+   CINEFORGE MODERN OTT FOOTER (Option 1)
+   ========================================================================== */
 .site-footer {
-  margin-top: 60px;
-  padding: 40px clamp(18px, 3vw, 48px);
+  margin-top: 80px;
+  padding: 64px var(--page-gutter) 36px;
   border-top: 1px solid var(--soft-edge);
-  background: var(--ink);
+  background: linear-gradient(180deg, #0a0c12 0%, #050608 100%);
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: 12px;
+  gap: 36px;
   color: var(--mist);
-  font-size: 13px;
+  font-size: 14px;
 }
 
-.site-footer .brand-image {
-  width: 24px;
-  height: 24px;
+.footer-top-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 48px;
+  align-items: start;
 }
 
-.site-footer strong {
+@media (max-width: 900px) {
+  .footer-top-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 36px;
+  }
+  .footer-brand-col {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 600px) {
+  .footer-top-grid {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+}
+
+.footer-brand-col {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 440px;
+}
+
+.footer-brand-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.footer-brand-header .brand-image {
+  width: 26px;
+  height: 26px;
+}
+
+.footer-brand-header strong {
   font-family: var(--font-display);
-  font-size: 16px;
+  font-size: 20px;
+  letter-spacing: -0.6px;
   color: var(--paper);
-  letter-spacing: -0.5px;
 }
 
-.site-footer a {
+.footer-brand-desc {
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--mist);
+}
+
+.footer-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  background: rgba(46, 213, 115, 0.1);
+  border: 1px solid rgba(46, 213, 115, 0.25);
+  color: #2ed573;
+  font-size: 12px;
+  font-weight: 600;
+  width: fit-content;
+}
+
+.footer-status-badge.offline {
+  background: rgba(232, 67, 53, 0.1);
+  border-color: rgba(232, 67, 53, 0.25);
+  color: var(--ember);
+}
+
+.footer-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 8px currentColor;
+}
+
+.footer-nav-col {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.footer-col-title {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--paper);
+  margin-bottom: 4px;
+}
+
+.footer-link {
   color: var(--mist);
   text-decoration: none;
-  transition: color 0.15s ease;
-}
-
-.site-footer a:hover {
-  color: var(--paper);
-}
-
-.telegram-footer-link {
+  font-size: 13.5px;
+  transition: all var(--transition-fast);
+  cursor: pointer;
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  color: #2aabee !important;
+  background: none;
+  border: none;
+  padding: 0;
+  text-align: left;
+  font-family: inherit;
+}
+
+.footer-link:hover {
+  color: var(--paper);
+  transform: translateX(2px);
+}
+
+.footer-link.telegram {
+  color: #2aabee;
   font-weight: 600;
 }
 
-.telegram-footer-link svg {
-  width: 16px;
-  height: 16px;
-  fill: currentColor;
+.footer-link.telegram:hover {
+  color: #55c2ff;
+}
+
+/* Legal Disclaimer Box */
+.footer-disclaimer-card {
+  padding: 18px 24px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--soft-edge);
+  font-size: 12px;
+  line-height: 1.6;
+  color: #787d89;
+  text-align: left;
+}
+
+.footer-bottom-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 12.5px;
+  color: #646875;
+}
+
+.footer-credits {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* DMCA Modal */
+.dmca-modal-content {
+  background: #0d0f16;
+  border: 1px solid var(--edge);
+  border-radius: 16px;
+  width: 90%;
+  max-width: 620px;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7);
+  animation: modalScaleIn 0.22s var(--ease-out);
+}
+
+.dmca-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--soft-edge);
+}
+
+.dmca-modal-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dmca-modal-title h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--paper);
+  margin: 0;
+}
+
+.dmca-modal-close {
+  background: none;
+  border: none;
+  color: var(--mist);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  transition: all var(--transition-fast);
+}
+
+.dmca-modal-close:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.dmca-modal-body {
+  padding: 24px;
+  color: #c4c7d0;
+  font-size: 14px;
+  line-height: 1.65;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.dmca-modal-body h4 {
+  color: var(--paper);
+  font-size: 14.5px;
+  font-weight: 700;
+  margin-top: 6px;
+}
+
+.dmca-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
 }
 
 .empty-icon-wrapper {

@@ -508,7 +508,18 @@ export default function App() {
         )}
 
         {/* Cineby Global Footer */}
-        {currentView === 'browse' && <Footer />}
+        {currentView === 'browse' && (
+          <Footer
+            onTabChange={(tab) => {
+              setActiveTab(tab)
+              setSearchQuery('')
+              setRawCandidates([])
+              setGroupedCandidates([])
+              window.scrollTo({ top: 0, behavior: 'smooth' })
+            }}
+            isBackendOnline={isBackendOnline}
+          />
+        )}
       </main>
 
       {/* Version Picker Modal */}

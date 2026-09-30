@@ -1,17 +1,17 @@
 # Graph Report - Cineforge  (2026-09-30)
 
 ## Corpus Check
-- 74 files · ~53,140 words
+- 74 files · ~53,602 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 12 file(s) not represented in the graph (top: (none) 4, .bat 3, .example 2)
 
 ## Summary
-- 760 nodes · 1523 edges · 34 communities (30 shown, 4 thin omitted)
+- 760 nodes · 1524 edges · 34 communities (30 shown, 4 thin omitted)
 - Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 56 edges (avg confidence: 0.93)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `5774daa0`
+- Built from commit: `99176e3a`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -61,7 +61,7 @@
 7. `getTrendingMovies()` - 17 edges
 8. `AiQueryInterpretation` - 15 edges
 9. `CacheService` - 14 edges
-10. `MovieMetadata` - 13 edges
+10. `lucide-react` - 14 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `📋 Phase 2: Metadata Enrichment (TMDb / IMDb API Integration)` --references--> `MovieCard()`  [INFERRED]

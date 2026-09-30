@@ -1891,7 +1891,7 @@
       "file_type": "code",
       "norm_label": "footer()",
       "source_file": "frontend/src/components/Footer.jsx",
-      "source_location": "L3"
+      "source_location": "L4"
     },
     {
       "id": "frontend_src_components_herobanner_herobanner",
@@ -18078,6 +18078,18 @@
       "weight": 1.0
     },
     {
+      "source": "frontend_src_components_footer",
+      "target": "ref_lucide_react",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "frontend/src/components/Footer.jsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
       "source": "frontend_src_components_herobanner",
       "target": "ref_react",
       "relation": "imports_from",
@@ -20940,7 +20952,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/src/components/Footer.jsx",
-      "source_location": "L3",
+      "source_location": "L4",
       "weight": 1.0
     },
     {
@@ -26484,5 +26496,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "5774daa025c5b08b005907ac7513ce0f9cf058fa"
+  "built_at_commit": "99176e3a9877f66012778d3bb29bc664ce1f3b56"
 }
