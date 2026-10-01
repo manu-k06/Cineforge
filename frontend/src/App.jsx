@@ -16,7 +16,7 @@ import { Bookmark, History, ArrowLeft, Loader2, AlertCircle } from 'lucide-react
 import { useAuth } from './context/AuthContext'
 import { useWatchHistory } from './context/WatchHistoryContext'
 import { searchMovies, deliverCandidate, getBackendHealth, getTrendingMovies, getPopularMovies, resolveApiBase } from './services/api'
-import { parseMovieMetadata, titleToSlug, slugToQuery } from './utils/helpers'
+import { parseMovieMetadata, titleToSlug, slugToQuery, isOttReleased } from './utils/helpers'
 
 export default function App() {
   const navigate = useNavigate()
@@ -217,8 +217,9 @@ export default function App() {
       fetchPromise
         .then((data) => {
           if (data && data.results && data.results.length > 0) {
+            const releasedMovies = data.results.filter((m) => isOttReleased(m))
             const enrichment = {}
-            const groups = data.results.map((m) => {
+            const groups = releasedMovies.map((m) => {
               enrichment[m.title] = m
               return {
                 title: m.title,

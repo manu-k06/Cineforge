@@ -329,7 +329,7 @@ export async function askAiCompanion(movieTitle, question) {
   return await response.json()
 }
 
-import { getOptimizedImageUrl } from '../utils/helpers'
+import { getOptimizedImageUrl, isOttReleased } from '../utils/helpers'
 
 const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY || '27c65ee52f2aa6f980dc01b4162d2daf'
 const TMDB_BASE_URL = 'https://api.tmdb.org/3'
@@ -415,11 +415,13 @@ export async function getTrendingMovies(timeWindow = 'week', page = 1) {
       if (response.ok) {
         const data = await response.json()
         if (data?.results?.length) {
-          data.results = data.results.map((m) => ({
-            ...m,
-            poster_url: m.poster_url ? getOptimizedImageUrl(m.poster_url, 'w500') : null,
-            backdrop_url: m.backdrop_url ? getOptimizedImageUrl(m.backdrop_url, 'w1280') : null,
-          }))
+          data.results = data.results
+            .map((m) => ({
+              ...m,
+              poster_url: m.poster_url ? getOptimizedImageUrl(m.poster_url, 'w500') : null,
+              backdrop_url: m.backdrop_url ? getOptimizedImageUrl(m.backdrop_url, 'w1280') : null,
+            }))
+            .filter((m) => isOttReleased(m))
           return data
         }
       }
@@ -428,16 +430,18 @@ export async function getTrendingMovies(timeWindow = 'week', page = 1) {
     }
   }
 
-  // Direct TMDb Trending
-  const tmdbUrl = `${TMDB_BASE_URL}/trending/movie/${timeWindow}?api_key=${TMDB_API_KEY}&page=${page}`
+  // Direct TMDb Trending with confirmed Digital/OTT release types
+  const todayIso = new Date().toISOString().split('T')[0]
+  const tmdbUrl = `${TMDB_BASE_URL}/discover/movie?api_key=${TMDB_API_KEY}&sort_by=popularity.desc&with_release_type=4|5|6&primary_release_date.lte=${todayIso}&vote_count.gte=50&page=${page}`
   const res = await fetch(tmdbUrl)
   if (!res.ok) throw new Error('Failed to fetch trending movies from TMDb')
   const data = await res.json()
   const validMovies = (data.results || []).filter(
     (item) => item.poster_path && (item.title || item.name)
   )
+  const filtered = validMovies.map(mapTmdbMovie).filter((m) => isOttReleased(m))
   return {
-    results: validMovies.map(mapTmdbMovie).filter(Boolean),
+    results: filtered,
     total_pages: data.total_pages || 1,
   }
 }
@@ -452,11 +456,13 @@ export async function getPopularMovies(page = 1) {
       if (response.ok) {
         const data = await response.json()
         if (data?.results?.length) {
-          data.results = data.results.map((m) => ({
-            ...m,
-            poster_url: m.poster_url ? getOptimizedImageUrl(m.poster_url, 'w500') : null,
-            backdrop_url: m.backdrop_url ? getOptimizedImageUrl(m.backdrop_url, 'w1280') : null,
-          }))
+          data.results = data.results
+            .map((m) => ({
+              ...m,
+              poster_url: m.poster_url ? getOptimizedImageUrl(m.poster_url, 'w500') : null,
+              backdrop_url: m.backdrop_url ? getOptimizedImageUrl(m.backdrop_url, 'w1280') : null,
+            }))
+            .filter((m) => isOttReleased(m))
           return data
         }
       }
@@ -465,17 +471,19 @@ export async function getPopularMovies(page = 1) {
     }
   }
 
-  // Direct TMDb Popular
+  // Direct TMDb Popular with confirmed Digital/OTT release types
   try {
-    const tmdbUrl = `${TMDB_BASE_URL}/movie/popular?api_key=${TMDB_API_KEY}&page=${page}`
+    const todayIso = new Date().toISOString().split('T')[0]
+    const tmdbUrl = `${TMDB_BASE_URL}/discover/movie?api_key=${TMDB_API_KEY}&sort_by=popularity.desc&with_release_type=4|5|6&primary_release_date.lte=${todayIso}&vote_count.gte=80&page=${page}`
     const res = await fetch(tmdbUrl)
     if (res.ok) {
       const data = await res.json()
       const validMovies = (data.results || []).filter(
         (item) => item.poster_path && (item.title || item.name)
       )
+      const filtered = validMovies.map(mapTmdbMovie).filter((m) => isOttReleased(m))
       return {
-        results: validMovies.map(mapTmdbMovie).filter(Boolean),
+        results: filtered,
         total_pages: data.total_pages || 1,
       }
     }
@@ -495,11 +503,13 @@ export async function getTopRatedMovies(page = 1) {
       if (response.ok) {
         const data = await response.json()
         if (data?.results?.length) {
-          data.results = data.results.map((m) => ({
-            ...m,
-            poster_url: m.poster_url ? getOptimizedImageUrl(m.poster_url, 'w500') : null,
-            backdrop_url: m.backdrop_url ? getOptimizedImageUrl(m.backdrop_url, 'w1280') : null,
-          }))
+          data.results = data.results
+            .map((m) => ({
+              ...m,
+              poster_url: m.poster_url ? getOptimizedImageUrl(m.poster_url, 'w500') : null,
+              backdrop_url: m.backdrop_url ? getOptimizedImageUrl(m.backdrop_url, 'w1280') : null,
+            }))
+            .filter((m) => isOttReleased(m))
           return data
         }
       }
@@ -511,15 +521,16 @@ export async function getTopRatedMovies(page = 1) {
   // Direct TMDb Top Rated with strict released-only filter
   try {
     const ottCutoff = new Date().toISOString().split('T')[0]
-    const tmdbUrl = `${TMDB_BASE_URL}/discover/movie?api_key=${TMDB_API_KEY}&sort_by=vote_average.desc&vote_count.gte=1000&primary_release_date.lte=${ottCutoff}&page=${page}`
+    const tmdbUrl = `${TMDB_BASE_URL}/discover/movie?api_key=${TMDB_API_KEY}&sort_by=vote_average.desc&with_release_type=4|5|6&vote_count.gte=500&primary_release_date.lte=${ottCutoff}&page=${page}`
     const res = await fetch(tmdbUrl)
     if (res.ok) {
       const data = await res.json()
       const validMovies = (data.results || []).filter(
         (item) => item.poster_path && item.release_date && item.release_date <= ottCutoff
       )
+      const filtered = validMovies.map(mapTmdbMovie).filter((m) => isOttReleased(m))
       return {
-        results: validMovies.map(mapTmdbMovie).filter(Boolean),
+        results: filtered,
         total_pages: data.total_pages || 1,
       }
     }
@@ -541,11 +552,13 @@ export async function getRegionalMovies(language = 'ml', page = 1) {
       if (response.ok) {
         const data = await response.json()
         if (data?.results?.length) {
-          data.results = data.results.map((m) => ({
-            ...m,
-            poster_url: m.poster_url ? getOptimizedImageUrl(m.poster_url, 'w500') : null,
-            backdrop_url: m.backdrop_url ? getOptimizedImageUrl(m.backdrop_url, 'w1280') : null,
-          }))
+          data.results = data.results
+            .map((m) => ({
+              ...m,
+              poster_url: m.poster_url ? getOptimizedImageUrl(m.poster_url, 'w500') : null,
+              backdrop_url: m.backdrop_url ? getOptimizedImageUrl(m.backdrop_url, 'w1280') : null,
+            }))
+            .filter((m) => isOttReleased(m, { isRegional: true }))
           return data
         }
       }
@@ -557,15 +570,18 @@ export async function getRegionalMovies(language = 'ml', page = 1) {
   // Direct TMDb Discover for Regional Language (e.g. 'ml' for Malayalam)
   try {
     const ottCutoff = new Date().toISOString().split('T')[0]
-    const tmdbUrl = `${TMDB_BASE_URL}/discover/movie?api_key=${TMDB_API_KEY}&with_original_language=${language}&sort_by=popularity.desc&primary_release_date.lte=${ottCutoff}&vote_count.gte=10&page=${page}`
+    const tmdbUrl = `${TMDB_BASE_URL}/discover/movie?api_key=${TMDB_API_KEY}&with_original_language=${language}&sort_by=popularity.desc&with_release_type=4|5|6&primary_release_date.lte=${ottCutoff}&vote_count.gte=25&page=${page}`
     const res = await fetch(tmdbUrl)
     if (res.ok) {
       const data = await res.json()
       const validMovies = (data.results || []).filter(
         (item) => item.poster_path && item.release_date && item.release_date <= ottCutoff
       )
+      const filtered = validMovies
+        .map(mapTmdbMovie)
+        .filter((m) => isOttReleased(m, { isRegional: true }))
       return {
-        results: validMovies.map(mapTmdbMovie).filter(Boolean),
+        results: filtered,
         total_pages: data.total_pages || 1,
       }
     }

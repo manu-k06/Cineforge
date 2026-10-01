@@ -168,9 +168,9 @@
     "semantic_hash": ""
   },
   "backend/app/services/tmdb.py": {
-    "mtime": 1790690271.0099657,
-    "seen": 1790690472.4759977,
-    "ast_hash": "a61f9760e3c570c456aad66997d53826",
+    "mtime": 1790832381.400362,
+    "seen": 1790832423.0262587,
+    "ast_hash": "4f07910f64475314488dd8ae428b7669",
     "semantic_hash": ""
   },
   "backend/export_session.py": {
@@ -246,9 +246,9 @@
     "semantic_hash": ""
   },
   "frontend/src/App.jsx": {
-    "mtime": 1790827270.485179,
-    "seen": 1790827321.8020186,
-    "ast_hash": "93d67293dad4afa6abf31795279b6014",
+    "mtime": 1790832353.8578682,
+    "seen": 1790832423.0273921,
+    "ast_hash": "1e2b0cc869c99808e2a57498d13e1e28",
     "semantic_hash": ""
   },
   "frontend/src/components/AuthModal.jsx": {
@@ -264,9 +264,9 @@
     "semantic_hash": ""
   },
   "frontend/src/components/HeroBanner.jsx": {
-    "mtime": 1790760923.4273033,
-    "seen": 1790760961.7374806,
-    "ast_hash": "0fe753ec03f268a9136079fa16db38f7",
+    "mtime": 1790832323.26644,
+    "seen": 1790832423.0278916,
+    "ast_hash": "405a9e9962467b5637ae174390100f03",
     "semantic_hash": ""
   },
   "frontend/src/components/MovieCard.jsx": {
@@ -276,9 +276,9 @@
     "semantic_hash": ""
   },
   "frontend/src/components/MovieGrid.jsx": {
-    "mtime": 1790745687.4328308,
-    "seen": 1790745737.5836039,
-    "ast_hash": "6781d835ec224e0ffc5e5304f63ee0cb",
+    "mtime": 1790832336.2061787,
+    "seen": 1790832423.0279884,
+    "ast_hash": "80e592afe66d7b335be6275f9bc8b78f",
     "semantic_hash": ""
   },
   "frontend/src/components/Navbar.jsx": {
@@ -324,9 +324,9 @@
     "semantic_hash": ""
   },
   "frontend/src/services/api.js": {
-    "mtime": 1790825201.2994504,
-    "seen": 1790825286.7796102,
-    "ast_hash": "7a2da5495843aab729e9aa7e37654d7e",
+    "mtime": 1790832306.4098465,
+    "seen": 1790832423.0288868,
+    "ast_hash": "6ba9651bd68a70a1568798a5e9c20ae7",
     "semantic_hash": ""
   },
   "frontend/src/services/supabase.js": {
@@ -336,9 +336,9 @@
     "semantic_hash": ""
   },
   "frontend/src/utils/helpers.js": {
-    "mtime": 1790777012.4776123,
-    "seen": 1790779176.1877518,
-    "ast_hash": "139b27288c0b7df8d68fdf4a4fd00cb3",
+    "mtime": 1790832271.8686082,
+    "seen": 1790832423.0290802,
+    "ast_hash": "eea0778fbfde8d07d41da0489e279f36",
     "semantic_hash": ""
   },
   "frontend/vercel.json": {

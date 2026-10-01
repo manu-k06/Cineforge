@@ -154,3 +154,72 @@ export function slugToQuery(slug) {
   return decodeURIComponent(slug).replace(/-/g, ' ').trim()
 }
 
+/**
+ * Strict OTT/Digital Release Validator
+ * Ensures only genuinely released titles with confirmed digital/home availability
+ * are displayed in hero banners, rails, and catalogue listings.
+ */
+export function isOttReleased(m, options = {}) {
+  if (!m) return false
+  const title = m.title || m.name
+  if (!title || typeof title !== 'string' || !title.trim()) return false
+
+  // 1. Must have a valid poster (unreleased placeholder entries often lack real posters)
+  const poster = m.poster_url || m.poster_path
+  if (!poster) return false
+
+  // 2. Reject unreleased status if present in metadata
+  if (m.status) {
+    const s = String(m.status).toLowerCase()
+    if (s.includes('production') || s.includes('planned') || s.includes('rumored') || s.includes('announced')) {
+      return false
+    }
+  }
+
+  const today = new Date()
+  const todayIso = today.toISOString().split('T')[0]
+  const currentYear = today.getFullYear()
+
+  // 3. Evaluate release date
+  const rawDate = m.release_date || m.first_air_date
+  if (rawDate) {
+    // Strict future release cutoff
+    if (rawDate > todayIso) return false
+
+    // Theatrical to OTT gap: If released within the last 45 days,
+    // require sufficient vote count (at least 150) to prove it has wide digital availability,
+    // otherwise it is still in theatrical exclusivity.
+    const relMs = new Date(rawDate).getTime()
+    if (!isNaN(relMs)) {
+      const daysSinceTheatrical = (today.getTime() - relMs) / (1000 * 60 * 60 * 24)
+      const minVotesRecent = options.isRegional ? 35 : 150
+      const voteCount = m.vote_count ?? 0
+      if (daysSinceTheatrical < 45 && voteCount < minVotesRecent) {
+        return false
+      }
+    }
+  } else {
+    // Missing release date: Check year
+    const yr = parseInt(m.year || '0', 10)
+    // If year is current or upcoming and date is missing, it is unreleased
+    if (yr >= currentYear || yr < 1920) return false
+  }
+
+  // 4. Vote count confidence floor:
+  // Community placeholders and fake unreleased entries on TMDb have very few votes (0 to 15).
+  // Real OTT-released mainstream movies have >= 45 votes; regional titles have >= 25 votes.
+  const voteCount = m.vote_count ?? 0
+  const minVotesGeneral = options.isRegional ? 25 : (options.minVotes || 45)
+  
+  // For recent movies (from the last 2 years), require meeting the vote floor
+  const releaseYear = parseInt(m.year || (rawDate ? rawDate.split('-')[0] : '0'), 10)
+  if (releaseYear >= currentYear - 2) {
+    if (voteCount < minVotesGeneral) {
+      return false
+    }
+  }
+
+  return true
+}
+
+

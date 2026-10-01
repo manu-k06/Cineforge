@@ -399,8 +399,8 @@ class TmdbService:
             res = TrendingMoviesResponse(page=1, total_pages=1, results=fallback_items)
             return res
 
-        # Confirmed OTT digital release ceiling: strictly filters out unreleased future titles (Toy Story 5, etc.)
-        ott_cutoff = "2024-12-31"
+        # Confirmed OTT digital release ceiling: strictly filters out unreleased future titles
+        ott_cutoff = datetime.date.today().isoformat()
         params = {
             "sort_by": "popularity.desc",
             "with_release_type": "4|5|6",  # 4 = Digital (OTT/VOD), 5 = Physical, 6 = TV
@@ -435,7 +435,7 @@ class TmdbService:
 
         headers, base_params = self._get_auth_headers_and_params()
         params = {**base_params, **extra_params}
-        ott_cutoff = "2024-12-31"
+        ott_cutoff = datetime.date.today().isoformat()
 
         try:
             async with httpx.AsyncClient(timeout=6.0) as client:
@@ -456,6 +456,14 @@ class TmdbService:
                         if item.get("vote_count", 0) < min_votes:
                             continue
 
+                        # Check theatrical to OTT window: if released within last 45 days and low votes, skip
+                        try:
+                            rel_d = datetime.date.fromisoformat(rel_date)
+                            if (datetime.date.today() - rel_d).days < 45 and item.get("vote_count", 0) < 150:
+                                continue
+                        except Exception:
+                            pass
+
                         parsed.append(self._parse_movie_dict(item))
 
                     res = TrendingMoviesResponse(
@@ -472,7 +480,7 @@ class TmdbService:
 
     async def get_popular_movies(self, page: int = 1) -> TrendingMoviesResponse:
         """Retrieve real, released popular movies from TMDb with confirmed OTT/Digital availability."""
-        ott_cutoff = "2024-12-31"
+        ott_cutoff = datetime.date.today().isoformat()
         params = {
             "sort_by": "popularity.desc",
             "with_release_type": "4|5|6",
@@ -490,10 +498,11 @@ class TmdbService:
 
     async def get_top_rated_movies(self, page: int = 1) -> TrendingMoviesResponse:
         """Retrieve true top rated cinema masterpieces with high vote thresholds."""
-        ott_cutoff = "2024-12-31"
+        ott_cutoff = datetime.date.today().isoformat()
         params = {
             "sort_by": "vote_average.desc",
-            "vote_count.gte": "1000",
+            "with_release_type": "4|5|6",
+            "vote_count.gte": "500",
             "primary_release_date.lte": ott_cutoff,
             "include_adult": "false",
             "page": str(page),
@@ -507,12 +516,13 @@ class TmdbService:
 
     async def discover_movies(self, language: str = "ml", sort_by: str = "popularity.desc", page: int = 1) -> TrendingMoviesResponse:
         """Discover released regional movies (e.g. Malayalam 'ml', Tamil 'ta', etc.) with real votes."""
-        ott_cutoff = "2024-12-31"
+        ott_cutoff = datetime.date.today().isoformat()
         params = {
             "with_original_language": language,
             "sort_by": sort_by,
+            "with_release_type": "4|5|6",
             "primary_release_date.lte": ott_cutoff,
-            "vote_count.gte": "10",
+            "vote_count.gte": "25",
             "include_adult": "false",
             "page": str(page),
         }
@@ -520,7 +530,7 @@ class TmdbService:
             f"{settings.TMDB_BASE_URL}/discover/movie",
             params,
             f"discover_released:{language}:{page}",
-            min_votes=10,
+            min_votes=25,
         )
 
 

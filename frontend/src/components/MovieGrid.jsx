@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect } from 'react'
 import { Film, AlertCircle, ChevronLeft, ChevronRight, Loader2, Sparkles, TrendingUp, Star, Play, Flame } from 'lucide-react'
 import MovieCard from './MovieCard'
 import { getTrendingMovies, getPopularMovies, getTopRatedMovies, getRegionalMovies } from '../services/api'
-import { getOptimizedImageUrl } from '../utils/helpers'
+import { getOptimizedImageUrl, isOttReleased } from '../utils/helpers'
 
 // Curated verified Malayalam superhits with 100% genuine TMDb posters & backdrops
 const FALLBACK_MALAYALAM_HITS = [
@@ -246,41 +246,29 @@ export default function MovieGrid({
 
         if (!isMounted) return
 
-        const todayIso = new Date().toISOString().split('T')[0]
-        const currentYear = new Date().getFullYear()
-
-        // Strict OTT release filter: Confirmed released cinema only
-        const isReleasedValid = (m) => {
-          if (!m || !m.title || !m.poster_url) return false
-          const yr = parseInt(m.year || '0', 10)
-          if (yr > currentYear + 1 || yr < 1920) return false
-          if (m.release_date && m.release_date > todayIso) return false
-          return true
-        }
-
         const rawTrending =
           trendingRes.status === 'fulfilled' && trendingRes.value?.results?.length
-            ? trendingRes.value.results.filter(isReleasedValid)
+            ? trendingRes.value.results.filter((m) => isOttReleased(m))
             : []
 
         const rawTrendingWeek =
           trendingWeekRes.status === 'fulfilled' && trendingWeekRes.value?.results?.length
-            ? trendingWeekRes.value.results.filter(isReleasedValid)
+            ? trendingWeekRes.value.results.filter((m) => isOttReleased(m))
             : []
 
         const rawPopular =
           popularRes.status === 'fulfilled' && popularRes.value?.results?.length
-            ? popularRes.value.results.filter(isReleasedValid)
+            ? popularRes.value.results.filter((m) => isOttReleased(m))
             : []
 
         const rawTopRated =
           topRatedRes.status === 'fulfilled' && topRatedRes.value?.results?.length
-            ? topRatedRes.value.results.filter(isReleasedValid)
+            ? topRatedRes.value.results.filter((m) => isOttReleased(m))
             : []
 
         const rawRegional =
           regionalRes.status === 'fulfilled' && regionalRes.value?.results?.length
-            ? regionalRes.value.results.filter(isReleasedValid)
+            ? regionalRes.value.results.filter((m) => isOttReleased(m, { isRegional: true }))
             : []
 
         // STRICT DEDUPLICATION: Track seen movie titles across all rails so NO movie repeats

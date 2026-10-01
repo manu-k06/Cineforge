@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { X } from 'lucide-react'
 import { getPopularMovies } from '../services/api'
-import { getOptimizedImageUrl } from '../utils/helpers'
+import { getOptimizedImageUrl, isOttReleased } from '../utils/helpers'
 import { useWatchHistory } from '../context/WatchHistoryContext'
 
 const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY || '27c65ee52f2aa6f980dc01b4162d2daf'
@@ -32,15 +32,18 @@ export default function HeroBanner({ onQuickPlay }) {
 
     async function fetchHeroMovies() {
       try {
-        // Fast direct TMDb weekly trending fetch (<250ms worldwide)
-        const res = await fetch(`${TMDB_BASE_URL}/trending/movie/week?api_key=${TMDB_API_KEY}&page=1`)
+        const todayIso = new Date().toISOString().split('T')[0]
+        // Fast direct TMDb digital discover fetch (<250ms worldwide) for confirmed released cinema
+        const res = await fetch(
+          `${TMDB_BASE_URL}/discover/movie?api_key=${TMDB_API_KEY}&sort_by=popularity.desc&with_release_type=4|5|6&primary_release_date.lte=${todayIso}&vote_count.gte=100&page=1`
+        )
         let rawMovies = []
         if (res.ok) {
           const data = await res.json()
           rawMovies = data.results || []
         }
 
-        // Fallback to popular movies if trending list was empty
+        // Fallback to popular movies if discover list was empty
         if (rawMovies.length === 0) {
           const popData = await getPopularMovies(1)
           rawMovies = popData?.results || []
@@ -51,6 +54,7 @@ export default function HeroBanner({ onQuickPlay }) {
           const title = m.title || m.name
           const backdrop = m.backdrop_path || m.backdrop_url
           if (!backdrop || !title) return false
+          if (!isOttReleased(m)) return false
           const key = title.toLowerCase().trim()
           if (seen.has(key)) return false
           seen.add(key)
