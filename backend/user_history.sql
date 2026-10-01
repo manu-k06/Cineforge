@@ -53,31 +53,43 @@ ALTER TABLE public.user_watch_history ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.user_watchlist ENABLE ROW LEVEL SECURITY;
 
 -- 5. Policies for user_watch_history: Users can only see and modify their own history
+DROP POLICY IF EXISTS "Users can view their own watch history" ON public.user_watch_history;
 CREATE POLICY "Users can view their own watch history" 
 ON public.user_watch_history FOR SELECT 
 USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can insert their own watch history" ON public.user_watch_history;
 CREATE POLICY "Users can insert their own watch history" 
 ON public.user_watch_history FOR INSERT 
 WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can update their own watch history" ON public.user_watch_history;
 CREATE POLICY "Users can update their own watch history" 
 ON public.user_watch_history FOR UPDATE 
 USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can delete their own watch history" ON public.user_watch_history;
 CREATE POLICY "Users can delete their own watch history" 
 ON public.user_watch_history FOR DELETE 
 USING (auth.uid() = user_id);
 
 -- 6. Policies for user_watchlist: Users can only see and modify their own watchlist
+DROP POLICY IF EXISTS "Users can view their own watchlist" ON public.user_watchlist;
 CREATE POLICY "Users can view their own watchlist" 
 ON public.user_watchlist FOR SELECT 
 USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can insert their own watchlist" ON public.user_watchlist;
 CREATE POLICY "Users can insert their own watchlist" 
 ON public.user_watchlist FOR INSERT 
 WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can update their own watchlist" ON public.user_watchlist;
+CREATE POLICY "Users can update their own watchlist" 
+ON public.user_watchlist FOR UPDATE 
+USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can delete their own watchlist" ON public.user_watchlist;
 CREATE POLICY "Users can delete their own watchlist" 
 ON public.user_watchlist FOR DELETE 
 USING (auth.uid() = user_id);

@@ -117,6 +117,23 @@ async def save_watch_progress(
         )
 
 
+@router.delete("/history", summary="Clear all user watch history")
+async def clear_all_watch_history(
+    user: Dict[str, Any] = Depends(get_current_user_required),
+):
+    user_id = user["id"]
+    client = _get_supabase_client()
+    if not client:
+        return {"status": "unconfigured", "deleted": False}
+
+    try:
+        client.table("user_watch_history").delete().eq("user_id", user_id).execute()
+        return {"status": "ok", "deleted": True}
+    except Exception as e:
+        logger.error("Error clearing watch history for user %s: %s", user_id, str(e))
+        return {"status": "error", "message": str(e), "deleted": False}
+
+
 @router.delete("/history/{title}", summary="Remove title from watch history")
 async def delete_watch_history(
     title: str,

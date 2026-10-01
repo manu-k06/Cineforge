@@ -671,6 +671,21 @@ export async function deleteWatchHistoryApi(token, title) {
   }
 }
 
+export async function clearWatchHistoryApi(token) {
+  if (!token) return false
+  await resolveApiBase()
+  if (!API_BASE) return false
+  try {
+    const res = await fetch(`${API_BASE}/api/history`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` },
+    })
+    return res.ok
+  } catch {
+    return false
+  }
+}
+
 export async function getWatchlistApi(token) {
   if (!token) return []
   await resolveApiBase()

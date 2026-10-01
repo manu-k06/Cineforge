@@ -4,15 +4,33 @@ import {
   getWatchHistoryApi,
   saveWatchProgressApi,
   deleteWatchHistoryApi,
+  clearWatchHistoryApi,
   getWatchlistApi,
   saveWatchlistApi,
   deleteWatchlistApi,
   syncGuestDataApi,
 } from '../services/api'
 
-const STORAGE_KEYS = {
+const LEGACY_STORAGE_KEYS = {
   HISTORY: 'cineforge_watch_history_v1',
   WATCHLIST: 'cineforge_watchlist_v1',
+}
+
+function getStorageKeys(userId) {
+  const prefix = userId ? `cineforge_u_${userId}` : 'cineforge_guest'
+  return {
+    HISTORY: `${prefix}_history_v2`,
+    WATCHLIST: `${prefix}_watchlist_v2`,
+  }
+}
+
+function cleanupLegacyStorage() {
+  try {
+    localStorage.removeItem(LEGACY_STORAGE_KEYS.HISTORY)
+    localStorage.removeItem(LEGACY_STORAGE_KEYS.WATCHLIST)
+  } catch (e) {
+    // Ignore storage errors
+  }
 }
 
 const WatchHistoryContext = createContext({
@@ -47,75 +65,105 @@ function saveLocal(key, value) {
 
 export function WatchHistoryProvider({ children }) {
   const { user, session } = useAuth()
-  const [watchHistory, setWatchHistory] = useState(() => loadLocal(STORAGE_KEYS.HISTORY, []))
-  const [watchlist, setWatchlist] = useState(() => loadLocal(STORAGE_KEYS.WATCHLIST, []))
-  const hasSyncedGuestRef = useRef(false)
+  const currentUserId = user?.id || null
+  const keys = useMemo(() => getStorageKeys(currentUserId), [currentUserId])
 
-  // Save to localStorage whenever local state changes
+  // Clean up legacy unscoped keys on mount
   useEffect(() => {
-    saveLocal(STORAGE_KEYS.HISTORY, watchHistory)
-  }, [watchHistory])
+    cleanupLegacyStorage()
+  }, [])
+
+  const [watchHistory, setWatchHistory] = useState(() => loadLocal(getStorageKeys(user?.id).HISTORY, []))
+  const [watchlist, setWatchlist] = useState(() => loadLocal(getStorageKeys(user?.id).WATCHLIST, []))
+  const prevUserIdRef = useRef(currentUserId)
+
+  // React immediately to login / logout / account switch
+  useEffect(() => {
+    if (prevUserIdRef.current !== currentUserId) {
+      prevUserIdRef.current = currentUserId
+      setWatchHistory(loadLocal(keys.HISTORY, []))
+      setWatchlist(loadLocal(keys.WATCHLIST, []))
+    }
+  }, [currentUserId, keys])
+
+  // Save to the active user's scoped localStorage whenever local state changes
+  useEffect(() => {
+    saveLocal(keys.HISTORY, watchHistory)
+  }, [watchHistory, keys.HISTORY])
 
   useEffect(() => {
-    saveLocal(STORAGE_KEYS.WATCHLIST, watchlist)
-  }, [watchlist])
+    saveLocal(keys.WATCHLIST, watchlist)
+  }, [watchlist, keys.WATCHLIST])
 
-  // Sync with Supabase on user sign in
+  // Sync with cloud on user sign in or token change
   useEffect(() => {
     const token = session?.access_token
-    if (!token || !user) {
-      hasSyncedGuestRef.current = false
+    const userId = user?.id
+    if (!token || !userId) {
       return
     }
 
-    if (hasSyncedGuestRef.current) return
-    hasSyncedGuestRef.current = true
+    let isMounted = true
 
     const syncWithCloud = async () => {
       try {
-        const localHist = loadLocal(STORAGE_KEYS.HISTORY, [])
-        const localWatch = loadLocal(STORAGE_KEYS.WATCHLIST, [])
+        const guestKeys = getStorageKeys(null)
+        const guestHist = loadLocal(guestKeys.HISTORY, [])
+        const guestWatch = loadLocal(guestKeys.WATCHLIST, [])
 
-        // 1. If local guest items exist, sync them to cloud account
-        if (localHist.length > 0 || localWatch.length > 0) {
-          await syncGuestDataApi(token, localHist, localWatch)
+        // If genuine guest activity exists on this device, migrate to user account and clear guest storage
+        if (guestHist.length > 0 || guestWatch.length > 0) {
+          await syncGuestDataApi(token, guestHist, guestWatch)
+          saveLocal(guestKeys.HISTORY, [])
+          saveLocal(guestKeys.WATCHLIST, [])
         }
 
-        // 2. Fetch authoritative cloud records
+        // Fetch user's cloud records
         const [cloudHist, cloudWatch] = await Promise.all([
           getWatchHistoryApi(token),
           getWatchlistApi(token),
         ])
 
-        // 3. Merge cloud records into state
-        if (cloudHist && cloudHist.length > 0) {
-          setWatchHistory((prev) => {
-            const map = new Map()
-            // Cloud items
-            cloudHist.forEach((item) => map.set(item.title.toLowerCase(), item))
-            // Newer local items
-            prev.forEach((item) => {
+        if (!isMounted) return
+
+        // Update watch history if cloud query returned an array
+        if (Array.isArray(cloudHist)) {
+          const localUserHist = loadLocal(getStorageKeys(userId).HISTORY, [])
+          const map = new Map()
+          cloudHist.forEach((item) => {
+            if (item?.title) map.set(item.title.toLowerCase(), item)
+          })
+          localUserHist.forEach((item) => {
+            if (item?.title) {
               const k = item.title.toLowerCase()
               if (!map.has(k)) {
                 map.set(k, item)
               }
-            })
-            return Array.from(map.values())
+            }
           })
+          const mergedHist = Array.from(map.values())
+          setWatchHistory(mergedHist)
+          saveLocal(getStorageKeys(userId).HISTORY, mergedHist)
         }
 
-        if (cloudWatch && cloudWatch.length > 0) {
-          setWatchlist((prev) => {
-            const map = new Map()
-            cloudWatch.forEach((item) => map.set(item.title.toLowerCase(), item))
-            prev.forEach((item) => {
+        // Update watchlist if cloud query returned an array
+        if (Array.isArray(cloudWatch)) {
+          const localUserWatch = loadLocal(getStorageKeys(userId).WATCHLIST, [])
+          const map = new Map()
+          cloudWatch.forEach((item) => {
+            if (item?.title) map.set(item.title.toLowerCase(), item)
+          })
+          localUserWatch.forEach((item) => {
+            if (item?.title) {
               const k = item.title.toLowerCase()
               if (!map.has(k)) {
                 map.set(k, item)
               }
-            })
-            return Array.from(map.values())
+            }
           })
+          const mergedWatch = Array.from(map.values())
+          setWatchlist(mergedWatch)
+          saveLocal(getStorageKeys(userId).WATCHLIST, mergedWatch)
         }
       } catch (err) {
         console.warn('Watch history cloud sync failed:', err)
@@ -123,7 +171,11 @@ export function WatchHistoryProvider({ children }) {
     }
 
     syncWithCloud()
-  }, [user, session?.access_token])
+
+    return () => {
+      isMounted = false
+    }
+  }, [user?.id, session?.access_token])
 
   // Record / Upsert Playback Progress
   const updateProgress = (item) => {
@@ -185,7 +237,13 @@ export function WatchHistoryProvider({ children }) {
   // Clear entire history
   const clearHistory = () => {
     setWatchHistory([])
-    saveLocal(STORAGE_KEYS.HISTORY, [])
+    saveLocal(keys.HISTORY, [])
+    const token = session?.access_token
+    if (token) {
+      clearWatchHistoryApi(token).catch((e) =>
+        console.warn('Failed to clear history on cloud:', e)
+      )
+    }
   }
 
   // Check if title is in watchlist
