@@ -246,9 +246,9 @@
     "semantic_hash": ""
   },
   "frontend/src/App.jsx": {
-    "mtime": 1790826767.149676,
-    "seen": 1790826802.4277043,
-    "ast_hash": "aabaf8637fb276e310ee050024d1ab51",
+    "mtime": 1790827270.485179,
+    "seen": 1790827321.8020186,
+    "ast_hash": "93d67293dad4afa6abf31795279b6014",
     "semantic_hash": ""
   },
   "frontend/src/components/AuthModal.jsx": {
@@ -432,9 +432,9 @@
     "semantic_hash": ""
   },
   "backend/app/api/history.py": {
-    "mtime": 1790826494.055492,
-    "seen": 1790826802.4241204,
-    "ast_hash": "b8caca3e0fa9e5a01f3688998f6a8c75",
+    "mtime": 1790827234.2927697,
+    "seen": 1790827321.781511,
+    "ast_hash": "fbba4b1a75f5fe54249e243553a4642a",
     "semantic_hash": ""
   },
   "frontend/src/components/ContinueWatchingRail.jsx": {
@@ -444,9 +444,9 @@
     "semantic_hash": ""
   },
   "frontend/src/context/WatchHistoryContext.jsx": {
-    "mtime": 1790825252.0739956,
-    "seen": 1790825286.7794619,
-    "ast_hash": "c10e240e23e13113dea4eec0b7cb9159",
+    "mtime": 1790827256.3536725,
+    "seen": 1790827321.8107667,
+    "ast_hash": "a65c5f4ff0337a48b042b1234fcd3b66",
     "semantic_hash": ""
   },
   "frontend/src/components/Footer.jsx": {

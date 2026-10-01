@@ -24,10 +24,73 @@ function getStorageKeys(userId) {
   }
 }
 
+export function isEphemeralStreamUrl(url) {
+  if (!url || typeof url !== 'string') return false
+  const lower = url.toLowerCase()
+  return (
+    lower.includes('trycloudflare.com') ||
+    lower.includes('loca.lt') ||
+    lower.includes('ngrok') ||
+    lower.includes('pinggy') ||
+    lower.includes('serveo') ||
+    lower.includes('.tunnel.')
+  )
+}
+
+export function sanitizeHistoryItem(item) {
+  if (!item || typeof item !== 'object') return item
+  // If the stream_url contains ephemeral tunnel domains, or obsolete stream links,
+  // clear stream_url so that the application automatically resolves a fresh live link
+  if (item.stream_url && isEphemeralStreamUrl(item.stream_url)) {
+    return { ...item, stream_url: '' }
+  }
+  return item
+}
+
+export function sanitizeHistoryItems(items) {
+  if (!Array.isArray(items)) return []
+  return items.map(sanitizeHistoryItem)
+}
+
 function cleanupLegacyStorage() {
   try {
     localStorage.removeItem(LEGACY_STORAGE_KEYS.HISTORY)
     localStorage.removeItem(LEGACY_STORAGE_KEYS.WATCHLIST)
+
+    // Clear stale tunnel/ephemeral stream links from all cineforge history keys in localStorage
+    // Also perform a one-time sweep of all past saved stream URLs so legacy dead links are refreshed
+    const hasSanitizedAll = localStorage.getItem('cineforge_sanitized_stream_urls_v2') === 'true'
+
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i)
+      if (key && key.startsWith('cineforge_') && key.includes('history')) {
+        const raw = localStorage.getItem(key)
+        if (raw) {
+          try {
+            const parsed = JSON.parse(raw)
+            if (Array.isArray(parsed)) {
+              let changed = false
+              const sanitized = parsed.map((item) => {
+                if (!item) return item
+                // If not yet globally sanitized, or if stream_url is an ephemeral tunnel URL, clear it
+                if (item.stream_url && (!hasSanitizedAll || isEphemeralStreamUrl(item.stream_url))) {
+                  changed = true
+                  return { ...item, stream_url: '' }
+                }
+                return item
+              })
+              if (changed) {
+                localStorage.setItem(key, JSON.stringify(sanitized))
+              }
+            }
+          } catch (_) {}
+        }
+      }
+    }
+
+    if (!hasSanitizedAll) {
+      localStorage.setItem('cineforge_sanitized_stream_urls_v2', 'true')
+    }
   } catch (e) {
     // Ignore storage errors
   }
@@ -48,7 +111,12 @@ const WatchHistoryContext = createContext({
 function loadLocal(key, fallback = []) {
   try {
     const raw = localStorage.getItem(key)
-    return raw ? JSON.parse(raw) : fallback
+    if (!raw) return fallback
+    const parsed = JSON.parse(raw)
+    if (key && key.includes('history')) {
+      return sanitizeHistoryItems(parsed)
+    }
+    return parsed
   } catch (e) {
     console.warn(`Failed to read ${key} from localStorage:`, e)
     return fallback
@@ -128,9 +196,10 @@ export function WatchHistoryProvider({ children }) {
 
         // Update watch history if cloud query returned an array
         if (Array.isArray(cloudHist)) {
+          const sanitizedCloud = sanitizeHistoryItems(cloudHist)
           const localUserHist = loadLocal(getStorageKeys(userId).HISTORY, [])
           const map = new Map()
-          cloudHist.forEach((item) => {
+          sanitizedCloud.forEach((item) => {
             if (item?.title) map.set(item.title.toLowerCase(), item)
           })
           localUserHist.forEach((item) => {
@@ -193,7 +262,7 @@ export function WatchHistoryProvider({ children }) {
       year: item.year || null,
       poster_url: item.poster_url || null,
       backdrop_url: item.backdrop_url || null,
-      stream_url: item.stream_url || '',
+      stream_url: isEphemeralStreamUrl(item.stream_url) ? '' : (item.stream_url || ''),
       candidate_title: item.candidate_title || title,
       candidate_id: item.candidate_id || null,
       source_bot: item.source_bot || null,

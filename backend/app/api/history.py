@@ -16,7 +16,7 @@ class WatchProgressPayload(BaseModel):
     year: Optional[str] = None
     poster_url: Optional[str] = None
     backdrop_url: Optional[str] = None
-    stream_url: str
+    stream_url: Optional[str] = ""
     candidate_title: Optional[str] = None
     candidate_id: Optional[str] = None
     source_bot: Optional[str] = None
@@ -74,7 +74,12 @@ async def get_watch_history(user: Dict[str, Any] = Depends(get_current_user_requ
             .limit(100)
             .execute()
         )
-        return {"status": "ok", "history": res.data or []}
+        history_list = res.data or []
+        for item in history_list:
+            s_url = item.get("stream_url") or ""
+            if any(t in s_url.lower() for t in ["trycloudflare.com", "loca.lt", "ngrok", "pinggy", "serveo"]):
+                item["stream_url"] = ""
+        return {"status": "ok", "history": history_list}
     except Exception as e:
         logger.error("Error retrieving watch history for user %s: %s", user_id, str(e))
         return {"status": "error", "message": str(e), "history": []}
@@ -90,6 +95,10 @@ async def save_watch_progress(
     if not client:
         return {"status": "unconfigured", "saved": False}
 
+    s_url = payload.stream_url or ""
+    if any(t in s_url.lower() for t in ["trycloudflare.com", "loca.lt", "ngrok", "pinggy", "serveo"]):
+        s_url = ""
+
     record = {
         "user_id": user_id,
         "title": payload.title,
@@ -97,7 +106,7 @@ async def save_watch_progress(
         "year": payload.year,
         "poster_url": payload.poster_url,
         "backdrop_url": payload.backdrop_url,
-        "stream_url": payload.stream_url,
+        "stream_url": s_url,
         "candidate_title": payload.candidate_title,
         "candidate_id": payload.candidate_id,
         "source_bot": payload.source_bot,
@@ -263,6 +272,9 @@ async def sync_guest_data(
 
     try:
         for item in payload.history:
+            s_url = item.stream_url or ""
+            if any(t in s_url.lower() for t in ["trycloudflare.com", "loca.lt", "ngrok", "pinggy", "serveo"]):
+                s_url = ""
             client.table("user_watch_history").upsert(
                 {
                     "user_id": user_id,
@@ -271,7 +283,7 @@ async def sync_guest_data(
                     "year": item.year,
                     "poster_url": item.poster_url,
                     "backdrop_url": item.backdrop_url,
-                    "stream_url": item.stream_url,
+                    "stream_url": s_url,
                     "candidate_title": item.candidate_title,
                     "candidate_id": item.candidate_id,
                     "source_bot": item.source_bot,

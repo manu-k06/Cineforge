@@ -394,6 +394,22 @@ export default function App() {
         navigate(`/stream/${slug}`)
       }
       window.scrollTo({ top: 0, behavior: 'smooth' })
+    } else if (item.start_payload || item.candidate_id) {
+      // Stream URL was cleared/ephemeral; re-deliver directly using saved start_payload!
+      const cand = {
+        title: item.candidate_title || item.title,
+        quality: item.quality || '1080P',
+        container: item.container || 'mp4',
+        candidate_id: item.candidate_id,
+        source_bot: item.source_bot,
+        start_payload: item.start_payload,
+      }
+      const group = {
+        title: item.clean_title || item.title,
+        metadata: item,
+        candidates: [cand],
+      }
+      startDelivery(cand, group)
     } else {
       if (slug) {
         navigate(`/stream/${slug}`)

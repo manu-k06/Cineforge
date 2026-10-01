@@ -1,6 +1,6 @@
 {
-  "0": "SearchCandidate",
-  "1": "services/telegram.py",
+  "0": "CacheService",
+  "1": "api/search.py",
   "2": "App.jsx",
   "3": "tmdb.py",
   "4": "AuthService",
@@ -14,7 +14,7 @@
   "12": "Cineforge Backend",
   "13": "TestAuthEndpointsAndService",
   "14": "Cineforge Master Architecture & Implementation Roadmap (TODO)",
-  "15": "api/search.py",
+  "15": "deliver_candidate_file",
   "16": "Settings",
   "17": "CineforgeTrayApp",
   "18": "update_public_profile",
@@ -25,10 +25,11 @@
   "23": "workflows/graphify.md",
   "24": "app/__init__.py",
   "25": "models/search.py",
-  "26": "config.py",
-  "27": "export_session.py",
+  "26": "SearchCandidate",
+  "27": "DeliveryModal.jsx",
   "28": "test_telegram_search",
-  "30": "main.py",
-  "34": "AiQueryInterpretation",
+  "29": "TestStreamerBotIntegration",
+  "30": "pydantic",
+  "34": "main.py",
   "39": "history.py"
 }
