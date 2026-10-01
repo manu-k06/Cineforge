@@ -156,9 +156,9 @@
     "semantic_hash": ""
   },
   "backend/app/services/telegram.py": {
-    "mtime": 1790665271.2232175,
-    "seen": 1790665506.4474247,
-    "ast_hash": "fcfddc8f126e1aaa973d773007535fcb",
+    "mtime": 1790826029.9950922,
+    "seen": 1790826124.1710474,
+    "ast_hash": "ae2061f177d7ee90953849a9963ca563",
     "semantic_hash": ""
   },
   "backend/app/services/telethon_compat.py": {

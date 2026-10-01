@@ -1,27 +1,28 @@
 # Graph Report - Cineforge  (2026-10-01)
 
 ## Corpus Check
-- 77 files · ~100,736 words
+- 77 files · ~101,027 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 12 file(s) not represented in the graph (top: (none) 4, .bat 3, .example 2)
 
 ## Summary
-- 781 nodes · 1586 edges · 26 communities (22 shown, 4 thin omitted)
+- 783 nodes · 1588 edges · 32 communities (28 shown, 4 thin omitted)
 - Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 56 edges (avg confidence: 0.93)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `3578c653`
+- Built from commit: `507fc40d`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
 - SearchCandidate
+- services/telegram.py
 - App.jsx
 - tmdb.py
 - AuthService
 - TelegramService
-- api/search.py
+- models/__init__.py
 - MediaCompatibilityService
 - package.json
 - telethon_compat.py
@@ -30,6 +31,7 @@
 - Cineforge Backend
 - TestAuthEndpointsAndService
 - Cineforge Master Architecture & Implementation Roadmap (TODO)
+- api/search.py
 - Settings
 - CineforgeTrayApp
 - update_public_profile
@@ -39,12 +41,16 @@
 - rules/graphify.md
 - workflows/graphify.md
 - app/__init__.py
-- TestStreamerBotIntegration
+- models/search.py
+- config.py
+- export_session.py
+- test_telegram_search
 - main.py
+- AiQueryInterpretation
 - history.py
 
 ## God Nodes (most connected - your core abstractions)
-1. `TelegramService` - 28 edges
+1. `TelegramService` - 29 edges
 2. `resolveApiBase()` - 22 edges
 3. `SearchCandidate` - 20 edges
 4. `react` - 19 edges
@@ -62,19 +68,23 @@
   docs/BACKEND_TODO.md → frontend/src/components/WatchPage.jsx
 - `search_movies()` --uses--> `SearchCandidate`  [INFERRED]
   backend/app/api/search.py → backend/app/models/search.py
-- `CacheService` --uses--> `AiQueryInterpretation`  [INFERRED]
-  backend/app/services/cache_service.py → backend/app/models/ai.py
-- `TelegramService` --uses--> `SelectedResultRequest`  [INFERRED]
-  backend/app/services/telegram.py → backend/app/models/delivery.py
+- `select_search_result()` --uses--> `SelectedResultRequest`  [INFERRED]
+  backend/app/api/search.py → backend/app/models/delivery.py
+- `select_search_result()` --uses--> `SelectedResultResponse`  [INFERRED]
+  backend/app/api/search.py → backend/app/models/delivery.py
 
 ## Import Cycles
 - None detected.
 
-## Communities (26 total, 4 thin omitted)
+## Communities (32 total, 4 thin omitted)
 
 ### Community 0 - "SearchCandidate"
 Cohesion: 0.05
 Nodes (30): SearchCandidate, CacheService, normalize_search_query(), Any, Persist newly discovered Telegram candidates into Supabase movies_cache., Check if CineAI already resolved this exact prompt/vague query., Normalize query for consistent database indexing (lowercase, stripped, single…, Persist a CineAI resolution in ai_query_cache to avoid future LLM tokens. (+22 more)
+
+### Community 1 - "services/telegram.py"
+Cohesion: 0.21
+Nodes (11): asyncio, MediaCompatibilityResult, Services package for Cineforge backend., interactive_login(), CLI utility for one-time interactive Telegram login., dataclasses, hashlib, re (+3 more)
 
 ### Community 2 - "App.jsx"
 Cohesion: 0.06
@@ -85,16 +95,16 @@ Cohesion: 0.05
 Nodes (42): discover_movies(), get_metadata_status(), get_movie_metadata(), get_popular_movies(), get_top_rated_movies(), get_trending_movies(), get, Check if TMDb API integration is configured and available. (+34 more)
 
 ### Community 4 - "AuthService"
-Cohesion: 0.19
-Nodes (9): AuthService, get_current_user_optional(), get_current_user_required(), Any, Service for validating Supabase JWT tokens and retrieving user profiles., Verify Supabase JWT token and return authenticated user metadata., FastAPI dependency for optionally authenticated endpoints., FastAPI dependency for strictly protected endpoints. (+1 more)
+Cohesion: 0.32
+Nodes (4): AuthService, Any, Service for validating Supabase JWT tokens and retrieving user profiles., Verify Supabase JWT token and return authenticated user metadata.
 
 ### Community 5 - "TelegramService"
 Cohesion: 0.07
-Nodes (29): MediaWaiter, Any, Targeted title search refinement: discovers all versions (1080p, 720p, MP4,…, Trigger bot delivery for a chosen candidate button, handle FSub gates, forward…, Disconnect the Telegram client during application shutdown., Check connection and user authentication status., Extract stream_url, watch_url, and download_url from Streamer Bot response., Development endpoint logic: Detailed search testing and button inspection in… (+21 more)
+Nodes (30): MediaWaiter, Any, Click pagination callback on an active search result message and accumulate…, Disconnect the Telegram client during application shutdown., Targeted title search refinement: discovers all versions (1080p, 720p, MP4,…, Trigger bot delivery for a chosen candidate button, handle FSub gates, forward…, Check connection and user authentication status., Extract stream_url, watch_url, and download_url from Streamer Bot response. (+22 more)
 
-### Community 6 - "api/search.py"
-Cohesion: 0.05
-Nodes (77): asyncio, get_cache_status(), get, Returns whether Supabase caching is active, along with total cached movies and…, _consolidate_title_groups(), deliver_candidate_file(), _enrich_groups_with_metadata(), find_title_versions() (+69 more)
+### Community 6 - "models/__init__.py"
+Cohesion: 0.21
+Nodes (18): post, Development-only endpoint: Registers an isolated waiter and waits for the next…, Development-only endpoint: Initiates Telegram deep link interaction with target…, test_delivery_flow(), test_media_detection(), DeepLinkInfo, MediaMetadata, parse_telegram_deep_link() (+10 more)
 
 ### Community 7 - "MediaCompatibilityService"
 Cohesion: 0.07
@@ -128,13 +138,17 @@ Nodes (6): Verify GET /api/auth/status returns status., GET /api/auth/me should 
 Cohesion: 0.18
 Nodes (10): 🏗️ Architecture & Data Flow Overview, Cineforge Master Architecture & Implementation Roadmap (TODO), 📋 Phase 1: CineAI Intelligence & Query Refinement Engine, 📋 Phase 2: Metadata Enrichment (TMDb / IMDb API Integration), 📋 Phase 3: Supabase Persistence & Zero-Latency Stream Caching, 📋 Phase 4: User Authentication (Login & Sign Up), 📋 Phase 5: User Watch History & Watchlist ("Continue Watching"), 📋 Phase 6: Subtitle Extraction & WebVTT Streaming (+2 more)
 
+### Community 15 - "api/search.py"
+Cohesion: 0.17
+Nodes (15): deliver_candidate_file(), get_search_suggestions(), get_search_ui(), get, post, Request, Trigger bot delivery for a candidate button, forward document to 'me', verify…, Validate and resolve a selected search result reference for upcoming delivery. (+7 more)
+
 ### Community 16 - "Settings"
 Cohesion: 0.43
 Nodes (3): Settings, BaseSettings, field_validator
 
 ### Community 17 - "CineforgeTrayApp"
-Cohesion: 0.06
-Nodes (30): atexit, Utility to export existing cineforge_session.session into a…, Image, Menu, os, pathlib, pil, pystray (+22 more)
+Cohesion: 0.07
+Nodes (27): atexit, Image, Menu, pathlib, pil, pystray, subprocess, sys (+19 more)
 
 ### Community 18 - "update_public_profile"
 Cohesion: 0.17
@@ -148,13 +162,29 @@ Nodes (5): plugins, rules, react/only-export-components, react/rules-of-hooks, $
 Cohesion: 0.50
 Nodes (3): Expanding the Oxlint configuration, React Compiler, React + Vite
 
-### Community 30 - "TestStreamerBotIntegration"
-Cohesion: 0.33
-Nodes (3): Verify _extract_streamer_links correctly extracts stream, watch, and download…, Verify POST /api/search/deliver returns valid stream and player URLs., TestStreamerBotIntegration
+### Community 25 - "models/search.py"
+Cohesion: 0.21
+Nodes (15): _consolidate_title_groups(), _enrich_groups_with_metadata(), find_title_versions(), Any, Send a search query to the Telegram bot, aggregate candidates across pages,…, Concurrently resolve TMDb posters, backdrops, and ratings for movie title…, Targeted search refinement: discovers all versions (1080p, 720p, MP4, MKV) of a…, Merge title groups that share the exact same TMDb movie ID, guaranteeing only 1… (+7 more)
 
-### Community 34 - "main.py"
+### Community 26 - "config.py"
+Cohesion: 0.20
+Nodes (10): get_current_user_optional(), get_current_user_required(), FastAPI dependency for optionally authenticated endpoints., FastAPI dependency for strictly protected endpoints., fastapi_security, HTTPAuthorizationCredentials, json, logging (+2 more)
+
+### Community 27 - "export_session.py"
+Cohesion: 0.33
+Nodes (4): Utility to export existing cineforge_session.session into a…, os, telethon_sessions, telethon_sync
+
+### Community 28 - "test_telegram_search"
+Cohesion: 0.40
+Nodes (5): get_telegram_status(), get, Check if the Telethon user client is connected and authenticated without…, Development-only endpoint: Sends query to bot in private chat and returns…, test_telegram_search()
+
+### Community 30 - "main.py"
 Cohesion: 0.06
-Nodes (50): api_route, argparse, AsyncClient, ask_companion(), get_ai_status(), get_recommendations(), get, post (+42 more)
+Nodes (35): api_route, argparse, AsyncClient, get_cache_status(), get, Returns whether Supabase caching is active, along with total cached movies and…, get_streamer_client(), health_check() (+27 more)
+
+### Community 34 - "AiQueryInterpretation"
+Cohesion: 0.12
+Nodes (25): ask_companion(), get_ai_status(), get_recommendations(), get, post, Returns the operational status and model configured for CineAI., Interprets vague descriptions, corrects typos, and outputs a canonical search…, Generate movie or show recommendations matching a theme, mood, or natural… (+17 more)
 
 ### Community 39 - "history.py"
 Cohesion: 0.27
@@ -162,15 +192,15 @@ Nodes (17): add_to_watchlist(), BulkSyncPayload, clear_all_watch_history(), dele
 
 ## Knowledge Gaps
 - **66 isolated node(s):** `$schema`, `plugins`, `react/rules-of-hooks`, `react/only-export-components`, `name` (+61 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 318 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 319 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
 - **4 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `TelegramService` connect `TelegramService` to `api/search.py`?**
-  _High betweenness centrality (0.071) - this node is a cross-community bridge._
-- **Why does `SearchCandidate` connect `SearchCandidate` to `main.py`, `api/search.py`?**
+- **Why does `TelegramService` connect `TelegramService` to `services/telegram.py`, `models/__init__.py`, `api/search.py`?**
+  _High betweenness centrality (0.075) - this node is a cross-community bridge._
+- **Why does `SearchCandidate` connect `SearchCandidate` to `models/search.py`, `services/telegram.py`, `models/__init__.py`, `api/search.py`?**
   _High betweenness centrality (0.044) - this node is a cross-community bridge._
 - **Are the 4 inferred relationships involving `TelegramService` (e.g. with `CandidateDeliveryRequest` and `CandidateDeliveryResponse`) actually correct?**
   _`TelegramService` has 4 INFERRED edges - model-reasoned connections that need verification._
@@ -179,6 +209,6 @@ _Questions this graph is uniquely positioned to answer:_
 - **What connects `$schema`, `plugins`, `react/rules-of-hooks` to the rest of the system?**
   _66 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `SearchCandidate` be split into smaller, more focused modules?**
-  _Cohesion score 0.052597402597402594 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.05325814536340852 - nodes in this community are weakly interconnected._
 - **Should `App.jsx` be split into smaller, more focused modules?**
   _Cohesion score 0.059248809733733025 - nodes in this community are weakly interconnected._

@@ -359,18 +359,24 @@ class TelegramService:
         parsed = urlparse(clean_url)
         path = parsed.path.strip("/")
 
+        from telethon.errors import (
+            UserAlreadyParticipantError,
+            InviteRequestSentError,
+            FloodWaitError,
+            ChannelPrivateError,
+        )
+
         try:
             # Case 1: Private invite link with '+' or 'joinchat'
             invite_hash = None
             if path.startswith("+"):
-                invite_hash = path[1:]
+                invite_hash = path[1:].split("?")[0].strip("/")
             elif path.startswith("joinchat/"):
-                invite_hash = path.split("joinchat/")[1]
+                invite_hash = path.split("joinchat/")[1].split("?")[0].strip("/")
 
             if invite_hash:
                 logger.info("Attempting to join private chat via invite hash: '%s'", invite_hash)
                 from telethon.tl.functions.messages import ImportChatInviteRequest
-                from telethon.errors import UserAlreadyParticipantError
 
                 try:
                     await client(ImportChatInviteRequest(invite_hash))
@@ -379,16 +385,23 @@ class TelegramService:
                 except UserAlreadyParticipantError:
                     logger.info("Account is already a member of private channel: %s", invite_hash)
                     return True
+                except InviteRequestSentError:
+                    logger.info("Join request sent for private channel: %s", invite_hash)
+                    return True
+                except FloodWaitError as fw:
+                    logger.warning("FloodWait (%ds) while joining private channel: %s", fw.seconds, invite_hash)
+                    return False
 
-            # Case 2: Public channel username (e.g. https://t.me/channel_username)
+            # Case 2: Public channel username (e.g. https://t.me/channel_username or @channel_username)
             elif path and not path.startswith("+") and not path.startswith("joinchat"):
-                channel_username = path.split("/")[0].lstrip("@")
+                channel_username = path.split("/")[0].split("?")[0].lstrip("@")
+                if not channel_username:
+                    return False
                 if settings.TELEGRAM_BOT_USERNAME and channel_username.lower() == settings.TELEGRAM_BOT_USERNAME.lower():
                     return False
 
                 logger.info("Attempting to join public channel: @%s", channel_username)
                 from telethon.tl.functions.channels import JoinChannelRequest
-                from telethon.errors import UserAlreadyParticipantError
 
                 try:
                     await client(JoinChannelRequest(channel_username))
@@ -397,12 +410,159 @@ class TelegramService:
                 except UserAlreadyParticipantError:
                     logger.info("Account is already a member of public channel: @%s", channel_username)
                     return True
+                except InviteRequestSentError:
+                    logger.info("Join request sent for public channel: @%s", channel_username)
+                    return True
+                except FloodWaitError as fw:
+                    logger.warning("FloodWait (%ds) while joining public channel: @%s", fw.seconds, channel_username)
+                    return False
+                except ChannelPrivateError:
+                    logger.warning("Channel @%s is private and cannot be joined publicly", channel_username)
+                    return False
 
         except Exception as e:
             logger.warning("Auto-join failed for '%s': %s", clean_url, str(e))
             return False
 
         return False
+
+    async def resolve_fsub_gate(
+        self,
+        conv,
+        resp,
+        bot_username: str,
+        start_cmd: Optional[str] = None,
+        max_attempts: int = 2,
+    ):
+        """
+        Detects Force-Subscription (FSub) / Updates Channel gates,
+        automatically joins required sponsor channels, waits for propagation,
+        and triggers verification via callback or URL button / start command.
+        Recursively/iteratively loops up to max_attempts to clear multi-channel gates.
+        """
+        current_resp = resp
+        bot_lower = (bot_username or "").lower().lstrip("@")
+
+        for attempt in range(1, max_attempts + 1):
+            # If current response already has media, we are done
+            meta = self._extract_media_metadata(current_resp)
+            if meta and meta.get("media_type") in ("video", "document", "audio"):
+                return current_resp
+
+            msg_text = getattr(current_resp, "message", "") or ""
+            msg_text_lower = msg_text.lower()
+            buttons = self._extract_buttons(current_resp)
+
+            # Check if this message is an FSub gatekeeper
+            fsub_indicators = (
+                "updates channel",
+                "join channel",
+                "join my",
+                "must join",
+                "force sub",
+                "fsub",
+                "subscribe to",
+                "please join",
+                "join our channel",
+                "join the channel",
+            )
+            is_fsub_text = any(phrase in msg_text_lower for phrase in fsub_indicators)
+
+            channel_urls: List[str] = []
+            try_again_callback: Optional[str] = None
+            try_again_url_payload: Optional[str] = None
+
+            # 1. Extract channel URLs and retry buttons from inline keyboard
+            for btn in buttons:
+                btn_url = btn.get("url") or ""
+                btn_txt = (btn.get("text") or "").lower()
+                btn_data = (btn.get("callback_data") or "").lower()
+
+                if btn_url:
+                    clean_u = btn_url.strip()
+                    # Check if this button is a channel join link
+                    if ("t.me/+" in clean_u) or ("joinchat" in clean_u) or (
+                        ("t.me/" in clean_u or "telegram.me/" in clean_u)
+                        and bot_lower not in clean_u.lower()
+                    ):
+                        if clean_u not in channel_urls:
+                            channel_urls.append(clean_u)
+
+                    # Check if this button is a "Try Again" URL button (e.g. https://t.me/Spoty_xbot?start=...)
+                    if any(k in btn_txt for k in ("try", "again", "refresh", "check", "verify", "joined")):
+                        if "start=" in clean_u:
+                            try:
+                                from urllib.parse import parse_qs, urlparse
+                                parsed = parse_qs(urlparse(clean_u).query)
+                                if "start" in parsed and parsed["start"]:
+                                    try_again_url_payload = parsed["start"][0]
+                            except Exception:
+                                pass
+
+                elif btn.get("type") == "callback":
+                    if any(k in btn_txt or k in btn_data for k in ("try", "again", "refresh", "check", "sub", "join", "verify")):
+                        try_again_callback = btn.get("callback_data")
+
+            # 2. Extract channel mentions and links from message text
+            import re
+            mentions = re.findall(r"@([a-zA-Z0-9_]{4,})", msg_text)
+            for m in mentions:
+                m_lower = m.lower()
+                if m_lower != bot_lower and m_lower not in ("cineforge", "stre89d_bot", "spoty_xbot"):
+                    full_link = f"https://t.me/{m}"
+                    if full_link not in channel_urls:
+                        channel_urls.append(full_link)
+
+            text_links = re.findall(r"https?://(?:t\.me|telegram\.me)/(?:joinchat/|\+)?([a-zA-Z0-9_+]{3,})", msg_text)
+            for tl in text_links:
+                if bot_lower not in tl.lower():
+                    full_link = f"https://t.me/{tl}"
+                    if full_link not in channel_urls:
+                        channel_urls.append(full_link)
+
+            # If not an FSub gate and no channels detected, return current response as-is
+            if not is_fsub_text and not channel_urls:
+                return current_resp
+
+            logger.info(
+                "FSub gatekeeper encountered (attempt %d/%d) with %d target channel(s): %s",
+                attempt,
+                max_attempts,
+                len(channel_urls),
+                channel_urls,
+            )
+
+            # Auto-join all detected sponsor channels
+            for ch_url in channel_urls:
+                await self.join_channel_from_url(ch_url)
+
+            # Propagation delay so Telegram DC updates its getChatMember cache
+            await asyncio.sleep(2.5)
+
+            # Trigger retry verification
+            if try_again_callback:
+                logger.info("Clicking FSub verification callback button...")
+                try:
+                    await current_resp.click(data=try_again_callback)
+                    current_resp = await conv.get_response()
+                    continue
+                except Exception as e:
+                    logger.warning("Error clicking FSub callback button: %s. Falling back to start command.", str(e))
+
+            cmd_to_send = None
+            if try_again_url_payload:
+                cmd_to_send = f"/start {try_again_url_payload}"
+            elif start_cmd:
+                cmd_to_send = start_cmd
+
+            if cmd_to_send:
+                logger.info("Resending command '%s' after FSub join (attempt %d)...", cmd_to_send, attempt)
+                await conv.send_message(cmd_to_send)
+                current_resp = await conv.get_response()
+            else:
+                break
+
+        return current_resp
 
     async def test_delivery(self, source_url: str, timeout: float = 30.0) -> Dict[str, Any]:
         """Execute a delivery test for a given Telegram deep link with automated FSub resolution."""
@@ -455,63 +615,13 @@ class TelegramService:
                     await conv.send_message(command)
                     resp = await conv.get_response()
 
-                    # Check if response is already an actual media file
-                    meta = self._extract_media_metadata(resp)
-                    if meta and meta.get("media_type") in ("video", "document", "audio"):
-                        return resp
-
-                    # Check for Force-Subscription / Updates Channel gate
-                    buttons = self._extract_buttons(resp)
-                    channel_urls = []
-                    try_again_button = None
-
-                    for btn in buttons:
-                        btn_url = btn.get("url")
-                        if btn_url:
-                            if ("t.me/+" in btn_url) or ("joinchat" in btn_url) or (
-                                "t.me/" in btn_url and deep_link.bot_username.lower() not in btn_url.lower()
-                            ):
-                                channel_urls.append(btn_url)
-                        elif btn.get("type") == "callback":
-                            txt = (btn.get("text") or "").lower()
-                            data = (btn.get("callback_data") or "").lower()
-                            if any(k in txt or k in data for k in ("try", "again", "refresh", "check", "sub", "join")):
-                                try_again_button = btn
-
-                    # If channel links were detected in the gate message, auto-join them!
-                    if channel_urls:
-                        logger.info(
-                            "FSub gatekeeper detected with %d channel link(s) [request_id=%s]",
-                            len(channel_urls),
-                            req_id,
-                        )
-                        for ch_url in channel_urls:
-                            logger.info("Auto-joining channel: %s", ch_url)
-                            await self.join_channel_from_url(ch_url)
-
-                        # Propagation pause
-                        await asyncio.sleep(1.2)
-
-                        # Trigger verification
-                        if try_again_button and try_again_button.get("callback_data"):
-                            logger.info(
-                                "Clicking verification callback button '%s' [request_id=%s]",
-                                try_again_button.get("text"),
-                                req_id,
-                            )
-                            try:
-                                await resp.click(data=try_again_button.get("callback_data"))
-                                retry_resp = await conv.get_response()
-                                return retry_resp
-                            except Exception as click_err:
-                                logger.warning("Callback button click error, fallback to resending /start: %s", str(click_err))
-
-                        # If no callback button or click failed, resend /start command
-                        logger.info("Resending command '%s' after channel join [request_id=%s]", command, req_id)
-                        await conv.send_message(command)
-                        retry_resp = await conv.get_response()
-                        return retry_resp
-
+                    # Automatically resolve FSub / Force Subscription gatekeepers
+                    resp = await self.resolve_fsub_gate(
+                        conv=conv,
+                        resp=resp,
+                        bot_username=deep_link.bot_username,
+                        start_cmd=command,
+                    )
                     return resp
 
         conv_task = asyncio.create_task(_conversation_task())
@@ -1138,33 +1248,13 @@ class TelegramService:
                     if meta and meta.get("media_type") in ("video", "document", "audio"):
                         return resp
 
-                    # Check for FSub updates channel gate
-                    buttons = self._extract_buttons(resp)
-                    channel_urls = []
-                    try_again_button = None
-                    for btn in buttons:
-                        btn_url = btn.get("url")
-                        if btn_url and (("t.me/+" in btn_url) or ("joinchat" in btn_url) or ("t.me/" in btn_url and bot_username.lower() not in btn_url.lower())):
-                            channel_urls.append(btn_url)
-                        elif btn.get("type") == "callback":
-                            txt = (btn.get("text") or "").lower()
-                            data = (btn.get("callback_data") or "").lower()
-                            if any(k in txt or k in data for k in ("try", "again", "refresh", "check", "sub", "join")):
-                                try_again_button = btn
-
-                    if channel_urls:
-                        logger.info("FSub gatekeeper encountered during delivery with %d channel(s) [req_id=%s]", len(channel_urls), req_id)
-                        for ch_url in channel_urls:
-                            await self.join_channel_from_url(ch_url)
-
-                        await asyncio.sleep(1.2)
-                        if try_again_button and try_again_button.get("callback_data"):
-                            await resp.click(data=try_again_button.get("callback_data"))
-                            return await conv.get_response()
-                        elif request.start_payload:
-                            await conv.send_message(f"/start {request.start_payload}")
-                            return await conv.get_response()
-
+                    # Automatically resolve FSub / Force Subscription gatekeepers
+                    resp = await self.resolve_fsub_gate(
+                        conv=conv,
+                        resp=resp,
+                        bot_username=bot_username,
+                        start_cmd=cmd,
+                    )
                     return resp
 
         trigger_task = asyncio.create_task(_trigger_task())
