@@ -480,9 +480,9 @@
     "semantic_hash": ""
   },
   "tray_app.py": {
-    "mtime": 1790660909.1853354,
-    "seen": 1790660980.4212022,
-    "ast_hash": "fa0ca8a39e132c5d0babf97759e627f8",
+    "mtime": 1790832972.8691185,
+    "seen": 1790833606.1566427,
+    "ast_hash": "3aba7fb1cab2915ce1c364e705fbe525",
     "semantic_hash": ""
   },
   "frontend/public/assets/images/avatars/cartoon-avatar.svg": {
@@ -651,6 +651,12 @@
     "mtime": 1790761414.230502,
     "seen": 1790761715.6998675,
     "ast_hash": "c94f5d8f6ac8a62b7316b66db7da84b2",
+    "semantic_hash": ""
+  },
+  "backend/login_helper.py": {
+    "mtime": 1790833325.7349362,
+    "seen": 1790833606.1519494,
+    "ast_hash": "82fddcfef8af8ae4000bd3b99b875002",
     "semantic_hash": ""
   }
 }

@@ -5,6 +5,7 @@ Eliminates visible console windows and prevents accidental server shutdowns.
 """
 
 import atexit
+import ctypes
 import logging
 import os
 import re
@@ -432,6 +433,25 @@ class CineforgeTrayApp:
         self.icon.run()
 
 
+def acquire_single_instance_lock(mutex_name: str = "Global\\CineforgeTrayAppMutex"):
+    """Ensure only one instance of Cineforge tray app runs at a time using Windows kernel mutex."""
+    try:
+        mutex = ctypes.windll.kernel32.CreateMutexW(None, False, mutex_name)
+        last_error = ctypes.windll.kernel32.GetLastError()
+        ERROR_ALREADY_EXISTS = 183
+        if last_error == ERROR_ALREADY_EXISTS:
+            return None
+        return mutex
+    except Exception as e:
+        logger.warning("Could not create single-instance mutex: %s", e)
+        return True  # Fallback gracefully if ctypes fails
+
+
 if __name__ == "__main__":
+    _mutex = acquire_single_instance_lock()
+    if not _mutex:
+        logger.warning("Another instance of Cineforge Tray App is already running. Exiting silently.")
+        sys.exit(0)
+
     app = CineforgeTrayApp()
     app.run()
