@@ -1,7 +1,7 @@
 # Graph Report - Cineforge  (2026-10-01)
 
 ## Corpus Check
-- 77 files · ~101,027 words
+- 77 files · ~101,438 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 12 file(s) not represented in the graph (top: (none) 4, .bat 3, .example 2)
 
@@ -11,7 +11,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `507fc40d`
+- Built from commit: `946fcf5b`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 

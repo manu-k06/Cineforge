@@ -246,9 +246,9 @@
     "semantic_hash": ""
   },
   "frontend/src/App.jsx": {
-    "mtime": 1790778877.330991,
-    "seen": 1790779176.1859384,
-    "ast_hash": "7ed02c3178883864a35343c7e9457da9",
+    "mtime": 1790826767.149676,
+    "seen": 1790826802.4277043,
+    "ast_hash": "aabaf8637fb276e310ee050024d1ab51",
     "semantic_hash": ""
   },
   "frontend/src/components/AuthModal.jsx": {
@@ -306,9 +306,9 @@
     "semantic_hash": ""
   },
   "frontend/src/components/WatchPage.jsx": {
-    "mtime": 1790752563.7948525,
-    "seen": 1790752617.94812,
-    "ast_hash": "6e403f896e4cb7560a96d531c9ab1925",
+    "mtime": 1790826697.3882186,
+    "seen": 1790826802.4289548,
+    "ast_hash": "9681bb13b3dba527ce8cc1be811d7625",
     "semantic_hash": ""
   },
   "frontend/src/context/AuthContext.jsx": {
@@ -432,9 +432,9 @@
     "semantic_hash": ""
   },
   "backend/app/api/history.py": {
-    "mtime": 1790825187.723258,
-    "seen": 1790825286.7738502,
-    "ast_hash": "6f54cd7a7bf4957d6af958126865e7a1",
+    "mtime": 1790826494.055492,
+    "seen": 1790826802.4241204,
+    "ast_hash": "b8caca3e0fa9e5a01f3688998f6a8c75",
     "semantic_hash": ""
   },
   "frontend/src/components/ContinueWatchingRail.jsx": {

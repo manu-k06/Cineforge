@@ -18,6 +18,9 @@ class WatchProgressPayload(BaseModel):
     backdrop_url: Optional[str] = None
     stream_url: str
     candidate_title: Optional[str] = None
+    candidate_id: Optional[str] = None
+    source_bot: Optional[str] = None
+    start_payload: Optional[str] = None
     quality: Optional[str] = None
     progress_seconds: float = Field(default=0.0, ge=0.0)
     duration_seconds: float = Field(default=0.0, ge=0.0)
@@ -96,6 +99,9 @@ async def save_watch_progress(
         "backdrop_url": payload.backdrop_url,
         "stream_url": payload.stream_url,
         "candidate_title": payload.candidate_title,
+        "candidate_id": payload.candidate_id,
+        "source_bot": payload.source_bot,
+        "start_payload": payload.start_payload,
         "quality": payload.quality,
         "progress_seconds": payload.progress_seconds,
         "duration_seconds": payload.duration_seconds,
@@ -267,6 +273,9 @@ async def sync_guest_data(
                     "backdrop_url": item.backdrop_url,
                     "stream_url": item.stream_url,
                     "candidate_title": item.candidate_title,
+                    "candidate_id": item.candidate_id,
+                    "source_bot": item.source_bot,
+                    "start_payload": item.start_payload,
                     "quality": item.quality,
                     "progress_seconds": item.progress_seconds,
                     "duration_seconds": item.duration_seconds,

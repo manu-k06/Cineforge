@@ -15,6 +15,9 @@ CREATE TABLE IF NOT EXISTS public.user_watch_history (
     backdrop_url TEXT,
     stream_url TEXT NOT NULL,
     candidate_title TEXT,
+    candidate_id TEXT,
+    source_bot TEXT,
+    start_payload TEXT,
     quality TEXT,
     progress_seconds FLOAT NOT NULL DEFAULT 0,
     duration_seconds FLOAT NOT NULL DEFAULT 0,
@@ -23,6 +26,11 @@ CREATE TABLE IF NOT EXISTS public.user_watch_history (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     UNIQUE(user_id, title)
 );
+
+-- Ensure delivery metadata columns exist on existing tables
+ALTER TABLE public.user_watch_history ADD COLUMN IF NOT EXISTS candidate_id TEXT;
+ALTER TABLE public.user_watch_history ADD COLUMN IF NOT EXISTS source_bot TEXT;
+ALTER TABLE public.user_watch_history ADD COLUMN IF NOT EXISTS start_payload TEXT;
 
 -- Index for speedy user-specific queries
 CREATE INDEX IF NOT EXISTS idx_watch_history_user_updated 

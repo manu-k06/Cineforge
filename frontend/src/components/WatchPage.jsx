@@ -35,6 +35,7 @@ import {
   BookmarkCheck,
   Plus,
   RefreshCw,
+  Loader2,
 } from 'lucide-react'
 import { formatBytes, parseMovieMetadata } from '../utils/helpers'
 import { getMovieMetadata, getSubtitleTracks, getTrendingMovies } from '../services/api'
@@ -143,6 +144,13 @@ export default function WatchPage({
   const durationRef = useRef(0)
   const lastSyncTimeRef = useRef(0)
   const castCarouselRef = useRef(null)
+  const hasAutoReconnectedRef = useRef(false)
+
+  // Reset auto-reconnect state whenever a fresh stream URL is loaded
+  useEffect(() => {
+    hasAutoReconnectedRef.current = false
+    setHasPlaybackError(false)
+  }, [delivery?.stream_url])
 
   const scrollCast = (direction) => {
     if (castCarouselRef.current) {
@@ -706,25 +714,47 @@ export default function WatchPage({
           onTimeUpdate={handleTimeUpdate}
           onLoadedMetadata={handleLoadedMetadata}
           onEnded={handleVideoEnded}
-          onError={() => {
+          onError={async () => {
             const err = videoRef.current?.error
             console.warn('Video playback error:', err)
-            if (err && (err.code === 2 || err.code === 1)) {
+            const isNetworkErr = err && (err.code === 2 || err.code === 1)
+
+            const attemptAutoReconnect = async () => {
+              if (onReconnectStream && !hasAutoReconnectedRef.current) {
+                hasAutoReconnectedRef.current = true
+                setIsReconnecting(true)
+                try {
+                  await onReconnectStream(
+                    candidate,
+                    group,
+                    currentTimeRef.current || currentTime || initialProgressSeconds
+                  )
+                  return true
+                } catch (recErr) {
+                  console.warn('Silent auto-reconnect failed:', recErr)
+                } finally {
+                  setIsReconnecting(false)
+                }
+              }
               setPlaybackErrorType('network')
               setHasPlaybackError(true)
+              return false
+            }
+
+            if (isNetworkErr) {
+              await attemptAutoReconnect()
             } else if (err && err.code === 4) {
               fetch(delivery.stream_url, { method: 'HEAD' })
-                .then((res) => {
+                .then(async (res) => {
                   if (res.ok || res.status === 206 || res.status === 200) {
                     setPlaybackErrorType('codec')
+                    setHasPlaybackError(true)
                   } else {
-                    setPlaybackErrorType('network')
+                    await attemptAutoReconnect()
                   }
-                  setHasPlaybackError(true)
                 })
-                .catch(() => {
-                  setPlaybackErrorType('network')
-                  setHasPlaybackError(true)
+                .catch(async () => {
+                  await attemptAutoReconnect()
                 })
             } else {
               setPlaybackErrorType('codec')
@@ -982,6 +1012,17 @@ export default function WatchPage({
             </div>
           </div>
         </div>
+
+        {/* Silent Stream Reconnecting Overlay */}
+        {isReconnecting && !hasPlaybackError && (
+          <div className="streamvibe-player-error" style={{ background: 'rgba(10, 10, 12, 0.92)' }}>
+            <div className="error-card">
+              <Loader2 size={44} className="spin-icon text-primary mb-3" />
+              <h3>Refreshing Stream Connection...</h3>
+              <p>Reconnecting to active media host right where you left off</p>
+            </div>
+          </div>
+        )}
 
         {/* Fallback Overlay for Network / Codec Playback Errors */}
         {hasPlaybackError && (

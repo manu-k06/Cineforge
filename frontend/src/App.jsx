@@ -83,6 +83,33 @@ export default function App() {
     setResolvingError(null)
 
     try {
+      // 1. Fast path: if this movie exists in watch history with delivery payload, re-deliver immediately
+      const historyItem = watchHistory.find((h) => {
+        const itemSlug = titleToSlug(h.clean_title || h.title || '')
+        const itemClean = (h.clean_title || h.title || '').toLowerCase()
+        return itemSlug === slug || itemClean === query.toLowerCase() || itemClean.includes(query.toLowerCase())
+      })
+
+      if (historyItem && (historyItem.start_payload || historyItem.candidate_id)) {
+        const cand = {
+          title: historyItem.candidate_title || historyItem.title,
+          quality: historyItem.quality || '1080P',
+          container: historyItem.container || 'mp4',
+          candidate_id: historyItem.candidate_id,
+          source_bot: historyItem.source_bot,
+          start_payload: historyItem.start_payload,
+        }
+        const grp = {
+          title: historyItem.clean_title || historyItem.title,
+          metadata: historyItem,
+        }
+        if (historyItem.progress_seconds > 0) {
+          setInitialProgressSeconds(historyItem.progress_seconds)
+        }
+        await startDelivery(cand, grp)
+        return
+      }
+
       const data = await searchMovies(query, 1, true)
       const candidates = data.candidates || []
       if (!candidates || candidates.length === 0) {
@@ -320,11 +347,18 @@ export default function App() {
       try {
         const apiBase = await resolveApiBase()
         if (apiBase) {
-          const streamObj = new URL(item.stream_url)
-          const apiObj = new URL(apiBase)
-          // If the hostname differs (e.g. rotated Cloudflare tunnel), re-anchor origin!
-          if (streamObj.origin !== apiObj.origin && streamObj.pathname.includes('/stream')) {
-            resolvedStreamUrl = `${apiObj.origin}${streamObj.pathname}${streamObj.search}`
+          if (item.stream_url.startsWith('/')) {
+            resolvedStreamUrl = `${apiBase.replace(/\/$/, '')}${item.stream_url}`
+          } else {
+            const streamObj = new URL(item.stream_url)
+            const apiObj = new URL(apiBase)
+            // If the hostname differs (e.g. rotated Cloudflare tunnel), re-anchor origin!
+            if (
+              streamObj.origin !== apiObj.origin &&
+              (streamObj.pathname.includes('/stream') || streamObj.pathname.includes('/watch') || streamObj.pathname.includes('/download'))
+            ) {
+              resolvedStreamUrl = `${apiObj.origin}${streamObj.pathname}${streamObj.search}`
+            }
           }
         }
       } catch (e) {
@@ -376,8 +410,34 @@ export default function App() {
     }
     const targetCandidate = cand || activeCandidate
     const targetGroup = grp || activeMovieGroup
-    if (targetCandidate?.start_payload || targetCandidate?.candidate_id) {
-      await startDelivery(targetCandidate, targetGroup)
+
+    let payload = targetCandidate?.start_payload
+    let candidateId = targetCandidate?.candidate_id
+    let sourceBot = targetCandidate?.source_bot
+
+    // If candidate lacks start_payload in memory, recover it from watchHistory
+    if (!payload && !candidateId) {
+      const titleToFind = (targetGroup?.title || targetCandidate?.title || activeDelivery?.candidate_title || '').toLowerCase()
+      const histItem = watchHistory.find((h) => {
+        const t = (h.clean_title || h.title || '').toLowerCase()
+        return t === titleToFind || titleToFind.includes(t) || t.includes(titleToFind)
+      })
+      if (histItem) {
+        payload = histItem.start_payload
+        candidateId = histItem.candidate_id
+        sourceBot = histItem.source_bot
+      }
+    }
+
+    if (payload || candidateId) {
+      const refreshedCandidate = {
+        ...(targetCandidate || {}),
+        title: targetCandidate?.title || targetGroup?.title || 'movie',
+        candidate_id: candidateId,
+        source_bot: sourceBot || 'Spoty_xbot',
+        start_payload: payload,
+      }
+      await startDelivery(refreshedCandidate, targetGroup)
     } else {
       const rawTitle = targetGroup?.title || targetCandidate?.title || activeDelivery?.candidate_title
       if (rawTitle) {
