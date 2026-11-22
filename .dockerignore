@@ -1,0 +1,32 @@
+# Git
+.git
+.gitignore
+
+# Rust build artifacts
+target/
+src-tauri/target/
+
+# Node / Frontend
+node_modules/
+frontend/node_modules/
+frontend/dist/
+
+# Python / Virtualenvs
+__pycache__/
+*.pyc
+.venv/
+backend/.venv/
+
+# Local sensitive files & sessions
+.env
+.env.*
+backend/.env
+frontend/.env
+*.session
+*.session-journal
+telegram_session.enc
+telegram_bot.enc
+
+# Local data & temporary files
+data/
+*.tmp

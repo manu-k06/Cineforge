@@ -59,3 +59,13 @@ logs/
 # Temporary login assets
 telegram_login_qr.png
 backend/telegram_login_qr.png
+
+# Rust build artifacts
+target/
+src-tauri/target/
+*.pdb
+
+# Local data & provisioner database
+data/
+managed_bots.json
+*.tmp

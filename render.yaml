@@ -1,19 +1,26 @@
 services:
   - type: web
-    name: cineforge-api
+    name: cineforge-provisioner
     runtime: docker
-    dockerfilePath: ./backend/Dockerfile
-    dockerContext: ./backend
-    plan: free
+    dockerfilePath: ./Dockerfile.provisioner
+    plan: starter # Starter plan or higher is required for persistent disk storage on Render
     healthCheckPath: /health
+    disk:
+      name: provisioner-data
+      mountPath: /var/data
+      sizeGB: 1
     envVars:
+      - key: PORT
+        value: 10000
+      - key: DATA_DIR
+        value: /var/data
+      - key: CINEFORGE_DEV_MODE
+        value: false
+      - key: CINEFORGE_MANAGER_BOT_TOKEN
+        sync: false
+      - key: CINEFORGE_MANAGER_BOT_USERNAME
+        sync: false
       - key: TELEGRAM_API_ID
         sync: false
       - key: TELEGRAM_API_HASH
         sync: false
-      - key: TELEGRAM_STRING_SESSION
-        sync: false
-      - key: TELEGRAM_BOT_USERNAME
-        sync: false
-      - key: CORS_ORIGINS
-        value: '["https://cineforge-v1.vercel.app","http://localhost:5173"]'

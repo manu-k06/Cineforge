@@ -1,0 +1,47 @@
+[package]
+name = "cineforge"
+version = "0.1.0"
+description = "Cineforge Windows Desktop Application"
+authors = ["Cineforge Team"]
+edition = "2024"
+rust-version = "1.90"
+default-run = "cineforge"
+
+[lib]
+name = "cineforge_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[[bin]]
+name = "cineforge"
+path = "src/main.rs"
+
+[[bin]]
+name = "cineforge-provisioner"
+path = "src/bin/provisioner.rs"
+
+[build-dependencies]
+tauri-build = { version = "2.7.6", features = [] }
+
+[dependencies]
+serde_json = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+log = "0.4"
+tauri = { version = "2.12.7", features = [] }
+tauri-plugin-log = "2"
+axum = "0.8"
+tokio = { version = "1", features = ["full"] }
+tower-http = { version = "0.6", features = ["cors"] }
+regex = "1.10"
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls", "stream"] }
+futures-util = "0.3"
+grammers-client = "0.12"
+grammers-session = { version = "0.12", features = ["serde"] }
+grammers-tl-types = "0.12"
+base64 = "0.22"
+qrcode = { version = "0.15", default-features = false, features = ["svg"] }
+thiserror = "2.0"
+dotenvy = "0.15"
+ring = "0.17"
+
+[dev-dependencies]
+tower = { version = "0.5", features = ["util"] }

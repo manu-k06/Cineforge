@@ -1,0 +1,50 @@
+# Multi-stage Dockerfile for Cineforge Personal Bot Provisioning Service
+# =====================================================================
+
+# Stage 1: Build binary
+FROM rust:1.90-bookworm AS builder
+
+# Install build dependencies required by cargo and workspace dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    pkg-config \
+    libssl-dev \
+    libglib2.0-dev \
+    libwebkit2gtk-4.1-dev \
+    libayatana-appindicator3-dev \
+    librsvg2-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Copy src-tauri workspace directory
+COPY src-tauri ./src-tauri
+
+# Compile only the cineforge-provisioner binary in release mode
+WORKDIR /app/src-tauri
+RUN cargo build --release --bin cineforge-provisioner
+
+# Stage 2: Minimal runtime image
+FROM debian:bookworm-slim AS runner
+
+# Install CA certificates for TLS verification when connecting to Telegram MTProto and Bot API
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Copy compiled binary from builder stage
+COPY --from=builder /app/src-tauri/target/release/cineforge-provisioner /usr/local/bin/cineforge-provisioner
+
+# Create default persistent data mount directory
+RUN mkdir -p /var/data
+
+# Default Render environment variables
+ENV DATA_DIR=/var/data
+ENV PORT=10000
+
+# Expose Render service port
+EXPOSE 10000
+
+# Run the provisioning service
+CMD ["cineforge-provisioner"]
