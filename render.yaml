@@ -3,19 +3,17 @@ services:
     name: cineforge-provisioner
     runtime: docker
     dockerfilePath: ./Dockerfile.provisioner
-    plan: starter # Starter plan or higher is required for persistent disk storage on Render
+    plan: free
     healthCheckPath: /health
-    disk:
-      name: provisioner-data
-      mountPath: /var/data
-      sizeGB: 1
     envVars:
       - key: PORT
         value: 10000
-      - key: DATA_DIR
-        value: /var/data
       - key: CINEFORGE_DEV_MODE
         value: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
       - key: CINEFORGE_MANAGER_BOT_TOKEN
         sync: false
       - key: CINEFORGE_MANAGER_BOT_USERNAME

@@ -1,5 +1,4 @@
 use std::collections::HashMap;
-use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
@@ -24,6 +23,130 @@ pub struct StoredManagedBot {
     pub bot_username: String,
     pub created_at: i64,
     pub updated_at: i64,
+}
+
+/// Supabase PostgREST client for durable storage of account-to-bot mappings.
+/// Connects using the secure service_role key to bypass public RLS policies.
+/// CRITICAL: Bot tokens are never sent or stored in Supabase.
+#[derive(Clone)]
+pub struct SupabaseBotStore {
+    client: reqwest::Client,
+    base_url: String,
+    service_role_key: String,
+}
+
+impl SupabaseBotStore {
+    pub fn new(supabase_url: String, service_role_key: String) -> Self {
+        let base_url = supabase_url.trim_end_matches('/').to_string();
+        Self {
+            client: reqwest::Client::builder()
+                .timeout(Duration::from_secs(10))
+                .build()
+                .unwrap_or_else(|_| reqwest::Client::new()),
+            base_url,
+            service_role_key,
+        }
+    }
+
+    pub async fn get_bot(&self, telegram_user_id: i64) -> Result<Option<StoredManagedBot>, String> {
+        let url = format!(
+            "{}/rest/v1/managed_bots?telegram_user_id=eq.{}&select=telegram_user_id,bot_id,bot_access_hash,bot_username,created_at,updated_at",
+            self.base_url, telegram_user_id
+        );
+        let resp = self
+            .client
+            .get(&url)
+            .header("apikey", &self.service_role_key)
+            .header("Authorization", format!("Bearer {}", self.service_role_key))
+            .header("Accept", "application/json")
+            .send()
+            .await
+            .map_err(|e| format!("Supabase request failed: {e}"))?;
+
+        let status = resp.status();
+        if !status.is_success() {
+            let body = resp.text().await.unwrap_or_default();
+            return Err(format!("Supabase query error ({status}): {body}"));
+        }
+
+        let bots: Vec<StoredManagedBot> = resp
+            .json()
+            .await
+            .map_err(|e| format!("Failed to parse Supabase response: {e}"))?;
+
+        Ok(bots.into_iter().next())
+    }
+
+    pub async fn insert_bot(&self, bot: &StoredManagedBot) -> Result<(), String> {
+        let url = format!("{}/rest/v1/managed_bots", self.base_url);
+        let resp = self
+            .client
+            .post(&url)
+            .header("apikey", &self.service_role_key)
+            .header("Authorization", format!("Bearer {}", self.service_role_key))
+            .header("Content-Type", "application/json")
+            .header("Prefer", "return=minimal")
+            .json(bot)
+            .send()
+            .await
+            .map_err(|e| format!("Supabase request failed: {e}"))?;
+
+        let status = resp.status();
+        if status == reqwest::StatusCode::CONFLICT {
+            return Err(format!(
+                "Account mapping conflict: Telegram user {} already has a registered managed bot. Overwrites are not permitted.",
+                bot.telegram_user_id
+            ));
+        }
+        if !status.is_success() {
+            let body = resp.text().await.unwrap_or_default();
+            if body.contains("duplicate key") || body.contains("23505") || body.contains("already exists") {
+                return Err(format!(
+                    "Account mapping conflict: Telegram user {} already has a registered managed bot. Overwrites are not permitted.",
+                    bot.telegram_user_id
+                ));
+            }
+            return Err(format!("Supabase insert error ({status}): {body}"));
+        }
+
+        Ok(())
+    }
+}
+
+/// Abstract storage backend supporting Supabase PostgREST (production) or In-Memory (testing/dev).
+#[derive(Clone)]
+pub enum BotStore {
+    Memory(Arc<RwLock<HashMap<i64, StoredManagedBot>>>),
+    Supabase(SupabaseBotStore),
+}
+
+impl BotStore {
+    pub async fn get_bot(&self, telegram_user_id: i64) -> Result<Option<StoredManagedBot>, String> {
+        match self {
+            BotStore::Memory(map) => {
+                let lock = map.read().await;
+                Ok(lock.get(&telegram_user_id).cloned())
+            }
+            BotStore::Supabase(store) => store.get_bot(telegram_user_id).await,
+        }
+    }
+
+    pub async fn insert_bot(&self, bot: &StoredManagedBot) -> Result<(), String> {
+        match self {
+            BotStore::Memory(map) => {
+                let mut lock = map.write().await;
+                if lock.contains_key(&bot.telegram_user_id) {
+                    return Err(format!(
+                        "Account mapping conflict: Telegram user {} already has a registered managed bot. Overwrites are not permitted.",
+                        bot.telegram_user_id
+                    ));
+                }
+                lock.insert(bot.telegram_user_id, bot.clone());
+                Ok(())
+            }
+            BotStore::Supabase(store) => store.insert_bot(bot).await,
+        }
+    }
 }
 
 /// Explicit lifecycle states for single-use cryptographic challenges.
@@ -224,8 +347,7 @@ impl BotVerifier {
 pub struct ProvisionerState {
     pub manager_bot_token: String,
     pub manager_bot_username: String,
-    pub data_file: PathBuf,
-    pub bots: Arc<RwLock<HashMap<i64, StoredManagedBot>>>,
+    pub bot_store: BotStore,
     pub challenges: Arc<RwLock<HashMap<String, PendingChallenge>>>,
     pub mtproto_client: Arc<RwLock<Option<Client>>>,
     pub bot_verifier: BotVerifier,
@@ -256,51 +378,6 @@ pub fn sanitize_nonce(nonce: &str) -> String {
     }
 }
 
-/// Atomically persists user-bot mappings to disk with fsync and atomic rename.
-pub fn save_bots_atomic(data_file: &Path, bots: &HashMap<i64, StoredManagedBot>) -> Result<(), String> {
-    if let Some(parent) = data_file.parent() {
-        std::fs::create_dir_all(parent)
-            .map_err(|e| format!("Failed to create parent directory {:?}: {e}", parent))?;
-    }
-
-    let serialized = serde_json::to_string_pretty(bots)
-        .map_err(|e| format!("Failed to serialize managed bots: {e}"))?;
-
-    let temp_file = data_file.with_extension(format!("tmp.{}", std::process::id()));
-
-    // Write to temporary file with flush and sync_all
-    {
-        use std::io::Write;
-        let mut file = std::fs::File::create(&temp_file)
-            .map_err(|e| format!("Failed to create temp file {:?}: {e}", temp_file))?;
-        file.write_all(serialized.as_bytes())
-            .map_err(|e| format!("Failed to write temp file {:?}: {e}", temp_file))?;
-        file.flush()
-            .map_err(|e| format!("Failed to flush temp file {:?}: {e}", temp_file))?;
-        file.sync_all()
-            .map_err(|e| format!("Failed to sync temp file {:?}: {e}", temp_file))?;
-    }
-
-    // Atomically replace target file
-    std::fs::rename(&temp_file, data_file)
-        .map_err(|e| format!("Failed to atomically rename {:?} to {:?}: {e}", temp_file, data_file))?;
-
-    Ok(())
-}
-
-/// Loads durable user-bot mappings from disk.
-pub fn load_bots_from_disk(data_file: &Path) -> HashMap<i64, StoredManagedBot> {
-    if data_file.exists() {
-        if let Ok(bytes) = std::fs::read(data_file) {
-            if let Ok(loaded) = serde_json::from_slice::<HashMap<i64, StoredManagedBot>>(&bytes) {
-                println!("Loaded {} managed bots from {:?}", loaded.len(), data_file);
-                return loaded;
-            }
-        }
-    }
-    HashMap::new()
-}
-
 /// Validates production configuration requirements and fails closed if any required setting is missing.
 pub fn validate_production_config(
     is_dev_mode: bool,
@@ -308,9 +385,18 @@ pub fn validate_production_config(
     manager_bot_username: &str,
     api_id: i32,
     api_hash: &str,
-    data_dir: &str,
+    supabase_url: &str,
+    supabase_service_role_key: &str,
 ) -> Result<(), String> {
     if is_dev_mode {
+        // In explicit dev mode, if supabase_url is specified, require https:// or local http://
+        if !supabase_url.is_empty()
+            && !supabase_url.starts_with("https://")
+            && !supabase_url.starts_with("http://localhost")
+            && !supabase_url.starts_with("http://127.0.0.1")
+        {
+            return Err("SUPABASE_URL in development mode must start with https:// or http://localhost / http://127.0.0.1.".to_string());
+        }
         return Ok(());
     }
 
@@ -326,9 +412,11 @@ pub fn validate_production_config(
     if api_hash.is_empty() || api_hash.len() < 16 {
         return Err("FATAL: TELEGRAM_API_HASH is required and must be a valid hash in production.".to_string());
     }
-
-    if let Err(e) = std::fs::create_dir_all(data_dir) {
-        return Err(format!("FATAL: Cannot access or create DATA_DIR {:?}: {e}", data_dir));
+    if supabase_url.is_empty() || !supabase_url.starts_with("https://") {
+        return Err("FATAL: SUPABASE_URL is required and MUST use HTTPS (https://) in production. Plain HTTP is only permitted in explicit development setups.".to_string());
+    }
+    if supabase_service_role_key.is_empty() || supabase_service_role_key == "MOCK_KEY" {
+        return Err("FATAL: SUPABASE_SERVICE_ROLE_KEY is required and cannot be empty or mock in production.".to_string());
     }
 
     Ok(())
@@ -369,7 +457,8 @@ async fn main() {
     let api_hash = std::env::var("TELEGRAM_API_HASH")
         .unwrap_or_default();
 
-    let data_dir = std::env::var("DATA_DIR").unwrap_or_else(|_| "data".to_string());
+    let supabase_url = std::env::var("SUPABASE_URL").unwrap_or_default();
+    let supabase_service_role_key = std::env::var("SUPABASE_SERVICE_ROLE_KEY").unwrap_or_default();
 
     // Fail closed on startup if production configuration is invalid
     if let Err(e) = validate_production_config(
@@ -378,14 +467,20 @@ async fn main() {
         &manager_bot_username,
         api_id,
         &api_hash,
-        &data_dir,
+        &supabase_url,
+        &supabase_service_role_key,
     ) {
         eprintln!("{e}");
         std::process::exit(1);
     }
 
-    let data_file = Path::new(&data_dir).join("managed_bots.json");
-    let initial_bots = load_bots_from_disk(&data_file);
+    let bot_store = if !supabase_url.is_empty() && !supabase_service_role_key.is_empty() {
+        println!("Configuring SupabaseBotStore for durable bot mappings: {}", supabase_url);
+        BotStore::Supabase(SupabaseBotStore::new(supabase_url, supabase_service_role_key))
+    } else {
+        println!("Configuring in-memory BotStore (dev mode only)");
+        BotStore::Memory(Arc::new(RwLock::new(HashMap::new())))
+    };
 
     let mtproto_client = Arc::new(RwLock::new(None));
     let bot_verifier = BotVerifier::new(Arc::clone(&mtproto_client), is_dev_mode);
@@ -394,8 +489,7 @@ async fn main() {
     let state = ProvisionerState {
         manager_bot_token: manager_bot_token.clone(),
         manager_bot_username: manager_bot_username.clone(),
-        data_file,
-        bots: Arc::new(RwLock::new(initial_bots)),
+        bot_store,
         challenges: Arc::new(RwLock::new(HashMap::new())),
         mtproto_client: Arc::clone(&mtproto_client),
         bot_verifier,
@@ -466,12 +560,15 @@ async fn challenge_handler(
         (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to generate secure challenge: {e}"))
     })?;
 
-    let (has_existing_bot, existing_bot_username) = {
-        let bots = state.bots.read().await;
-        if let Some(bot) = bots.get(&payload.user_id) {
-            (true, Some(bot.bot_username.clone()))
-        } else {
-            (false, None)
+    let (has_existing_bot, existing_bot_username) = match state.bot_store.get_bot(payload.user_id).await {
+        Ok(Some(bot)) => (true, Some(bot.bot_username)),
+        Ok(None) => (false, None),
+        Err(e) => {
+            eprintln!("Database error looking up bot for user {}: {e}", payload.user_id);
+            return Err((
+                StatusCode::SERVICE_UNAVAILABLE,
+                "Database service is temporarily unavailable. Please retry shortly.".to_string(),
+            ));
         }
     };
 
@@ -534,15 +631,22 @@ async fn register_handler(
     };
 
     // 2. Prevent replacing an existing user mapping with another bot
-    {
-        let bots = state.bots.read().await;
-        if let Some(existing) = bots.get(&user_id) {
+    match state.bot_store.get_bot(user_id).await {
+        Ok(Some(existing)) => {
             return Err((
                 StatusCode::CONFLICT,
                 format!(
                     "Account {user_id} already has a registered managed bot @{}. Overwrites are not permitted.",
                     existing.bot_username
                 ),
+            ));
+        }
+        Ok(None) => {}
+        Err(e) => {
+            eprintln!("Database error checking existing bot for user {user_id}: {e}");
+            return Err((
+                StatusCode::SERVICE_UNAVAILABLE,
+                "Database service is temporarily unavailable. Please retry shortly.".to_string(),
             ));
         }
     }
@@ -559,39 +663,26 @@ async fn register_handler(
         .await
         .map_err(|e| (StatusCode::FORBIDDEN, format!("Telegram bot verification rejected: {e}")))?;
 
-    // 4. Record bot in durable account-to-bot store atomically
+    // 4. Record bot in durable Supabase account-to-bot store
     let now_secs = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs() as i64;
-    {
-        let mut bots = state.bots.write().await;
-        // Double-check race condition under write lock
-        if let Some(existing) = bots.get(&user_id) {
-            return Err((
-                StatusCode::CONFLICT,
-                format!(
-                    "Account {user_id} already has a registered managed bot @{}. Duplicate registration rejected.",
-                    existing.bot_username
-                ),
-            ));
-        }
+    let new_bot = StoredManagedBot {
+        telegram_user_id: user_id,
+        bot_id: payload.bot_id,
+        bot_access_hash: payload.bot_access_hash,
+        bot_username: payload.bot_username.clone(),
+        created_at: now_secs,
+        updated_at: now_secs,
+    };
 
-        bots.insert(
-            user_id,
-            StoredManagedBot {
-                telegram_user_id: user_id,
-                bot_id: payload.bot_id,
-                bot_access_hash: payload.bot_access_hash,
-                bot_username: payload.bot_username.clone(),
-                created_at: now_secs,
-                updated_at: now_secs,
-            },
-        );
-
-        if let Err(e) = save_bots_atomic(&state.data_file, &*bots) {
-            // Revert in-memory insertion on disk failure
-            bots.remove(&user_id);
-            eprintln!("CRITICAL: Failed to atomically save managed bots to disk: {e}");
-            return Err((StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to save bot mapping: {e}")));
+    if let Err(e) = state.bot_store.insert_bot(&new_bot).await {
+        if e.contains("Account mapping conflict") || e.contains("already has a registered managed bot") {
+            return Err((StatusCode::CONFLICT, e));
         }
+        eprintln!("CRITICAL: Failed to save managed bot to database: {e}");
+        return Err((
+            StatusCode::SERVICE_UNAVAILABLE,
+            format!("Failed to save bot mapping to database: {e}"),
+        ));
     }
 
     // 5. Transition challenge state to Registered { bot_id }
@@ -635,12 +726,23 @@ async fn token_handler(
 
         let uid = challenge.user_id;
 
-        // Lookup user's bot
-        let bots = state.bots.read().await;
-        let bot = bots.get(&uid).cloned().ok_or((
-            StatusCode::NOT_FOUND,
-            "No registered managed bot found for verified user".to_string(),
-        ))?;
+        // Lookup user's bot from bot_store
+        let bot = match state.bot_store.get_bot(uid).await {
+            Ok(Some(b)) => b,
+            Ok(None) => {
+                return Err((
+                    StatusCode::NOT_FOUND,
+                    "No registered managed bot found for verified user".to_string(),
+                ));
+            }
+            Err(e) => {
+                eprintln!("Database error retrieving bot for user {uid}: {e}");
+                return Err((
+                    StatusCode::SERVICE_UNAVAILABLE,
+                    "Database service is temporarily unavailable. Please retry shortly.".to_string(),
+                ));
+            }
+        };
 
         // State machine rules:
         // - If user had pre-existing bot prior to challenge: challenge state must be Verified
@@ -836,38 +938,50 @@ mod tests {
         assert!(limiter.acquire("user:1").await);
     }
 
-    #[test]
-    fn test_atomic_persistence_and_reload() {
-        let temp_dir = std::env::temp_dir().join(format!("cineforge_test_{}", std::process::id()));
-        let _ = std::fs::create_dir_all(&temp_dir);
-        let data_file = temp_dir.join("managed_bots.json");
+    #[tokio::test]
+    async fn test_bot_store_operations_and_duplicate_rejection() {
+        let store = BotStore::Memory(Arc::new(RwLock::new(HashMap::new())));
 
-        let mut bots = HashMap::new();
-        bots.insert(
-            11111,
-            StoredManagedBot {
-                telegram_user_id: 11111,
-                bot_id: 22222,
-                bot_access_hash: 33333,
-                bot_username: "cf_test_streamer_bot".to_string(),
-                created_at: 1000,
-                updated_at: 1000,
-            },
-        );
+        // Initially empty
+        let initial = store.get_bot(11111).await.expect("query should succeed");
+        assert!(initial.is_none());
 
-        // Save atomically
-        save_bots_atomic(&data_file, &bots).expect("Atomic save must succeed");
-        assert!(data_file.exists());
+        let bot1 = StoredManagedBot {
+            telegram_user_id: 11111,
+            bot_id: 22222,
+            bot_access_hash: 33333,
+            bot_username: "cf_test_streamer_bot".to_string(),
+            created_at: 1000,
+            updated_at: 1000,
+        };
 
-        // Reload and verify contents
-        let loaded = load_bots_from_disk(&data_file);
-        assert_eq!(loaded.len(), 1);
-        let bot = loaded.get(&11111).unwrap();
-        assert_eq!(bot.bot_username, "cf_test_streamer_bot");
-        assert_eq!(bot.bot_id, 22222);
+        // First insert must succeed
+        store.insert_bot(&bot1).await.expect("first insert must succeed");
 
-        // Cleanup
-        let _ = std::fs::remove_dir_all(&temp_dir);
+        // Retrieve and verify contents
+        let retrieved = store.get_bot(11111).await.expect("query must succeed");
+        assert!(retrieved.is_some());
+        let fetched = retrieved.unwrap();
+        assert_eq!(fetched.bot_username, "cf_test_streamer_bot");
+        assert_eq!(fetched.bot_id, 22222);
+
+        // Duplicate insert of same telegram_user_id must be strictly REJECTED
+        let bot2 = StoredManagedBot {
+            telegram_user_id: 11111,
+            bot_id: 99999,
+            bot_access_hash: 88888,
+            bot_username: "cf_rogue_overwrite_bot".to_string(),
+            created_at: 2000,
+            updated_at: 2000,
+        };
+        let duplicate_res = store.insert_bot(&bot2).await;
+        assert!(duplicate_res.is_err(), "Duplicate account mapping must be rejected!");
+        assert!(duplicate_res.unwrap_err().contains("Account mapping conflict"));
+
+        // Verify the original mapping was preserved and NOT overwritten
+        let preserved = store.get_bot(11111).await.unwrap().unwrap();
+        assert_eq!(preserved.bot_id, 22222, "Original bot ID must be preserved");
+        assert_eq!(preserved.bot_username, "cf_test_streamer_bot", "Original username must be preserved");
     }
 
     #[tokio::test]
@@ -926,18 +1040,31 @@ mod tests {
     #[test]
     fn test_validate_production_config_fails_closed() {
         // Missing token in production -> Fail
-        assert!(validate_production_config(false, "", "CineforgeManagerBot", 2040, "abc1234567890123456", "data").is_err());
+        assert!(validate_production_config(false, "", "CineforgeManagerBot", 2040, "abc1234567890123456", "https://xyz.supabase.co", "secret_key").is_err());
         // Mock token in production -> Fail
-        assert!(validate_production_config(false, "MOCK_MANAGER_TOKEN", "CineforgeManagerBot", 2040, "abc1234567890123456", "data").is_err());
+        assert!(validate_production_config(false, "MOCK_MANAGER_TOKEN", "CineforgeManagerBot", 2040, "abc1234567890123456", "https://xyz.supabase.co", "secret_key").is_err());
         // Missing username in production -> Fail
-        assert!(validate_production_config(false, "123:TOKEN", "", 2040, "abc1234567890123456", "data").is_err());
+        assert!(validate_production_config(false, "123:TOKEN", "", 2040, "abc1234567890123456", "https://xyz.supabase.co", "secret_key").is_err());
         // Missing api_id in production -> Fail
-        assert!(validate_production_config(false, "123:TOKEN", "CineforgeManagerBot", 0, "abc1234567890123456", "data").is_err());
+        assert!(validate_production_config(false, "123:TOKEN", "CineforgeManagerBot", 0, "abc1234567890123456", "https://xyz.supabase.co", "secret_key").is_err());
         // Missing api_hash in production -> Fail
-        assert!(validate_production_config(false, "123:TOKEN", "CineforgeManagerBot", 2040, "", "data").is_err());
+        assert!(validate_production_config(false, "123:TOKEN", "CineforgeManagerBot", 2040, "", "https://xyz.supabase.co", "secret_key").is_err());
+        // Missing supabase_url in production -> Fail
+        assert!(validate_production_config(false, "123:TOKEN", "CineforgeManagerBot", 2040, "abc1234567890123456", "", "secret_key").is_err());
+        // Plain HTTP supabase_url in production -> MUST FAIL (HTTPS required in production)
+        assert!(validate_production_config(false, "123:TOKEN", "CineforgeManagerBot", 2040, "abc1234567890123456", "http://xyz.supabase.co", "secret_key").is_err());
+        // Missing supabase_service_role_key in production -> Fail
+        assert!(validate_production_config(false, "123:TOKEN", "CineforgeManagerBot", 2040, "abc1234567890123456", "https://xyz.supabase.co", "").is_err());
 
-        // Dev mode allows mock settings
-        assert!(validate_production_config(true, "MOCK_MANAGER_TOKEN", "CineforgeManagerBot", 2040, "mock_dev_hash_test_placeholder", "data").is_ok());
+        // Valid production configuration -> OK
+        assert!(validate_production_config(false, "123:REAL_TOKEN", "CineforgeManagerBot", 2040, "abc1234567890123456", "https://xyz.supabase.co", "real_secret_key").is_ok());
+
+        // Dev mode allows mock settings and local HTTP (localhost / 127.0.0.1)
+        assert!(validate_production_config(true, "MOCK_MANAGER_TOKEN", "CineforgeManagerBot", 2040, "mock_dev_hash_test_placeholder", "", "").is_ok());
+        assert!(validate_production_config(true, "MOCK_MANAGER_TOKEN", "CineforgeManagerBot", 2040, "mock_dev_hash_test_placeholder", "http://localhost:54321", "mock_key").is_ok());
+        assert!(validate_production_config(true, "MOCK_MANAGER_TOKEN", "CineforgeManagerBot", 2040, "mock_dev_hash_test_placeholder", "http://127.0.0.1:54321", "mock_key").is_ok());
+        // Dev mode rejects insecure non-local HTTP
+        assert!(validate_production_config(true, "MOCK_MANAGER_TOKEN", "CineforgeManagerBot", 2040, "mock_dev_hash_test_placeholder", "http://insecure-remote.example.com", "mock_key").is_err());
     }
 
     #[tokio::test]

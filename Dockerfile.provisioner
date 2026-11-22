@@ -36,11 +36,7 @@ WORKDIR /app
 # Copy compiled binary from builder stage
 COPY --from=builder /app/src-tauri/target/release/cineforge-provisioner /usr/local/bin/cineforge-provisioner
 
-# Create default persistent data mount directory
-RUN mkdir -p /var/data
-
 # Default Render environment variables
-ENV DATA_DIR=/var/data
 ENV PORT=10000
 
 # Expose Render service port
