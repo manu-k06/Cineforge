@@ -21,6 +21,7 @@ COPY src-tauri ./src-tauri
 
 # Compile only the cineforge-provisioner binary in release mode
 WORKDIR /app/src-tauri
+ENV CINEFORGE_PROVISIONER_ONLY=1
 RUN cargo build --release --bin cineforge-provisioner
 
 # Stage 2: Minimal runtime image
