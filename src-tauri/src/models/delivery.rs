@@ -10,6 +10,8 @@ pub struct CandidateDeliveryRequest {
     pub source_message_id: Option<i64>,
     pub candidate_title: Option<String>,
     pub quality: Option<String>,
+    /// Optional user-consented channel invite or username link to join and clear an FSub gate.
+    pub auto_join_channel: Option<String>,
 }
 
 /// Response payload from candidate delivery containing stream and player URLs.

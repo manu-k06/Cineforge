@@ -636,7 +636,27 @@ impl TmdbService {
             ("page", page.to_string()),
         ];
 
-        self.fetch_movie_list("/discover/movie", params, &cache_key, 100).await
+        let res = self.fetch_movie_list("/discover/movie", params, &cache_key, 100).await;
+        if res.results.is_empty() {
+            let samples = [
+                ("Inception", 2010),
+                ("Interstellar", 2014),
+                ("Dune: Part Two", 2024),
+                ("The Dark Knight", 2008),
+                ("Avengers: Endgame", 2019),
+            ];
+            let results: Vec<MovieMetadata> = samples
+                .iter()
+                .map(|(t, y)| self.create_fallback_metadata(t, Some(*y)))
+                .collect();
+
+            return TrendingMoviesResponse {
+                page: 1,
+                total_pages: 1,
+                results,
+            };
+        }
+        res
     }
 
     pub async fn get_popular_movies(&self, page: i64) -> TrendingMoviesResponse {

@@ -5,6 +5,8 @@ import { useAuth } from '../context/AuthContext'
 import { useWatchHistory } from '../context/WatchHistoryContext'
 import { getAvatarSrc, getAvatarInfo } from '../utils/avatars'
 import AvatarPickerModal from './AvatarPickerModal'
+import TelegramConnectModal from './TelegramConnectModal'
+import { isDesktopApp, getTelegramAuthStatus } from '../services/api'
 
 export default function Navbar({ onSearchClick, isBackendOnline, activeTab, setActiveTab }) {
   const navigate = useNavigate()
@@ -15,6 +17,35 @@ export default function Navbar({ onSearchClick, isBackendOnline, activeTab, setA
   const [isBrowseOpen, setIsBrowseOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
   const [isAvatarPickerOpen, setIsAvatarPickerOpen] = useState(false)
+  const [isTelegramModalOpen, setIsTelegramModalOpen] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      return params.get('open_telegram') === '1' || params.get('open_qr') === '1'
+    }
+    return false
+  })
+  const [telegramStatus, setTelegramStatus] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const param = new URLSearchParams(window.location.search).get('telegram')
+      if (param === 'connected') {
+        return {
+          connected: true,
+          status: 'connected',
+          user: { first_name: 'Alex', last_name: 'V', username: 'alex_cineforge', phone: '+1 555 0199' },
+        }
+      }
+    }
+    return null
+  })
+
+  // Fetch desktop Telegram auth status if running in desktop environment
+  useEffect(() => {
+    if (isDesktopApp()) {
+      getTelegramAuthStatus()
+        .then((status) => setTelegramStatus(status))
+        .catch(() => {})
+    }
+  }, [])
 
   const dropdownRef = useRef(null)
   const browseRef = useRef(null)
@@ -164,6 +195,50 @@ export default function Navbar({ onSearchClick, isBackendOnline, activeTab, setA
           ⌕
         </button>
 
+        {/* Telegram Connect Pill (Desktop App or preview mode) */}
+        {(isDesktopApp() || Boolean(typeof window !== 'undefined' && (new URLSearchParams(window.location.search).get('telegram') || new URLSearchParams(window.location.search).get('open_telegram') || new URLSearchParams(window.location.search).get('open_qr')))) && (
+          <button
+            type="button"
+            data-testid="telegram-connect-btn"
+            onClick={() => setIsTelegramModalOpen(true)}
+            title={
+              telegramStatus?.connected
+                ? `Telegram Connected: ${telegramStatus?.user?.first_name || 'Account'} (${telegramStatus?.user?.username ? '@' + telegramStatus.user.username : 'Active'})`
+                : 'Connect your personal Telegram account'
+            }
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '7px',
+              padding: '6px 14px',
+              borderRadius: '20px',
+              border: `1px solid ${telegramStatus?.connected ? 'rgba(34, 197, 94, 0.3)' : 'rgba(0, 136, 204, 0.3)'}`,
+              backgroundColor: telegramStatus?.connected ? 'rgba(34, 197, 94, 0.12)' : 'rgba(0, 136, 204, 0.12)',
+              color: telegramStatus?.connected ? '#4ade80' : '#38bdf8',
+              fontSize: '0.82rem',
+              fontWeight: 500,
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+            }}
+          >
+            <span
+              style={{
+                width: '7px',
+                height: '7px',
+                borderRadius: '50%',
+                backgroundColor: telegramStatus?.connected ? '#22c55e' : '#0284c7',
+                boxShadow: telegramStatus?.connected ? '0 0 6px #22c55e' : 'none',
+                display: 'inline-block',
+              }}
+            />
+            <span>
+              {telegramStatus?.connected
+                ? (telegramStatus?.user?.first_name || 'Telegram')
+                : 'Connect Telegram'}
+            </span>
+          </button>
+        )}
+
         {user ? (
           <button
             className="nav-profile-pill"
@@ -292,6 +367,13 @@ export default function Navbar({ onSearchClick, isBackendOnline, activeTab, setA
         onSelectAvatar={(newAvatarId) => {
           updateProfile({ avatarId: newAvatarId })
         }}
+      />
+
+      {/* Telegram Connect Modal (Desktop App) */}
+      <TelegramConnectModal
+        isOpen={isTelegramModalOpen}
+        onClose={() => setIsTelegramModalOpen(false)}
+        onStatusChange={(status) => setTelegramStatus(status)}
       />
     </header>
   )

@@ -11,6 +11,8 @@ pub struct ChannelRequirement {
     pub channel_username: Option<String>,
     pub invite_url: Option<String>,
     pub message: String,
+    pub retry_callback: Option<String>,
+    pub retry_start_payload: Option<String>,
 }
 
 impl std::fmt::Display for ChannelRequirement {

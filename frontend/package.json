@@ -7,10 +7,12 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "node test_api_routing.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.116.0",
+    "@tauri-apps/api": "^2.12.5",
     "lucide-react": "^1.47.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",

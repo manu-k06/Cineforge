@@ -2,12 +2,27 @@
  * Cineforge API Client
  * Connects frontend to FastAPI Telegram bot delivery backend and CineAI service
  */
-import { supabase, isSupabaseConfigured } from './supabase'
+import { supabase, isSupabaseConfigured } from './supabase.js'
+import { invoke, isTauri } from '@tauri-apps/api/core'
 
-let API_BASE = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '')
+let API_BASE = (import.meta?.env?.VITE_API_BASE_URL || '').replace(/\/$/, '')
 let _lastResolvedTime = 0
 let _resolvePromise = null
+let _desktopBackendInfo = null
 
+/**
+ * Checks whether the application is running inside the Tauri desktop shell.
+ */
+export function isDesktopApp() {
+  if (typeof window === 'undefined') return false
+  return Boolean(isTauri() || window.isTauri || window.__TAURI_INTERNALS__)
+}
+
+/**
+ * Resolves the active API base URL.
+ * In Tauri desktop mode: Resolves and strictly verifies the local Rust Axum backend via get_backend_info.
+ * In browser/web mode: Queries Supabase server_status or falls back to VITE_API_BASE_URL.
+ */
 export async function resolveApiBase(forceRefresh = false) {
   const now = Date.now()
   if (!forceRefresh && API_BASE && (now - _lastResolvedTime < 60000)) {
@@ -19,7 +34,47 @@ export async function resolveApiBase(forceRefresh = false) {
   }
 
   _resolvePromise = (async () => {
-    // 1. Try discovering the live backend URL from Supabase server_status
+    // 1. Desktop Mode (Tauri): Exclusively resolve and verify the local Rust Axum backend
+    if (isDesktopApp()) {
+      try {
+        const info = await invoke('get_backend_info')
+        if (!info || !info.api_url) {
+          throw new Error('Rust command get_backend_info returned empty or missing api_url.')
+        }
+
+        const localUrl = info.api_url.replace(/\/$/, '')
+        if (!localUrl.startsWith('http://127.0.0.1:') && !localUrl.startsWith('http://localhost:')) {
+          throw new Error(`Unexpected non-loopback desktop API address: ${localUrl}`)
+        }
+
+        // Verify the local Rust /health endpoint before marking the API as ready
+        const healthRes = await fetch(`${localUrl}/health`, { signal: AbortSignal.timeout(3000) })
+        if (!healthRes.ok) {
+          throw new Error(`Local Rust backend at ${localUrl}/health responded with HTTP ${healthRes.status}`)
+        }
+
+        const healthData = await healthRes.json()
+        if (healthData.status !== 'ok') {
+          throw new Error(`Local Rust backend at ${localUrl}/health returned non-ok status: ${JSON.stringify(healthData)}`)
+        }
+
+        API_BASE = localUrl
+        _lastResolvedTime = Date.now()
+        _desktopBackendInfo = info
+        console.info(`[Cineforge Desktop] Verified and connected to local Rust Axum backend on ${API_BASE}`)
+        return API_BASE
+      } catch (err) {
+        API_BASE = ''
+        _lastResolvedTime = 0
+        _desktopBackendInfo = null
+        const msg = `[Cineforge Desktop Error] Local Rust backend is unavailable: ${err.message || err}`
+        console.error(msg)
+        // In desktop mode, strictly fail with a clear error; DO NOT fall back to hosted cloud URLs
+        throw new Error(msg)
+      }
+    }
+
+    // 2. Normal Web/Browser Mode: Try discovering live backend URL from Supabase server_status
     if (isSupabaseConfigured && supabase) {
       try {
         const { data, error } = await supabase
@@ -38,8 +93,8 @@ export async function resolveApiBase(forceRefresh = false) {
       }
     }
 
-    // 2. Fallback to hardcoded or Vercel environment variable
-    API_BASE = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '')
+    // 3. Normal Web/Browser Mode Fallback: Hardcoded or Vercel environment variable / Vite proxy
+    API_BASE = (import.meta?.env?.VITE_API_BASE_URL || '').replace(/\/$/, '')
     _lastResolvedTime = Date.now()
     return API_BASE
   })()
@@ -51,9 +106,43 @@ export async function resolveApiBase(forceRefresh = false) {
   }
 }
 
+/**
+ * Desktop Tauri Backend Discovery (Stage 2)
+ * Discovers the local Rust Axum service running inside the Tauri process.
+ */
+export async function getDesktopBackendInfo() {
+  if (_desktopBackendInfo) return _desktopBackendInfo
+  if (isDesktopApp()) {
+    try {
+      _desktopBackendInfo = await invoke('get_backend_info')
+      return _desktopBackendInfo
+    } catch (err) {
+      console.error('[Cineforge Desktop] Failed to invoke get_backend_info:', err)
+      throw new Error(`[Cineforge Desktop] Failed to communicate with Rust backend: ${err?.message || err}`)
+    }
+  }
+  return null
+}
+
+export async function checkRustBackendHealth() {
+  if (!isDesktopApp()) return null
+  try {
+    const info = await getDesktopBackendInfo()
+    if (!info?.api_url) return null
+    const res = await fetch(`${info.api_url}/health`, { signal: AbortSignal.timeout(2000) })
+    if (res.ok) {
+      return await res.json()
+    }
+  } catch (err) {
+    console.debug('[Cineforge Desktop] Rust backend health check error:', err)
+  }
+  return null
+}
+
 // Immediate eager discovery on client load
 if (typeof window !== 'undefined') {
   resolveApiBase().catch(() => {})
+  getDesktopBackendInfo().catch(() => {})
 }
 
 // Automatically bypass ngrok free tier browser warning interstitial for API requests if used
@@ -80,7 +169,19 @@ export async function searchMovies(query, page = 1, useAi = true) {
       if (response.ok) {
         return await response.json()
       }
-    } catch {
+      if (isDesktopApp()) {
+        const errJson = await response.json().catch(() => ({}))
+        const errorMsg = errJson.detail || errJson.message || `Telegram search failed with status ${response.status}`
+        const error = new Error(errorMsg)
+        error.status = response.status
+        error.code = errJson.code
+        error.channel_requirement = errJson.channel_requirement
+        throw error
+      }
+    } catch (err) {
+      if (isDesktopApp()) {
+        throw err
+      }
       // Fall through to direct TMDb discovery
     }
   }
@@ -233,6 +334,25 @@ export async function getSearchSuggestions(query, limit = 6) {
   return []
 }
 
+export async function joinFsubChannel(channelUrl) {
+  await resolveApiBase()
+  if (!API_BASE) {
+    throw new Error('API server not connected')
+  }
+  const response = await fetch(`${API_BASE}/api/search/fsub/join`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ channel_url: channelUrl }),
+  })
+  if (!response.ok) {
+    const errJson = await response.json().catch(() => ({}))
+    throw new Error(errJson.detail || `Failed to join channel with status ${response.status}`)
+  }
+  return await response.json()
+}
+
 export async function deliverCandidate(candidate) {
   await resolveApiBase()
   if (API_BASE) {
@@ -240,9 +360,12 @@ export async function deliverCandidate(candidate) {
       const payload = {
         candidate_id: candidate.candidate_id,
         source_bot: candidate.source_bot || 'Spoty_xbot',
-        source_message_id: candidate.source_message_id,
+        source_message_id: candidate.source_message_id != null ? Number(candidate.source_message_id) : null,
+        candidate_title: candidate.title || null,
         callback_data: candidate.callback_data || null,
         start_payload: candidate.start_payload || null,
+        quality: candidate.quality || null,
+        auto_join_channel: candidate.auto_join_channel || null,
       }
 
       const response = await fetch(`${API_BASE}/api/search/deliver`, {
@@ -256,8 +379,20 @@ export async function deliverCandidate(candidate) {
       if (response.ok) {
         return await response.json()
       }
-    } catch {
-      // Fall through to resilient stream generator
+
+      if (isDesktopApp()) {
+        const errJson = await response.json().catch(() => ({}))
+        const error = new Error(errJson.detail || `Candidate media delivery failed with status ${response.status}`)
+        error.status = response.status
+        error.code = errJson.code
+        error.channel_requirement = errJson.channel_requirement
+        throw error
+      }
+    } catch (err) {
+      if (isDesktopApp()) {
+        throw err
+      }
+      // Fall through to resilient stream generator for static web preview
     }
   }
 
@@ -271,6 +406,60 @@ export async function deliverCandidate(candidate) {
     file_size_bytes: 104857600,
     formatted_size: candidate.size || '2.4 GB',
     mime_type: 'video/mp4',
+  }
+}
+
+/**
+ * Select a specific candidate/version from Telegram search results.
+ * Communicates with the local Rust backend to resolve deep links, callback queries, or candidate details.
+ */
+export async function selectCandidate(candidate) {
+  if (!candidate) return null
+  await resolveApiBase()
+  if (API_BASE) {
+    try {
+      const payload = {
+        candidate_id: candidate.candidate_id,
+        source_bot: candidate.source_bot || 'Spoty_xbot',
+        source_message_id: candidate.source_message_id != null ? Number(candidate.source_message_id) : null,
+        callback_data: candidate.callback_data || null,
+        start_payload: candidate.start_payload || null,
+        source_url: candidate.source_url || null,
+      }
+
+      const response = await fetch(`${API_BASE}/api/search/select`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      })
+
+      if (response.ok) {
+        return await response.json()
+      }
+
+      if (isDesktopApp()) {
+        const errJson = await response.json().catch(() => ({}))
+        const error = new Error(errJson.detail || `Candidate selection failed with status ${response.status}`)
+        error.status = response.status
+        error.code = errJson.code
+        error.channel_requirement = errJson.channel_requirement
+        throw error
+      }
+    } catch (err) {
+      if (isDesktopApp()) {
+        throw err
+      }
+      console.warn('Candidate selection error:', err)
+    }
+  }
+
+  return {
+    status: 'selected',
+    candidate_id: candidate.candidate_id,
+    target_bot: candidate.source_bot || 'Spoty_xbot',
+    action_summary: 'Selected candidate for delivery',
   }
 }
 
@@ -329,9 +518,9 @@ export async function askAiCompanion(movieTitle, question) {
   return await response.json()
 }
 
-import { getOptimizedImageUrl, isOttReleased } from '../utils/helpers'
+import { getOptimizedImageUrl, isOttReleased } from '../utils/helpers.js'
 
-const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY || '27c65ee52f2aa6f980dc01b4162d2daf'
+const TMDB_API_KEY = import.meta?.env?.VITE_TMDB_API_KEY || ''
 const TMDB_BASE_URL = 'https://api.tmdb.org/3'
 
 function mapTmdbMovie(m) {
@@ -364,7 +553,7 @@ export async function getMetadataStatus() {
       // Fallback
     }
   }
-  return { status: 'direct_tmdb', configured: true }
+  return { status: TMDB_API_KEY ? 'direct_tmdb' : 'unconfigured', configured: Boolean(TMDB_API_KEY) }
 }
 
 export async function getMovieMetadata(title, year = null) {
@@ -386,17 +575,19 @@ export async function getMovieMetadata(title, year = null) {
   }
 
   // Direct TMDb Search fallback
-  try {
-    const tmdbUrl = `${TMDB_BASE_URL}/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(title)}${year ? `&year=${year}` : ''}`
-    const res = await fetch(tmdbUrl)
-    if (res.ok) {
-      const data = await res.json()
-      if (data.results && data.results.length > 0) {
-        return mapTmdbMovie(data.results[0])
+  if (TMDB_API_KEY) {
+    try {
+      const tmdbUrl = `${TMDB_BASE_URL}/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(title)}${year ? `&year=${year}` : ''}`
+      const res = await fetch(tmdbUrl)
+      if (res.ok) {
+        const data = await res.json()
+        if (data.results && data.results.length > 0) {
+          return mapTmdbMovie(data.results[0])
+        }
       }
+    } catch (err) {
+      console.warn(`Direct TMDb search failed for ${title}:`, err)
     }
-  } catch (err) {
-    console.warn(`Direct TMDb search failed for ${title}:`, err)
   }
 
   throw new Error(`Failed to fetch metadata for ${title}`)
@@ -407,7 +598,7 @@ export async function getTrendingMovies(timeWindow = 'week', page = 1) {
   if (API_BASE) {
     try {
       const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), 2500)
+      const timeoutId = setTimeout(() => controller.abort(), 6000)
       const response = await fetch(`${API_BASE}/api/metadata/trending?time_window=${timeWindow}&page=${page}`, {
         signal: controller.signal,
       })
@@ -431,6 +622,9 @@ export async function getTrendingMovies(timeWindow = 'week', page = 1) {
   }
 
   // Direct TMDb Trending with confirmed Digital/OTT release types
+  if (!TMDB_API_KEY) {
+    throw new Error('TMDb is unconfigured and backend metadata service is unavailable.')
+  }
   const todayIso = new Date().toISOString().split('T')[0]
   const tmdbUrl = `${TMDB_BASE_URL}/discover/movie?api_key=${TMDB_API_KEY}&sort_by=popularity.desc&with_release_type=4|5|6&primary_release_date.lte=${todayIso}&vote_count.gte=50&page=${page}`
   const res = await fetch(tmdbUrl)
@@ -447,10 +641,11 @@ export async function getTrendingMovies(timeWindow = 'week', page = 1) {
 }
 
 export async function getPopularMovies(page = 1) {
+  await resolveApiBase()
   if (API_BASE) {
     try {
       const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), 2500)
+      const timeoutId = setTimeout(() => controller.abort(), 6000)
       const response = await fetch(`${API_BASE}/api/metadata/popular?page=${page}`, { signal: controller.signal })
       clearTimeout(timeoutId)
       if (response.ok) {
@@ -472,32 +667,35 @@ export async function getPopularMovies(page = 1) {
   }
 
   // Direct TMDb Popular with confirmed Digital/OTT release types
-  try {
-    const todayIso = new Date().toISOString().split('T')[0]
-    const tmdbUrl = `${TMDB_BASE_URL}/discover/movie?api_key=${TMDB_API_KEY}&sort_by=popularity.desc&with_release_type=4|5|6&primary_release_date.lte=${todayIso}&vote_count.gte=80&page=${page}`
-    const res = await fetch(tmdbUrl)
-    if (res.ok) {
-      const data = await res.json()
-      const validMovies = (data.results || []).filter(
-        (item) => item.poster_path && (item.title || item.name)
-      )
-      const filtered = validMovies.map(mapTmdbMovie).filter((m) => isOttReleased(m))
-      return {
-        results: filtered,
-        total_pages: data.total_pages || 1,
+  if (TMDB_API_KEY) {
+    try {
+      const todayIso = new Date().toISOString().split('T')[0]
+      const tmdbUrl = `${TMDB_BASE_URL}/discover/movie?api_key=${TMDB_API_KEY}&sort_by=popularity.desc&with_release_type=4|5|6&primary_release_date.lte=${todayIso}&vote_count.gte=80&page=${page}`
+      const res = await fetch(tmdbUrl)
+      if (res.ok) {
+        const data = await res.json()
+        const validMovies = (data.results || []).filter(
+          (item) => item.poster_path && (item.title || item.name)
+        )
+        const filtered = validMovies.map(mapTmdbMovie).filter((m) => isOttReleased(m))
+        return {
+          results: filtered,
+          total_pages: data.total_pages || 1,
+        }
       }
+    } catch (e) {
+      console.warn('Direct TMDb popular failed, falling back to trending:', e)
     }
-  } catch (e) {
-    console.warn('Direct TMDb popular failed, falling back to trending:', e)
   }
   return await getTrendingMovies('day', page)
 }
 
 export async function getTopRatedMovies(page = 1) {
+  await resolveApiBase()
   if (API_BASE) {
     try {
       const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), 2500)
+      const timeoutId = setTimeout(() => controller.abort(), 6000)
       const response = await fetch(`${API_BASE}/api/metadata/top-rated?page=${page}`, { signal: controller.signal })
       clearTimeout(timeoutId)
       if (response.ok) {
@@ -519,32 +717,35 @@ export async function getTopRatedMovies(page = 1) {
   }
 
   // Direct TMDb Top Rated with strict released-only filter
-  try {
-    const ottCutoff = new Date().toISOString().split('T')[0]
-    const tmdbUrl = `${TMDB_BASE_URL}/discover/movie?api_key=${TMDB_API_KEY}&sort_by=vote_average.desc&with_release_type=4|5|6&vote_count.gte=500&primary_release_date.lte=${ottCutoff}&page=${page}`
-    const res = await fetch(tmdbUrl)
-    if (res.ok) {
-      const data = await res.json()
-      const validMovies = (data.results || []).filter(
-        (item) => item.poster_path && item.release_date && item.release_date <= ottCutoff
-      )
-      const filtered = validMovies.map(mapTmdbMovie).filter((m) => isOttReleased(m))
-      return {
-        results: filtered,
-        total_pages: data.total_pages || 1,
+  if (TMDB_API_KEY) {
+    try {
+      const ottCutoff = new Date().toISOString().split('T')[0]
+      const tmdbUrl = `${TMDB_BASE_URL}/discover/movie?api_key=${TMDB_API_KEY}&sort_by=vote_average.desc&with_release_type=4|5|6&vote_count.gte=500&primary_release_date.lte=${ottCutoff}&page=${page}`
+      const res = await fetch(tmdbUrl)
+      if (res.ok) {
+        const data = await res.json()
+        const validMovies = (data.results || []).filter(
+          (item) => item.poster_path && item.release_date && item.release_date <= ottCutoff
+        )
+        const filtered = validMovies.map(mapTmdbMovie).filter((m) => isOttReleased(m))
+        return {
+          results: filtered,
+          total_pages: data.total_pages || 1,
+        }
       }
+    } catch (e) {
+      console.warn('Direct TMDb top-rated failed, falling back to trending:', e)
     }
-  } catch (e) {
-    console.warn('Direct TMDb top-rated failed, falling back to trending:', e)
   }
   return await getTrendingMovies('week', 2)
 }
 
 export async function getRegionalMovies(language = 'ml', page = 1) {
+  await resolveApiBase()
   if (API_BASE) {
     try {
       const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), 2500)
+      const timeoutId = setTimeout(() => controller.abort(), 6000)
       const response = await fetch(`${API_BASE}/api/metadata/discover?language=${language}&page=${page}`, {
         signal: controller.signal,
       })
@@ -568,27 +769,29 @@ export async function getRegionalMovies(language = 'ml', page = 1) {
   }
 
   // Direct TMDb Discover for Regional Language (e.g. 'ml' for Malayalam)
-  try {
-    const ottCutoff = new Date().toISOString().split('T')[0]
-    const tmdbUrl = `${TMDB_BASE_URL}/discover/movie?api_key=${TMDB_API_KEY}&with_original_language=${language}&sort_by=popularity.desc&with_release_type=4|5|6&primary_release_date.lte=${ottCutoff}&vote_count.gte=25&page=${page}`
-    const res = await fetch(tmdbUrl)
-    if (res.ok) {
-      const data = await res.json()
-      const validMovies = (data.results || []).filter(
-        (item) => item.poster_path && item.release_date && item.release_date <= ottCutoff
-      )
-      const filtered = validMovies
-        .map(mapTmdbMovie)
-        .filter((m) => isOttReleased(m, { isRegional: true }))
-      return {
-        results: filtered,
-        total_pages: data.total_pages || 1,
+  if (TMDB_API_KEY) {
+    try {
+      const ottCutoff = new Date().toISOString().split('T')[0]
+      const tmdbUrl = `${TMDB_BASE_URL}/discover/movie?api_key=${TMDB_API_KEY}&with_original_language=${language}&sort_by=popularity.desc&with_release_type=4|5|6&primary_release_date.lte=${ottCutoff}&vote_count.gte=25&page=${page}`
+      const res = await fetch(tmdbUrl)
+      if (res.ok) {
+        const data = await res.json()
+        const validMovies = (data.results || []).filter(
+          (item) => item.poster_path && item.release_date && item.release_date <= ottCutoff
+        )
+        const filtered = validMovies
+          .map(mapTmdbMovie)
+          .filter((m) => isOttReleased(m, { isRegional: true }))
+        return {
+          results: filtered,
+          total_pages: data.total_pages || 1,
+        }
       }
+    } catch (e) {
+      console.warn(`Direct TMDb discover failed for language ${language}:`, e)
     }
-  } catch (e) {
-    console.warn('Direct regional discover failed, falling back to trending:', e)
   }
-  return await getTrendingMovies('day', 2)
+  return await getTrendingMovies('day', page)
 }
 
 /**
@@ -771,6 +974,127 @@ export async function syncGuestDataApi(token, history, watchlist) {
   } catch {
     return null
   }
+}
+
+/**
+ * Telegram Authentication API Client (Stage 4.1)
+ * Interacts with the local Rust backend in Tauri desktop mode.
+ */
+export async function getTelegramAuthStatus() {
+  const base = await resolveApiBase()
+  if (!base) return { connected: false, status: 'disconnected', user: null }
+  try {
+    const res = await fetch(`${base}/api/telegram/auth/status`, {
+      signal: AbortSignal.timeout(5000),
+    })
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    return await res.json()
+  } catch (err) {
+    console.warn('Failed to fetch Telegram auth status:', err)
+    return { connected: false, status: 'disconnected', user: null }
+  }
+}
+
+export async function startTelegramQr() {
+  const base = await resolveApiBase()
+  if (!base) {
+    // Graceful fallback for standalone browser preview mode
+    return {
+      qr_uri: 'tg://login?token=preview_token_12345',
+      qr_svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256"><rect width="256" height="256" fill="#ffffff"/><path d="M20 20h60v60h-60zM30 30v40h40v-40zM40 40h20v20h-20zM176 20h60v60h-60zM186 30v40h40v-40zM196 40h20v20h-20zM20 176h60v60h-60zM30 186v40h40v-40zM40 196h20v20h-20zM100 20h20v20h-20zM140 20h20v20h-20zM100 40h40v20h-40zM100 80h20v40h-20zM140 80h40v20h-40zM20 100h20v20h-20zM60 100h20v40h-20zM100 140h20v20h-20zM140 120h20v20h-20zM180 120h40v20h-40zM120 160h20v40h-20zM160 160h40v20h-40zM100 200h40v20h-40zM160 200h20v20h-20zM200 200h20v20h-20zM200 160h20v20h-20z" fill="#0c0e14"/></svg>`,
+      expires_in: 60,
+    }
+  }
+  const res = await fetch(`${base}/api/telegram/auth/qr/start`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    signal: AbortSignal.timeout(10000),
+  })
+  if (!res.ok) {
+    const errData = await res.json().catch(() => ({}))
+    throw new Error(errData.message || `Failed to start QR login: HTTP ${res.status}`)
+  }
+  return await res.json()
+}
+
+export async function checkTelegramQr() {
+  const base = await resolveApiBase()
+  if (!base) {
+    return { status: 'qr_pending', message: 'Waiting for scan' }
+  }
+  const res = await fetch(`${base}/api/telegram/auth/qr/check`, {
+    signal: AbortSignal.timeout(10000),
+  })
+  if (!res.ok) {
+    const errData = await res.json().catch(() => ({}))
+    throw new Error(errData.message || `QR check failed: HTTP ${res.status}`)
+  }
+  return await res.json()
+}
+
+export async function requestTelegramPhoneCode(phone) {
+  const base = await resolveApiBase()
+  if (!base) throw new Error('Backend not available')
+  const res = await fetch(`${base}/api/telegram/auth/phone`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ phone }),
+    signal: AbortSignal.timeout(10000),
+  })
+  if (!res.ok) {
+    const errData = await res.json().catch(() => ({}))
+    throw new Error(errData.message || `Failed to request code: HTTP ${res.status}`)
+  }
+  return await res.json()
+}
+
+export async function submitTelegramCode(code) {
+  const base = await resolveApiBase()
+  if (!base) throw new Error('Backend not available')
+  const res = await fetch(`${base}/api/telegram/auth/code`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ code }),
+    signal: AbortSignal.timeout(10000),
+  })
+  if (!res.ok) {
+    const errData = await res.json().catch(() => ({}))
+    throw new Error(errData.message || `Failed to submit code: HTTP ${res.status}`)
+  }
+  return await res.json()
+}
+
+export async function submitTelegramPassword(password) {
+  const base = await resolveApiBase()
+  if (!base) throw new Error('Backend not available')
+  const res = await fetch(`${base}/api/telegram/auth/password`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ password }),
+    signal: AbortSignal.timeout(10000),
+  })
+  if (!res.ok) {
+    const errData = await res.json().catch(() => ({}))
+    throw new Error(errData.message || `Failed to verify 2FA password: HTTP ${res.status}`)
+  }
+  return await res.json()
+}
+
+export async function disconnectTelegram() {
+  const base = await resolveApiBase()
+  if (!base) {
+    return { status: 'disconnected', message: 'Disconnected' }
+  }
+  const res = await fetch(`${base}/api/telegram/auth/disconnect`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    signal: AbortSignal.timeout(10000),
+  })
+  if (!res.ok) {
+    const errData = await res.json().catch(() => ({}))
+    throw new Error(errData.message || `Failed to disconnect: HTTP ${res.status}`)
+  }
+  return await res.json()
 }
 
 

@@ -1554,6 +1554,75 @@ button:active,
 }
 
 /* ==========================================================================
+   HERO FALLBACK / OFFLINE NOTICE (Compact, Non-Intrusive Layout)
+   ========================================================================== */
+.hero-fallback-shell {
+  width: 100%;
+  padding: calc(72px + 16px) var(--page-gutter) 24px;
+  background: var(--ink);
+  display: flex;
+  justify-content: center;
+}
+
+.home-hero-fallback {
+  width: 100%;
+  max-width: 1200px;
+  min-height: auto;
+  height: auto;
+  padding: 24px 28px;
+  border-radius: var(--radius-lg, 12px);
+  background: linear-gradient(135deg, rgba(22, 26, 38, 0.7) 0%, rgba(12, 14, 20, 0.95) 100%);
+  border: 1px solid var(--edge);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.home-hero-fallback .hero-fallback-content {
+  max-width: 720px;
+}
+
+.home-hero-fallback .eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--amber, #f59e0b);
+  margin-bottom: 6px;
+}
+
+.home-hero-fallback h2 {
+  margin: 0 0 6px 0;
+  font-family: var(--font-display);
+  font-size: clamp(20px, 2.5vw, 28px);
+  letter-spacing: -0.5px;
+  color: var(--paper);
+  text-transform: uppercase;
+}
+
+.home-hero-fallback p {
+  margin: 0;
+  font-size: 14px;
+  color: #9ca3af;
+  line-height: 1.5;
+}
+
+.home-hero-fallback .hero-fallback-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .home-hero-fallback {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* ==========================================================================
    SEARCH BAR
    ========================================================================== */
 .search-section {
@@ -5980,4 +6049,219 @@ video::cue {
   .stream-resolving-card h2 {
     font-size: 20px;
   }
+}
+
+/* ==========================================================================
+   CINEFORGE DIALOGS, TOASTS & TELEGRAM MODAL POLISH
+   ========================================================================== */
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slideUpFade {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulseDot {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.45;
+    transform: scale(0.85);
+  }
+}
+
+/* Telegram QR Card & Layout */
+.telegram-modal-card {
+  width: 100%;
+  max-width: min(480px, 94vw);
+  max-height: min(88vh, 760px);
+  background-color: #0c0e14;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 18px;
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.85), 0 0 35px rgba(0, 136, 204, 0.12);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: scaleIn 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.telegram-modal-header {
+  padding: 18px 24px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(255, 255, 255, 0.015);
+  flex-shrink: 0;
+}
+
+.telegram-modal-body {
+  padding: 22px 24px 24px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.telegram-qr-card-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.telegram-qr-card {
+  width: min(220px, 62vw);
+  height: min(220px, 62vw);
+  aspect-ratio: 1 / 1;
+  background-color: #ffffff;
+  border-radius: 16px;
+  padding: 14px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.7), 0 0 25px rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px auto;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.telegram-qr-card svg {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  display: block !important;
+}
+
+.telegram-qr-instructions {
+  width: 100%;
+  max-width: 400px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 18px;
+  text-align: left;
+}
+
+.telegram-qr-instructions h4 {
+  margin: 0 0 10px 0;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: #e5e7eb;
+  letter-spacing: 0.01em;
+}
+
+.telegram-qr-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.telegram-qr-steps li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.82rem;
+  color: #9ca3af;
+  line-height: 1.4;
+}
+
+.telegram-qr-steps strong {
+  color: #f3f4f6;
+  font-weight: 600;
+}
+
+.telegram-step-badge {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(0, 136, 204, 0.2);
+  color: #38bdf8;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.telegram-qr-status-bar {
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  background-color: rgba(56, 189, 248, 0.06);
+  border: 1px solid rgba(56, 189, 248, 0.16);
+  border-radius: 10px;
+  box-sizing: border-box;
+}
+
+.telegram-status-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  color: #38bdf8;
+  font-weight: 500;
+}
+
+.telegram-pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #38bdf8;
+  box-shadow: 0 0 8px #38bdf8;
+  animation: pulseDot 1.8s infinite ease-in-out;
+}
+
+.telegram-qr-refresh-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  background-color: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  color: #d1d5db;
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.telegram-qr-refresh-btn:hover:not(:disabled) {
+  background-color: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+}
+
+.telegram-qr-refresh-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }

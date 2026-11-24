@@ -1,0 +1,16 @@
+{
+  "name": "cineforge",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Cineforge - Modern AI-powered Movie Discovery & Streaming App",
+  "scripts": {
+    "dev": "npm --prefix frontend run dev",
+    "build": "npm --prefix frontend run build",
+    "tauri": "tauri",
+    "tauri:dev": "npx @tauri-apps/cli dev -- --bin cineforge",
+    "tauri:build": "npx @tauri-apps/cli build -- --bin cineforge"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.12.6"
+  }
+}

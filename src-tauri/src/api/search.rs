@@ -12,7 +12,9 @@ use crate::models::delivery::{CandidateDeliveryRequest, CandidateDeliveryRespons
 use crate::models::search::{
     SearchResponse, SearchSuggestionsResponse, SelectedResultRequest, SelectedResultResponse,
 };
-use crate::services::telegram_delivery::{TelegramDeliveryError, TelegramDeliveryService};
+use crate::services::telegram_delivery::{
+    JoinChannelOutcome, TelegramDeliveryError, TelegramDeliveryService,
+};
 use crate::services::telegram_search::{TelegramSearchError, TelegramSearchService};
 
 #[derive(Debug, Deserialize)]
@@ -173,6 +175,43 @@ async fn deliver_candidate_handler(
         .map_err(map_delivery_error)
 }
 
+#[derive(Debug, serde::Deserialize)]
+pub struct JoinChannelRequest {
+    pub channel_url: String,
+}
+
+#[derive(Debug, serde::Serialize)]
+pub struct JoinChannelResponse {
+    pub success: bool,
+    pub outcome: String,
+    pub message: String,
+}
+
+async fn join_channel_handler(
+    State(state): State<Arc<SearchApiState>>,
+    Json(payload): Json<JoinChannelRequest>,
+) -> Result<Json<JoinChannelResponse>, (StatusCode, Json<serde_json::Value>)> {
+    match state.delivery_service.join_channel_from_url(&payload.channel_url).await {
+        Ok(outcome) => {
+            let (outcome_str, msg) = match outcome {
+                JoinChannelOutcome::JoinedPublic(u) => ("joined_public", format!("Joined channel @{u}")),
+                JoinChannelOutcome::JoinedPrivate(_) => ("joined_private", "Joined private channel via invite".to_string()),
+                JoinChannelOutcome::AlreadyParticipant => ("already_participant", "Already a member of this channel".to_string()),
+                JoinChannelOutcome::RequestSent => ("request_sent", "Join request sent (admin approval required)".to_string()),
+            };
+            Ok(Json(JoinChannelResponse {
+                success: true,
+                outcome: outcome_str.to_string(),
+                message: msg,
+            }))
+        }
+        Err(e) => Err((
+            StatusCode::BAD_REQUEST,
+            Json(json!({ "detail": e })),
+        )),
+    }
+}
+
 /// Creates the Axum router for search, candidate delivery, and result selection endpoints.
 pub fn create_search_router(
     search_service: Arc<TelegramSearchService>,
@@ -191,5 +230,6 @@ pub fn create_search_router(
         .route("/search/select", post(select_candidate_handler))
         .route("/search/versions", get(find_versions_handler))
         .route("/search/deliver", post(deliver_candidate_handler))
+        .route("/search/fsub/join", post(join_channel_handler))
         .with_state(state)
 }

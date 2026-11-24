@@ -5,13 +5,16 @@ import './index.css'
 import App from './App.jsx'
 import { AuthProvider } from './context/AuthContext'
 import { WatchHistoryProvider } from './context/WatchHistoryContext'
+import { DialogProvider } from './context/DialogContext'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
       <AuthProvider>
         <WatchHistoryProvider>
-          <App />
+          <DialogProvider>
+            <App />
+          </DialogProvider>
         </WatchHistoryProvider>
       </AuthProvider>
     </BrowserRouter>

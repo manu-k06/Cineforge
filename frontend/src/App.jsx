@@ -15,7 +15,8 @@ import Footer from './components/Footer'
 import { Bookmark, History, ArrowLeft, Loader2, AlertCircle } from 'lucide-react'
 import { useAuth } from './context/AuthContext'
 import { useWatchHistory } from './context/WatchHistoryContext'
-import { searchMovies, deliverCandidate, getBackendHealth, getTrendingMovies, getPopularMovies, resolveApiBase } from './services/api'
+import { useDialog } from './context/DialogContext'
+import { searchMovies, selectCandidate, deliverCandidate, getBackendHealth, getTrendingMovies, getPopularMovies, resolveApiBase } from './services/api'
 import { parseMovieMetadata, titleToSlug, slugToQuery, isOttReleased } from './utils/helpers'
 
 export default function App() {
@@ -25,6 +26,7 @@ export default function App() {
 
   const { isAuthModalOpen, closeAuthModal, openAuthModal } = useAuth()
   const { continueWatchingList, removeFromHistory, watchlist, watchHistory } = useWatchHistory()
+  const { confirm, showToast } = useDialog()
   const [currentView, setCurrentView] = useState('browse') // 'browse' | 'watch'
   const [activeTab, setActiveTab] = useState('home')
   const [isBackendOnline, setIsBackendOnline] = useState(true)
@@ -142,7 +144,8 @@ export default function App() {
       setActiveMovieGroup(chosenGroup)
       setActiveCandidate(chosenCandidate)
 
-      // Start delivery
+      // Select candidate and start delivery
+      await selectCandidate(chosenCandidate)
       const result = await deliverCandidate(chosenCandidate)
       if (!result.candidate_title) {
         result.candidate_title = chosenCandidate.title
@@ -151,6 +154,49 @@ export default function App() {
       setCurrentView('watch')
     } catch (err) {
       console.error('Failed to resolve stream for slug:', err)
+      if (err.channel_requirement && chosenCandidate) {
+        const req = err.channel_requirement
+        const targetUrl = req.invite_url || (req.channel_username ? `https://t.me/${req.channel_username}` : null)
+        const channelName = req.channel_title || (req.channel_username ? `@${req.channel_username}` : targetUrl)
+
+        if (targetUrl) {
+          const approved = await confirm({
+            title: 'Channel Membership Required',
+            description: `Bot @${chosenCandidate.source_bot || 'Telegram bot'} requires you to join ${channelName} (${targetUrl}) to unlock this stream.\n\nWould you like Cineforge to join this channel for your Telegram account and start streaming?`,
+            confirmText: 'Join & Stream',
+            cancelText: 'Cancel',
+            confirmVariant: 'primary',
+          })
+
+          if (approved) {
+            showToast({
+              type: 'info',
+              title: 'Joining Channel',
+              message: `Joining ${channelName} and unlocking stream...`,
+            })
+            try {
+              const res = await deliverCandidate({ ...chosenCandidate, auto_join_channel: targetUrl })
+              if (!res.candidate_title) {
+                res.candidate_title = chosenCandidate.title
+              }
+              setActiveDelivery(res)
+              setCurrentView('watch')
+              return
+            } catch (retryErr) {
+              setResolvingError(retryErr.message || 'Stream generation failed after joining channel.')
+              return
+            }
+          } else {
+            showToast({
+              type: 'info',
+              title: 'Stream Paused',
+              message: `Membership required: ${channelName}. You can join manually in Telegram.`,
+            })
+            setResolvingError(`Channel membership required: ${channelName}. Join manually: ${targetUrl}`)
+            return
+          }
+        }
+      }
       setResolvingError(err.message || `Could not connect to stream for "${query}".`)
     } finally {
       setIsResolvingStream(false)
@@ -288,6 +334,14 @@ export default function App() {
 
     try {
       const data = await searchMovies(query, pageNum, useAi)
+      if (data.channel_requirement) {
+        const chan = data.channel_requirement.channel_username
+          ? `@${data.channel_requirement.channel_username}`
+          : data.channel_requirement.channel_name || 'Telegram Channel'
+        setSearchError(
+          `Join Channel Required: ${chan} requires membership before viewing links. Please join the channel in Telegram and retry.`
+        )
+      }
       const candidates = data.candidates || []
       setRawCandidates(candidates)
       setAiInterpretation(data.ai_interpretation || null)
@@ -478,6 +532,7 @@ export default function App() {
     const slug = titleToSlug(rawTitle)
 
     try {
+      await selectCandidate(candidate)
       const result = await deliverCandidate(candidate)
       if (!result.candidate_title) {
         result.candidate_title = candidate.title
@@ -492,6 +547,40 @@ export default function App() {
       window.scrollTo({ top: 0, behavior: 'smooth' })
     } catch (err) {
       console.error('Delivery pipeline failed:', err)
+      if (err.channel_requirement) {
+        const req = err.channel_requirement
+        const targetUrl = req.invite_url || (req.channel_username ? `https://t.me/${req.channel_username}` : null)
+        const channelName = req.channel_title || (req.channel_username ? `@${req.channel_username}` : targetUrl)
+
+        setCandidateInDelivery(null)
+        if (targetUrl) {
+          const approved = await confirm({
+            title: 'Channel Membership Required',
+            description: `Bot @${candidate.source_bot || 'Telegram bot'} requires you to join ${channelName} (${targetUrl}) to unlock this stream.\n\nWould you like Cineforge to join this channel for your Telegram account and start streaming?`,
+            confirmText: 'Join & Stream',
+            cancelText: 'Cancel',
+            confirmVariant: 'primary',
+          })
+
+          if (approved) {
+            showToast({
+              type: 'info',
+              title: 'Joining Channel',
+              message: `Joining ${channelName} and unlocking stream...`,
+            })
+            // Re-invoke delivery with the approved channel link
+            return startDelivery({ ...candidate, auto_join_channel: targetUrl }, group)
+          } else {
+            showToast({
+              type: 'info',
+              title: 'Stream Paused',
+              message: `Membership required: ${channelName}. You can join manually in Telegram.`,
+            })
+            setDeliveryError(`Channel membership required: ${channelName}. Join manually: ${targetUrl}`)
+            return
+          }
+        }
+      }
       setDeliveryError(err.message || 'Stream generation failed. Please try another release.')
     }
   }

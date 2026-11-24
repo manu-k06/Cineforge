@@ -1,16 +1,14 @@
-import React, { useState, useEffect, useRef } from 'react'
-import { X } from 'lucide-react'
-import { getPopularMovies } from '../services/api'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
+import { X, RefreshCw } from 'lucide-react'
+import { getTrendingMovies, getPopularMovies } from '../services/api'
 import { getOptimizedImageUrl, isOttReleased } from '../utils/helpers'
 import { useWatchHistory } from '../context/WatchHistoryContext'
-
-const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY || '27c65ee52f2aa6f980dc01b4162d2daf'
-const TMDB_BASE_URL = 'https://api.tmdb.org/3'
 
 export default function HeroBanner({ onQuickPlay }) {
   const { isInWatchlist, toggleWatchlist } = useWatchHistory()
   const [movies, setMovies] = useState([])
   const [isLoading, setIsLoading] = useState(true)
+  const [errorMessage, setErrorMessage] = useState(null)
   const [currentIndex, setCurrentIndex] = useState(0)
   const [selectedMovieForInfo, setSelectedMovieForInfo] = useState(null)
   const timerRef = useRef(null)
@@ -26,90 +24,109 @@ export default function HeroBanner({ onQuickPlay }) {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [selectedMovieForInfo])
 
-  // Fetch verified released trending movies dynamically from TMDb
-  useEffect(() => {
-    let isMounted = true
+  // Fetch verified released trending movies dynamically from metadata service
+  const fetchHeroMovies = useCallback(async () => {
+    setIsLoading(true)
+    setErrorMessage(null)
 
-    async function fetchHeroMovies() {
+    try {
+      let rawMovies = []
+
+      // 1. Primary: Query trending movies from desktop/metadata service
       try {
-        const todayIso = new Date().toISOString().split('T')[0]
-        // Fast direct TMDb digital discover fetch (<250ms worldwide) for confirmed released cinema
-        const res = await fetch(
-          `${TMDB_BASE_URL}/discover/movie?api_key=${TMDB_API_KEY}&sort_by=popularity.desc&with_release_type=4|5|6&primary_release_date.lte=${todayIso}&vote_count.gte=100&page=1`
-        )
-        let rawMovies = []
-        if (res.ok) {
-          const data = await res.json()
-          rawMovies = data.results || []
+        const trendingData = await getTrendingMovies('week', 1)
+        if (trendingData?.results && Array.isArray(trendingData.results)) {
+          rawMovies = trendingData.results
         }
+      } catch (trendErr) {
+        console.warn('[HeroBanner] Trending movies query failed, falling back to popular:', trendErr)
+      }
 
-        // Fallback to popular movies if discover list was empty
-        if (rawMovies.length === 0) {
+      // 2. Secondary fallback: Query popular movies if trending list was empty
+      if (rawMovies.length === 0) {
+        try {
           const popData = await getPopularMovies(1)
-          rawMovies = popData?.results || []
-        }
-
-        const seen = new Set()
-        const valid = rawMovies.filter((m) => {
-          const title = m.title || m.name
-          const backdrop = m.backdrop_path || m.backdrop_url
-          if (!backdrop || !title) return false
-          if (!isOttReleased(m)) return false
-          const key = title.toLowerCase().trim()
-          if (seen.has(key)) return false
-          seen.add(key)
-          return true
-        })
-
-        if (valid.length > 0 && isMounted) {
-          const formatted = valid.slice(0, 8).map((m) => {
-            const releaseYear = m.release_date
-              ? m.release_date.split('-')[0]
-              : m.first_air_date
-              ? m.first_air_date.split('-')[0]
-              : m.year || ''
-            const displayRating = m.vote_average
-              ? Number(m.vote_average).toFixed(1)
-              : m.rating
-              ? Number(m.rating).toFixed(1)
-              : '7.8'
-            const backdrop = m.backdrop_path
-              ? getOptimizedImageUrl(m.backdrop_path, 'w1280')
-              : m.backdrop_url || ''
-            const poster = m.poster_path
-              ? getOptimizedImageUrl(m.poster_path, 'w500')
-              : m.poster_url || null
-
-            return {
-              id: m.id || m.tmdb_id || m.title,
-              title: m.title || m.name,
-              searchQuery: m.title || m.name,
-              synopsis: m.overview || 'Newly released blockbuster streaming in high definition on Cineforge.',
-              year: releaseYear,
-              rating: displayRating,
-              mediaType: m.media_type === 'tv' ? 'TV show' : 'Movie',
-              backdrop: backdrop,
-              poster_url: poster,
-            }
-          })
-
-          setMovies(formatted)
-        }
-      } catch (err) {
-        console.error('Failed to load dynamic hero banner movies:', err)
-      } finally {
-        if (isMounted) {
-          setIsLoading(false)
+          if (popData?.results && Array.isArray(popData.results)) {
+            rawMovies = popData.results
+          }
+        } catch (popErr) {
+          console.warn('[HeroBanner] Popular movies query failed:', popErr)
         }
       }
-    }
 
-    fetchHeroMovies()
+      const seen = new Set()
+      const valid = rawMovies.filter((m) => {
+        const title = m.title || m.name
+        const backdrop = m.backdrop_url || m.backdrop_path
+        if (!backdrop || !title) return false
+        if (!isOttReleased(m)) return false
+        const key = title.toLowerCase().trim()
+        if (seen.has(key)) return false
+        seen.add(key)
+        return true
+      })
 
-    return () => {
-      isMounted = false
+      if (valid.length > 0) {
+        const formatted = valid.slice(0, 8).map((m) => {
+          const releaseYear = m.year
+            ? String(m.year)
+            : m.release_date
+            ? m.release_date.split('-')[0]
+            : m.first_air_date
+            ? m.first_air_date.split('-')[0]
+            : ''
+          const displayRating = m.rating
+            ? Number(m.rating).toFixed(1)
+            : m.vote_average
+            ? Number(m.vote_average).toFixed(1)
+            : '7.8'
+          const backdrop = m.backdrop_url
+            ? getOptimizedImageUrl(m.backdrop_url, 'w1280')
+            : m.backdrop_path
+            ? getOptimizedImageUrl(m.backdrop_path, 'w1280')
+            : ''
+          const poster = m.poster_url
+            ? getOptimizedImageUrl(m.poster_url, 'w500')
+            : m.poster_path
+            ? getOptimizedImageUrl(m.poster_path, 'w500')
+            : null
+
+          return {
+            id: m.id || m.tmdb_id || m.title,
+            title: m.title || m.name,
+            searchQuery: m.title || m.name,
+            synopsis: m.overview || 'Newly released blockbuster streaming in high definition on Cineforge.',
+            year: releaseYear,
+            rating: displayRating,
+            mediaType: m.media_type === 'tv' ? 'TV show' : 'Movie',
+            backdrop: backdrop,
+            poster_url: poster,
+          }
+        })
+
+        setMovies(formatted)
+        setCurrentIndex(0)
+        setErrorMessage(null)
+      } else {
+        setMovies([])
+        if (rawMovies.length === 0) {
+          setErrorMessage('Unable to load featured movies from metadata service.')
+        } else {
+          setErrorMessage('No titles matching digital streaming release criteria are currently available.')
+        }
+      }
+    } catch (err) {
+      console.error('[HeroBanner] Failed to load dynamic hero banner movies:', err)
+      setMovies([])
+      setErrorMessage(err.message || 'Failed to connect to metadata service.')
+    } finally {
+      setIsLoading(false)
     }
   }, [])
+
+  useEffect(() => {
+    fetchHeroMovies()
+  }, [fetchHeroMovies])
 
   // Auto-slide carousel every 7 seconds
   useEffect(() => {
@@ -165,9 +182,31 @@ export default function HeroBanner({ onQuickPlay }) {
     )
   }
 
-  // Gracefully omit hero slider if no movies could be loaded from API
+  // Visible Failure / Empty State (compact, non-intrusive notification; never invent fake movie data)
   if (movies.length === 0) {
-    return null
+    return (
+      <section className="hero-fallback-shell" aria-label="Featured cinema unavailable">
+        <div className="home-hero-fallback">
+          <div className="hero-fallback-content">
+            <span className="eyebrow">Featured Spotlight</span>
+            <h2>Trending Highlights Offline</h2>
+            <p>
+              {errorMessage || 'Unable to load spotlight cinema. Check your connection or search for titles directly below.'}
+            </p>
+          </div>
+          <div className="hero-fallback-actions">
+            <button
+              type="button"
+              className="button button-primary"
+              onClick={fetchHeroMovies}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}
+            >
+              <RefreshCw size={15} /> Retry
+            </button>
+          </div>
+        </div>
+      </section>
+    )
   }
 
   return (
