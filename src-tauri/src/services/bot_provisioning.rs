@@ -328,6 +328,9 @@ impl BotProvisioningService {
                 tl::enums::User::Empty(e) => (e.id, 0),
             };
 
+            // Allow brief propagation across Telegram datacenters for global username resolution
+            tokio::time::sleep(Duration::from_millis(500)).await;
+
             // Register newly created bot in the durable provisioner database
             let register_url = format!("{}/api/provision/register", self.provisioning_url);
             let reg_resp = self

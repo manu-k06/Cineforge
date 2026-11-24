@@ -255,17 +255,22 @@ impl BotVerifier {
     }
 
     /// Verifies Telegram bot ownership, manager rights, and username accuracy.
+    /// In Telegram MTProto, access hashes are per-session secrets. A client user's access hash cannot
+    /// be queried by the manager bot. This function uses contacts.ResolveUsername to obtain the manager
+    /// bot's own session-valid access hash from Telegram, verifies identity and bot type, and cryptographically
+    /// validates management rights via bots.ExportBotToken before returning the valid session access hash.
     pub async fn verify_bot(
         &self,
         bot_id: i64,
         bot_access_hash: i64,
         bot_username: &str,
         expected_owner_user_id: i64,
-    ) -> Result<(), String> {
+    ) -> Result<i64, String> {
         if bot_id <= 0 {
             return Err("Invalid bot_id".to_string());
         }
-        if bot_username.trim().is_empty() {
+        let clean_username = normalize_manager_bot_username(bot_username);
+        if clean_username.is_empty() {
             return Err("Empty bot_username".to_string());
         }
 
@@ -284,36 +289,83 @@ impl BotVerifier {
         // 2. If MTProto client is available, verify directly with Telegram servers
         let client_guard = self.mtproto_client.read().await;
         if let Some(ref client) = *client_guard {
-            // A. Verify with Telegram that this bot exists and is actually a bot with matching username
-            let users_res = client
-                .invoke(&tl::functions::users::GetUsers {
-                    id: vec![tl::enums::InputUser::User(tl::types::InputUser {
-                        user_id: bot_id,
-                        access_hash: bot_access_hash,
-                    })],
-                })
-                .await
-                .map_err(|e| format!("Telegram GetUsers query failed for bot {bot_id}: {e}"))?;
+            // A. Resolve the bot by public username via Telegram contacts.ResolveUsername.
+            // This retrieves the manager bot's own session-valid access hash and verifies the bot exists on Telegram.
+            let mut resolve_result = None;
+            let mut last_err = String::new();
 
-            let user = users_res
-                .first()
-                .ok_or_else(|| format!("Bot {bot_id} not found on Telegram"))?;
+            for attempt in 1..=3 {
+                let res = client
+                    .invoke(&tl::functions::contacts::ResolveUsername {
+                        username: clean_username.clone(),
+                        referer: None,
+                    })
+                    .await;
 
-            match user {
-                tl::enums::User::User(u) => {
-                    if !u.bot {
-                        return Err(format!("Account {bot_id} is not a bot account"));
+                match res {
+                    Ok(resolved) => {
+                        resolve_result = Some(resolved);
+                        break;
                     }
-                    let real_username = u.username.as_deref().unwrap_or("");
-                    if !real_username.eq_ignore_ascii_case(bot_username) {
-                        return Err(format!(
-                            "Username mismatch: submitted @{bot_username}, but Telegram registered @{real_username}"
-                        ));
+                    Err(e) => {
+                        last_err = format!("{e}");
+                        if attempt < 3 {
+                            tokio::time::sleep(Duration::from_millis(500 * attempt)).await;
+                        }
                     }
                 }
-                tl::enums::User::Empty(_) => {
-                    return Err(format!("Telegram returned empty user object for {bot_id}"));
+            }
+
+            let resolved = resolve_result.ok_or_else(|| {
+                format!("Failed to resolve bot @{clean_username} on Telegram: {last_err}")
+            })?;
+
+            let (target_id, target_username, is_bot, manager_access_hash) = match resolved {
+                tl::enums::contacts::ResolvedPeer::Peer(p) => {
+                    let user_opt = p.users.iter().find_map(|u| {
+                        if let tl::enums::User::User(real_u) = u {
+                            if real_u.id == bot_id
+                                || real_u
+                                    .username
+                                    .as_deref()
+                                    .map(|un| un.eq_ignore_ascii_case(&clean_username))
+                                    .unwrap_or(false)
+                            {
+                                return Some((
+                                    real_u.id,
+                                    real_u.username.clone().unwrap_or_default(),
+                                    real_u.bot,
+                                    real_u.access_hash.unwrap_or(0),
+                                ));
+                            }
+                        }
+                        None
+                    });
+
+                    user_opt.ok_or_else(|| {
+                        format!("Telegram resolved @{clean_username}, but found no user record matching bot ID {bot_id}")
+                    })?
                 }
+            };
+
+            if target_id != bot_id {
+                return Err(format!(
+                    "Bot ID mismatch: username @{clean_username} resolved to ID {target_id}, expected {bot_id}"
+                ));
+            }
+
+            if !is_bot {
+                return Err(format!("Account {bot_id} (@{clean_username}) is not a bot account"));
+            }
+
+            if !target_username.eq_ignore_ascii_case(&clean_username) {
+                return Err(format!(
+                    "Username mismatch: submitted @{clean_username}, but Telegram registered @{target_username}"
+                ));
+            }
+
+            if manager_access_hash == 0 {
+                return Err(format!("Telegram did not return a valid access hash for bot {bot_id}"));
             }
 
             // B. Verify that this manager bot is authorized to export the bot's token (proves manager rights)
@@ -321,7 +373,7 @@ impl BotVerifier {
                 .invoke(&tl::functions::bots::ExportBotToken {
                     bot: tl::enums::InputUser::User(tl::types::InputUser {
                         user_id: bot_id,
-                        access_hash: bot_access_hash,
+                        access_hash: manager_access_hash,
                     }),
                     revoke: false,
                 })
@@ -333,10 +385,10 @@ impl BotVerifier {
                 ));
             }
 
-            Ok(())
+            Ok(manager_access_hash)
         } else if self.is_dev_mode {
             // In dev mode without live MTProto connection, check basic invariants
-            Ok(())
+            Ok(bot_access_hash)
         } else {
             Err("MTProto client not connected to Telegram; cannot verify bot ownership in production".to_string())
         }
@@ -665,7 +717,7 @@ async fn register_handler(
     }
 
     // 3. Verify through Telegram that the bot is managed by this manager bot and owned by user_id
-    state
+    let valid_access_hash = state
         .bot_verifier
         .verify_bot(
             payload.bot_id,
@@ -681,7 +733,7 @@ async fn register_handler(
     let new_bot = StoredManagedBot {
         telegram_user_id: user_id,
         bot_id: payload.bot_id,
-        bot_access_hash: payload.bot_access_hash,
+        bot_access_hash: valid_access_hash,
         bot_username: payload.bot_username.clone(),
         created_at: now_secs,
         updated_at: now_secs,
@@ -804,12 +856,49 @@ async fn token_handler(
 
             match client.invoke(&export_req).await {
                 Ok(tl::enums::bots::ExportedBotToken::Token(t)) => t.token,
-                Err(e) => {
-                    eprintln!("Failed to export bot token for bot {}: {:?}", managed_bot.bot_id, e);
-                    return Err((
-                        StatusCode::BAD_GATEWAY,
-                        format!("Telegram refused to export bot token: {e}"),
-                    ));
+                Err(initial_err) => {
+                    // Fallback resilience: if the saved access hash failed (or was legacy),
+                    // re-resolve the bot by username to obtain a fresh session access hash.
+                    let clean_username = normalize_manager_bot_username(&managed_bot.bot_username);
+                    let mut re_resolved_token = None;
+
+                    if let Ok(tl::enums::contacts::ResolvedPeer::Peer(p)) = client
+                        .invoke(&tl::functions::contacts::ResolveUsername {
+                            username: clean_username,
+                            referer: None,
+                        })
+                        .await
+                    {
+                        if let Some(hash) = p.users.iter().find_map(|u| {
+                            if let tl::enums::User::User(real_u) = u {
+                                if real_u.id == managed_bot.bot_id {
+                                    return real_u.access_hash;
+                                }
+                            }
+                            None
+                        }) {
+                            let retry_req = tl::functions::bots::ExportBotToken {
+                                bot: tl::enums::InputUser::User(tl::types::InputUser {
+                                    user_id: managed_bot.bot_id,
+                                    access_hash: hash,
+                                }),
+                                revoke: false,
+                            };
+                            if let Ok(tl::enums::bots::ExportedBotToken::Token(t)) = client.invoke(&retry_req).await {
+                                re_resolved_token = Some(t.token);
+                            }
+                        }
+                    }
+
+                    if let Some(t) = re_resolved_token {
+                        t
+                    } else {
+                        eprintln!("Failed to export bot token for bot {}: {:?}", managed_bot.bot_id, initial_err);
+                        return Err((
+                            StatusCode::BAD_GATEWAY,
+                            format!("Telegram refused to export bot token: {initial_err}"),
+                        ));
+                    }
                 }
             }
         } else if state.is_dev_mode {
@@ -1007,9 +1096,15 @@ mod tests {
             creations.insert(55555, 12345);
         }
 
-        // Expected owner 12345 -> OK
+        // Expected owner 12345 -> OK, returns verified access hash
         let ok_res = verifier.verify_bot(55555, 99999, "cf_12345_streamer_bot", 12345).await;
         assert!(ok_res.is_ok());
+        assert_eq!(ok_res.unwrap(), 99999);
+
+        // Leading @ signs are normalized in bot verification
+        let at_res = verifier.verify_bot(55555, 99999, "@cf_12345_streamer_bot", 12345).await;
+        assert!(at_res.is_ok());
+        assert_eq!(at_res.unwrap(), 99999);
 
         // Attacker attempts to claim bot 55555 for user 99999 -> REJECTED
         let mismatch_res = verifier.verify_bot(55555, 99999, "cf_12345_streamer_bot", 99999).await;
@@ -1019,6 +1114,14 @@ mod tests {
         // Invalid parameters -> REJECTED
         assert!(verifier.verify_bot(0, 123, "cf_bot", 12345).await.is_err());
         assert!(verifier.verify_bot(55555, 123, "", 12345).await.is_err());
+        assert!(verifier.verify_bot(55555, 123, "   ", 12345).await.is_err());
+        assert!(verifier.verify_bot(55555, 123, "@@", 12345).await.is_err());
+
+        // Production verifier without MTProto connection fails closed
+        let prod_verifier = BotVerifier::new(Arc::new(RwLock::new(None)), false);
+        let prod_res = prod_verifier.verify_bot(55555, 99999, "cf_bot", 12345).await;
+        assert!(prod_res.is_err());
+        assert!(prod_res.unwrap_err().contains("MTProto client not connected"));
     }
 
     #[tokio::test]
