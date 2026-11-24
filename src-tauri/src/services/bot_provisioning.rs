@@ -41,6 +41,18 @@ pub fn validate_provisioning_url(url: &str, is_dev_mode: bool) -> Result<(), Str
     ))
 }
 
+/// Normalizes a manager bot username by trimming surrounding whitespace
+/// and stripping any leading '@' characters.
+/// Telegram MTProto API methods (such as contacts.resolveUsername) expect
+/// usernames without '@'.
+pub fn normalize_manager_bot_username(username: &str) -> String {
+    let mut s = username.trim();
+    while s.starts_with('@') || s.starts_with(' ') {
+        s = s.trim_start_matches('@').trim();
+    }
+    s.to_string()
+}
+
 #[derive(Clone)]
 pub struct BotProvisioningService {
     client: reqwest::Client,
@@ -55,9 +67,12 @@ impl BotProvisioningService {
     /// Creates a production provisioning service client targeting the remotely hosted HTTPS service.
     pub fn new() -> Self {
         let provisioning_url = std::env::var("PROVISIONING_SERVICE_URL")
-            .unwrap_or_else(|_| "https://provision.cineforge.app".to_string());
+            .unwrap_or_else(|_| "https://cineforge-provisioner.onrender.com".to_string());
+        let provisioning_url = provisioning_url.trim().trim_end_matches('/').to_string();
+
         let manager_bot_username = std::env::var("CINEFORGE_MANAGER_BOT_USERNAME")
             .unwrap_or_else(|_| "CineforgeManagerBot".to_string());
+        let manager_bot_username = normalize_manager_bot_username(&manager_bot_username);
 
         let is_dev_mode = std::env::var("CINEFORGE_DEV_MODE")
             .map(|v| v == "1" || v == "true")
@@ -84,7 +99,7 @@ impl BotProvisioningService {
         Self {
             client: reqwest::Client::new(),
             provisioning_url: "http://127.0.0.1:8085".to_string(),
-            manager_bot_username: "CineforgeManagerBot".to_string(),
+            manager_bot_username: normalize_manager_bot_username("CineforgeManagerBot"),
             runtime_bot_token: Arc::new(RwLock::new(Some(bot_token.to_string()))),
             active_bot_info: Arc::new(RwLock::new(Some(PersonalBotInfo {
                 bot_id,
@@ -201,6 +216,7 @@ impl BotProvisioningService {
         } else {
             self.manager_bot_username.clone()
         };
+        let manager_username = normalize_manager_bot_username(&manager_username);
 
         let resolved_manager = client
             .invoke(&tl::functions::contacts::ResolveUsername {
@@ -424,6 +440,7 @@ mod tests {
     #[test]
     fn test_validate_provisioning_url_https_and_dev_rules() {
         // Production HTTPS - allowed
+        assert!(validate_provisioning_url("https://cineforge-provisioner.onrender.com", false).is_ok());
         assert!(validate_provisioning_url("https://provision.cineforge.app", false).is_ok());
         assert!(validate_provisioning_url("https://api.mycustomdomain.com/provision", false).is_ok());
 
@@ -447,5 +464,20 @@ mod tests {
         assert!(validate_provisioning_url("", false).is_err());
         assert!(validate_provisioning_url("   ", false).is_err());
         assert!(validate_provisioning_url("not_a_valid_url", false).is_err());
+    }
+
+    #[test]
+    fn test_normalize_manager_bot_username() {
+        assert_eq!(normalize_manager_bot_username("CineforgeManagerBot"), "CineforgeManagerBot");
+        assert_eq!(normalize_manager_bot_username("@CineforgeManagerBot"), "CineforgeManagerBot");
+        assert_eq!(normalize_manager_bot_username("@@CineforgeManagerBot"), "CineforgeManagerBot");
+        assert_eq!(normalize_manager_bot_username("  @CineforgeManagerBot  "), "CineforgeManagerBot");
+        assert_eq!(normalize_manager_bot_username("  @@CineforgeManagerBot  "), "CineforgeManagerBot");
+        assert_eq!(normalize_manager_bot_username("  @ @ CineforgeManagerBot  "), "CineforgeManagerBot");
+        assert_eq!(normalize_manager_bot_username(""), "");
+        assert_eq!(normalize_manager_bot_username("   "), "");
+        assert_eq!(normalize_manager_bot_username("@"), "");
+        assert_eq!(normalize_manager_bot_username("@@"), "");
+        assert_eq!(normalize_manager_bot_username("  @@  "), "");
     }
 }

@@ -369,6 +369,17 @@ pub fn hex_encode(bytes: &[u8]) -> String {
     bytes.iter().map(|b| format!("{:02x}", b)).collect()
 }
 
+/// Normalizes a manager bot username by trimming surrounding whitespace
+/// and stripping any leading '@' characters.
+/// Telegram MTProto API methods expect usernames without '@'.
+pub fn normalize_manager_bot_username(username: &str) -> String {
+    let mut s = username.trim();
+    while s.starts_with('@') || s.starts_with(' ') {
+        s = s.trim_start_matches('@').trim();
+    }
+    s.to_string()
+}
+
 /// Sanitizes sensitive nonces for safe log output (showing only first 6 characters).
 pub fn sanitize_nonce(nonce: &str) -> String {
     if nonce.len() <= 6 {
@@ -403,7 +414,8 @@ pub fn validate_production_config(
     if manager_bot_token.is_empty() || manager_bot_token == "MOCK_MANAGER_TOKEN" {
         return Err("FATAL: CINEFORGE_MANAGER_BOT_TOKEN is required and cannot be empty or mock in production.".to_string());
     }
-    if manager_bot_username.is_empty() {
+    let normalized_username = normalize_manager_bot_username(manager_bot_username);
+    if normalized_username.is_empty() {
         return Err("FATAL: CINEFORGE_MANAGER_BOT_USERNAME is required in production.".to_string());
     }
     if api_id <= 0 {
@@ -448,8 +460,9 @@ async fn main() {
 
     let manager_bot_token = std::env::var("CINEFORGE_MANAGER_BOT_TOKEN")
         .unwrap_or_else(|_| if is_dev_mode { "MOCK_MANAGER_TOKEN".to_string() } else { String::new() });
-    let manager_bot_username = std::env::var("CINEFORGE_MANAGER_BOT_USERNAME")
+    let raw_manager_bot_username = std::env::var("CINEFORGE_MANAGER_BOT_USERNAME")
         .unwrap_or_else(|_| if is_dev_mode { "CineforgeManagerBot".to_string() } else { String::new() });
+    let manager_bot_username = normalize_manager_bot_username(&raw_manager_bot_username);
     let api_id: i32 = std::env::var("TELEGRAM_API_ID")
         .ok()
         .and_then(|v| v.parse().ok())
@@ -587,7 +600,7 @@ async fn challenge_handler(
 
     Ok(Json(ChallengeResponse {
         challenge_nonce,
-        manager_bot_username: state.manager_bot_username.clone(),
+        manager_bot_username: normalize_manager_bot_username(&state.manager_bot_username),
         has_existing_bot,
         existing_bot_username,
     }))
@@ -1045,6 +1058,8 @@ mod tests {
         assert!(validate_production_config(false, "MOCK_MANAGER_TOKEN", "CineforgeManagerBot", 2040, "abc1234567890123456", "https://xyz.supabase.co", "secret_key").is_err());
         // Missing username in production -> Fail
         assert!(validate_production_config(false, "123:TOKEN", "", 2040, "abc1234567890123456", "https://xyz.supabase.co", "secret_key").is_err());
+        assert!(validate_production_config(false, "123:TOKEN", "   ", 2040, "abc1234567890123456", "https://xyz.supabase.co", "secret_key").is_err());
+        assert!(validate_production_config(false, "123:TOKEN", "@@", 2040, "abc1234567890123456", "https://xyz.supabase.co", "secret_key").is_err());
         // Missing api_id in production -> Fail
         assert!(validate_production_config(false, "123:TOKEN", "CineforgeManagerBot", 0, "abc1234567890123456", "https://xyz.supabase.co", "secret_key").is_err());
         // Missing api_hash in production -> Fail
@@ -1058,6 +1073,9 @@ mod tests {
 
         // Valid production configuration -> OK
         assert!(validate_production_config(false, "123:REAL_TOKEN", "CineforgeManagerBot", 2040, "abc1234567890123456", "https://xyz.supabase.co", "real_secret_key").is_ok());
+        // Leading @ signs in username are normalized and accepted in production
+        assert!(validate_production_config(false, "123:REAL_TOKEN", "@CineforgeManagerBot", 2040, "abc1234567890123456", "https://xyz.supabase.co", "real_secret_key").is_ok());
+        assert!(validate_production_config(false, "123:REAL_TOKEN", "@@CineforgeManagerBot", 2040, "abc1234567890123456", "https://xyz.supabase.co", "real_secret_key").is_ok());
 
         // Dev mode allows mock settings and local HTTP (localhost / 127.0.0.1)
         assert!(validate_production_config(true, "MOCK_MANAGER_TOKEN", "CineforgeManagerBot", 2040, "mock_dev_hash_test_placeholder", "", "").is_ok());
@@ -1074,5 +1092,20 @@ mod tests {
 
         let root_resp = root_handler().await.into_response();
         assert_eq!(root_resp.status(), StatusCode::OK);
+    }
+
+    #[test]
+    fn test_normalize_manager_bot_username() {
+        assert_eq!(normalize_manager_bot_username("CineforgeManagerBot"), "CineforgeManagerBot");
+        assert_eq!(normalize_manager_bot_username("@CineforgeManagerBot"), "CineforgeManagerBot");
+        assert_eq!(normalize_manager_bot_username("@@CineforgeManagerBot"), "CineforgeManagerBot");
+        assert_eq!(normalize_manager_bot_username("  @CineforgeManagerBot  "), "CineforgeManagerBot");
+        assert_eq!(normalize_manager_bot_username("  @@CineforgeManagerBot  "), "CineforgeManagerBot");
+        assert_eq!(normalize_manager_bot_username("  @ @ CineforgeManagerBot  "), "CineforgeManagerBot");
+        assert_eq!(normalize_manager_bot_username(""), "");
+        assert_eq!(normalize_manager_bot_username("   "), "");
+        assert_eq!(normalize_manager_bot_username("@"), "");
+        assert_eq!(normalize_manager_bot_username("@@"), "");
+        assert_eq!(normalize_manager_bot_username("  @@  "), "");
     }
 }
