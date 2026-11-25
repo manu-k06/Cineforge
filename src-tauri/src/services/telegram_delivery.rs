@@ -10,7 +10,8 @@ use crate::services::bot_provisioning::BotProvisioningService;
 use crate::services::telegram_auth::{TelegramAuthService, TelegramBackendKind};
 use crate::services::streamer_sidecar::StreamerSidecarService;
 use crate::services::telegram_search_parser::{
-    detect_channel_requirement, parse_channel_link, ParsedChannelTarget, RawInlineButton,
+    detect_channel_requirement, detect_unavailable_file_message, parse_channel_link,
+    ParsedChannelTarget, RawInlineButton,
 };
 
 static FLOOD_WAIT_RE: LazyLock<Regex> =
@@ -42,6 +43,8 @@ pub enum TelegramDeliveryError {
     Timeout(String, u64),
     #[error("Rate limited by Telegram. Please wait {0}s.")]
     RateLimited(u64),
+    #[error("{0}")]
+    FileUnavailable(String),
     #[error("General delivery error: {0}")]
     General(String),
 }
@@ -434,6 +437,16 @@ async fn resolve_and_capture_media<S: BotDeliverySession>(
                 // Refresh wait budget so the bot has time to send the media file after retry
                 step_start = Instant::now();
                 step_timeout = Duration::from_secs(RETRY_MEDIA_WAIT_SECS);
+            } else if let Some(reason) = detect_unavailable_file_message(&newest_msg.text) {
+                log::warn!(
+                    "Bot @{} reported file unavailable (msg {}): {}",
+                    bot_username,
+                    newest_msg.id,
+                    reason
+                );
+                return Err(TelegramDeliveryError::FileUnavailable(format!(
+                    "File unavailable from @{bot_username}: \"{reason}\". Please choose another release or search again."
+                )));
             }
         }
     }
@@ -710,6 +723,12 @@ impl TelegramDeliveryService {
                 15,
             ));
         }
+        if lower_id.contains("unavailable") {
+            let bot = request.source_bot.as_deref().unwrap_or("Spoty_xbot");
+            return Err(TelegramDeliveryError::FileUnavailable(format!(
+                "File unavailable from @{bot}: \"File is unavailable, sorry. Search again.\". Please choose another release or search again."
+            )));
+        }
         if lower_id.contains("rate_limit") {
             return Err(TelegramDeliveryError::RateLimited(30));
         }
@@ -833,12 +852,25 @@ impl TelegramDeliveryService {
 
         let streamer_username = personal_bot.bot_username;
 
-        // Start Go sidecar with personal bot token and channel-free mode
-        let runtime_token = self.provisioning_service.get_runtime_token().await;
-        let _ = self.sidecar_service
-            .start_with_token(runtime_token.as_deref())
+        // Ensure personal bot token is available and active in Go streamer sidecar before forwarding media
+        let runtime_token = self
+            .provisioning_service
+            .get_runtime_token()
             .await
-            .map_err(|e| TelegramDeliveryError::General(format!("Failed to start local Go streamer sidecar: {e}")))?;
+            .filter(|t| !t.trim().is_empty())
+            .ok_or_else(|| {
+                TelegramDeliveryError::General(
+                    "Personal streamer bot token is unavailable. Please reconnect Telegram or re-provision your streamer bot."
+                        .to_string(),
+                )
+            })?;
+        let _ = self
+            .sidecar_service
+            .start_with_token(Some(runtime_token.as_str()))
+            .await
+            .map_err(|e| {
+                TelegramDeliveryError::General(format!("Failed to start local Go streamer sidecar: {e}"))
+            })?;
 
         log::info!(
             "Initiating candidate delivery for candidate_id '{}' via search bot @{}, streaming via personal bot @{}",
@@ -1975,5 +2007,43 @@ mod tests {
             .await
             .expect_err("FloodWait should map to RateLimited");
         assert!(matches!(err_flood, TelegramDeliveryError::RateLimited(45)));
+    }
+
+    #[tokio::test]
+    async fn test_resolve_file_unavailable_stops_immediately_without_fsub_or_media() {
+        let mut session = ScriptedBotSession::new();
+        session.on_start = Box::new(|_, msgs, next_id| {
+            let id = *next_id;
+            *next_id += 1;
+            msgs.push(BotChatMessage {
+                id,
+                out: false,
+                edit_date: None,
+                text: "File is unavailable, sorry. Search again.".to_string(),
+                buttons: vec![],
+                media_doc: None,
+            });
+        });
+
+        let req = CandidateDeliveryRequest {
+            candidate_id: "cand-unavail".to_string(),
+            source_bot: Some("Spoty_xbot".to_string()),
+            source_message_id: None,
+            candidate_title: Some("Missing Movie".to_string()),
+            start_payload: Some("get_missing".to_string()),
+            callback_data: None,
+            quality: None,
+            auto_join_channel: None,
+        };
+
+        let err = resolve_and_capture_media(&mut session, &req, "Spoty_xbot")
+            .await
+            .expect_err("Unavailable file reply should return FileUnavailable immediately");
+
+        assert!(matches!(err, TelegramDeliveryError::FileUnavailable(_)));
+        assert!(err.to_string().contains("File is unavailable, sorry. Search again."));
+        assert!(session.joined_urls.is_empty());
+        // Must stop on first poll where message appeared rather than polling 65 iterations
+        assert_eq!(session.sleeps_ms, vec![800]);
     }
 }

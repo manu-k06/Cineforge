@@ -97,6 +97,13 @@ fn map_delivery_error(err: TelegramDeliveryError) -> (StatusCode, Json<serde_jso
                 "detail": format!("Telegram rate limit reached. Please wait {} seconds before trying again.", secs)
             })),
         ),
+        TelegramDeliveryError::FileUnavailable(msg) => (
+            StatusCode::NOT_FOUND,
+            Json(json!({
+                "detail": msg,
+                "code": "FILE_UNAVAILABLE"
+            })),
+        ),
         TelegramDeliveryError::General(msg) => (
             StatusCode::INTERNAL_SERVER_ERROR,
             Json(json!({ "detail": msg })),

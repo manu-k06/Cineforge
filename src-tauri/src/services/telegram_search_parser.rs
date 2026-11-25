@@ -403,6 +403,48 @@ pub fn detect_channel_requirement(
     }
 }
 
+/// Detects terminal "file unavailable / expired / deleted" replies from search bots
+/// so delivery stops waiting immediately instead of timing out or treating it as FSub/media.
+pub fn detect_unavailable_file_message(text: &str) -> Option<String> {
+    let trimmed = text.trim();
+    if trimmed.is_empty() {
+        return None;
+    }
+
+    let lower = trimmed.to_lowercase();
+    let direct_phrases = [
+        "file is unavailable",
+        "file unavailable",
+        "file has been deleted",
+        "file was deleted",
+        "file deleted",
+        "file removed",
+        "file not found",
+        "no file found",
+        "no longer available",
+        "currently unavailable",
+        "link has expired",
+        "link expired",
+        "request expired",
+    ];
+
+    let is_unavailable = direct_phrases.iter().any(|p| lower.contains(p))
+        || (lower.contains("not available")
+            && (lower.contains("file") || lower.contains("sorry") || lower.contains("search again")))
+        || (lower.contains("search again")
+            && (lower.contains("sorry")
+                || lower.contains("unavailable")
+                || lower.contains("deleted")
+                || lower.contains("expired")
+                || lower.contains("not found")));
+
+    if is_unavailable {
+        Some(trimmed.to_string())
+    } else {
+        None
+    }
+}
+
 /// Extracts pagination information from message text and buttons.
 pub fn extract_pagination(
     text: &str,
@@ -862,5 +904,21 @@ mod tests {
             Some(("Spoty_xbot".to_string(), "abc123".to_string()))
         );
         assert_eq!(parse_deep_link("https://evil.com/t.me/Spoty_xbot?start=abc123"), None);
+    }
+
+    #[test]
+    fn test_detect_unavailable_file_message() {
+        assert_eq!(
+            detect_unavailable_file_message("File is unavailable, sorry. Search again."),
+            Some("File is unavailable, sorry. Search again.".to_string())
+        );
+        assert_eq!(
+            detect_unavailable_file_message("Sorry, this file has been deleted."),
+            Some("Sorry, this file has been deleted.".to_string())
+        );
+        assert_eq!(
+            detect_unavailable_file_message("Preparing your movie, please wait..."),
+            None
+        );
     }
 }

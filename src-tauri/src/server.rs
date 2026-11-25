@@ -171,15 +171,8 @@ pub async fn start_server(config: ServerConfig) -> Result<RunningServer, Box<dyn
     let (shutdown_tx, shutdown_rx) = oneshot::channel::<()>();
     let (router, streamer_sidecar) = create_router(bound_port);
 
-    // Eagerly launch the Go streamer sidecar in the background
-    let sidecar_for_start = Arc::clone(&streamer_sidecar);
-    tokio::spawn(async move {
-        match sidecar_for_start.start().await {
-            Ok(port) => log::info!("Go streamer sidecar background process started on port {port}"),
-            Err(e) => log::warn!("Go streamer sidecar background startup note: {e}"),
-        }
-    });
-
+    // Note: Do not eagerly start the Go streamer sidecar without a personal bot token.
+    // It is started on-demand with the user's runtime personal bot token during media delivery.
     let sidecar_for_shutdown = Arc::clone(&streamer_sidecar);
 
     // Spawn server in a background Tokio task with graceful shutdown
