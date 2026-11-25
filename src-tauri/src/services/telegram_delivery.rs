@@ -1,4 +1,5 @@
-use std::sync::Arc;
+use std::collections::HashSet;
+use std::sync::{Arc, LazyLock};
 use std::time::{Duration, Instant};
 use regex::Regex;
 
@@ -11,6 +12,16 @@ use crate::services::streamer_sidecar::StreamerSidecarService;
 use crate::services::telegram_search_parser::{
     detect_channel_requirement, parse_channel_link, ParsedChannelTarget, RawInlineButton,
 };
+
+static FLOOD_WAIT_RE: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"(?i)FLOOD_WAIT(?:_|\D+)(\d+)").unwrap());
+
+fn extract_flood_wait_seconds(err_str: &str) -> Option<u64> {
+    FLOOD_WAIT_RE
+        .captures(err_str)
+        .and_then(|c| c.get(1))
+        .and_then(|m| m.as_str().parse::<u64>().ok())
+}
 
 /// Result outcome from attempting to join a public or private Telegram channel.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -66,6 +77,381 @@ fn extract_buttons_from_reply_markup(
         }
     }
     raw_buttons
+}
+
+#[derive(Debug, Clone)]
+struct BotMediaDoc {
+    pub file_name: String,
+    pub mime_type: String,
+    pub file_size: i64,
+    pub is_sticker: bool,
+}
+
+#[derive(Debug, Clone)]
+struct BotChatMessage {
+    pub id: i32,
+    pub out: bool,
+    pub edit_date: Option<i32>,
+    pub text: String,
+    pub buttons: Vec<RawInlineButton>,
+    pub media_doc: Option<BotMediaDoc>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct CapturedMedia {
+    pub msg_id: i32,
+    pub file_name: String,
+    pub mime_type: String,
+    pub file_size: i64,
+}
+
+fn extract_bot_chat_message(m: &grammers_tl_types::enums::Message) -> Option<BotChatMessage> {
+    let grammers_tl_types::enums::Message::Message(msg) = m else {
+        return None;
+    };
+
+    let buttons = msg
+        .reply_markup
+        .as_ref()
+        .map(extract_buttons_from_reply_markup)
+        .unwrap_or_default();
+
+    let mut media_doc = None;
+    if let Some(grammers_tl_types::enums::MessageMedia::Document(ref doc_media)) = msg.media {
+        if let Some(grammers_tl_types::enums::Document::Document(ref real_doc)) = doc_media.document {
+            let mut file_name = "video.mp4".to_string();
+            let mut is_sticker = real_doc.mime_type == "image/webp"
+                || real_doc.mime_type == "application/x-tgsticker";
+
+            for attr in &real_doc.attributes {
+                match attr {
+                    grammers_tl_types::enums::DocumentAttribute::Filename(f) => {
+                        file_name = f.file_name.clone();
+                    }
+                    grammers_tl_types::enums::DocumentAttribute::Sticker(_) => {
+                        is_sticker = true;
+                    }
+                    _ => {}
+                }
+            }
+
+            media_doc = Some(BotMediaDoc {
+                file_name,
+                mime_type: real_doc.mime_type.clone(),
+                file_size: real_doc.size,
+                is_sticker,
+            });
+        }
+    }
+
+    Some(BotChatMessage {
+        id: msg.id,
+        out: msg.out,
+        edit_date: msg.edit_date,
+        text: msg.message.clone(),
+        buttons,
+        media_doc,
+    })
+}
+
+/// Ensures we never confuse an FSub gate sticker, thumbnail, or promotional banner with the video file.
+fn is_genuine_media_doc(msg: &BotChatMessage, doc: &BotMediaDoc, bot_username: &str) -> bool {
+    if doc.is_sticker {
+        return false;
+    }
+
+    let lower_mime = doc.mime_type.to_lowercase();
+    let lower_name = doc.file_name.to_lowercase();
+    let has_video_ext = lower_name.ends_with(".mp4")
+        || lower_name.ends_with(".mkv")
+        || lower_name.ends_with(".avi")
+        || lower_name.ends_with(".mov")
+        || lower_name.ends_with(".webm")
+        || lower_name.ends_with(".ts")
+        || lower_name.ends_with(".m4v");
+    let is_video_mime = lower_mime.starts_with("video/");
+
+    if lower_mime.starts_with("image/") && !has_video_ext {
+        return false;
+    }
+
+    if !is_video_mime
+        && !has_video_ext
+        && doc.file_size < 1_000_000
+        && detect_channel_requirement(&msg.text, &msg.buttons, Some(bot_username)).is_some()
+    {
+        return false;
+    }
+
+    true
+}
+
+trait BotDeliverySession {
+    async fn send_start(&mut self, payload: &str) -> Result<(), TelegramDeliveryError>;
+    async fn click_callback(
+        &mut self,
+        msg_id: i32,
+        data: &str,
+    ) -> Result<Option<String>, TelegramDeliveryError>;
+    async fn get_recent_messages(
+        &mut self,
+        limit: i32,
+    ) -> Result<Vec<BotChatMessage>, TelegramDeliveryError>;
+    async fn join_channel(&mut self, url: &str) -> Result<JoinChannelOutcome, TelegramDeliveryError>;
+    async fn sleep_ms(&mut self, ms: u64);
+}
+
+/// Shared bot delivery and automated Force-Subscription (FSub) resolution engine.
+/// Mirrors `backend/app/services/telegram.py` (`resolve_fsub_gate` + `deliver_candidate`):
+/// triggers candidate delivery, detects membership gates, auto-joins only valid Telegram
+/// channel links extracted from the gate message, waits 2.5s for membership sync, activates
+/// the gate's Try Again callback or /start retry payload, and captures genuine media.
+async fn resolve_and_capture_media<S: BotDeliverySession>(
+    session: &mut S,
+    request: &CandidateDeliveryRequest,
+    bot_username: &str,
+) -> Result<CapturedMedia, TelegramDeliveryError> {
+    const MAX_GATE_RETRIES: usize = 2;
+    const INITIAL_MEDIA_WAIT_SECS: u64 = 20;
+    const RETRY_MEDIA_WAIT_SECS: u64 = 20;
+    const MAX_TOTAL_WAIT_SECS: u64 = 55;
+    const MAX_POLL_ITERATIONS: usize = 65;
+
+    // 1. Capture baseline message ID / edit signature before triggering the bot
+    let initial_msgs = session.get_recent_messages(5).await.unwrap_or_default();
+    let mut min_poll_msg_id: i32 = initial_msgs.iter().map(|m| m.id).max().unwrap_or(0);
+    let baseline_edit_sig: Option<(i32, Option<i32>, String)> =
+        request.source_message_id.and_then(|src_id| {
+            initial_msgs
+                .iter()
+                .find(|m| m.id as i64 == src_id)
+                .map(|m| (m.id, m.edit_date, format!("{}|{:?}", m.text, m.buttons)))
+        });
+
+    // 2. Trigger initial candidate request via /start payload or inline callback
+    if let Some(ref payload) = request.start_payload {
+        session.send_start(payload).await?;
+    } else if let (Some(cb), Some(msg_id)) = (&request.callback_data, request.source_message_id) {
+        let _ = session.click_callback(msg_id as i32, cb).await?;
+    } else {
+        return Err(TelegramDeliveryError::General(
+            "Neither start_payload nor callback_data was provided for candidate delivery."
+                .to_string(),
+        ));
+    }
+
+    // 3. Poll for media document while automatically resolving bounded FSub gates
+    let overall_start = Instant::now();
+    let mut step_start = Instant::now();
+    let mut step_timeout = Duration::from_secs(INITIAL_MEDIA_WAIT_SECS);
+    let mut gate_attempts: usize = 0;
+    let mut handled_gates: HashSet<(i32, String)> = HashSet::new();
+    let mut watched_callback_gate_id: Option<i32> = None;
+    let mut last_callback_alert: Option<String> = None;
+    let mut poll_iterations: usize = 0;
+
+    while step_start.elapsed() < step_timeout
+        && overall_start.elapsed() < Duration::from_secs(MAX_TOTAL_WAIT_SECS)
+        && poll_iterations < MAX_POLL_ITERATIONS
+    {
+        poll_iterations += 1;
+        session.sleep_ms(800).await;
+
+        let msgs = match session.get_recent_messages(5).await {
+            Ok(m) => m,
+            Err(_) => continue,
+        };
+
+        let highest_seen_id = msgs.iter().map(|m| m.id).max().unwrap_or(min_poll_msg_id);
+
+        let relevant_incoming: Vec<&BotChatMessage> = msgs
+            .iter()
+            .filter(|m| {
+                if m.out {
+                    return false;
+                }
+                if m.id > min_poll_msg_id {
+                    return true;
+                }
+                if watched_callback_gate_id == Some(m.id) {
+                    return true;
+                }
+                if request.callback_data.is_some() {
+                    if let Some((base_id, base_edit, ref base_sig)) = baseline_edit_sig {
+                        if m.id == base_id {
+                            let cur_sig = format!("{}|{:?}", m.text, m.buttons);
+                            return m.edit_date != base_edit || cur_sig != *base_sig;
+                        }
+                    }
+                }
+                false
+            })
+            .collect();
+
+        // Pass 1: Capture any genuine media document first
+        for m in &relevant_incoming {
+            if let Some(ref doc) = m.media_doc {
+                if is_genuine_media_doc(m, doc, bot_username) {
+                    return Ok(CapturedMedia {
+                        msg_id: m.id,
+                        file_name: doc.file_name.clone(),
+                        mime_type: doc.mime_type.clone(),
+                        file_size: doc.file_size,
+                    });
+                }
+            }
+        }
+
+        // Pass 2: Inspect the newest incoming non-media message for an FSub gate
+        if let Some(newest_msg) = relevant_incoming.iter().copied().max_by_key(|m| m.id) {
+            if let Some(gate) =
+                detect_channel_requirement(&newest_msg.text, &newest_msg.buttons, Some(bot_username))
+            {
+                let gate_sig = format!(
+                    "{:?}|{:?}|{:?}|{}|{}",
+                    gate.all_channel_urls(),
+                    gate.retry_callback,
+                    gate.retry_start_payload,
+                    newest_msg.edit_date.unwrap_or(0),
+                    newest_msg.text
+                );
+
+                // Avoid re-triggering the exact same gate while waiting for the bot's reply
+                if handled_gates.contains(&(newest_msg.id, gate_sig.clone())) {
+                    continue;
+                }
+
+                if gate_attempts >= MAX_GATE_RETRIES {
+                    let alert_suffix = last_callback_alert
+                        .as_deref()
+                        .map(|a| format!(" Bot replied: {a}"))
+                        .unwrap_or_default();
+                    return Err(TelegramDeliveryError::General(format!(
+                        "Bot @{bot_username} still requires channel membership after {MAX_GATE_RETRIES} automatic join attempts.{alert_suffix} Please join the required channel in Telegram and try again."
+                    )));
+                }
+
+                gate_attempts += 1;
+                handled_gates.insert((newest_msg.id, gate_sig));
+
+                let target_urls = gate.all_channel_urls();
+                if target_urls.is_empty() {
+                    return Err(TelegramDeliveryError::General(format!(
+                        "Bot @{bot_username} requires channel membership, but no valid Telegram channel or invite link was found in its gate message."
+                    )));
+                }
+
+                log::info!(
+                    "Detected FSub gate from @{bot_username} (attempt {gate_attempts}/{MAX_GATE_RETRIES}); auto-joining {} channel(s): {:?}",
+                    target_urls.len(),
+                    target_urls
+                );
+
+                // Join every valid Telegram channel link extracted from this gate message
+                for ch_url in &target_urls {
+                    match session.join_channel(ch_url).await? {
+                        JoinChannelOutcome::RequestSent => {
+                            return Err(TelegramDeliveryError::General(format!(
+                                "Join request sent for '{ch_url}'. Admin approval is required before @{bot_username} can deliver this file."
+                            )));
+                        }
+                        JoinChannelOutcome::JoinedPublic(u) => {
+                            log::info!("Auto-joined public FSub channel @{u}");
+                        }
+                        JoinChannelOutcome::JoinedPrivate(h) => {
+                            log::info!("Auto-joined private FSub channel invite '{h}'");
+                        }
+                        JoinChannelOutcome::AlreadyParticipant => {
+                            log::info!("Already a participant of FSub channel '{ch_url}'");
+                        }
+                    }
+                }
+
+                // Wait for Telegram datacenter getChatMember caches to propagate
+                session.sleep_ms(2500).await;
+
+                // Press the gate message's Try Again callback, or send its /start payload to the same bot
+                if let Some(ref cb) = gate.retry_callback {
+                    log::info!(
+                        "Clicking FSub retry callback button '{}' on message {} (@{})",
+                        cb,
+                        newest_msg.id,
+                        bot_username
+                    );
+                    watched_callback_gate_id = Some(newest_msg.id);
+                    match session.click_callback(newest_msg.id, cb).await {
+                        Ok(maybe_alert) => {
+                            if let Some(alert) = maybe_alert {
+                                log::info!("FSub retry callback answer from @{bot_username}: {alert}");
+                                last_callback_alert = Some(alert);
+                            }
+                        }
+                        Err(cb_err) => {
+                            if let Some(ref payload) = gate.retry_start_payload {
+                                log::warn!(
+                                    "Retry callback failed ({cb_err}); falling back to /start {payload}"
+                                );
+                                min_poll_msg_id = highest_seen_id.max(newest_msg.id);
+                                session.send_start(payload).await?;
+                            } else {
+                                return Err(cb_err);
+                            }
+                        }
+                    }
+                } else if let Some(ref payload) = gate.retry_start_payload {
+                    log::info!(
+                        "Sending FSub retry /start payload '{}' to @{}",
+                        payload,
+                        bot_username
+                    );
+                    min_poll_msg_id = highest_seen_id.max(newest_msg.id);
+                    session.send_start(payload).await?;
+                } else if let Some(ref payload) = request.start_payload {
+                    log::info!(
+                        "Resending initial /start payload '{}' to @{} after FSub join",
+                        payload,
+                        bot_username
+                    );
+                    min_poll_msg_id = highest_seen_id.max(newest_msg.id);
+                    session.send_start(payload).await?;
+                } else if let (Some(cb), Some(src_id)) =
+                    (&request.callback_data, request.source_message_id)
+                {
+                    log::info!(
+                        "Re-clicking initial callback '{}' on message {} (@{}) after FSub join",
+                        cb,
+                        src_id,
+                        bot_username
+                    );
+                    watched_callback_gate_id = Some(src_id as i32);
+                    let _ = session.click_callback(src_id as i32, cb).await?;
+                } else {
+                    return Err(TelegramDeliveryError::General(format!(
+                        "Joined required channel, but bot @{bot_username}'s gate message did not include a 'Try Again' button or start link to re-request the file."
+                    )));
+                }
+
+                // Refresh wait budget so the bot has time to send the media file after retry
+                step_start = Instant::now();
+                step_timeout = Duration::from_secs(RETRY_MEDIA_WAIT_SECS);
+            }
+        }
+    }
+
+    if gate_attempts > 0 {
+        let alert_suffix = last_callback_alert
+            .as_deref()
+            .map(|a| format!(" Bot replied: {a}"))
+            .unwrap_or_default();
+        Err(TelegramDeliveryError::General(format!(
+            "Joined required channel and retried with @{bot_username}, but no media file arrived.{alert_suffix} Please verify membership in Telegram and try again."
+        )))
+    } else {
+        Err(TelegramDeliveryError::Timeout(
+            bot_username.to_string(),
+            INITIAL_MEDIA_WAIT_SECS,
+        ))
+    }
 }
 
 pub struct TelegramDeliveryService {
@@ -133,7 +519,9 @@ impl TelegramDeliveryService {
                 // In mock mode, return successful simulated join outcome based on URL contents
                 match target {
                     ParsedChannelTarget::Public(u) => {
-                        if u.contains("fail") || u.contains("invalid") {
+                        if u.contains("flood") {
+                            Err("Telegram rate limit: FLOOD_WAIT_30. Please wait before joining more channels.".to_string())
+                        } else if u.contains("fail") || u.contains("invalid") {
                             Err(format!("Mock failure joining public channel @{u}"))
                         } else if u.contains("request") {
                             Ok(JoinChannelOutcome::RequestSent)
@@ -144,7 +532,9 @@ impl TelegramDeliveryService {
                         }
                     }
                     ParsedChannelTarget::Private(h) => {
-                        if h.contains("fail") || h.contains("expired") {
+                        if h.contains("flood") {
+                            Err("Telegram rate limit: FLOOD_WAIT_30. Please wait before joining more channels.".to_string())
+                        } else if h.contains("fail") || h.contains("expired") {
                             Err(format!("Mock failure joining private channel '{h}'"))
                         } else if h.contains("request") {
                             Ok(JoinChannelOutcome::RequestSent)
@@ -253,6 +643,22 @@ impl TelegramDeliveryService {
         }
     }
 
+    async fn join_channel_structured(
+        &self,
+        url: &str,
+    ) -> Result<JoinChannelOutcome, TelegramDeliveryError> {
+        match self.join_channel_from_url(url).await {
+            Ok(outcome) => Ok(outcome),
+            Err(err) => {
+                if let Some(secs) = extract_flood_wait_seconds(&err) {
+                    Err(TelegramDeliveryError::RateLimited(secs))
+                } else {
+                    Err(TelegramDeliveryError::General(err))
+                }
+            }
+        }
+    }
+
     /// Delivers the media file for the candidate and obtains direct progressive stream URLs.
     pub async fn deliver_candidate(
         &self,
@@ -307,20 +713,42 @@ impl TelegramDeliveryService {
         if lower_id.contains("rate_limit") {
             return Err(TelegramDeliveryError::RateLimited(30));
         }
+        if lower_id.contains("fsub_locked") {
+            return Err(TelegramDeliveryError::ChannelRequirement(ChannelRequirement {
+                required: true,
+                channel_title: Some("Cineforge Updates Channel".to_string()),
+                channel_username: Some("cineforge_updates".to_string()),
+                invite_url: Some("https://t.me/cineforge_updates".to_string()),
+                channel_urls: vec!["https://t.me/cineforge_updates".to_string()],
+                message: "You must join this channel before accessing media files.".to_string(),
+                retry_callback: Some("retry_fsub_mock".to_string()),
+                retry_start_payload: None,
+            }));
+        }
         if lower_id.contains("fsub") {
-            if let Some(ref auto_join) = request.auto_join_channel {
-                // User approved joining the required channel!
-                let _ = self.join_channel_from_url(auto_join).await.map_err(TelegramDeliveryError::General)?;
+            let target_url = if let Some(ref explicit) = request.auto_join_channel {
+                explicit.as_str()
+            } else if lower_id.contains("fsub_fail") {
+                "https://t.me/fail_channel"
+            } else if lower_id.contains("fsub_request") {
+                "https://t.me/+request_only_hash"
+            } else if lower_id.contains("fsub_flood") {
+                "https://t.me/flood_channel"
+            } else if lower_id.contains("fsub_invalid") {
+                "https://evil-phishing.example/+hash"
             } else {
-                return Err(TelegramDeliveryError::ChannelRequirement(ChannelRequirement {
-                    required: true,
-                    channel_title: Some("Cineforge Updates Channel".to_string()),
-                    channel_username: Some("cineforge_updates".to_string()),
-                    invite_url: Some("https://t.me/cineforge_updates".to_string()),
-                    message: "You must join this channel before accessing media files.".to_string(),
-                    retry_callback: Some("retry_fsub_mock".to_string()),
-                    retry_start_payload: None,
-                }));
+                "https://t.me/cineforge_updates"
+            };
+
+            match self.join_channel_structured(target_url).await? {
+                JoinChannelOutcome::RequestSent => {
+                    return Err(TelegramDeliveryError::General(format!(
+                        "Join request sent for '{target_url}'. Admin approval is required before media can be delivered."
+                    )));
+                }
+                JoinChannelOutcome::JoinedPublic(_)
+                | JoinChannelOutcome::JoinedPrivate(_)
+                | JoinChannelOutcome::AlreadyParticipant => {}
             }
         }
 
@@ -447,279 +875,156 @@ impl TelegramDeliveryService {
             },
         };
 
-        // If user already approved joining the required channel, join it before triggering bot delivery
-        if let Some(ref channel_url) = request.auto_join_channel {
-            log::info!("User approved auto-joining updates channel: '{channel_url}'");
-            let join_outcome = self
-                .join_channel_from_url(channel_url)
-                .await
-                .map_err(TelegramDeliveryError::General)?;
-
-            match join_outcome {
-                JoinChannelOutcome::RequestSent => {
-                    return Err(TelegramDeliveryError::General(
-                        "Join request submitted to channel admins. You will be able to access the media once your join request is approved.".to_string(),
-                    ));
-                }
-                JoinChannelOutcome::JoinedPublic(u) => {
-                    log::info!("Successfully joined public channel @{u}. Waiting 2.5s for datacenter sync...");
-                    tokio::time::sleep(Duration::from_millis(2500)).await;
-                }
-                JoinChannelOutcome::JoinedPrivate(h) => {
-                    log::info!("Successfully joined private channel invite '{h}'. Waiting 2.5s for datacenter sync...");
-                    tokio::time::sleep(Duration::from_millis(2500)).await;
-                }
-                JoinChannelOutcome::AlreadyParticipant => {
-                    log::info!("Already a participant of channel. Waiting 1s for sync...");
-                    tokio::time::sleep(Duration::from_millis(1000)).await;
-                }
-            }
+        // 2. Trigger delivery, resolve any FSub gates automatically, and wait for genuine media
+        struct MtprotoDeliverySession<'a> {
+            service: &'a TelegramDeliveryService,
+            client: &'a grammers_client::Client,
+            bot_peer: grammers_tl_types::enums::InputPeer,
+            bot_username: String,
         }
 
-        let command_start_unix = {
-            use std::time::SystemTime;
-            SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_secs() as i32
-        };
+        impl<'a> BotDeliverySession for MtprotoDeliverySession<'a> {
+            async fn send_start(&mut self, payload: &str) -> Result<(), TelegramDeliveryError> {
+                let start_cmd = format!("/start {payload}");
+                let random_id = {
+                    use std::time::SystemTime;
+                    SystemTime::now()
+                        .duration_since(SystemTime::UNIX_EPOCH)
+                        .unwrap()
+                        .as_nanos() as i64
+                };
 
-        // 2. Trigger bot delivery: start command or callback
-        if let Some(ref payload) = request.start_payload {
-            let start_cmd = format!("/start {payload}");
-            let random_id = {
-                use std::time::SystemTime;
-                SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_nanos() as i64
-            };
+                let send_req = grammers_tl_types::functions::messages::SendMessage {
+                    no_webpage: true,
+                    silent: false,
+                    background: false,
+                    clear_draft: false,
+                    noforwards: false,
+                    update_stickersets_order: false,
+                    invert_media: false,
+                    allow_paid_floodskip: false,
+                    peer: self.bot_peer.clone(),
+                    reply_to: None,
+                    message: start_cmd,
+                    random_id,
+                    reply_markup: None,
+                    entities: None,
+                    schedule_date: None,
+                    schedule_repeat_period: None,
+                    send_as: None,
+                    quick_reply_shortcut: None,
+                    effect: None,
+                    allow_paid_stars: None,
+                    suggested_post: None,
+                    rich_message: None,
+                };
 
-            let send_req = grammers_tl_types::functions::messages::SendMessage {
-                no_webpage: true,
-                silent: false,
-                background: false,
-                clear_draft: false,
-                noforwards: false,
-                update_stickersets_order: false,
-                invert_media: false,
-                allow_paid_floodskip: false,
-                peer: bot_peer.clone(),
-                reply_to: None,
-                message: start_cmd,
-                random_id,
-                reply_markup: None,
-                entities: None,
-                schedule_date: None,
-                schedule_repeat_period: None,
-                send_as: None,
-                quick_reply_shortcut: None,
-                effect: None,
-                allow_paid_stars: None,
-                suggested_post: None,
-                rich_message: None,
-            };
+                self.client.invoke(&send_req).await.map_err(|e| {
+                    let err_str = e.to_string();
+                    if let Some(secs) = extract_flood_wait_seconds(&err_str) {
+                        TelegramDeliveryError::RateLimited(secs)
+                    } else {
+                        TelegramDeliveryError::General(format!(
+                            "Failed to send /start command to @{}: {err_str}",
+                            self.bot_username
+                        ))
+                    }
+                })?;
+                Ok(())
+            }
 
-            client.invoke(&send_req).await.map_err(|e| {
-                TelegramDeliveryError::General(format!("Failed to send start payload to bot: {e}"))
-            })?;
-        } else if let Some(ref cb) = request.callback_data {
-            if let Some(msg_id) = request.source_message_id {
-                let cb_bytes = cb.as_bytes().to_vec();
+            async fn click_callback(
+                &mut self,
+                msg_id: i32,
+                data: &str,
+            ) -> Result<Option<String>, TelegramDeliveryError> {
                 let cb_req = grammers_tl_types::functions::messages::GetBotCallbackAnswer {
                     game: false,
-                    peer: bot_peer.clone(),
-                    msg_id: msg_id as i32,
-                    data: Some(cb_bytes),
+                    peer: self.bot_peer.clone(),
+                    msg_id,
+                    data: Some(data.as_bytes().to_vec()),
                     password: None,
                 };
-                let _ = client.invoke(&cb_req).await;
+
+                match self.client.invoke(&cb_req).await {
+                    Ok(grammers_tl_types::enums::messages::BotCallbackAnswer::Answer(ans)) => {
+                        Ok(ans.message)
+                    }
+                    Err(e) => {
+                        let err_str = e.to_string();
+                        if let Some(secs) = extract_flood_wait_seconds(&err_str) {
+                            Err(TelegramDeliveryError::RateLimited(secs))
+                        } else if err_str.contains("BOT_RESPONSE_TIMEOUT") {
+                            Ok(None)
+                        } else {
+                            Err(TelegramDeliveryError::General(format!(
+                                "Failed to activate callback button on @{}: {err_str}",
+                                self.bot_username
+                            )))
+                        }
+                    }
+                }
             }
-        }
 
-        // 3. Poll for incoming document message or channel requirement from bot
-        let poll_start = Instant::now();
-        let timeout_limit = Duration::from_secs(20);
-        let mut delivered_msg_id: Option<i32> = None;
-        let mut file_name = "video.mp4".to_string();
-        let mut mime_type = "video/mp4".to_string();
-        let mut file_size: i64 = 0;
-        let mut retry_count = 0;
-        const MAX_GATE_RETRIES: usize = 2;
+            async fn get_recent_messages(
+                &mut self,
+                limit: i32,
+            ) -> Result<Vec<BotChatMessage>, TelegramDeliveryError> {
+                let hist_req = grammers_tl_types::functions::messages::GetHistory {
+                    peer: self.bot_peer.clone(),
+                    offset_id: 0,
+                    offset_date: 0,
+                    add_offset: 0,
+                    limit,
+                    max_id: 0,
+                    min_id: 0,
+                    hash: 0,
+                };
 
-        while poll_start.elapsed() < timeout_limit {
-            tokio::time::sleep(Duration::from_millis(800)).await;
+                let hist = self.client.invoke(&hist_req).await.map_err(|e| {
+                    TelegramDeliveryError::General(format!(
+                        "Failed to read messages from @{}: {e}",
+                        self.bot_username
+                    ))
+                })?;
 
-            let hist_req = grammers_tl_types::functions::messages::GetHistory {
-                peer: bot_peer.clone(),
-                offset_id: 0,
-                offset_date: 0,
-                add_offset: 0,
-                limit: 5,
-                max_id: 0,
-                min_id: 0,
-                hash: 0,
-            };
-
-            if let Ok(hist) = client.invoke(&hist_req).await {
-                let msgs = match hist {
+                let raw_msgs = match hist {
                     grammers_tl_types::enums::messages::Messages::Messages(m) => m.messages,
                     grammers_tl_types::enums::messages::Messages::Slice(s) => s.messages,
                     grammers_tl_types::enums::messages::Messages::ChannelMessages(c) => c.messages,
                     grammers_tl_types::enums::messages::Messages::NotModified(_) => vec![],
                 };
 
-                // Pass 1: Search for an incoming media document from this command
-                for m in &msgs {
-                    if let grammers_tl_types::enums::Message::Message(msg) = m {
-                        if !msg.out && msg.date >= command_start_unix - 5 {
-                            if let Some(ref media) = msg.media {
-                                if let grammers_tl_types::enums::MessageMedia::Document(doc_media) = media {
-                                    if let Some(ref doc) = doc_media.document {
-                                        if let grammers_tl_types::enums::Document::Document(real_doc) = doc {
-                                            delivered_msg_id = Some(msg.id);
-                                            file_size = real_doc.size;
-                                            mime_type = real_doc.mime_type.clone();
+                Ok(raw_msgs
+                    .iter()
+                    .filter_map(extract_bot_chat_message)
+                    .collect())
+            }
 
-                                            for attr in &real_doc.attributes {
-                                                if let grammers_tl_types::enums::DocumentAttribute::Filename(f) = attr {
-                                                    file_name = f.file_name.clone();
-                                                    break;
-                                                }
-                                            }
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+            async fn join_channel(
+                &mut self,
+                url: &str,
+            ) -> Result<JoinChannelOutcome, TelegramDeliveryError> {
+                self.service.join_channel_structured(url).await
+            }
 
-                if delivered_msg_id.is_some() {
-                    break;
-                }
-
-                // Pass 2: If no document found, check if the newest message is an updates-channel requirement
-                for m in &msgs {
-                    if let grammers_tl_types::enums::Message::Message(msg) = m {
-                        if !msg.out && msg.date >= command_start_unix - 5 {
-                            let mut raw_buttons = Vec::new();
-                            if let Some(ref markup) = msg.reply_markup {
-                                raw_buttons = extract_buttons_from_reply_markup(markup);
-                            }
-
-                            if let Some(gate) = detect_channel_requirement(&msg.message, &raw_buttons, Some(&bot_username)) {
-                                if request.auto_join_channel.is_none() {
-                                    log::warn!("Bot @{bot_username} requires channel membership: {:?}", gate);
-                                    return Err(TelegramDeliveryError::ChannelRequirement(gate));
-                                }
-
-                                // User provided auto_join_channel, but bot needs its retry action activated
-                                if retry_count < MAX_GATE_RETRIES {
-                                    retry_count += 1;
-                                    log::info!("Activating retry action for FSub gate (attempt {retry_count}/{MAX_GATE_RETRIES})...");
-
-                                    if let Some(ref cb) = gate.retry_callback {
-                                        let cb_bytes = cb.as_bytes().to_vec();
-                                        let cb_req = grammers_tl_types::functions::messages::GetBotCallbackAnswer {
-                                            game: false,
-                                            peer: bot_peer.clone(),
-                                            msg_id: msg.id,
-                                            data: Some(cb_bytes),
-                                            password: None,
-                                        };
-                                        let _ = client.invoke(&cb_req).await;
-                                    } else if let Some(ref payload) = gate.retry_start_payload {
-                                        let start_cmd = format!("/start {payload}");
-                                        let random_id = {
-                                            use std::time::SystemTime;
-                                            SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_nanos() as i64
-                                        };
-                                        let send_req = grammers_tl_types::functions::messages::SendMessage {
-                                            no_webpage: true,
-                                            silent: false,
-                                            background: false,
-                                            clear_draft: false,
-                                            noforwards: false,
-                                            update_stickersets_order: false,
-                                            invert_media: false,
-                                            allow_paid_floodskip: false,
-                                            peer: bot_peer.clone(),
-                                            reply_to: None,
-                                            message: start_cmd,
-                                            random_id,
-                                            reply_markup: None,
-                                            entities: None,
-                                            schedule_date: None,
-                                            schedule_repeat_period: None,
-                                            send_as: None,
-                                            quick_reply_shortcut: None,
-                                            effect: None,
-                                            allow_paid_stars: None,
-                                            suggested_post: None,
-                                            rich_message: None,
-                                        };
-                                        let _ = client.invoke(&send_req).await;
-                                    } else if let Some(ref payload) = request.start_payload {
-                                        let start_cmd = format!("/start {payload}");
-                                        let random_id = {
-                                            use std::time::SystemTime;
-                                            SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_nanos() as i64
-                                        };
-                                        let send_req = grammers_tl_types::functions::messages::SendMessage {
-                                            no_webpage: true,
-                                            silent: false,
-                                            background: false,
-                                            clear_draft: false,
-                                            noforwards: false,
-                                            update_stickersets_order: false,
-                                            invert_media: false,
-                                            allow_paid_floodskip: false,
-                                            peer: bot_peer.clone(),
-                                            reply_to: None,
-                                            message: start_cmd,
-                                            random_id,
-                                            reply_markup: None,
-                                            entities: None,
-                                            schedule_date: None,
-                                            schedule_repeat_period: None,
-                                            send_as: None,
-                                            quick_reply_shortcut: None,
-                                            effect: None,
-                                            allow_paid_stars: None,
-                                            suggested_post: None,
-                                            rich_message: None,
-                                        };
-                                        let _ = client.invoke(&send_req).await;
-                                    } else if let Some(ref cb) = request.callback_data {
-                                        if let Some(msg_id) = request.source_message_id {
-                                            let cb_bytes = cb.as_bytes().to_vec();
-                                            let cb_req = grammers_tl_types::functions::messages::GetBotCallbackAnswer {
-                                                game: false,
-                                                peer: bot_peer.clone(),
-                                                msg_id: msg_id as i32,
-                                                data: Some(cb_bytes),
-                                                password: None,
-                                            };
-                                            let _ = client.invoke(&cb_req).await;
-                                        }
-                                    }
-
-                                    tokio::time::sleep(Duration::from_millis(2000)).await;
-                                    break;
-                                } else {
-                                    return Err(TelegramDeliveryError::General(
-                                        "Joined channel, but bot verification did not release media. You may need to click 'Try Again' in Telegram.".to_string(),
-                                    ));
-                                }
-                            }
-                            // Only check the newest non-outgoing message for gatekeeper
-                            break;
-                        }
-                    }
-                }
+            async fn sleep_ms(&mut self, ms: u64) {
+                tokio::time::sleep(Duration::from_millis(ms)).await;
             }
         }
 
-        let doc_msg_id = match delivered_msg_id {
-            Some(id) => id,
-            None => return Err(TelegramDeliveryError::Timeout(bot_username, 20)),
+        let mut session = MtprotoDeliverySession {
+            service: self,
+            client: &client,
+            bot_peer: bot_peer.clone(),
+            bot_username: bot_username.clone(),
         };
+
+        let captured = resolve_and_capture_media(&mut session, request, &bot_username).await?;
+        let doc_msg_id = captured.msg_id;
+        let file_name = captured.file_name;
+        let mime_type = captured.mime_type;
+        let file_size = captured.file_size;
 
         // 4. Resolve streamer bot peer
         let resolved_streamer = client
@@ -749,7 +1054,37 @@ impl TelegramDeliveryService {
             },
         };
 
-        // 5. Forward document to streamer bot (@stre89d_bot)
+        // Capture baseline message ID with personal streamer bot before forwarding
+        let baseline_streamer_msg_id: i32 = match client
+            .invoke(&grammers_tl_types::functions::messages::GetHistory {
+                peer: streamer_peer.clone(),
+                offset_id: 0,
+                offset_date: 0,
+                add_offset: 0,
+                limit: 1,
+                max_id: 0,
+                min_id: 0,
+                hash: 0,
+            })
+            .await
+        {
+            Ok(hist) => {
+                let raw = match hist {
+                    grammers_tl_types::enums::messages::Messages::Messages(m) => m.messages,
+                    grammers_tl_types::enums::messages::Messages::Slice(s) => s.messages,
+                    grammers_tl_types::enums::messages::Messages::ChannelMessages(c) => c.messages,
+                    grammers_tl_types::enums::messages::Messages::NotModified(_) => vec![],
+                };
+                raw.iter()
+                    .filter_map(extract_bot_chat_message)
+                    .map(|m| m.id)
+                    .max()
+                    .unwrap_or(0)
+            }
+            Err(_) => 0,
+        };
+
+        // 5. Forward captured media document to personal streamer bot
         let fwd_random_id = {
             use std::time::SystemTime;
             SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_nanos() as i64
@@ -765,7 +1100,7 @@ impl TelegramDeliveryService {
             allow_paid_floodskip: false,
             from_ephemeral: false,
             from_peer: bot_peer.clone(),
-            id: vec![doc_msg_id as i32],
+            id: vec![doc_msg_id],
             random_id: vec![fwd_random_id],
             to_peer: streamer_peer.clone(),
             top_msg_id: None,
@@ -784,7 +1119,7 @@ impl TelegramDeliveryService {
             TelegramDeliveryError::General(format!("Failed to forward document to streamer bot: {e}"))
         })?;
 
-        // 6. Poll streamer bot for the generated stream link
+        // 6. Poll streamer bot for the newly generated stream link
         let streamer_poll_start = Instant::now();
         let streamer_timeout = Duration::from_secs(15);
         let mut stream_msg_id: Option<i64> = None;
@@ -800,9 +1135,9 @@ impl TelegramDeliveryService {
                 offset_id: 0,
                 offset_date: 0,
                 add_offset: 0,
-                limit: 3,
+                limit: 5,
                 max_id: 0,
-                min_id: 0,
+                min_id: baseline_streamer_msg_id,
                 hash: 0,
             };
 
@@ -816,7 +1151,7 @@ impl TelegramDeliveryService {
 
                 for m in msgs {
                     if let grammers_tl_types::enums::Message::Message(msg) = m {
-                        if !msg.out {
+                        if !msg.out && msg.id > baseline_streamer_msg_id {
                             if let Some(caps) = link_regex.captures(&msg.message) {
                                 if let (Some(m_id), Some(h)) = (caps.get(1), caps.get(2)) {
                                     if let Ok(id_val) = m_id.as_str().parse::<i64>() {
@@ -836,8 +1171,14 @@ impl TelegramDeliveryService {
             }
         }
 
-        let channel_msg_id = stream_msg_id.unwrap_or(doc_msg_id as i64);
-        let hash = stream_hash.unwrap_or_else(|| "03afc8".to_string());
+        let (channel_msg_id, hash) = match (stream_msg_id, stream_hash) {
+            (Some(id), Some(h)) => (id, h),
+            _ => {
+                return Err(TelegramDeliveryError::General(format!(
+                    "Forwarded media file to personal streamer bot @{streamer_username}, but it did not return a playback link in time."
+                )));
+            }
+        };
 
         let is_mp4 = mime_type.contains("mp4") || file_name.to_lowercase().ends_with(".mp4");
         let container = if is_mp4 { "mp4".to_string() } else { "mkv".to_string() };
@@ -995,7 +1336,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn test_deliver_candidate_mock_fsub_without_approval_returns_requirement() {
+    async fn test_deliver_candidate_mock_fsub_auto_resolves_without_popup() {
         let user = TelegramUserInfo {
             id: 12345,
             first_name: "Tester".to_string(),
@@ -1009,7 +1350,40 @@ mod tests {
         let delivery = TelegramDeliveryService::new_with_mock(auth, sidecar);
 
         let req = CandidateDeliveryRequest {
-            candidate_id: "cand_fsub_gate".to_string(),
+            candidate_id: "cand_fsub_auto_test".to_string(),
+            source_bot: Some("Spoty_xbot".to_string()),
+            source_message_id: Some(104),
+            candidate_title: Some("Inception (2010)".to_string()),
+            start_payload: None,
+            callback_data: None,
+            quality: None,
+            auto_join_channel: None,
+        };
+
+        let res = delivery
+            .deliver_candidate(&req, 8080)
+            .await
+            .expect("FSub gate should auto-join valid channel and deliver stream");
+        assert!(res.success);
+        assert!(res.stream_url.contains("/api/stream/"));
+    }
+
+    #[tokio::test]
+    async fn test_deliver_candidate_mock_fsub_errors() {
+        let user = TelegramUserInfo {
+            id: 12345,
+            first_name: "Tester".to_string(),
+            last_name: None,
+            username: None,
+            phone: None,
+            is_premium: false,
+        };
+        let auth = Arc::new(TelegramAuthService::new_mock_connected(user));
+        let sidecar = Arc::new(StreamerSidecarService::new_mock(59199));
+        let delivery = TelegramDeliveryService::new_with_mock(auth, sidecar);
+
+        let base_req = |id: &str| CandidateDeliveryRequest {
+            candidate_id: id.to_string(),
             source_bot: Some("Spoty_xbot".to_string()),
             source_message_id: Some(104),
             candidate_title: Some("Test".to_string()),
@@ -1019,46 +1393,27 @@ mod tests {
             auto_join_channel: None,
         };
 
-        let res = delivery.deliver_candidate(&req, 8080).await;
-        match res {
-            Err(TelegramDeliveryError::ChannelRequirement(req)) => {
-                assert!(req.required);
-                assert_eq!(req.channel_username, Some("cineforge_updates".to_string()));
-                assert_eq!(req.invite_url, Some("https://t.me/cineforge_updates".to_string()));
-                assert_eq!(req.retry_callback, Some("retry_fsub_mock".to_string()));
+        // 1. Admin approval required -> clear General error
+        let res_req = delivery.deliver_candidate(&base_req("cand_fsub_request"), 8080).await;
+        match res_req {
+            Err(TelegramDeliveryError::General(msg)) => {
+                assert!(msg.contains("Admin approval is required"));
             }
-            other => panic!("Expected ChannelRequirement error, got {:?}", other),
+            other => panic!("Expected admin approval error, got {:?}", other),
         }
-    }
 
-    #[tokio::test]
-    async fn test_deliver_candidate_mock_fsub_with_user_approval_succeeds() {
-        let user = TelegramUserInfo {
-            id: 12345,
-            first_name: "Tester".to_string(),
-            last_name: None,
-            username: None,
-            phone: None,
-            is_premium: false,
-        };
-        let auth = Arc::new(TelegramAuthService::new_mock_connected(user));
-        let sidecar = Arc::new(StreamerSidecarService::new_mock(59199));
-        let delivery = TelegramDeliveryService::new_with_mock(auth, sidecar);
+        // 2. FloodWait -> RateLimited(30)
+        let res_flood = delivery.deliver_candidate(&base_req("cand_fsub_flood"), 8080).await;
+        assert!(matches!(res_flood, Err(TelegramDeliveryError::RateLimited(30))));
 
-        let req = CandidateDeliveryRequest {
-            candidate_id: "cand_fsub_gate_approved".to_string(),
-            source_bot: Some("Spoty_xbot".to_string()),
-            source_message_id: Some(104),
-            candidate_title: Some("Inception (2010)".to_string()),
-            start_payload: None,
-            callback_data: None,
-            quality: None,
-            auto_join_channel: Some("https://t.me/cineforge_updates".to_string()),
-        };
-
-        let res = delivery.deliver_candidate(&req, 8080).await.expect("Delivery should succeed after approval");
-        assert!(res.success);
-        assert!(res.stream_url.contains("/api/stream/"));
+        // 3. Non-Telegram link -> General rejection error
+        let res_invalid = delivery.deliver_candidate(&base_req("cand_fsub_invalid"), 8080).await;
+        match res_invalid {
+            Err(TelegramDeliveryError::General(msg)) => {
+                assert!(msg.contains("Only authentic Telegram links can be joined"));
+            }
+            other => panic!("Expected non-Telegram rejection error, got {:?}", other),
+        }
     }
 
     #[tokio::test]
@@ -1099,5 +1454,526 @@ mod tests {
         // 6. Explicit failure
         let res6 = delivery.join_channel_from_url("https://t.me/fail_channel").await;
         assert!(res6.is_err());
+    }
+
+    /// Scriptable mock BotDeliverySession to test the complete FSub state machine:
+    /// trigger -> gate reply -> channel join -> 2.5s sync -> retry callback / /start link -> media capture.
+    struct ScriptedBotSession {
+        messages: Vec<BotChatMessage>,
+        actions: Vec<String>,
+        joined_urls: Vec<String>,
+        sleeps_ms: Vec<u64>,
+        next_msg_id: i32,
+        on_start: Box<dyn FnMut(&str, &mut Vec<BotChatMessage>, &mut i32) + Send>,
+        on_callback: Box<dyn FnMut(i32, &str, &mut Vec<BotChatMessage>, &mut i32) -> Result<Option<String>, TelegramDeliveryError> + Send>,
+        on_join: Box<dyn FnMut(&str) -> Result<JoinChannelOutcome, TelegramDeliveryError> + Send>,
+    }
+
+    impl ScriptedBotSession {
+        fn new() -> Self {
+            Self {
+                messages: Vec::new(),
+                actions: Vec::new(),
+                joined_urls: Vec::new(),
+                sleeps_ms: Vec::new(),
+                next_msg_id: 500,
+                on_start: Box::new(|_, _, _| {}),
+                on_callback: Box::new(|_, _, _, _| Ok(None)),
+                on_join: Box::new(|url| {
+                    let target = parse_channel_link(url).ok_or_else(|| {
+                        TelegramDeliveryError::General(format!("Invalid channel link: {url}"))
+                    })?;
+                    match target {
+                        ParsedChannelTarget::Public(u) => {
+                            if u.contains("already") {
+                                Ok(JoinChannelOutcome::AlreadyParticipant)
+                            } else if u.contains("request") {
+                                Ok(JoinChannelOutcome::RequestSent)
+                            } else if u.contains("flood") {
+                                Err(TelegramDeliveryError::RateLimited(45))
+                            } else {
+                                Ok(JoinChannelOutcome::JoinedPublic(u))
+                            }
+                        }
+                        ParsedChannelTarget::Private(h) => {
+                            if h.contains("request") {
+                                Ok(JoinChannelOutcome::RequestSent)
+                            } else if h.contains("flood") {
+                                Err(TelegramDeliveryError::RateLimited(45))
+                            } else {
+                                Ok(JoinChannelOutcome::JoinedPrivate(h))
+                            }
+                        }
+                    }
+                }),
+            }
+        }
+    }
+
+    impl BotDeliverySession for ScriptedBotSession {
+        async fn send_start(&mut self, payload: &str) -> Result<(), TelegramDeliveryError> {
+            self.actions.push(format!("start:{payload}"));
+            (self.on_start)(payload, &mut self.messages, &mut self.next_msg_id);
+            Ok(())
+        }
+
+        async fn click_callback(
+            &mut self,
+            msg_id: i32,
+            data: &str,
+        ) -> Result<Option<String>, TelegramDeliveryError> {
+            self.actions.push(format!("callback:{msg_id}:{data}"));
+            (self.on_callback)(msg_id, data, &mut self.messages, &mut self.next_msg_id)
+        }
+
+        async fn get_recent_messages(
+            &mut self,
+            limit: i32,
+        ) -> Result<Vec<BotChatMessage>, TelegramDeliveryError> {
+            let take_n = limit.max(1) as usize;
+            let mut recent: Vec<BotChatMessage> =
+                self.messages.iter().rev().take(take_n).cloned().collect();
+            // Match Telegram GetHistory order (newest first)
+            Ok(recent.drain(..).collect())
+        }
+
+        async fn join_channel(
+            &mut self,
+            url: &str,
+        ) -> Result<JoinChannelOutcome, TelegramDeliveryError> {
+            self.actions.push(format!("join:{url}"));
+            self.joined_urls.push(url.to_string());
+            (self.on_join)(url)
+        }
+
+        async fn sleep_ms(&mut self, ms: u64) {
+            self.sleeps_ms.push(ms);
+        }
+    }
+
+    #[tokio::test]
+    async fn test_resolve_fsub_gate_retry_callback_then_captures_media() {
+        let mut session = ScriptedBotSession::new();
+        session.messages.push(BotChatMessage {
+            id: 100,
+            out: false,
+            edit_date: None,
+            text: "Select quality:".to_string(),
+            buttons: vec![],
+            media_doc: None,
+        });
+
+        session.on_start = Box::new(|payload, msgs, next_id| {
+            if payload == "get_inception" {
+                let id = *next_id;
+                *next_id += 1;
+                msgs.push(BotChatMessage {
+                    id,
+                    out: false,
+                    edit_date: None,
+                    text: "⚠️ You must join our Updates Channel first!".to_string(),
+                    buttons: vec![
+                        RawInlineButton {
+                            text: "📢 Join Channel".to_string(),
+                            callback_data: None,
+                            url: Some("https://t.me/+SecretInviteHash".to_string()),
+                        },
+                        RawInlineButton {
+                            text: "🔄 Try Again".to_string(),
+                            callback_data: Some("verify_fsub_99".to_string()),
+                            url: None,
+                        },
+                    ],
+                    media_doc: None,
+                });
+            }
+        });
+
+        session.on_callback = Box::new(|gate_id, data, msgs, next_id| {
+            assert_eq!(data, "verify_fsub_99");
+            assert_eq!(gate_id, 500);
+            let id = *next_id;
+            *next_id += 1;
+            msgs.push(BotChatMessage {
+                id,
+                out: false,
+                edit_date: None,
+                text: "Here is your movie!".to_string(),
+                buttons: vec![],
+                media_doc: Some(BotMediaDoc {
+                    file_name: "Inception.2010.1080p.mp4".to_string(),
+                    mime_type: "video/mp4".to_string(),
+                    file_size: 2_100_000_000,
+                    is_sticker: false,
+                }),
+            });
+            Ok(Some("Verified!".to_string()))
+        });
+
+        let req = CandidateDeliveryRequest {
+            candidate_id: "cand-123".to_string(),
+            source_bot: Some("Spoty_xbot".to_string()),
+            source_message_id: Some(100),
+            candidate_title: Some("Inception (2010)".to_string()),
+            start_payload: Some("get_inception".to_string()),
+            callback_data: None,
+            quality: Some("1080P".to_string()),
+            auto_join_channel: None,
+        };
+
+        let captured = resolve_and_capture_media(&mut session, &req, "Spoty_xbot")
+            .await
+            .expect("Retry callback flow should resolve gate and capture video");
+
+        assert_eq!(captured.msg_id, 501);
+        assert_eq!(captured.file_name, "Inception.2010.1080p.mp4");
+        assert_eq!(session.joined_urls, vec!["https://t.me/+SecretInviteHash".to_string()]);
+        assert!(session.sleeps_ms.contains(&2500));
+        assert_eq!(
+            session.actions,
+            vec![
+                "start:get_inception".to_string(),
+                "join:https://t.me/+SecretInviteHash".to_string(),
+                "callback:500:verify_fsub_99".to_string(),
+            ]
+        );
+    }
+
+    #[tokio::test]
+    async fn test_resolve_fsub_gate_start_link_then_captures_media() {
+        let mut session = ScriptedBotSession::new();
+        session.messages.push(BotChatMessage {
+            id: 200,
+            out: false,
+            edit_date: None,
+            text: "Movie list".to_string(),
+            buttons: vec![],
+            media_doc: None,
+        });
+
+        session.on_callback = Box::new(|msg_id, cb, msgs, next_id| {
+            if msg_id == 200 && cb == "dl_interstellar" {
+                let id = *next_id;
+                *next_id += 1;
+                msgs.push(BotChatMessage {
+                    id,
+                    out: false,
+                    edit_date: None,
+                    text: "Please join @cineforge_updates to unlock this file.".to_string(),
+                    buttons: vec![
+                        RawInlineButton {
+                            text: "📢 Updates Channel".to_string(),
+                            callback_data: None,
+                            url: Some("https://t.me/cineforge_updates".to_string()),
+                        },
+                        RawInlineButton {
+                            text: "✅ Try Again".to_string(),
+                            callback_data: None,
+                            url: Some("https://t.me/Spoty_xbot?start=retry_interstellar_77".to_string()),
+                        },
+                    ],
+                    media_doc: None,
+                });
+            }
+            Ok(None)
+        });
+
+        session.on_start = Box::new(|payload, msgs, next_id| {
+            assert_eq!(payload, "retry_interstellar_77");
+            let id = *next_id;
+            *next_id += 1;
+            msgs.push(BotChatMessage {
+                id,
+                out: false,
+                edit_date: None,
+                text: "".to_string(),
+                buttons: vec![],
+                media_doc: Some(BotMediaDoc {
+                    file_name: "Interstellar.2014.4K.mkv".to_string(),
+                    mime_type: "video/x-matroska".to_string(),
+                    file_size: 4_500_000_000,
+                    is_sticker: false,
+                }),
+            });
+        });
+
+        let req = CandidateDeliveryRequest {
+            candidate_id: "cand-456".to_string(),
+            source_bot: Some("Spoty_xbot".to_string()),
+            source_message_id: Some(200),
+            candidate_title: Some("Interstellar (2014)".to_string()),
+            start_payload: None,
+            callback_data: Some("dl_interstellar".to_string()),
+            quality: Some("4K".to_string()),
+            auto_join_channel: None,
+        };
+
+        let captured = resolve_and_capture_media(&mut session, &req, "Spoty_xbot")
+            .await
+            .expect("Start link flow should resolve gate and capture video");
+
+        assert_eq!(captured.msg_id, 501);
+        assert_eq!(captured.file_name, "Interstellar.2014.4K.mkv");
+        assert_eq!(session.joined_urls, vec!["https://t.me/cineforge_updates".to_string()]);
+        assert!(session.sleeps_ms.contains(&2500));
+        assert_eq!(
+            session.actions,
+            vec![
+                "callback:200:dl_interstellar".to_string(),
+                "join:https://t.me/cineforge_updates".to_string(),
+                "start:retry_interstellar_77".to_string(),
+            ]
+        );
+    }
+
+    #[tokio::test]
+    async fn test_resolve_fsub_gate_never_treats_gate_sticker_as_video() {
+        let mut session = ScriptedBotSession::new();
+        session.on_start = Box::new(|_, msgs, next_id| {
+            let id = *next_id;
+            *next_id += 1;
+            // Gate message includes a sticker/thumbnail document — must NOT be mistaken for video!
+            msgs.push(BotChatMessage {
+                id,
+                out: false,
+                edit_date: None,
+                text: "Must join @already_member_ch first!".to_string(),
+                buttons: vec![RawInlineButton {
+                    text: "Try Again".to_string(),
+                    callback_data: Some("cb_try".to_string()),
+                    url: None,
+                }],
+                media_doc: Some(BotMediaDoc {
+                    file_name: "AnimatedSticker.tgs".to_string(),
+                    mime_type: "application/x-tgsticker".to_string(),
+                    file_size: 12_000,
+                    is_sticker: true,
+                }),
+            });
+        });
+
+        session.on_callback = Box::new(|_, _, msgs, next_id| {
+            let id = *next_id;
+            *next_id += 1;
+            msgs.push(BotChatMessage {
+                id,
+                out: false,
+                edit_date: None,
+                text: "".to_string(),
+                buttons: vec![],
+                media_doc: Some(BotMediaDoc {
+                    file_name: "RealMovie.mp4".to_string(),
+                    mime_type: "video/mp4".to_string(),
+                    file_size: 900_000_000,
+                    is_sticker: false,
+                }),
+            });
+            Ok(None)
+        });
+
+        let req = CandidateDeliveryRequest {
+            candidate_id: "cand-789".to_string(),
+            source_bot: Some("Spoty_xbot".to_string()),
+            source_message_id: None,
+            candidate_title: Some("Movie".to_string()),
+            start_payload: Some("get_movie".to_string()),
+            callback_data: None,
+            quality: None,
+            auto_join_channel: None,
+        };
+
+        let captured = resolve_and_capture_media(&mut session, &req, "Spoty_xbot")
+            .await
+            .expect("Should skip sticker on gate message and capture actual video");
+        assert_eq!(captured.msg_id, 501);
+        assert_eq!(captured.file_name, "RealMovie.mp4");
+    }
+
+    #[tokio::test]
+    async fn test_resolve_fsub_gate_bounded_retries_and_multi_channel() {
+        let mut session = ScriptedBotSession::new();
+        session.on_start = Box::new(|_, msgs, next_id| {
+            let id = *next_id;
+            *next_id += 1;
+            msgs.push(BotChatMessage {
+                id,
+                out: false,
+                edit_date: None,
+                text: "Join both channels!".to_string(),
+                buttons: vec![
+                    RawInlineButton {
+                        text: "Channel 1".to_string(),
+                        callback_data: None,
+                        url: Some("https://t.me/ch_one".to_string()),
+                    },
+                    RawInlineButton {
+                        text: "Channel 2".to_string(),
+                        callback_data: None,
+                        url: Some("https://t.me/+ch_two".to_string()),
+                    },
+                    RawInlineButton {
+                        text: "Try Again".to_string(),
+                        callback_data: Some("try_1".to_string()),
+                        url: None,
+                    },
+                ],
+                media_doc: None,
+            });
+        });
+
+        // Every retry returns another distinct gate message -> must stop cleanly after MAX_GATE_RETRIES (2)
+        session.on_callback = Box::new(|_, _, msgs, next_id| {
+            let id = *next_id;
+            *next_id += 1;
+            msgs.push(BotChatMessage {
+                id,
+                out: false,
+                edit_date: None,
+                text: format!("Still must join channel #{id}"),
+                buttons: vec![
+                    RawInlineButton {
+                        text: "Another Channel".to_string(),
+                        callback_data: None,
+                        url: Some(format!("https://t.me/extra_ch_{id}")),
+                    },
+                    RawInlineButton {
+                        text: "Try Again".to_string(),
+                        callback_data: Some(format!("try_{id}")),
+                        url: None,
+                    },
+                ],
+                media_doc: None,
+            });
+            Ok(Some("Membership check incomplete".to_string()))
+        });
+
+        let req = CandidateDeliveryRequest {
+            candidate_id: "cand-bound".to_string(),
+            source_bot: Some("Spoty_xbot".to_string()),
+            source_message_id: None,
+            candidate_title: Some("Movie".to_string()),
+            start_payload: Some("get_bound".to_string()),
+            callback_data: None,
+            quality: None,
+            auto_join_channel: None,
+        };
+
+        let err = resolve_and_capture_media(&mut session, &req, "Spoty_xbot")
+            .await
+            .expect_err("Should stop after bounded 2 gate retries");
+
+        let msg = err.to_string();
+        assert!(msg.contains("2 automatic join attempts"));
+        assert!(msg.contains("Membership check incomplete"));
+        // Joined both channels from gate 1 + 1 channel from gate 2 = 3 joins total, then stopped at gate 3
+        assert_eq!(session.joined_urls.len(), 3);
+    }
+
+    #[tokio::test]
+    async fn test_resolve_fsub_gate_rejects_non_telegram_only_link() {
+        let mut session = ScriptedBotSession::new();
+        session.on_start = Box::new(|_, msgs, next_id| {
+            let id = *next_id;
+            *next_id += 1;
+            msgs.push(BotChatMessage {
+                id,
+                out: false,
+                edit_date: None,
+                text: "You must join our updates channel to continue.".to_string(),
+                buttons: vec![RawInlineButton {
+                    text: "Join External".to_string(),
+                    callback_data: None,
+                    url: Some("https://phishing.example.com/+badhash".to_string()),
+                }],
+                media_doc: None,
+            });
+        });
+
+        let req = CandidateDeliveryRequest {
+            candidate_id: "cand-sec".to_string(),
+            source_bot: Some("Spoty_xbot".to_string()),
+            source_message_id: None,
+            candidate_title: Some("Movie".to_string()),
+            start_payload: Some("get_sec".to_string()),
+            callback_data: None,
+            quality: None,
+            auto_join_channel: None,
+        };
+
+        let err = resolve_and_capture_media(&mut session, &req, "Spoty_xbot")
+            .await
+            .expect_err("Non-Telegram channel link must be rejected");
+        assert!(err.to_string().contains("no valid Telegram channel"));
+        assert!(session.joined_urls.is_empty());
+    }
+
+    #[tokio::test]
+    async fn test_resolve_fsub_gate_admin_approval_and_flood_wait() {
+        // Admin approval required
+        let mut session_req = ScriptedBotSession::new();
+        session_req.on_start = Box::new(|_, msgs, next_id| {
+            let id = *next_id;
+            *next_id += 1;
+            msgs.push(BotChatMessage {
+                id,
+                out: false,
+                edit_date: None,
+                text: "Join private channel!".to_string(),
+                buttons: vec![
+                    RawInlineButton {
+                        text: "Join".to_string(),
+                        callback_data: None,
+                        url: Some("https://t.me/+request_approval_hash".to_string()),
+                    },
+                    RawInlineButton {
+                        text: "Try Again".to_string(),
+                        callback_data: Some("try_cb".to_string()),
+                        url: None,
+                    },
+                ],
+                media_doc: None,
+            });
+        });
+
+        let req = CandidateDeliveryRequest {
+            candidate_id: "cand-req".to_string(),
+            source_bot: Some("Spoty_xbot".to_string()),
+            source_message_id: None,
+            candidate_title: Some("Movie".to_string()),
+            start_payload: Some("get_req".to_string()),
+            callback_data: None,
+            quality: None,
+            auto_join_channel: None,
+        };
+
+        let err_req = resolve_and_capture_media(&mut session_req, &req, "Spoty_xbot")
+            .await
+            .expect_err("Admin approval pending should return descriptive error");
+        assert!(err_req.to_string().contains("Admin approval is required"));
+        assert!(!session_req.actions.iter().any(|a| a.starts_with("callback:")));
+
+        // Flood limit
+        let mut session_flood = ScriptedBotSession::new();
+        session_flood.on_start = Box::new(|_, msgs, next_id| {
+            let id = *next_id;
+            *next_id += 1;
+            msgs.push(BotChatMessage {
+                id,
+                out: false,
+                edit_date: None,
+                text: "Join channel!".to_string(),
+                buttons: vec![RawInlineButton {
+                    text: "Join".to_string(),
+                    callback_data: None,
+                    url: Some("https://t.me/flood_limit_channel".to_string()),
+                }],
+                media_doc: None,
+            });
+        });
+
+        let err_flood = resolve_and_capture_media(&mut session_flood, &req, "Spoty_xbot")
+            .await
+            .expect_err("FloodWait should map to RateLimited");
+        assert!(matches!(err_flood, TelegramDeliveryError::RateLimited(45)));
     }
 }

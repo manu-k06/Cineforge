@@ -265,6 +265,7 @@ impl TelegramSearchService {
                 channel_title: Some("Cineforge Updates".to_string()),
                 channel_username: Some("cineforge_updates".to_string()),
                 invite_url: Some("https://t.me/+join_cineforge_channel".to_string()),
+                channel_urls: vec!["https://t.me/+join_cineforge_channel".to_string()],
                 message: "You must join our Telegram channel @cineforge_updates to search and stream media.".to_string(),
                 retry_callback: None,
                 retry_start_payload: None,

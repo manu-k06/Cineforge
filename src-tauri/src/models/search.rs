@@ -10,9 +10,27 @@ pub struct ChannelRequirement {
     pub channel_title: Option<String>,
     pub channel_username: Option<String>,
     pub invite_url: Option<String>,
+    #[serde(default)]
+    pub channel_urls: Vec<String>,
     pub message: String,
     pub retry_callback: Option<String>,
     pub retry_start_payload: Option<String>,
+}
+
+impl ChannelRequirement {
+    /// Returns all unique channel URLs extracted from the gate message.
+    pub fn all_channel_urls(&self) -> Vec<String> {
+        if !self.channel_urls.is_empty() {
+            return self.channel_urls.clone();
+        }
+        if let Some(ref url) = self.invite_url {
+            return vec![url.clone()];
+        }
+        if let Some(ref u) = self.channel_username {
+            return vec![format!("https://t.me/{}", u.trim_start_matches('@'))];
+        }
+        Vec::new()
+    }
 }
 
 impl std::fmt::Display for ChannelRequirement {

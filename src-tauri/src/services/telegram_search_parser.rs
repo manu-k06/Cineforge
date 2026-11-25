@@ -56,12 +56,15 @@ pub struct RawBotMessage {
 /// Helper to parse Telegram deep link URLs of the form `https://t.me/BotName?start=Payload`.
 pub fn parse_deep_link(url: &str) -> Option<(String, String)> {
     let clean = url.trim();
-    if !clean.contains("t.me/") {
-        return None;
-    }
-
     if let Ok(parsed) = reqwest::Url::parse(clean) {
-        let bot_name = parsed.path().trim_start_matches('/').to_string();
+        let host = parsed.host_str()?.to_lowercase();
+        if host != "t.me" && host != "telegram.me" && host != "telegram.dog" {
+            return None;
+        }
+        let bot_name = parsed.path().trim_matches('/').to_string();
+        if bot_name.is_empty() {
+            return None;
+        }
         for (k, v) in parsed.query_pairs() {
             if k == "start" && !v.is_empty() {
                 return Some((bot_name, v.to_string()));
@@ -232,56 +235,80 @@ pub fn detect_channel_requirement(
 
     let mut detected_invite_url: Option<String> = None;
     let mut detected_username: Option<String> = None;
+    let mut channel_urls: Vec<String> = Vec::new();
     let mut retry_callback: Option<String> = None;
     let mut retry_start_payload: Option<String> = None;
+
+    let push_unique_channel = |url_to_add: String,
+                               urls: &mut Vec<String>,
+                               first_invite: &mut Option<String>| {
+        if !urls.iter().any(|u| u.eq_ignore_ascii_case(&url_to_add)) {
+            urls.push(url_to_add.clone());
+        }
+        if first_invite.is_none() {
+            *first_invite = Some(url_to_add);
+        }
+    };
 
     // 1. Scan buttons for channel links and retry actions
     for btn in buttons {
         let btn_text_lower = btn.text.to_lowercase();
 
-        // Check if button is a channel join URL
-        if let Some(ref url) = btn.url {
-            if let Some(target) = parse_channel_link(url) {
-                let matches_bot = match &target {
-                    ParsedChannelTarget::Public(u) => {
-                        bot_lower.as_deref().map(|b| b.eq_ignore_ascii_case(u)).unwrap_or(false)
-                    }
-                    ParsedChannelTarget::Private(_) => false,
-                };
+        let is_retry_text = btn_text_lower.contains("try")
+            || btn_text_lower.contains("again")
+            || btn_text_lower.contains("refresh")
+            || btn_text_lower.contains("check")
+            || btn_text_lower.contains("verify")
+            || btn_text_lower.contains("joined")
+            || btn_text_lower.contains("continue")
+            || btn_text_lower.contains("done")
+            || btn_text_lower.contains("unlock")
+            || btn_text_lower.contains("get file");
 
-                // Ensure link does not point to the bot itself or Cineforge
-                if !matches_bot {
-                    match target {
-                        ParsedChannelTarget::Public(u) => {
-                            if detected_username.is_none() {
-                                detected_username = Some(u);
-                            }
-                            if detected_invite_url.is_none() {
-                                detected_invite_url = Some(url.clone());
-                            }
-                        }
-                        ParsedChannelTarget::Private(_) => {
-                            if detected_invite_url.is_none() {
-                                detected_invite_url = Some(url.clone());
-                            }
-                        }
-                    }
+        if let Some(ref url) = btn.url {
+            // If this is a Telegram bot deep-link (?start=...), never treat it as a channel to join.
+            if let Some((target_bot, payload)) = parse_deep_link(url) {
+                let targets_search_bot = bot_lower
+                    .as_deref()
+                    .map(|b| b.eq_ignore_ascii_case(&target_bot))
+                    .unwrap_or(false);
+                if (is_retry_text || targets_search_bot) && retry_start_payload.is_none() {
+                    retry_start_payload = Some(payload);
                 }
+                continue;
             }
 
-            // Check if button is a "Try Again" / "Refresh" URL button
-            let is_retry_text = btn_text_lower.contains("try")
-                || btn_text_lower.contains("again")
-                || btn_text_lower.contains("refresh")
-                || btn_text_lower.contains("check")
-                || btn_text_lower.contains("verify")
-                || btn_text_lower.contains("joined")
-                || btn_text_lower.contains("continue")
-                || btn_text_lower.contains("done");
+            if !is_retry_text {
+                if let Some(target) = parse_channel_link(url) {
+                    let matches_bot = match &target {
+                        ParsedChannelTarget::Public(u) => {
+                            bot_lower.as_deref().map(|b| b.eq_ignore_ascii_case(u)).unwrap_or(false)
+                        }
+                        ParsedChannelTarget::Private(_) => false,
+                    };
 
-            if is_retry_text {
-                if let Some((_, payload)) = parse_deep_link(url) {
-                    retry_start_payload = Some(payload);
+                    // Ensure link does not point to the bot itself or Cineforge
+                    if !matches_bot {
+                        match target {
+                            ParsedChannelTarget::Public(u) => {
+                                if detected_username.is_none() {
+                                    detected_username = Some(u);
+                                }
+                                push_unique_channel(
+                                    url.trim().to_string(),
+                                    &mut channel_urls,
+                                    &mut detected_invite_url,
+                                );
+                            }
+                            ParsedChannelTarget::Private(_) => {
+                                push_unique_channel(
+                                    url.trim().to_string(),
+                                    &mut channel_urls,
+                                    &mut detected_invite_url,
+                                );
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -289,18 +316,12 @@ pub fn detect_channel_requirement(
         // Check if button is a "Try Again" callback button
         if let Some(ref cb) = btn.callback_data {
             let cb_lower = cb.to_lowercase();
-            let is_retry_cb = btn_text_lower.contains("try")
-                || btn_text_lower.contains("again")
-                || btn_text_lower.contains("refresh")
-                || btn_text_lower.contains("check")
-                || btn_text_lower.contains("verify")
-                || btn_text_lower.contains("joined")
-                || btn_text_lower.contains("continue")
-                || btn_text_lower.contains("done")
+            let is_retry_cb = is_retry_text
                 || cb_lower.contains("check")
                 || cb_lower.contains("try")
                 || cb_lower.contains("again")
                 || cb_lower.contains("sub")
+                || cb_lower.contains("join")
                 || cb_lower.contains("verify");
 
             if is_retry_cb && retry_callback.is_none() {
@@ -309,46 +330,66 @@ pub fn detect_channel_requirement(
         }
     }
 
-    // 2. Scan message text for channel links if none found in buttons
-    if detected_invite_url.is_none() {
-        for word in text.split_whitespace() {
-            let trimmed = word.trim_matches(|c: char| !c.is_alphanumeric() && c != '@' && c != '+' && c != '/' && c != ':' && c != '.');
-            if let Some(target) = parse_channel_link(trimmed) {
-                let matches_bot = match &target {
+    // 2. Scan message text for channel links and @mentions
+    for word in text.split_whitespace() {
+        let trimmed = word.trim_matches(|c: char| {
+            !c.is_alphanumeric()
+                && c != '@'
+                && c != '+'
+                && c != '/'
+                && c != ':'
+                && c != '.'
+                && c != '_'
+                && c != '-'
+                && c != '?'
+                && c != '='
+        });
+        if parse_deep_link(trimmed).is_some() {
+            continue;
+        }
+        if let Some(target) = parse_channel_link(trimmed) {
+            let matches_ignored = match &target {
+                ParsedChannelTarget::Public(u) => {
+                    bot_lower.as_deref().map(|b| b.eq_ignore_ascii_case(u)).unwrap_or(false)
+                        || u.eq_ignore_ascii_case("cineforge")
+                        || u.eq_ignore_ascii_case("stre89d_bot")
+                }
+                ParsedChannelTarget::Private(_) => false,
+            };
+            if !matches_ignored {
+                match target {
                     ParsedChannelTarget::Public(u) => {
-                        bot_lower.as_deref().map(|b| b.eq_ignore_ascii_case(u)).unwrap_or(false)
-                    }
-                    ParsedChannelTarget::Private(_) => false,
-                };
-                if !matches_bot {
-                    match target {
-                        ParsedChannelTarget::Public(u) => {
+                        if detected_username.is_none() {
                             detected_username = Some(u);
-                            detected_invite_url = Some(if trimmed.starts_with('@') {
-                                format!("https://t.me/{}", trimmed.trim_start_matches('@'))
-                            } else {
-                                trimmed.to_string()
-                            });
-                            break;
                         }
-                        ParsedChannelTarget::Private(_) => {
-                            detected_invite_url = Some(trimmed.to_string());
-                            break;
-                        }
+                        let canonical = if trimmed.starts_with('@') {
+                            format!("https://t.me/{}", trimmed.trim_start_matches('@'))
+                        } else {
+                            trimmed.to_string()
+                        };
+                        push_unique_channel(canonical, &mut channel_urls, &mut detected_invite_url);
+                    }
+                    ParsedChannelTarget::Private(_) => {
+                        push_unique_channel(
+                            trimmed.to_string(),
+                            &mut channel_urls,
+                            &mut detected_invite_url,
+                        );
                     }
                 }
             }
         }
     }
 
-    // Only qualify as an FSub gate if either an explicit FSub indicator exists OR an invite link is found
-    if has_fsub_indicator || detected_invite_url.is_some() {
+    // Only qualify as an FSub gate if either an explicit FSub indicator exists OR valid Telegram channel links were found
+    if has_fsub_indicator || !channel_urls.is_empty() {
         let channel_title = detected_username.as_ref().map(|u| format!("@{u}"));
         Some(ChannelRequirement {
             required: true,
             channel_title,
             channel_username: detected_username,
             invite_url: detected_invite_url,
+            channel_urls,
             message: if !text.trim().is_empty() {
                 text.trim().to_string()
             } else {
@@ -780,5 +821,46 @@ mod tests {
         let req = channel_req.expect("channel requirement expected");
         assert_eq!(req.channel_username, Some("my_updates_channel".to_string()));
         assert_eq!(req.retry_start_payload, Some("retry_file_123".to_string()));
+        assert_eq!(req.channel_urls, vec!["https://t.me/my_updates_channel".to_string()]);
+    }
+
+    #[test]
+    fn test_detect_channel_requirement_multi_channel_and_start_link_separation() {
+        let text = "Join both @sponsor_one and https://t.me/+SecretHash_99-a to unlock!";
+        let buttons = vec![
+            RawInlineButton {
+                text: "Sponsor 2".to_string(),
+                callback_data: None,
+                url: Some("https://t.me/sponsor_two".to_string()),
+            },
+            RawInlineButton {
+                text: "Get Movie".to_string(),
+                callback_data: None,
+                url: Some("https://t.me/Spoty_xbot?start=unlock_payload_777".to_string()),
+            },
+        ];
+
+        let req = detect_channel_requirement(text, &buttons, Some("Spoty_xbot"))
+            .expect("channel requirement expected");
+        assert_eq!(
+            req.channel_urls,
+            vec![
+                "https://t.me/sponsor_two".to_string(),
+                "https://t.me/sponsor_one".to_string(),
+                "https://t.me/+SecretHash_99-a".to_string(),
+            ]
+        );
+        assert_eq!(req.retry_start_payload, Some("unlock_payload_777".to_string()));
+        // Start link must NEVER be included in channel_urls
+        assert!(!req.channel_urls.iter().any(|u| u.contains("start=")));
+    }
+
+    #[test]
+    fn test_parse_deep_link_rejects_non_telegram_hosts() {
+        assert_eq!(
+            parse_deep_link("https://t.me/Spoty_xbot?start=abc123"),
+            Some(("Spoty_xbot".to_string(), "abc123".to_string()))
+        );
+        assert_eq!(parse_deep_link("https://evil.com/t.me/Spoty_xbot?start=abc123"), None);
     }
 }
